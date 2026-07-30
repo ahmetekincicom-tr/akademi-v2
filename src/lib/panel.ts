@@ -5,6 +5,8 @@ export type PanelLesson = {
   ad: string;
   sure: string;
   tamamlandi: boolean;
+  videoUrl: string;
+  aciklama: string;
 };
 
 export type PanelModule = {
@@ -38,6 +40,7 @@ export type PanelProfile = {
   sirket: string;
   tamAd: string;
   basHarfler: string;
+  admin: boolean;
 };
 
 type EnrollmentRow = {
@@ -52,7 +55,14 @@ type EnrollmentRow = {
       id: string;
       sira: number;
       baslik: string;
-      lessons: { id: string; sira: number; baslik: string; sure: string | null }[];
+      lessons: {
+        id: string;
+        sira: number;
+        baslik: string;
+        sure: string | null;
+        video_url: string | null;
+        aciklama: string | null;
+      }[];
     }[];
   } | null;
 };
@@ -66,7 +76,7 @@ export async function getPanelProfile(): Promise<PanelProfile | null> {
 
   const { data } = await supabase
     .from("profiles")
-    .select("id, ad, soyad, email, telefon, sirket")
+    .select("id, ad, soyad, email, telefon, sirket, role")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -86,6 +96,7 @@ export async function getPanelProfile(): Promise<PanelProfile | null> {
     // accounts created before the name fields existed.
     tamAd: tamAd || email,
     basHarfler: [ad[0], soyad[0]].filter(Boolean).join("").toUpperCase() || email.slice(0, 2).toUpperCase(),
+    admin: data?.role === "admin",
   };
 }
 
@@ -99,7 +110,7 @@ export async function getPanelCourses(): Promise<PanelCourse[]> {
   const { data: enrollments } = await supabase
     .from("enrollments")
     .select(
-      "atanma_tarihi, courses(id, slug, baslik, sure, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure)))",
+      "atanma_tarihi, courses(id, slug, baslik, sure, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure, video_url, aciklama)))",
     )
     .eq("user_id", user.id)
     .neq("durum", "iptal")
@@ -134,7 +145,14 @@ export async function getPanelCourses(): Promise<PanelCourse[]> {
               if (!bitti && !sonrakiDers) {
                 sonrakiDers = { id: l.id, ad: l.baslik, modulBaslik: m.baslik };
               }
-              return { id: l.id, ad: l.baslik, sure: l.sure ?? "", tamamlandi: bitti };
+              return {
+                id: l.id,
+                ad: l.baslik,
+                sure: l.sure ?? "",
+                tamamlandi: bitti,
+                videoUrl: l.video_url ?? "",
+                aciklama: l.aciklama ?? "",
+              };
             });
 
           const modulTamamlanan = dersler.filter((d) => d.tamamlandi).length;

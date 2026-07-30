@@ -1,13 +1,18 @@
-import { YakindaBos } from "@/components/panel/YakindaBos";
+import { redirect } from "next/navigation";
+import { getTalepler } from "@/lib/destek";
+import { getPanelCourses, getPanelProfile } from "@/lib/panel";
+import { TalepGorunumu } from "@/components/destek/TalepGorunumu";
 
-export default function SoruCevapPage() {
+export default async function SoruCevapPage() {
+  const [profil, talepler, courses] = await Promise.all([getPanelProfile(), getTalepler(), getPanelCourses()]);
+  if (!profil) redirect("/giris");
+
   return (
-    <YakindaBos
-      ikon="✉"
-      baslik="Soru-cevap"
-      aciklama="Eğitim boyunca takıldığın her konuyu buradan sorabilirsin."
-      metin="Henüz açtığın bir konu yok. Panel içi mesajlaşma devreye girene kadar sorularını WhatsApp üzerinden iletebilirsin."
-      aksiyon={{ href: "/iletisim", label: "Soru sor" }}
+    <TalepGorunumu
+      talepler={talepler}
+      benimId={profil.id}
+      rol="ogrenci"
+      kurslar={courses.map((c) => ({ id: c.id, ad: c.baslik }))}
     />
   );
 }

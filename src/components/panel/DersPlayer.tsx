@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { dersDurumDegistir } from "@/app/panel/actions";
+import { videoGomme } from "@/lib/video";
 import type { PanelCourse } from "@/lib/panel";
 
 export function DersPlayer({
@@ -30,6 +31,7 @@ export function DersPlayer({
   const tumDersler = kurs.modules.flatMap((m) => m.dersler.map((d) => ({ ...d, modulBaslik: m.baslik })));
   const aktifDers = tumDersler.find((d) => d.id === aktifDersId) ?? tumDersler[0] ?? null;
   const bitti = aktifDers ? tamamlananlar.has(aktifDers.id) : false;
+  const video = aktifDers?.videoUrl ? videoGomme(aktifDers.videoUrl) : null;
 
   const kursTamamlanan = tumDersler.filter((d) => tamamlananlar.has(d.id)).length;
   const kursYuzde = tumDersler.length ? Math.round((kursTamamlanan / tumDersler.length) * 100) : 0;
@@ -117,23 +119,39 @@ export function DersPlayer({
       <div className="grid grid-cols-1 items-start gap-[22px] xl:grid-cols-[1fr_372px]">
         <div className="flex min-w-0 flex-col gap-[22px]">
           <div className="overflow-hidden rounded-2xl border border-ink/12 bg-ink">
-            <div className="flex aspect-video flex-col items-center justify-center gap-3 bg-ink text-center">
-              <span className="flex h-[66px] w-[66px] items-center justify-center rounded-full bg-white/8 text-xl text-white/50">
-                ▶
-              </span>
-              <span className="px-6 text-[13.5px] text-white/45">
-                Ders videosu henüz yüklenmedi.
-                {aktifDers?.sure ? ` Planlanan süre: ${aktifDers.sure}.` : ""}
-              </span>
-            </div>
+            {video ? (
+              video.tip === "iframe" ? (
+                <iframe
+                  key={video.src}
+                  src={video.src}
+                  title={aktifDers?.ad ?? "Ders videosu"}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="aspect-video w-full border-0"
+                />
+              ) : (
+                <video key={video.src} src={video.src} controls className="aspect-video w-full bg-ink" />
+              )
+            ) : (
+              <div className="flex aspect-video flex-col items-center justify-center gap-3 bg-ink text-center">
+                <span className="flex h-[66px] w-[66px] items-center justify-center rounded-full bg-white/8 text-xl text-white/50">
+                  ▶
+                </span>
+                <span className="px-6 text-[13.5px] text-white/45">
+                  Ders videosu henüz yüklenmedi.
+                  {aktifDers?.sure ? ` Planlanan süre: ${aktifDers.sure}.` : ""}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="rounded-2xl border border-ink/10 bg-white px-[26px] py-6">
             <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Ders hakkında</h2>
-            <p className="mt-3 text-[15px] leading-[1.7] text-[#5C6273]">
-              {aktifDers
-                ? "Bu ders için açıklama, ekli dosyalar ve notlar yakında bu alanda olacak. Şimdilik dersi izleyip tamamlandı olarak işaretleyebilirsin."
-                : "Bu eğitime henüz ders eklenmemiş."}
+            <p className="mt-3 text-[15px] leading-[1.7] whitespace-pre-line text-[#5C6273]">
+              {!aktifDers
+                ? "Bu eğitime henüz ders eklenmemiş."
+                : aktifDers.aciklama ||
+                  "Bu ders için henüz açıklama eklenmedi. Dersi izleyip tamamlandı olarak işaretleyebilirsin."}
             </p>
           </div>
         </div>

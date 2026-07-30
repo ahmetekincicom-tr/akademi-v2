@@ -129,6 +129,15 @@ export function PanelShell({
         </nav>
 
         <div className="mt-auto p-[18px] px-[18px] pt-4 pb-[22px]">
+          {profil.admin && (
+            <Link
+              href="/admin"
+              className="mb-4 flex h-10 items-center justify-center gap-2 rounded-[10px] border border-brand/45 bg-brand/12 text-[13.5px] font-semibold text-[#A9C0FF] hover:bg-brand hover:text-white"
+            >
+              <span className="font-mono text-[11px]">⌘</span>
+              Yönetim paneli
+            </Link>
+          )}
           <div className="flex items-center gap-[10px]">
             <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand/25 font-mono text-[11px] font-semibold text-[#A9C0FF]">
               {profil.basHarfler}
