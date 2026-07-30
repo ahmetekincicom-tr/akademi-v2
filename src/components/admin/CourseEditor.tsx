@@ -5,8 +5,11 @@ import Link from "next/link";
 import { Toggle } from "./Toggle";
 import { saveCourse, arsivleCourse } from "@/app/admin/(protected)/egitimler/actions";
 
-type EditorLesson = { ad: string; sure: string };
-type EditorModule = { ad: string; dersler: EditorLesson[] };
+// Rows loaded from the database carry their id so saving updates them in place
+// instead of recreating them (which would wipe student progress). Rows added in
+// the editor have no id until first save.
+type EditorLesson = { id?: string; ad: string; sure: string };
+type EditorModule = { id?: string; ad: string; dersler: EditorLesson[] };
 
 export type CourseEditorInitial = {
   ad: string;

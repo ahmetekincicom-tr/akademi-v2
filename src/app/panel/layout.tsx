@@ -1,5 +1,18 @@
+import { redirect } from "next/navigation";
 import { PanelShell } from "@/components/panel/PanelShell";
+import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 
-export default function PanelLayout({ children }: { children: React.ReactNode }) {
-  return <PanelShell>{children}</PanelShell>;
+export default async function PanelLayout({ children }: { children: React.ReactNode }) {
+  const [profil, courses] = await Promise.all([getPanelProfile(), getPanelCourses()]);
+  if (!profil) redirect("/giris");
+
+  return (
+    <PanelShell
+      profil={profil}
+      aktifProgram={courses[0] ? { baslik: courses[0].baslik, slug: courses[0].slug } : null}
+      programSayisi={courses.length}
+    >
+      {children}
+    </PanelShell>
+  );
 }

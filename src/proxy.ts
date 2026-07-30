@@ -31,9 +31,10 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/admin") && pathname !== "/admin/giris";
+  const isPanelRoute = pathname.startsWith("/panel");
 
-  if (isAdminRoute && !user) {
-    const loginUrl = new URL("/admin/giris", request.url);
+  if ((isAdminRoute || isPanelRoute) && !user) {
+    const loginUrl = new URL(isAdminRoute ? "/admin/giris" : "/giris", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }

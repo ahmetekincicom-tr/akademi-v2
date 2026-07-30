@@ -11,7 +11,9 @@ export type SaveCourseInput = {
   format: string;
   seviye: string;
   aciklama: string;
-  modules: { ad: string; dersler: { ad: string; sure: string }[] }[];
+  // ids are carried through the editor so an edit updates rows in place —
+  // recreating them would cascade-delete every student's lesson progress.
+  modules: { id?: string; ad: string; dersler: { id?: string; ad: string; sure: string }[] }[];
   siteGorunur: boolean;
   satisaAcik: boolean;
   fiyatGorunur: boolean;
@@ -104,7 +106,6 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
   if (courseId) {
     const { error } = await supabase.from("courses").update(row).eq("id", courseId);
     if (error) return { error: error.code === "23505" ? "Bu URL zaten kullanılıyor." : error.message };
-    await supabase.from("modules").delete().eq("course_id", courseId);
   } else {
     const { data: inserted, error } = await supabase.from("courses").insert(row).select("id").single();
     if (error) return { error: error.code === "23505" ? "Bu URL zaten kullanılıyor." : error.message };
@@ -113,19 +114,45 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
 
   if (!savedId) return { error: "Kayıt oluşturulamadı." };
 
+  // Drop only the modules the editor no longer lists; survivors keep their ids.
+  const keptModuleIds = input.modules.map((m) => m.id).filter((id): id is string => Boolean(id));
+  const staleModules = supabase.from("modules").delete().eq("course_id", savedId);
+  const { error: modDelErr } = await (keptModuleIds.length
+    ? staleModules.not("id", "in", `(${keptModuleIds.join(",")})`)
+    : staleModules);
+  if (modDelErr) return { error: modDelErr.message };
+
   for (let mi = 0; mi < input.modules.length; mi++) {
     const m = input.modules[mi];
-    const { data: modRow, error: modErr } = await supabase
-      .from("modules")
-      .insert({ course_id: savedId, sira: mi + 1, baslik: m.ad, meta: `${m.dersler.length} ders` })
-      .select("id")
-      .single();
-    if (modErr || !modRow) return { error: modErr?.message ?? "Modül kaydedilemedi." };
+    const modRow = { sira: mi + 1, baslik: m.ad, meta: `${m.dersler.length} ders` };
+    let moduleId = m.id;
 
-    if (m.dersler.length > 0) {
-      const { error: lesErr } = await supabase
-        .from("lessons")
-        .insert(m.dersler.map((d, di) => ({ module_id: modRow.id, sira: di + 1, baslik: d.ad, sure: d.sure })));
+    if (moduleId) {
+      const { error: modErr } = await supabase.from("modules").update(modRow).eq("id", moduleId);
+      if (modErr) return { error: modErr.message };
+    } else {
+      const { data: created, error: modErr } = await supabase
+        .from("modules")
+        .insert({ ...modRow, course_id: savedId })
+        .select("id")
+        .single();
+      if (modErr || !created) return { error: modErr?.message ?? "Modül kaydedilemedi." };
+      moduleId = created.id;
+    }
+
+    const keptLessonIds = m.dersler.map((d) => d.id).filter((id): id is string => Boolean(id));
+    const staleLessons = supabase.from("lessons").delete().eq("module_id", moduleId);
+    const { error: lesDelErr } = await (keptLessonIds.length
+      ? staleLessons.not("id", "in", `(${keptLessonIds.join(",")})`)
+      : staleLessons);
+    if (lesDelErr) return { error: lesDelErr.message };
+
+    for (let di = 0; di < m.dersler.length; di++) {
+      const d = m.dersler[di];
+      const lesRow = { sira: di + 1, baslik: d.ad, sure: d.sure };
+      const { error: lesErr } = d.id
+        ? await supabase.from("lessons").update(lesRow).eq("id", d.id)
+        : await supabase.from("lessons").insert({ ...lesRow, module_id: moduleId });
       if (lesErr) return { error: lesErr.message };
     }
   }

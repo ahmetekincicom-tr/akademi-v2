@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { CheckToggle } from "@/components/auth/CheckToggle";
 import { createClient } from "@/lib/supabase/client";
 
-export default function GirisPage() {
+function GirisForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Set by the proxy when it bounces a signed-out visitor off a /panel page.
+  const next = searchParams.get("next");
+  const hedef = next?.startsWith("/panel") ? next : "/panel";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -30,7 +34,7 @@ export default function GirisPage() {
       setHata(true);
       return;
     }
-    router.push("/panel");
+    router.push(hedef);
     router.refresh();
   };
 
@@ -121,5 +125,13 @@ export default function GirisPage() {
         </p>
       </div>
     </AuthShell>
+  );
+}
+
+export default function GirisPage() {
+  return (
+    <Suspense fallback={null}>
+      <GirisForm />
+    </Suspense>
   );
 }
