@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/admin/logout-action";
+import { initials } from "@/lib/admin/shared";
 
-type MenuItem = { href: string; label: string; icon: string; badge?: string };
+export type AdminSayilar = { ogrenci: number; talep: number; odeme: number; video: number };
+
+type MenuItem = { href: string; label: string; icon: string; sayac?: keyof AdminSayilar };
 type MenuGroup = { title: string; items: MenuItem[] };
 
 const groups: MenuGroup[] = [
@@ -12,8 +15,8 @@ const groups: MenuGroup[] = [
   {
     title: "Katılımcılar",
     items: [
-      { href: "/admin/ogrenciler", label: "Öğrenciler", icon: "◉", badge: "142" },
-      { href: "/admin/destek", label: "Destek talepleri", icon: "✉", badge: "2" },
+      { href: "/admin/ogrenciler", label: "Öğrenciler", icon: "◉", sayac: "ogrenci" },
+      { href: "/admin/destek", label: "Destek talepleri", icon: "✉", sayac: "talep" },
       { href: "/admin/seanslar", label: "Seans takvimi", icon: "◷" },
     ],
   },
@@ -21,14 +24,14 @@ const groups: MenuGroup[] = [
     title: "İçerik",
     items: [
       { href: "/admin/egitimler", label: "Eğitimler", icon: "▤" },
-      { href: "/admin/video", label: "Video kütüphanesi", icon: "▶", badge: "1" },
+      { href: "/admin/video", label: "Video kütüphanesi", icon: "▶", sayac: "video" },
       { href: "/admin/dokumanlar", label: "Dokümanlar", icon: "▣" },
     ],
   },
   {
     title: "Finans & sistem",
     items: [
-      { href: "/admin/odemeler", label: "Ödemeler", icon: "₺", badge: "1" },
+      { href: "/admin/odemeler", label: "Ödemeler", icon: "₺", sayac: "odeme" },
       { href: "/admin/entegrasyonlar", label: "Entegrasyonlar", icon: "⛓" },
       { href: "/admin/ayarlar", label: "Ayarlar", icon: "◐" },
     ],
@@ -53,7 +56,17 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-export function AdminShell({ children }: { children: React.ReactNode }) {
+export function AdminShell({
+  children,
+  isim,
+  email,
+  sayilar,
+}: {
+  children: React.ReactNode;
+  isim: string;
+  email: string;
+  sayilar: AdminSayilar;
+}) {
   const pathname = usePathname();
   const pageTitle = pathname.startsWith("/admin/egitimler/") ? "Eğitim düzenle" : (pageTitles[pathname] ?? "Yönetim");
 
@@ -78,6 +91,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <div className="px-3 pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/30 uppercase">{g.title}</div>
               {g.items.map((m) => {
                 const active = isActive(pathname, m.href);
+                const sayi = m.sayac ? sayilar[m.sayac] : 0;
                 return (
                   <Link
                     key={m.href}
@@ -91,9 +105,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   >
                     <span className="w-[17px] flex-none font-mono text-[11.5px] opacity-70">{m.icon}</span>
                     <span className="flex-1">{m.label}</span>
-                    {m.badge && (
+                    {sayi > 0 && (
                       <span className="rounded-full bg-brand/24 px-[7px] py-[2px] font-mono text-[9.5px] text-[#A9C0FF]">
-                        {m.badge}
+                        {sayi}
                       </span>
                     )}
                   </Link>
@@ -104,10 +118,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="mt-auto flex items-center gap-[10px] border-t border-white/9 p-[18px] px-[18px] py-4">
-          <span className="avatar-block-dark h-[30px] w-[30px] flex-none rounded-full" />
+          <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-brand/25 font-mono text-[10px] font-semibold text-[#A9C0FF]">
+            {initials(isim)}
+          </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold text-white">Ahmet Ekinci</span>
-            <span className="block font-mono text-[9.5px] text-white/42">Yönetici</span>
+            <span className="block truncate text-[13px] font-semibold text-white">{isim}</span>
+            <span className="block truncate font-mono text-[9.5px] text-white/42">{email}</span>
           </span>
           <Link
             href="/panel"
@@ -132,24 +148,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <span className="text-ink">{pageTitle}</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="hidden h-9 w-[300px] items-center gap-[9px] rounded-[9px] border border-ink/12 bg-white py-0 pr-3 pl-[13px] sm:flex">
-                <span className="font-mono text-xs text-[#9CA1AE]">⌕</span>
-                <input
-                  type="text"
-                  placeholder="Öğrenci, işlem no veya talep ara"
-                  className="w-full border-0 bg-transparent text-[13px] text-ink outline-none"
-                />
-                <span className="flex-none rounded-[5px] border border-ink/12 px-[5px] py-[2px] font-mono text-[9.5px] text-[#9CA1AE]">
-                  ⌘K
-                </span>
-              </div>
-              <button
-                type="button"
-                className="relative flex h-9 w-9 items-center justify-center rounded-[9px] border border-ink/12 bg-white text-[13px] text-[#3A3F4F] hover:border-brand hover:text-brand"
-              >
-                ✉
-                <span className="animate-pulse-dot absolute top-[7px] right-[8px] h-[7px] w-[7px] rounded-full bg-brand" />
-              </button>
               <Link
                 href="/admin/egitimler/yeni"
                 className="inline-flex h-9 items-center rounded-[9px] bg-ink px-[15px] text-[13.5px] font-semibold text-white hover:bg-brand"

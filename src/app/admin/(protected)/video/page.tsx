@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { VideoYonetimi, type VideoDers } from "@/components/admin/VideoYonetimi";
+import { bunnyDurumu } from "@/lib/bunny";
 
 export default async function AdminVideoPage() {
   const supabase = await createClient();
@@ -42,5 +43,5 @@ export default async function AdminVideoPage() {
       ),
   );
 
-  return <VideoYonetimi dersler={dersler} />;
+  return <VideoYonetimi dersler={dersler} bunnyAktif={bunnyDurumu().kutuphane} />;
 }

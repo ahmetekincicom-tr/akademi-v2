@@ -14,7 +14,7 @@ export type VideoDers = {
   aciklama: string;
 };
 
-export function VideoYonetimi({ dersler }: { dersler: VideoDers[] }) {
+export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; bunnyAktif: boolean }) {
   const router = useRouter();
   const [arama, setArama] = useState("");
   const [sadeceEksik, setSadeceEksik] = useState(false);
@@ -61,7 +61,10 @@ export function VideoYonetimi({ dersler }: { dersler: VideoDers[] }) {
           Video yönetimi
         </h1>
         <p className="mt-[7px] text-[14.5px] text-[#5C6273]">
-          {videolu}/{dersler.length} derste video var. YouTube, Vimeo veya doğrudan dosya bağlantısı yapıştırabilirsin.
+          {videolu}/{dersler.length} derste video var.{" "}
+          {bunnyAktif
+            ? "Bunny video ID'si yapıştırdığında bağlantı sunucuda imzalanır ve paylaşılamaz."
+            : "Bunny, YouTube, Vimeo veya doğrudan dosya bağlantısı yapıştırabilirsin."}
         </p>
       </div>
 
@@ -145,7 +148,11 @@ export function VideoYonetimi({ dersler }: { dersler: VideoDers[] }) {
                         type="text"
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
-                        placeholder="https://www.youtube.com/watch?v=… veya https://vimeo.com/…"
+                        placeholder={
+                          bunnyAktif
+                            ? "Bunny video ID (örn. 8f2c1a90-…) veya YouTube/Vimeo bağlantısı"
+                            : "https://www.youtube.com/watch?v=… veya https://vimeo.com/…"
+                        }
                         className="h-[46px] rounded-[10px] border border-ink/13 bg-white px-[13px] text-sm text-ink outline-none focus:border-brand"
                       />
                     </label>

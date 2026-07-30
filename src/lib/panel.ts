@@ -1,11 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
+import { oynatmaCoz, type Oynatma } from "@/lib/oynatma";
 
 export type PanelLesson = {
   id: string;
   ad: string;
   sure: string;
   tamamlandi: boolean;
-  videoUrl: string;
+  // Already resolved and (for Bunny) signed on the server; the raw reference
+  // is deliberately not sent to the client.
+  oynatma: Oynatma | null;
   aciklama: string;
 };
 
@@ -150,7 +153,7 @@ export async function getPanelCourses(): Promise<PanelCourse[]> {
                 ad: l.baslik,
                 sure: l.sure ?? "",
                 tamamlandi: bitti,
-                videoUrl: l.video_url ?? "",
+                oynatma: oynatmaCoz(l.video_url),
                 aciklama: l.aciklama ?? "",
               };
             });

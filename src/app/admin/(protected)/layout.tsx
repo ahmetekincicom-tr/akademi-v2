@@ -14,7 +14,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role")
+    .select("ad, soyad, email, role")
     .eq("id", user.id)
     .single();
 
@@ -23,5 +23,29 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
     redirect("/admin/giris?hata=yetki");
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  // Sidebar counters — head-only queries so we fetch counts, not rows.
+  const [{ count: ogrenciSayisi }, { count: acikTalep }, { count: bekleyenOdeme }, { count: videosuzDers }] =
+    await Promise.all([
+      supabase.from("profiles").select("id", { count: "exact", head: true }).neq("role", "admin"),
+      supabase.from("support_tickets").select("id", { count: "exact", head: true }).eq("durum", "acik"),
+      supabase.from("payments").select("id", { count: "exact", head: true }).eq("durum", "bekliyor"),
+      supabase.from("lessons").select("id", { count: "exact", head: true }).is("video_url", null),
+    ]);
+
+  const isim = [profile.ad, profile.soyad].filter(Boolean).join(" ") || profile.email || "Yönetici";
+
+  return (
+    <AdminShell
+      isim={isim}
+      email={profile.email ?? ""}
+      sayilar={{
+        ogrenci: ogrenciSayisi ?? 0,
+        talep: acikTalep ?? 0,
+        odeme: bekleyenOdeme ?? 0,
+        video: videosuzDers ?? 0,
+      }}
+    >
+      {children}
+    </AdminShell>
+  );
 }

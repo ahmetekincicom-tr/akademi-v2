@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { dersDurumDegistir } from "@/app/panel/actions";
-import { videoGomme } from "@/lib/video";
 import type { PanelCourse } from "@/lib/panel";
 
 export function DersPlayer({
@@ -31,7 +30,7 @@ export function DersPlayer({
   const tumDersler = kurs.modules.flatMap((m) => m.dersler.map((d) => ({ ...d, modulBaslik: m.baslik })));
   const aktifDers = tumDersler.find((d) => d.id === aktifDersId) ?? tumDersler[0] ?? null;
   const bitti = aktifDers ? tamamlananlar.has(aktifDers.id) : false;
-  const video = aktifDers?.videoUrl ? videoGomme(aktifDers.videoUrl) : null;
+  const video = aktifDers?.oynatma ?? null;
 
   const kursTamamlanan = tumDersler.filter((d) => tamamlananlar.has(d.id)).length;
   const kursYuzde = tumDersler.length ? Math.round((kursTamamlanan / tumDersler.length) * 100) : 0;

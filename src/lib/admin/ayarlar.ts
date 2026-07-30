@@ -61,17 +61,6 @@ export const entegrasyonGruplari: AyarGrubu[] = [
     ],
   },
   {
-    anahtar: "video",
-    baslik: "Video barındırma",
-    aciklama: "Ders videolarını nerede tuttuğuna dair bilgiler. Ders bağlantılarını Video sayfasından giriyorsun.",
-    alanlar: [
-      { ad: "saglayici", etiket: "Sağlayıcı", yerTutucu: "YouTube / Vimeo / Bunny" },
-      { ad: "kutuphaneId", etiket: "Kütüphane ID" },
-      { ad: "cdn", etiket: "CDN hostname" },
-      { ad: "apiAnahtari", etiket: "API anahtarı", gizli: true },
-    ],
-  },
-  {
     anahtar: "odeme",
     baslik: "Ödeme sağlayıcı",
     aciklama: "Online tahsilata geçtiğinde kullanılacak sağlayıcı bilgileri. Şu an ödemeler panele elle kaydediliyor.",
