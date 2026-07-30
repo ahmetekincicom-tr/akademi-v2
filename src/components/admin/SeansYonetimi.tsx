@@ -6,6 +6,7 @@ import { seansEkle, seansDurumDegistir, seansSil } from "@/app/admin/(protected)
 import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
+import { Icon } from "@/components/Icon";
 
 export type SeansSatir = {
   id: string;
@@ -92,8 +93,9 @@ export function SeansYonetimi({
             href={s.toplantiLink}
             target="_blank"
             rel="noreferrer"
-            className="h-8 flex-none rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] leading-[30px] font-semibold text-ink hover:border-brand hover:text-brand"
+            className="inline-flex h-8 flex-none items-center gap-[5px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand"
           >
+            <Icon name="external" size={13} />
             Toplantı
           </a>
         )}
@@ -112,9 +114,10 @@ export function SeansYonetimi({
           type="button"
           disabled={islemde}
           onClick={() => sil(s.id)}
-          className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[11px] text-[#9CA1AE] hover:border-danger/45 hover:text-danger disabled:opacity-50"
+          aria-label="Seansı sil"
+          className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
         >
-          ✕
+          <Icon name="x" size={14} />
         </button>
       </div>
     );
@@ -134,9 +137,10 @@ export function SeansYonetimi({
         <button
           type="button"
           onClick={() => setFormAcik((v) => !v)}
-          className="h-10 rounded-[10px] bg-brand px-4 text-[13.5px] font-semibold text-white hover:bg-ink"
+          className="inline-flex h-10 items-center gap-[6px] rounded-[10px] bg-brand px-4 text-[13.5px] font-semibold text-white transition hover:bg-ink"
         >
-          {formAcik ? "Vazgeç" : "+ Seans planla"}
+          {!formAcik && <Icon name="plus" size={15} />}
+          {formAcik ? "Vazgeç" : "Seans planla"}
         </button>
       </div>
 

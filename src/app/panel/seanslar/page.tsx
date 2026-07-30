@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
+import { Icon } from "@/components/Icon";
 
 export default async function SeanslarPage() {
   const supabase = await createClient();
@@ -51,8 +52,9 @@ export default async function SeanslarPage() {
             href={s.toplantiLink}
             target="_blank"
             rel="noreferrer"
-            className="h-9 flex-none rounded-[9px] bg-brand px-[15px] text-[13.5px] leading-[36px] font-semibold text-white hover:bg-ink"
+            className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-brand px-[15px] text-[13.5px] font-semibold text-white transition hover:bg-ink"
           >
+            <Icon name="external" size={14} />
             Toplantıya katıl
           </a>
         )}
@@ -71,8 +73,8 @@ export default async function SeanslarPage() {
 
       {seanslar.length === 0 ? (
         <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist font-mono text-lg text-[#9CA1AE]">
-            ◷
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+            <Icon name="clock" size={22} />
           </div>
           <p className="mx-auto mt-4 max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
             Planlanmış bir seansın görünmüyor. Randevu oluşturmak için eğitmenle iletişime geçebilirsin.

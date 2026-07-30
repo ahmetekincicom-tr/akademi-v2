@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Toggle } from "./Toggle";
 import { saveCourse, arsivleCourse } from "@/app/admin/(protected)/egitimler/actions";
+import { Icon } from "@/components/Icon";
 
 // Rows loaded from the database carry their id so saving updates them in place
 // instead of recreating them (which would wipe student progress). Rows added in
@@ -110,8 +111,12 @@ export function CourseEditor({
 
   return (
     <main className="p-7 pb-14">
-      <Link href="/admin/egitimler" className="text-[13.5px] font-semibold text-[#5C6273] hover:text-brand">
-        ← Eğitimler
+      <Link
+        href="/admin/egitimler"
+        className="inline-flex items-center gap-[6px] text-[13.5px] font-semibold text-[#5C6273] transition hover:text-brand"
+      >
+        <Icon name="arrowLeft" size={15} />
+        Eğitimler
       </Link>
       <div className="mt-4 flex flex-wrap items-end justify-between gap-5">
         <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
@@ -221,9 +226,10 @@ export function CourseEditor({
               <button
                 type="button"
                 onClick={modulEkle}
-                className="h-[38px] rounded-[9px] border border-brand/40 bg-brand/7 px-[15px] text-[13.5px] font-semibold text-brand hover:bg-brand hover:text-white"
+                className="inline-flex h-[38px] items-center gap-[6px] rounded-[9px] border border-brand/40 bg-brand/[0.07] px-[15px] text-[13.5px] font-semibold text-brand transition hover:bg-brand hover:text-white"
               >
-                + Modül ekle
+                <Icon name="plus" size={14} />
+                Modül ekle
               </button>
             </div>
             {modules.map((m, mi) => (
@@ -243,16 +249,18 @@ export function CourseEditor({
                   <button
                     type="button"
                     onClick={() => dersEkle(mi)}
-                    className="h-9 flex-none rounded-[8px] border border-ink/13 bg-white px-[13px] text-[12.5px] font-semibold text-ink hover:border-brand hover:bg-brand hover:text-white"
+                    className="inline-flex h-9 flex-none items-center gap-[5px] rounded-[8px] border border-ink/13 bg-white px-[13px] text-[12.5px] font-semibold text-ink transition hover:border-brand hover:bg-brand hover:text-white"
                   >
-                    + Ders
+                    <Icon name="plus" size={13} />
+                    Ders
                   </button>
                   <button
                     type="button"
                     onClick={() => modulSil(mi)}
-                    className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/13 bg-white text-[13px] text-[#8A8F9E] hover:border-danger/45 hover:text-danger"
+                    aria-label="Modülü sil"
+                    className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/13 bg-white text-[#8A8F9E] transition hover:border-danger/45 hover:text-danger"
                   >
-                    ✕
+                    <Icon name="x" size={15} />
                   </button>
                 </div>
                 {m.dersler.map((d, di) => (
@@ -287,9 +295,10 @@ export function CourseEditor({
                     <button
                       type="button"
                       onClick={() => dersSil(mi, di)}
-                      className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/12 bg-white text-xs text-[#9CA1AE] hover:border-danger/45 hover:text-danger"
+                      aria-label="Dersi sil"
+                      className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/12 bg-white text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger"
                     >
-                      ✕
+                      <Icon name="x" size={14} />
                     </button>
                   </div>
                 ))}
@@ -329,7 +338,7 @@ export function CourseEditor({
           <div className="rounded-2xl border border-ink/10 bg-white p-[22px] px-[22px] pt-5 pb-[22px]">
             <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">Kapak görseli</div>
             <div className="mt-[14px] flex aspect-[16/10] flex-col items-center justify-center gap-2 rounded-[11px] border border-dashed border-ink/20 bg-mist">
-              <span className="text-base text-[#9CA1AE]">↑</span>
+              <Icon name="upload" size={20} className="text-[#9CA1AE]" />
               <span className="text-[13px] text-[#8A8F9E]">Sürükle veya seç · 1600×1000</span>
             </div>
           </div>

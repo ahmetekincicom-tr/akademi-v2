@@ -4,36 +4,38 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/admin/logout-action";
 import { initials } from "@/lib/admin/shared";
+import { Icon, type IconName } from "@/components/Icon";
+import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 
 export type AdminSayilar = { ogrenci: number; talep: number; odeme: number; video: number };
 
-type MenuItem = { href: string; label: string; icon: string; sayac?: keyof AdminSayilar };
+type MenuItem = { href: string; label: string; icon: IconName; sayac?: keyof AdminSayilar };
 type MenuGroup = { title: string; items: MenuItem[] };
 
 const groups: MenuGroup[] = [
-  { title: "Özet", items: [{ href: "/admin", label: "Genel bakış", icon: "◧" }] },
+  { title: "Özet", items: [{ href: "/admin", label: "Genel bakış", icon: "grid" }] },
   {
     title: "Katılımcılar",
     items: [
-      { href: "/admin/ogrenciler", label: "Öğrenciler", icon: "◉", sayac: "ogrenci" },
-      { href: "/admin/destek", label: "Destek talepleri", icon: "✉", sayac: "talep" },
-      { href: "/admin/seanslar", label: "Seans takvimi", icon: "◷" },
+      { href: "/admin/ogrenciler", label: "Öğrenciler", icon: "users", sayac: "ogrenci" },
+      { href: "/admin/destek", label: "Destek talepleri", icon: "message", sayac: "talep" },
+      { href: "/admin/seanslar", label: "Seans takvimi", icon: "calendar" },
     ],
   },
   {
     title: "İçerik",
     items: [
-      { href: "/admin/egitimler", label: "Eğitimler", icon: "▤" },
-      { href: "/admin/video", label: "Video kütüphanesi", icon: "▶", sayac: "video" },
-      { href: "/admin/dokumanlar", label: "Dokümanlar", icon: "▣" },
+      { href: "/admin/egitimler", label: "Eğitimler", icon: "book" },
+      { href: "/admin/video", label: "Video kütüphanesi", icon: "playCircle", sayac: "video" },
+      { href: "/admin/dokumanlar", label: "Dokümanlar", icon: "folder" },
     ],
   },
   {
     title: "Finans & sistem",
     items: [
-      { href: "/admin/odemeler", label: "Ödemeler", icon: "₺", sayac: "odeme" },
-      { href: "/admin/entegrasyonlar", label: "Entegrasyonlar", icon: "⛓" },
-      { href: "/admin/ayarlar", label: "Ayarlar", icon: "◐" },
+      { href: "/admin/odemeler", label: "Ödemeler", icon: "card", sayac: "odeme" },
+      { href: "/admin/entegrasyonlar", label: "Entegrasyonlar", icon: "plug" },
+      { href: "/admin/ayarlar", label: "Ayarlar", icon: "sliders" },
     ],
   },
 ];
@@ -56,6 +58,23 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
+function breadcrumbAdimlari(pathname: string): BreadcrumbAdim[] {
+  if (pathname === "/admin") return [{ label: "Yönetim" }];
+
+  const kok: BreadcrumbAdim = { label: "Yönetim", href: "/admin" };
+
+  // The course editor sits one level under the course list.
+  if (pathname.startsWith("/admin/egitimler/")) {
+    return [
+      kok,
+      { label: "Eğitimler", href: "/admin/egitimler" },
+      { label: pathname.endsWith("/yeni") ? "Yeni eğitim" : "Eğitim düzenle" },
+    ];
+  }
+
+  return [kok, { label: pageTitles[pathname] ?? "Sayfa" }];
+}
+
 export function AdminShell({
   children,
   isim,
@@ -68,13 +87,12 @@ export function AdminShell({
   sayilar: AdminSayilar;
 }) {
   const pathname = usePathname();
-  const pageTitle = pathname.startsWith("/admin/egitimler/") ? "Eğitim düzenle" : (pageTitles[pathname] ?? "Yönetim");
 
   return (
     <div className="flex min-h-screen bg-paper">
       <aside className="sticky top-0 flex h-screen w-[250px] flex-none flex-col bg-ink text-white/64">
-        <div className="border-b border-white/9 p-5 pt-5 pb-[18px]">
-          <div className="flex items-center gap-[11px] text-white">
+        <div className="border-b border-white/9 px-5 pt-5 pb-[18px]">
+          <Link href="/admin" className="flex items-center gap-[11px] text-white">
             <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">
               AE
             </span>
@@ -82,12 +100,12 @@ export function AdminShell({
               <span className="font-heading text-sm font-semibold">Akademi Yönetim</span>
               <span className="font-mono text-[9px] tracking-[0.2em] text-white/42 uppercase">Admin</span>
             </span>
-          </div>
+          </Link>
         </div>
 
         <nav className="flex flex-col gap-[14px] overflow-auto px-3 pt-[14px] pb-2">
           {groups.map((g) => (
-            <div key={g.title} className="flex flex-col gap-[3px]">
+            <div key={g.title} className="flex flex-col gap-[2px]">
               <div className="px-3 pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/30 uppercase">{g.title}</div>
               {g.items.map((m) => {
                 const active = isActive(pathname, m.href);
@@ -96,17 +114,18 @@ export function AdminShell({
                   <Link
                     key={m.href}
                     href={m.href}
-                    className="flex items-center gap-[11px] rounded-[9px] border-l-2 px-3 py-[9px] text-[13.5px] font-medium transition hover:bg-white/7 hover:text-white"
+                    aria-current={active ? "page" : undefined}
+                    className="flex items-center gap-[11px] rounded-[9px] border-l-2 px-3 py-[9px] text-[13.5px] font-medium transition hover:bg-white/[0.07] hover:text-white"
                     style={{
                       borderColor: active ? "#1C56F3" : "transparent",
                       background: active ? "rgba(28,86,243,0.16)" : "transparent",
                       color: active ? "#FFFFFF" : "rgba(255,255,255,0.62)",
                     }}
                   >
-                    <span className="w-[17px] flex-none font-mono text-[11.5px] opacity-70">{m.icon}</span>
-                    <span className="flex-1">{m.label}</span>
+                    <Icon name={m.icon} size={16} className="flex-none opacity-80" />
+                    <span className="flex-1 truncate">{m.label}</span>
                     {sayi > 0 && (
-                      <span className="rounded-full bg-brand/24 px-[7px] py-[2px] font-mono text-[9.5px] text-[#A9C0FF]">
+                      <span className="flex-none rounded-full bg-brand/24 px-[7px] py-[2px] font-mono text-[9.5px] text-[#A9C0FF]">
                         {sayi}
                       </span>
                     )}
@@ -117,44 +136,48 @@ export function AdminShell({
           ))}
         </nav>
 
-        <div className="mt-auto flex items-center gap-[10px] border-t border-white/9 p-[18px] px-[18px] py-4">
-          <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-brand/25 font-mono text-[10px] font-semibold text-[#A9C0FF]">
-            {initials(isim)}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block truncate text-[13px] font-semibold text-white">{isim}</span>
-            <span className="block truncate font-mono text-[9.5px] text-white/42">{email}</span>
-          </span>
-          <Link
-            href="/panel"
-            className="font-mono text-[9.5px] tracking-[0.1em] text-white/50 uppercase hover:text-white"
-          >
-            Öğrenci
-          </Link>
+        <div className="mt-auto border-t border-white/9 px-[18px] py-4">
+          <div className="flex items-center gap-[10px]">
+            <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-brand/25 font-mono text-[10px] font-semibold text-[#A9C0FF]">
+              {initials(isim)}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[13px] font-semibold text-white">{isim}</span>
+              <span className="block truncate font-mono text-[9.5px] text-white/42">{email}</span>
+            </span>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <Link
+              href="/panel"
+              className="flex h-9 flex-1 items-center justify-center gap-[6px] rounded-[9px] border border-white/12 text-[12.5px] font-semibold text-white/70 transition hover:border-white/30 hover:text-white"
+            >
+              <Icon name="user" size={14} />
+              Öğrenci
+            </Link>
+            <form action={cikisYap} className="flex-1">
+              <button
+                type="submit"
+                className="flex h-9 w-full items-center justify-center gap-[6px] rounded-[9px] border border-white/12 text-[12.5px] font-semibold text-white/70 transition hover:border-white/30 hover:text-white"
+              >
+                <Icon name="logout" size={14} />
+                Çıkış
+              </button>
+            </form>
+          </div>
         </div>
-        <form action={cikisYap} className="border-t border-white/9 px-[18px] py-3">
-          <button type="submit" className="font-mono text-[9.5px] tracking-[0.1em] text-white/40 uppercase hover:text-white">
-            Çıkış yap
-          </button>
-        </form>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/92 backdrop-blur-[14px]">
           <div className="flex h-[66px] items-center justify-between gap-5 px-7">
-            <div className="flex items-center gap-[11px] font-mono text-[10.5px] tracking-[0.08em] text-[#8A8F9E]">
-              <span>Yönetim</span>
-              <span>/</span>
-              <span className="text-ink">{pageTitle}</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/admin/egitimler/yeni"
-                className="inline-flex h-9 items-center rounded-[9px] bg-ink px-[15px] text-[13.5px] font-semibold text-white hover:bg-brand"
-              >
-                + Yeni eğitim
-              </Link>
-            </div>
+            <Breadcrumb adimlar={breadcrumbAdimlari(pathname)} />
+            <Link
+              href="/admin/egitimler/yeni"
+              className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-ink px-[15px] text-[13.5px] font-semibold text-white transition hover:bg-brand"
+            >
+              <Icon name="plus" size={15} />
+              Yeni eğitim
+            </Link>
           </div>
         </header>
 

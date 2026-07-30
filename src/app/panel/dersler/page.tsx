@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPanelCourses } from "@/lib/panel";
 import { DersPlayer } from "@/components/panel/DersPlayer";
+import { Icon } from "@/components/Icon";
 
 export default async function DersIzlemePage({
   searchParams,
@@ -14,8 +15,8 @@ export default async function DersIzlemePage({
     return (
       <main className="p-[34px] pb-14">
         <div className="rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist font-mono text-lg text-[#9CA1AE]">
-            ▶
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+            <Icon name="playCircle" size={22} />
           </div>
           <h1 className="mt-4 font-heading text-xl font-semibold tracking-[-0.02em]">Görüntülenecek ders yok</h1>
           <p className="mx-auto mt-[10px] max-w-[420px] text-[14.5px] leading-[1.6] text-[#5C6273]">

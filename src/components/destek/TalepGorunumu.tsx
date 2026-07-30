@@ -6,6 +6,7 @@ import { talepAc, mesajGonder, talepDurumDegistir } from "@/app/destek-actions";
 import { durumStil } from "@/lib/admin/shared";
 import { talepDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import type { DestekTalep } from "@/lib/destek";
+import { Icon } from "@/components/Icon";
 
 /**
  * Shared by the admin support screen and the student Q&A page. The admin view
@@ -90,9 +91,10 @@ export function TalepGorunumu({
           <button
             type="button"
             onClick={() => setYeniAcik((v) => !v)}
-            className="h-11 rounded-[10px] bg-brand px-5 text-sm font-semibold text-white hover:bg-ink"
+            className="inline-flex h-11 items-center gap-[6px] rounded-[10px] bg-brand px-5 text-sm font-semibold text-white transition hover:bg-ink"
           >
-            {yeniAcik ? "Vazgeç" : "+ Yeni soru"}
+            {!yeniAcik && <Icon name="plus" size={15} />}
+            {yeniAcik ? "Vazgeç" : "Yeni soru"}
           </button>
         )}
       </div>
@@ -151,8 +153,8 @@ export function TalepGorunumu({
 
       {talepler.length === 0 ? (
         <div className="mt-[22px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist font-mono text-lg text-[#9CA1AE]">
-            ✉
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+            <Icon name="message" size={22} />
           </div>
           <p className="mx-auto mt-4 max-w-[420px] text-[14.5px] leading-[1.6] text-[#5C6273]">
             {adminMi ? "Henüz açılmış bir destek talebi yok." : "Henüz bir soru sormadın."}

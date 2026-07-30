@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { kayitEkle, kayitKaldir } from "@/app/admin/(protected)/ogrenciler/actions";
+import { Icon } from "@/components/Icon";
 
 export type AdminKurs = { id: string; slug: string; baslik: string };
 
@@ -88,7 +89,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
       </div>
 
       <div className="mt-[22px] flex h-[42px] max-w-[380px] items-center gap-[9px] rounded-[10px] border border-ink/12 bg-white px-[14px]">
-        <span className="font-mono text-xs text-[#9CA1AE]">⌕</span>
+        <Icon name="search" size={15} className="flex-none text-[#9CA1AE]" />
         <input
           type="text"
           placeholder="İsim veya e-posta ara"
@@ -181,9 +182,10 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
             <button
               type="button"
               onClick={() => setSeciliId(null)}
-              className="flex h-[38px] w-[38px] items-center justify-center rounded-[9px] border border-ink/13 bg-white text-sm text-[#5C6273] hover:border-ink hover:text-ink"
+              aria-label="Kapat"
+              className="flex h-[38px] w-[38px] items-center justify-center rounded-[9px] border border-ink/13 bg-white text-[#5C6273] transition hover:border-ink hover:text-ink"
             >
-              ✕
+              <Icon name="x" size={16} />
             </button>
           </div>
 

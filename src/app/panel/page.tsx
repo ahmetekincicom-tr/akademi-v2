@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
+import { Icon } from "@/components/Icon";
 
 export default async function PanelOverviewPage() {
   const [profil, courses] = await Promise.all([getPanelProfile(), getPanelCourses()]);
@@ -42,8 +43,8 @@ export default async function PanelOverviewPage() {
 
       {courses.length === 0 ? (
         <div className="rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist font-mono text-lg text-[#9CA1AE]">
-            ◧
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+            <Icon name="grid" size={22} />
           </div>
           <h2 className="mt-4 font-heading text-xl font-semibold tracking-[-0.02em]">Henüz bir eğitim kaydın yok</h2>
           <p className="mx-auto mt-[10px] max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">

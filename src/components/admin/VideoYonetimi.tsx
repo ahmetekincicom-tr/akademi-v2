@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { dersVideoKaydet } from "@/app/admin/(protected)/video/actions";
+import { Icon } from "@/components/Icon";
 
 export type VideoDers = {
   id: string;
@@ -70,7 +71,7 @@ export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; b
 
       <div className="mt-[22px] flex flex-wrap items-center gap-[10px]">
         <div className="flex h-[42px] max-w-[380px] min-w-[240px] flex-1 items-center gap-[9px] rounded-[10px] border border-ink/12 bg-white px-[14px]">
-          <span className="font-mono text-xs text-[#9CA1AE]">⌕</span>
+          <Icon name="search" size={15} className="flex-none text-[#9CA1AE]" />
           <input
             type="text"
             placeholder="Ders veya eğitim ara"

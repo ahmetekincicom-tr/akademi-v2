@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { dokumanIndirmeLinki } from "@/app/admin/(protected)/dokumanlar/actions";
 import { baytBoyut, tarihBicimi } from "@/lib/admin/format";
+import { Icon } from "@/components/Icon";
 
 export type OgrenciDokuman = {
   id: string;
@@ -40,8 +41,8 @@ export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] })
 
       {dokumanlar.length === 0 ? (
         <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist font-mono text-lg text-[#9CA1AE]">
-            ▤
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+            <Icon name="folder" size={22} />
           </div>
           <p className="mx-auto mt-4 max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
             Henüz seninle paylaşılmış bir doküman yok. Eğitmenin ders materyali yüklediğinde burada listelenir.
@@ -67,8 +68,9 @@ export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] })
                 type="button"
                 disabled={islemde}
                 onClick={() => indir(d.dosyaYolu)}
-                className="h-9 flex-none rounded-[9px] border border-ink/13 bg-white px-[15px] text-[13.5px] font-semibold text-ink hover:border-brand hover:text-brand disabled:opacity-50"
+                className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] border border-ink/13 bg-white px-[15px] text-[13.5px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
               >
+                <Icon name="download" size={14} />
                 İndir
               </button>
             </div>

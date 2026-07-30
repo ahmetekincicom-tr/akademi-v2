@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { odemeEkle, odemeDurumDegistir, odemeSil } from "@/app/admin/(protected)/odemeler/actions";
 import { durumStil } from "@/lib/admin/shared";
 import { para, odemeDurumEtiket, tarihBicimi } from "@/lib/admin/format";
+import { Icon } from "@/components/Icon";
 
 export type OdemeSatir = {
   id: string;
@@ -100,9 +101,10 @@ export function OdemeYonetimi({
         <button
           type="button"
           onClick={() => setFormAcik((v) => !v)}
-          className="h-10 rounded-[10px] bg-brand px-4 text-[13.5px] font-semibold text-white hover:bg-ink"
+          className="inline-flex h-10 items-center gap-[6px] rounded-[10px] bg-brand px-4 text-[13.5px] font-semibold text-white transition hover:bg-ink"
         >
-          {formAcik ? "Vazgeç" : "+ Ödeme kaydet"}
+          {!formAcik && <Icon name="plus" size={15} />}
+          {formAcik ? "Vazgeç" : "Ödeme kaydet"}
         </button>
       </div>
 
@@ -282,9 +284,10 @@ export function OdemeYonetimi({
                     type="button"
                     disabled={islemde}
                     onClick={() => sil(o.id)}
-                    className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[11px] text-[#9CA1AE] hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                    aria-label="Ödemeyi sil"
+                    className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
                   >
-                    ✕
+                    <Icon name="x" size={14} />
                   </button>
                 </div>
               </div>

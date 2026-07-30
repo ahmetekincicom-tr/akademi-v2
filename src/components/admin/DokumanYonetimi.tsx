@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { dokumanKaydet, dokumanSil, dokumanIndirmeLinki } from "@/app/admin/(protected)/dokumanlar/actions";
 import { baytBoyut, tarihBicimi } from "@/lib/admin/format";
+import { Icon } from "@/components/Icon";
 
 export type DokumanSatir = {
   id: string;
@@ -175,17 +176,19 @@ export function DokumanYonetimi({
                   type="button"
                   disabled={islemde}
                   onClick={() => indir(d.dosyaYolu)}
-                  className="h-8 rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink hover:border-brand hover:text-brand disabled:opacity-50"
+                  className="inline-flex h-8 items-center gap-[6px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
                 >
+                  <Icon name="download" size={13} />
                   İndir
                 </button>
                 <button
                   type="button"
                   disabled={islemde}
                   onClick={() => sil(d.id, d.dosyaYolu)}
-                  className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[11px] text-[#9CA1AE] hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                  aria-label="Dosyayı sil"
+                  className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
                 >
-                  ✕
+                  <Icon name="x" size={14} />
                 </button>
               </div>
             </div>

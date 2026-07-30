@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { dersDurumDegistir } from "@/app/panel/actions";
 import type { PanelCourse } from "@/lib/panel";
+import { Icon } from "@/components/Icon";
 
 export function DersPlayer({
   courses,
@@ -68,9 +69,10 @@ export function DersPlayer({
         <div className="flex min-w-0 items-center gap-4">
           <Link
             href="/panel"
-            className="flex h-[38px] flex-none items-center rounded-[9px] border border-ink/13 bg-white px-[14px] text-[13.5px] font-semibold text-ink hover:border-brand hover:text-brand"
+            className="inline-flex h-[38px] flex-none items-center gap-[7px] rounded-[9px] border border-ink/13 bg-white pr-[15px] pl-[12px] text-[13.5px] font-semibold text-ink transition hover:border-brand hover:text-brand"
           >
-            ← Panel
+            <Icon name="arrowLeft" size={15} />
+            Panel
           </Link>
           <div className="min-w-0">
             <div className="truncate font-mono text-[10.5px] tracking-[0.1em] text-[#8A8F9E] uppercase">
@@ -87,10 +89,11 @@ export function DersPlayer({
             type="button"
             onClick={toggleTamamla}
             disabled={kaydediliyor}
-            className="h-[46px] flex-none rounded-[10px] px-[22px] text-[15px] font-semibold hover:opacity-90 disabled:opacity-60"
+            className="inline-flex h-[46px] flex-none items-center gap-2 rounded-[10px] px-[22px] text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-60"
             style={{ background: bitti ? "#E9EDF7" : "#1C56F3", color: bitti ? "#3A3F4F" : "#FFFFFF" }}
           >
-            {bitti ? "✓ Tamamlandı" : "Dersi tamamlandı işaretle"}
+            {bitti && <Icon name="check" size={16} strokeWidth={2.4} />}
+            {bitti ? "Tamamlandı" : "Dersi tamamlandı işaretle"}
           </button>
         )}
       </div>
@@ -133,8 +136,8 @@ export function DersPlayer({
               )
             ) : (
               <div className="flex aspect-video flex-col items-center justify-center gap-3 bg-ink text-center">
-                <span className="flex h-[66px] w-[66px] items-center justify-center rounded-full bg-white/8 text-xl text-white/50">
-                  ▶
+                <span className="flex h-[66px] w-[66px] items-center justify-center rounded-full bg-white/[0.08] text-white/50">
+                  <Icon name="play" size={24} />
                 </span>
                 <span className="px-6 text-[13.5px] text-white/45">
                   Ders videosu henüz yüklenmedi.
@@ -192,14 +195,13 @@ export function DersPlayer({
                       style={{ background: aktifMi ? "rgba(28,86,243,0.07)" : undefined }}
                     >
                       <span
-                        className="flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full text-[10px] font-bold"
+                        className="flex h-[18px] w-[18px] flex-none items-center justify-center rounded-full text-white"
                         style={{
                           background: dersBitti ? "#1C56F3" : "transparent",
                           border: dersBitti ? "none" : "1.5px solid rgba(15,17,24,0.18)",
-                          color: "#FFFFFF",
                         }}
                       >
-                        {dersBitti ? "✓" : ""}
+                        {dersBitti && <Icon name="check" size={11} strokeWidth={2.6} />}
                       </span>
                       <span
                         className="min-w-0 flex-1 truncate text-[13.5px]"
