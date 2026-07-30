@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Toggle } from "./Toggle";
+import { saveCourse, arsivleCourse } from "@/app/admin/(protected)/egitimler/actions";
 
 type EditorLesson = { ad: string; sure: string };
 type EditorModule = { ad: string; dersler: EditorLesson[] };
@@ -13,7 +14,11 @@ export type CourseEditorInitial = {
   format: string;
   seviye: string;
   url: string;
+  aciklama: string;
   modules: EditorModule[];
+  siteGorunur: boolean;
+  satisaAcik: boolean;
+  fiyatGorunur: boolean;
 };
 
 const BOS_INITIAL: CourseEditorInitial = {
@@ -22,7 +27,11 @@ const BOS_INITIAL: CourseEditorInitial = {
   format: "",
   seviye: "",
   url: "",
+  aciklama: "",
   modules: [],
+  siteGorunur: true,
+  satisaAcik: true,
+  fiyatGorunur: false,
 };
 
 export function CourseEditor({
@@ -37,8 +46,44 @@ export function CourseEditor({
   const [format, setFormat] = useState(initial.format);
   const [seviye, setSeviye] = useState(initial.seviye);
   const [url, setUrl] = useState(initial.url);
+  const [aciklama, setAciklama] = useState(initial.aciklama);
   const [modules, setModules] = useState<EditorModule[]>(initial.modules);
-  const [yayin, setYayin] = useState({ site: true, satis: true, fiyat: false });
+  const [yayin, setYayin] = useState({
+    site: initial.siteGorunur,
+    satis: initial.satisaAcik,
+    fiyat: initial.fiyatGorunur,
+  });
+  const [kaydediliyor, setKaydediliyor] = useState<"taslak" | "yayinda" | "arsiv" | null>(null);
+  const [hata, setHata] = useState<string | null>(null);
+  const originalSlug = initial.url || undefined;
+
+  const kaydet = async (durum: "taslak" | "yayinda") => {
+    setKaydediliyor(durum);
+    setHata(null);
+    const sonuc = await saveCourse({
+      originalSlug,
+      slug: url,
+      baslik: ad,
+      sure,
+      format,
+      seviye,
+      aciklama,
+      modules,
+      siteGorunur: yayin.site,
+      satisaAcik: yayin.satis,
+      fiyatGorunur: yayin.fiyat,
+      durum,
+    });
+    setKaydediliyor(null);
+    if (sonuc?.error) setHata(sonuc.error);
+  };
+
+  const arsivle = async () => {
+    if (!originalSlug) return;
+    setKaydediliyor("arsiv");
+    await arsivleCourse(originalSlug);
+    setKaydediliyor(null);
+  };
 
   const modulEkle = () => setModules((prev) => prev.concat({ ad: "", dersler: [] }));
   const modulSil = (mi: number) => setModules((prev) => prev.filter((_, i) => i !== mi));
@@ -72,18 +117,28 @@ export function CourseEditor({
         <div className="flex gap-[10px]">
           <button
             type="button"
-            className="h-[42px] rounded-[10px] border border-ink/13 bg-white px-4 text-sm font-semibold text-ink hover:border-brand hover:text-brand"
+            disabled={!ad.trim() || !url.trim() || kaydediliyor !== null}
+            onClick={() => kaydet("taslak")}
+            className="h-[42px] rounded-[10px] border border-ink/13 bg-white px-4 text-sm font-semibold text-ink hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Taslak kaydet
+            {kaydediliyor === "taslak" ? "Kaydediliyor…" : "Taslak kaydet"}
           </button>
           <button
             type="button"
-            className="h-[42px] rounded-[10px] bg-brand px-[18px] text-sm font-semibold text-white hover:bg-ink"
+            disabled={!ad.trim() || !url.trim() || kaydediliyor !== null}
+            onClick={() => kaydet("yayinda")}
+            className="h-[42px] rounded-[10px] bg-brand px-[18px] text-sm font-semibold text-white hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Yayınla
+            {kaydediliyor === "yayinda" ? "Yayınlanıyor…" : "Yayınla"}
           </button>
         </div>
       </div>
+
+      {hata && (
+        <div className="mt-4 rounded-[10px] border border-danger/35 bg-danger/7 px-4 py-3 text-sm text-danger-ink">
+          {hata}
+        </div>
+      )}
 
       <div className="mt-[22px] grid grid-cols-1 items-start gap-5 xl:grid-cols-[1fr_340px]">
         <div className="flex min-w-0 flex-col gap-5">
@@ -143,6 +198,8 @@ export function CourseEditor({
               <label className="flex flex-col gap-2 sm:col-span-2">
                 <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Kısa açıklama</span>
                 <textarea
+                  value={aciklama}
+                  onChange={(e) => setAciklama(e.target.value)}
                   placeholder="Sitede program kartında görünecek 1-2 cümle"
                   className="min-h-[86px] resize-y rounded-[10px] border border-ink/14 bg-white px-[14px] py-3 text-[14.5px] leading-[1.6] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
                 />
@@ -282,9 +339,11 @@ export function CourseEditor({
               </p>
               <button
                 type="button"
-                className="mt-[14px] h-10 rounded-[9px] border border-danger/35 bg-white px-[15px] text-[13.5px] font-semibold text-danger hover:bg-danger hover:text-white"
+                disabled={kaydediliyor !== null}
+                onClick={arsivle}
+                className="mt-[14px] h-10 rounded-[9px] border border-danger/35 bg-white px-[15px] text-[13.5px] font-semibold text-danger hover:bg-danger hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
               >
-                Programı arşivle
+                {kaydediliyor === "arsiv" ? "Arşivleniyor…" : "Programı arşivle"}
               </button>
             </div>
           )}

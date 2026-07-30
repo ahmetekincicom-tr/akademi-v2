@@ -9,15 +9,16 @@ import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
-import { courses, getCourseBySlug, egitmenStats, kutuNot } from "@/lib/courses";
+import { getCourses, getCourseBySlug, egitmenStats, kutuNot } from "@/lib/courses";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const courses = await getCourses();
   return courses.map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const course = getCourseBySlug(slug);
+  const course = await getCourseBySlug(slug);
   return { title: course ? `${course.baslik} — Ahmet Ekinci Akademi` : "Eğitim bulunamadı" };
 }
 
@@ -31,9 +32,10 @@ const nav = [
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const course = getCourseBySlug(slug);
+  const course = await getCourseBySlug(slug);
   if (!course) notFound();
 
+  const courses = await getCourses();
   const digerler = courses.filter((c) => c.slug !== course.slug);
 
   return (

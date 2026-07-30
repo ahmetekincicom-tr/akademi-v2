@@ -7,7 +7,7 @@ import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { siteNav } from "@/components/site/siteNav";
-import { courses } from "@/lib/courses";
+import { getCourses } from "@/lib/courses";
 
 export const metadata: Metadata = { title: "Kurumsal Eğitim — Ahmet Ekinci Akademi" };
 
@@ -33,7 +33,9 @@ const sss = [
   { soru: "Eğitim sonrası ekip için destek devam ediyor mu?", cevap: "Evet. Soru-cevap kanalı ekip için açık kalır; kampanya veya içerik gözden geçirme talepleri karşılanır." },
 ];
 
-export default function KurumsalPage() {
+export default async function KurumsalPage() {
+  const courses = await getCourses();
+
   return (
     <div className="bg-white">
       <AnnouncementBar />

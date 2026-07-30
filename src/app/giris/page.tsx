@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { CheckToggle } from "@/components/auth/CheckToggle";
+import { createClient } from "@/lib/supabase/client";
 
 export default function GirisPage() {
   const router = useRouter();
@@ -13,13 +14,24 @@ export default function GirisPage() {
   const [visible, setVisible] = useState(false);
   const [remember, setRemember] = useState(true);
   const [hata, setHata] = useState(false);
+  const [yukleniyor, setYukleniyor] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!email || !password) {
       setHata(true);
       return;
     }
+    setYukleniyor(true);
+    setHata(false);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setYukleniyor(false);
+    if (error) {
+      setHata(true);
+      return;
+    }
     router.push("/panel");
+    router.refresh();
   };
 
   return (
@@ -83,9 +95,10 @@ export default function GirisPage() {
         <button
           type="button"
           onClick={handleSubmit}
-          className="mt-6 h-[52px] w-full rounded-[11px] bg-brand text-base font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.28)] hover:bg-ink"
+          disabled={yukleniyor}
+          className="mt-6 h-[52px] w-full rounded-[11px] bg-brand text-base font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.28)] hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Giriş yap
+          {yukleniyor ? "Giriş yapılıyor…" : "Giriş yap"}
         </button>
 
         <div className="mt-6 flex items-center gap-[14px]">

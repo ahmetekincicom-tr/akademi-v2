@@ -4,13 +4,29 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { PasswordField } from "@/components/auth/PasswordField";
+import { createClient } from "@/lib/supabase/client";
 
 export default function SifreBelirlePage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [yukleniyor, setYukleniyor] = useState(false);
+  const [hata, setHata] = useState<string | null>(null);
 
   const canSubmit = password.length >= 8 && password === confirm;
+
+  const handleSubmit = async () => {
+    setYukleniyor(true);
+    setHata(null);
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({ password });
+    setYukleniyor(false);
+    if (error) {
+      setHata(error.message);
+      return;
+    }
+    router.push("/sifre-belirle/tamam");
+  };
 
   return (
     <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
@@ -32,13 +48,21 @@ export default function SifreBelirlePage() {
             />
           </label>
         </div>
+        {hata && (
+          <div className="mt-4 flex items-start gap-[11px] rounded-[11px] border border-danger/35 bg-danger/7 px-[15px] py-[13px]">
+            <span className="flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-danger text-[11px] font-bold text-white">
+              !
+            </span>
+            <span className="text-sm leading-[1.5] text-danger-ink">{hata}</span>
+          </div>
+        )}
         <button
           type="button"
-          disabled={!canSubmit}
-          onClick={() => router.push("/sifre-belirle/tamam")}
+          disabled={!canSubmit || yukleniyor}
+          onClick={handleSubmit}
           className="mt-6 h-[52px] w-full rounded-[11px] bg-brand text-base font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.28)] hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"
         >
-          Şifreyi güncelle
+          {yukleniyor ? "Güncelleniyor…" : "Şifreyi güncelle"}
         </button>
       </div>
     </AuthShell>

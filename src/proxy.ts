@@ -1,34 +1,46 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import crypto from "node:crypto";
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
-const COOKIE_NAME = "admin_auth";
+export async function proxy(request: NextRequest) {
+  let response = NextResponse.next({ request });
 
-function expectedCookieValue(): string | null {
-  const password = process.env.ADMIN_PASSWORD;
-  if (!password) return null;
-  return crypto.createHash("sha256").update(password).digest("hex");
-}
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options),
+          );
+        },
+      },
+    },
+  );
 
-export function proxy(request: NextRequest) {
+  // Refreshes the session cookie on every request so server components
+  // always see a valid (non-expired) session.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { pathname } = request.nextUrl;
+  const isAdminRoute = pathname.startsWith("/admin") && pathname !== "/admin/giris";
 
-  if (pathname === "/admin/giris") {
-    return NextResponse.next();
+  if (isAdminRoute && !user) {
+    const loginUrl = new URL("/admin/giris", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  const expected = expectedCookieValue();
-  const actual = request.cookies.get(COOKIE_NAME)?.value;
-
-  if (expected && actual === expected) {
-    return NextResponse.next();
-  }
-
-  const loginUrl = new URL("/admin/giris", request.url);
-  loginUrl.searchParams.set("next", pathname);
-  return NextResponse.redirect(loginUrl);
+  return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
