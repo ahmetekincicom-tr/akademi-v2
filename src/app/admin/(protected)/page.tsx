@@ -16,6 +16,7 @@ export default async function AdminGenelBakisPage() {
     { data: payments },
     { data: tickets },
     { data: seanslar },
+    { data: okunmamisMesajlar },
   ] = await Promise.all([
     supabase.from("profiles").select("id, ad, soyad, email, role, created_at"),
     supabase.from("enrollments").select("user_id, course_id"),
@@ -27,6 +28,7 @@ export default async function AdminGenelBakisPage() {
       .order("odeme_tarihi", { ascending: false }),
     supabase.from("support_tickets").select("id, durum, created_at"),
     supabase.from("seanslar").select("id, baslangic, durum").eq("durum", "planlandi"),
+    supabase.from("iletisim_mesajlari").select("id").eq("okundu", false),
   ]);
 
   type CourseRow = { id: string; baslik: string; durum: string; modules: { lessons: { id: string }[] }[] };
@@ -119,6 +121,12 @@ export default async function AdminGenelBakisPage() {
   ).length;
 
   const bekleyenler = [
+    (okunmamisMesajlar ?? []).length > 0 && {
+      baslik: `${(okunmamisMesajlar ?? []).length} okunmamış mesaj`,
+      alt: "Siteden gelen iletişim ve teklif talepleri",
+      nokta: "#1C56F3",
+      href: "/admin/mesajlar",
+    },
     bekleyenOdeme.length > 0 && {
       baslik: `${bekleyenOdeme.length} ödeme onay bekliyor`,
       alt: para(bekleyenOdeme.reduce((n, p) => n + Number(p.tutar), 0)),

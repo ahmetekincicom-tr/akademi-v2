@@ -7,7 +7,7 @@ import { initials } from "@/lib/admin/shared";
 import { Icon, type IconName } from "@/components/Icon";
 import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 
-export type AdminSayilar = { ogrenci: number; talep: number; odeme: number; video: number };
+export type AdminSayilar = { ogrenci: number; talep: number; odeme: number; video: number; mesaj: number };
 
 type MenuItem = { href: string; label: string; icon: IconName; sayac?: keyof AdminSayilar };
 type MenuGroup = { title: string; items: MenuItem[] };
@@ -19,6 +19,7 @@ const groups: MenuGroup[] = [
     items: [
       { href: "/admin/ogrenciler", label: "Öğrenciler", icon: "users", sayac: "ogrenci" },
       { href: "/admin/destek", label: "Destek talepleri", icon: "message", sayac: "talep" },
+      { href: "/admin/mesajlar", label: "Gelen mesajlar", icon: "external", sayac: "mesaj" },
       { href: "/admin/seanslar", label: "Seans takvimi", icon: "calendar" },
     ],
   },
@@ -46,6 +47,7 @@ const pageTitles: Record<string, string> = {
   "/admin/egitimler": "Eğitimler",
   "/admin/odemeler": "Ödemeler",
   "/admin/destek": "Destek talepleri",
+  "/admin/mesajlar": "Gelen mesajlar",
   "/admin/dokumanlar": "Dokümanlar",
   "/admin/seanslar": "Seans takvimi",
   "/admin/video": "Video kütüphanesi",

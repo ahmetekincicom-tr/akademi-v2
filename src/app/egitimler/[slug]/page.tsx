@@ -252,16 +252,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 ))}
               </div>
               <Link
-                href="/odeme"
-                className="mt-[22px] flex h-13 items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[16px] font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.32)] hover:bg-ink"
+                href={`/odeme?kurs=${course.slug}`}
+                className="mt-[22px] flex h-13 items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[16px] font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.32)] transition hover:bg-ink"
               >
-                Hemen katıl <span>→</span>
+                Ücretsiz ön görüşme talep et <span>→</span>
               </Link>
               <Link
                 href="/iletisim"
-                className="mt-[10px] flex h-12 items-center justify-center rounded-[11px] border border-ink/14 text-[15px] font-semibold text-ink hover:border-brand hover:text-brand"
+                className="mt-[10px] flex h-12 items-center justify-center rounded-[11px] border border-ink/14 text-[15px] font-semibold text-ink transition hover:border-brand hover:text-brand"
               >
-                Ücretsiz ön görüşme planla
+                Soru sor
               </Link>
               <div className="mt-[18px] flex flex-col gap-[10px] border-t border-ink/9 pt-[18px]">
                 {kutuNot.map((n) => (
