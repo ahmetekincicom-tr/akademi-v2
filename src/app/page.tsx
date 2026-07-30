@@ -1,0 +1,584 @@
+import Link from "next/link";
+import { AnnouncementBar } from "@/components/site/AnnouncementBar";
+import { PublicHeader } from "@/components/site/PublicHeader";
+import { PublicFooter } from "@/components/site/PublicFooter";
+import { CorporateStrip } from "@/components/site/CorporateStrip";
+import { TestimonialCard } from "@/components/site/TestimonialCard";
+import { FaqAccordion } from "@/components/site/FaqAccordion";
+
+const nav = [
+  { label: "Eğitimler", href: "#egitimler" },
+  { label: "Neden birebir", href: "#neden" },
+  { label: "Nasıl işler", href: "#surec" },
+  { label: "Yorumlar", href: "#yorumlar" },
+  { label: "Üye alanı", href: "#panel" },
+];
+
+const heroStats = [
+  { n: "5 yıl", t: "kesintisiz birebir eğitim" },
+  { n: "400+", t: "eğitimi tamamlayan katılımcı" },
+  { n: "1:1", t: "her programda tek katılımcı" },
+];
+
+const platforms = [
+  "Meta Ads",
+  "Instagram",
+  "TikTok",
+  "LinkedIn",
+  "Google Analytics",
+  "Photoshop",
+  "After Effects",
+  "ChatGPT",
+  "Canva",
+  "Business Manager",
+];
+
+const logos = ["referans 01", "referans 02", "referans 03", "referans 04", "referans 05", "referans 06", "referans 07", "referans 08"];
+
+const programs = [
+  {
+    etiket: "Meta Ads",
+    sure: "15 saat",
+    modul: "6 modül",
+    baslik: "Birebir Meta Business Eğitimi",
+    aciklama:
+      "Reklam hesabı kurulumundan ölçeklemeye kadar Meta Ads'in tamamı; kendi bütçeniz ve kendi kampanyalarınız üzerinden.",
+    maddeler: ["Hesap, piksel ve dönüşüm kurulumu", "Hedef kitle ve kreatif testleri", "Raporlama ve bütçe ölçekleme"],
+    href: "/egitimler/meta-business",
+  },
+  {
+    etiket: "Sosyal medya",
+    sure: "22 saat",
+    modul: "8 modül",
+    baslik: "Birebir Sosyal Medya Eğitimi",
+    aciklama:
+      "İçerik üretiminden topluluk yönetimine, bir markanın sosyal medyasını baştan sona yürütme pratiği.",
+    maddeler: ["İçerik stratejisi ve takvim kurulumu", "Çekim, kurgu ve metin akışı", "Büyüme ölçümü ve raporlama"],
+    href: "/egitimler/sosyal-medya",
+  },
+  {
+    etiket: "Yapay zekâ",
+    sure: "7 saat",
+    modul: "4 modül",
+    baslik: "Pazarlamada Yapay Zekâ Eğitimi",
+    aciklama: "Pazarlama işinizi hızlandıran yapay zekâ araçları: içerik, görsel, analiz ve otomasyon akışları.",
+    maddeler: ["Metin ve görsel üretim akışları", "Veriden içgörü çıkarma", "Tekrar eden işlerin otomasyonu"],
+    href: "/egitimler/yapay-zeka",
+  },
+];
+
+const farklar = [
+  {
+    no: "01",
+    baslik: "Gerçek zamanlı birebir",
+    metin: "Kalabalık sınıf yok. Ekranınızı paylaşır, kendi hesabınız üzerinde birlikte çalışırız.",
+  },
+  {
+    no: "02",
+    baslik: "Ömür boyu destek",
+    metin: "Program bittiğinde bağlantı kopmaz. Sonraki kampanyalarınızda da sorularınızı yanıtlıyoruz.",
+  },
+  {
+    no: "03",
+    baslik: "Doküman & video desteği",
+    metin: "Her ders sonrası şablonlar, kontrol listeleri ve ders kaydı üye alanınıza eklenir.",
+  },
+  {
+    no: "04",
+    baslik: "Kişiye özel müfredat",
+    metin: "Ön görüşmede işinizi dinleriz; program sektörünüze, seviyenize ve hedefinize göre yazılır.",
+  },
+];
+
+const surec = [
+  {
+    no: "1",
+    etiket: "Ücretsiz",
+    baslik: "Ön görüşme",
+    metin: "İşinizi, seviyenizi ve hedefinizi konuşuruz. Hangi programın uyduğunu birlikte netleştiririz.",
+  },
+  {
+    no: "2",
+    etiket: "Planlama",
+    baslik: "Müfredat kurulumu",
+    metin: "Modüller sizin sektörünüze göre yeniden düzenlenir, ders takvimi birlikte belirlenir.",
+  },
+  {
+    no: "3",
+    etiket: "Uygulama",
+    baslik: "Canlı dersler",
+    metin: "Her ders kendi hesabınız üzerinde uygulamayla ilerler; kayıt ve dokümanlar panele düşer.",
+  },
+  {
+    no: "4",
+    etiket: "Süresiz",
+    baslik: "Ders sonrası destek",
+    metin: "Soru-cevap kanalı ve birebir seans takvimiyle uygulama sürecinde yanınızda kalırız.",
+  },
+];
+
+const panelOzellik = [
+  "Ders videoları ve ilerleme takibi",
+  "Şablon ve doküman kütüphanesi",
+  "Birebir seans randevu takvimi",
+  "Soru-cevap destek kanalı",
+  "Ödeme ve fatura geçmişi",
+  "Yeni eğitim satın alma",
+];
+
+const panelKart = [
+  { etiket: "Meta Business", deger: "%72 tamamlandı", yuzde: "72%" },
+  { etiket: "Sosyal Medya", deger: "%38 tamamlandı", yuzde: "38%" },
+  { etiket: "Dokümanlar", deger: "24 dosya", yuzde: "100%" },
+  { etiket: "Sonraki seans", deger: "12 Ağustos, 14:00", yuzde: "50%" },
+];
+
+const yorumlar = [
+  {
+    metin:
+      "Her soruma anında ve detaylı geri bildirim aldığım akıcı bir eğitimdi. Birebir olması “sıkılır mıyız?” endişesi yaratmıştı ama hiç bitmesin istedim.",
+    isim: "Selame Hopurcuoğlu Yorulmaz",
+    rol: "Oyunlaştırma Tasarımcısı",
+  },
+  {
+    metin:
+      "Piyasadaki eğitimlerin çoğunu almış biri olarak söyleyebilirim: öğrendiklerimi uygulamaya döktüm ve sonuçlarını almaya başladım bile.",
+    isim: "Sema Şengün",
+    rol: "Sosyal Medya Yöneticisi",
+  },
+  {
+    metin: "Reklam eğitimi desteği almaya başladıktan sonra satışlarımda ve takipçi sayımda gözle görülür bir artış oldu.",
+    isim: "Ahmet Bahçeci",
+    rol: "e-Ticaret Satıcısı",
+  },
+  {
+    metin:
+      "Karmaşık görünen konuları sade ve anlaşılır aktarması konuyu hızlı kavramamı sağladı. Teoride kalmadı, pratikte nasıl uygulanacağını da gösterdi.",
+    isim: "Burçin Uğur",
+    rol: "e-Ticaret Satıcısı",
+  },
+  {
+    metin: "Eğitim sonrasında da her zaman destek vereceğini garanti etmesi insanı güvende hissettiriyor.",
+    isim: "Seren Aker",
+    rol: "Lojistik",
+  },
+  {
+    metin:
+      "Çalıştığım firmanın detaylarına hâkim olması ve önceden araştırma yaparak hazırlanması eğitimi çok daha verimli kıldı.",
+    isim: "Yasemin Turan",
+    rol: "Marketing Communication Specialist",
+  },
+];
+
+const sss = [
+  {
+    soru: "Eğitimler gerçek zamanlı mı, kayıt mı?",
+    cevap: "Tamamı gerçek zamanlı ve birebir. Kayıtlar yalnızca tekrar amacıyla üye alanınızda arşivlenir.",
+  },
+  {
+    soru: "Hiç deneyimim yok, uygun mudur?",
+    cevap:
+      "Evet. Müfredat ön görüşmede seviyenize göre yeniden kurulur; sıfırdan başlayan ile ajansta çalışan aynı programı almaz.",
+  },
+  {
+    soru: "Online mı, yüz yüze mi?",
+    cevap: "İkisi de mümkün. Ankara'da yüz yüze görüşebiliriz; şehir dışındaki katılımcılarla program çevrimiçi yürür.",
+  },
+  {
+    soru: "Eğitim bittikten sonra destek var mı?",
+    cevap:
+      "Var. Üye alanındaki soru-cevap kanalına erişiminiz kalır; kampanyalarınızı birlikte gözden geçirmeye devam ederiz.",
+  },
+  {
+    soru: "Fiyatlar neden sitede yazmıyor?",
+    cevap:
+      "Her program tek kişiye göre kurulduğu için süre ve kapsam değişiyor. Ön görüşmeden sonra net bir teklif paylaşıyoruz.",
+  },
+  {
+    soru: "Fatura ve kurumsal ödeme mümkün mü?",
+    cevap: "Evet. Bireysel ve kurumsal faturalandırma, havale ve taksitli kredi kartı seçenekleri mevcut.",
+  },
+];
+
+function SectionKicker({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.16em] text-brand uppercase">
+      <span className="h-px w-[22px] bg-brand" />
+      {children}
+    </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <div className="bg-white">
+      <AnnouncementBar />
+      <PublicHeader nav={nav} ctaLabel="Eğitimleri incele" ctaHref="#egitimler" />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-ink text-white">
+        <div
+          className="bg-grid-dark absolute inset-0"
+          style={{
+            maskImage: "radial-gradient(120% 90% at 30% 20%, #000 30%, transparent 75%)",
+            WebkitMaskImage: "radial-gradient(120% 90% at 30% 20%, #000 30%, transparent 75%)",
+          }}
+        />
+        <div className="absolute -top-40 -right-30 h-[620px] w-[620px] rounded-full bg-brand opacity-20 blur-[120px]" />
+        <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-8 pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div className="animate-rise">
+            <div className="inline-flex h-8 items-center gap-[10px] rounded-full border border-brand/55 bg-brand/14 px-[14px] font-mono text-[11px] tracking-[0.14em] text-[#A9C0FF] uppercase">
+              <span className="h-[6px] w-[6px] rounded-full bg-brand" />
+              2021&apos;den beri birebir eğitim
+            </div>
+            <h1 className="mt-[26px] font-heading text-[42px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[52px] lg:text-[66px] lg:leading-[1.02]">
+              Dijital pazarlamayı
+              <br />
+              <span className="text-brand">birebir</span> öğrenin,
+              <br />
+              işinizde uygulayın.
+            </h1>
+            <p className="mt-[26px] max-w-[540px] text-[19px] leading-[1.62] text-white/68">
+              Meta Ads, sosyal medya yönetimi ve yapay zekâ araçları. Kayıtlı kurs değil: gerçek zamanlı, tek
+              katılımcıya göre kurulan müfredat — ve ders sonrası ömür boyu destek.
+            </p>
+            <div className="mt-[38px] flex flex-wrap items-center gap-[18px]">
+              <Link
+                href="#egitimler"
+                className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-7 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] hover:bg-white hover:text-ink"
+              >
+                Eğitimleri incele <span>→</span>
+              </Link>
+              <span className="font-mono text-xs tracking-[0.06em] text-white/50">Ücretsiz ön görüşmeyle başlar</span>
+            </div>
+            <div className="mt-14 flex flex-wrap gap-11">
+              {heroStats.map((s) => (
+                <div key={s.t}>
+                  <div className="font-heading text-[32px] font-semibold tracking-[-0.03em]">{s.n}</div>
+                  <div className="mt-1 text-[13px] text-white/55">{s.t}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="relative pb-24">
+            <div className="placeholder-block-dark relative flex aspect-[4/5] items-end overflow-hidden rounded-[18px] p-[22px]">
+              <span className="rounded-[7px] bg-ink/72 px-[11px] py-[7px] font-mono text-[11px] tracking-[0.08em] text-white/60">
+                ahmet ekinci — portre / dikey
+              </span>
+            </div>
+            <div className="animate-float absolute bottom-[130px] -left-[34px] rounded-[13px] bg-white px-[18px] py-4 text-ink shadow-[0_20px_44px_rgba(0,0,0,0.34)]">
+              <div className="font-mono text-[10px] tracking-[0.14em] text-[#6B7080] uppercase">Ders formatı</div>
+              <div className="mt-[6px] text-[15px] font-semibold">Canlı · 1 eğitmen · 1 katılımcı</div>
+            </div>
+            <div className="animate-float-delay absolute right-[-18px] bottom-[52px] rounded-[13px] bg-brand px-[18px] py-4 text-white shadow-[0_20px_44px_rgba(28,86,243,0.4)]">
+              <div className="font-mono text-[10px] tracking-[0.14em] text-white/72 uppercase">Ders sonrası</div>
+              <div className="mt-[6px] text-[15px] font-semibold">Ömür boyu soru-cevap</div>
+            </div>
+          </div>
+        </div>
+        <div className="relative mt-[-40px] overflow-hidden border-t border-white/9">
+          <div className="mx-auto flex max-w-[1240px] items-center gap-8 px-8 py-[22px]">
+            <span className="font-mono text-[10.5px] tracking-[0.16em] whitespace-nowrap text-white/40 uppercase">
+              Çalıştığımız platformlar
+            </span>
+            <div
+              className="flex-1 overflow-hidden"
+              style={{
+                maskImage: "linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)",
+                WebkitMaskImage: "linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)",
+              }}
+            >
+              <div className="animate-marquee flex w-max gap-[52px]">
+                {platforms.concat(platforms).map((p, i) => (
+                  <span
+                    key={p + i}
+                    className="font-heading text-[16px] font-medium tracking-[-0.01em] whitespace-nowrap text-white/52"
+                  >
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Logos */}
+      <section className="border-b border-ink/8 bg-mist">
+        <div className="mx-auto flex max-w-[1240px] items-center gap-10 px-8 py-[34px]">
+          <span className="max-w-[150px] font-mono text-[10.5px] leading-[1.6] tracking-[0.16em] text-[#8A8F9E] uppercase">
+            Eğitimlerimizi tercih eden kuruluşlar
+          </span>
+          <div
+            className="flex-1 overflow-hidden"
+            style={{
+              maskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
+              WebkitMaskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
+            }}
+          >
+            <div className="animate-marquee-slow flex w-max gap-[22px]">
+              {logos.concat(logos).map((l, i) => (
+                <div
+                  key={l + i}
+                  className="placeholder-block flex h-[46px] w-[132px] flex-none items-center justify-center rounded-[8px] font-mono text-[10px] tracking-[0.06em] text-[#9CA1AE]"
+                >
+                  {l}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Programs */}
+      <section id="egitimler" className="mx-auto max-w-[1240px] px-8 pt-26 pb-24">
+        <div className="mb-12 flex flex-wrap items-end justify-between gap-10">
+          <div>
+            <SectionKicker>Programlar</SectionKicker>
+            <h2 className="mt-[18px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[44px]">
+              Üç program, tek yöntem
+            </h2>
+          </div>
+          <div className="text-left lg:text-right">
+            <p className="mb-[14px] max-w-[380px] text-[15.5px] leading-[1.6] text-[#5C6273]">
+              Her program online veya Ankara&apos;da yüz yüze ilerler. Müfredat, ön görüşmede işinize göre yeniden
+              düzenlenir.
+            </p>
+            <Link href="/egitimler" className="text-[14.5px] font-semibold">
+              Tüm eğitimleri keşfet →
+            </Link>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-[22px] md:grid-cols-3">
+          {programs.map((p) => (
+            <div
+              key={p.baslik}
+              className="flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
+            >
+              <div className="placeholder-block relative flex aspect-video items-end border-b border-ink/8 p-[14px]">
+                <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#8A8F9E]">
+                  program görseli 16:9
+                </span>
+                <span className="absolute top-[14px] left-[14px] rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
+                  {p.etiket}
+                </span>
+              </div>
+              <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
+                <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">
+                  <span>{p.sure}</span>
+                  <span className="text-ink/20">•</span>
+                  <span>{p.modul}</span>
+                </div>
+                <h3 className="mt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
+                  {p.baslik}
+                </h3>
+                <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
+                <div className="mt-auto flex flex-col gap-[11px] border-t border-ink/8 pt-5">
+                  {p.maddeler.map((m) => (
+                    <div key={m} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
+                      <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-[10px] font-bold text-brand">
+                        ✓
+                      </span>
+                      <span>{m}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link
+                  href={p.href}
+                  className="mt-[26px] flex h-[46px] items-center justify-between rounded-[10px] bg-[#F2F4FA] px-[18px] text-[14.5px] font-semibold text-ink hover:bg-brand hover:text-white"
+                >
+                  <span>Program detayını incele</span>
+                  <span>→</span>
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Neden birebir */}
+      <section id="neden" className="relative overflow-hidden bg-ink text-white">
+        <div className="absolute -bottom-55 -left-35 h-[560px] w-[560px] rounded-full bg-brand opacity-16 blur-[130px]" />
+        <div className="relative mx-auto max-w-[1240px] px-8 py-26">
+          <div className="flex flex-wrap items-end justify-between gap-12">
+            <div className="max-w-[620px]">
+              <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.16em] text-[#7FA0FF] uppercase">
+                <span className="h-px w-[22px] bg-brand" />
+                Fark
+              </div>
+              <h2 className="mt-[18px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[46px]">
+                Kurs satmıyoruz.
+                <br />
+                <span className="text-brand">Birlikte çalışıyoruz.</span>
+              </h2>
+            </div>
+            <p className="max-w-[360px] text-[15.5px] leading-[1.65] text-white/60">
+              Aynı içeriği herkese anlatan bir platform değiliz. Program, sizin hesabınız ve sizin hedefiniz üzerine
+              kurulur.
+            </p>
+          </div>
+          <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {farklar.map((f) => (
+              <div
+                key={f.no}
+                className="rounded-[15px] border border-white/12 bg-white/3 p-6 px-6 pt-7 pb-[30px] transition hover:-translate-y-1 hover:border-brand/50 hover:bg-brand/12"
+              >
+                <div className="font-heading text-[34px] font-semibold tracking-[-0.03em] text-brand">{f.no}</div>
+                <h3 className="mt-[22px] text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{f.baslik}</h3>
+                <p className="mt-[11px] text-[14.5px] leading-[1.65] text-white/60">{f.metin}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Süreç */}
+      <section id="surec" className="mx-auto max-w-[1240px] px-8 pt-26 pb-24">
+        <SectionKicker>Süreç</SectionKicker>
+        <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[44px]">
+          Kayıttan sonra nasıl ilerliyoruz
+        </h2>
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
+          {surec.map((a) => (
+            <div key={a.no} className="bg-white p-[26px] px-[26px] pt-[30px] pb-[34px] transition hover:bg-[#F5F8FF]">
+              <div className="flex items-center gap-3">
+                <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[8px] bg-brand font-mono text-[11px] font-medium text-white">
+                  {a.no}
+                </span>
+                <span className="font-mono text-[10.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">{a.etiket}</span>
+              </div>
+              <h3 className="mt-5 text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{a.baslik}</h3>
+              <p className="mt-[10px] text-[14.5px] leading-[1.65] text-[#5C6273]">{a.metin}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Üye alanı preview */}
+      <section id="panel" className="border-y border-ink/8 bg-mist">
+        <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-16 px-8 py-24 lg:grid-cols-[0.95fr_1.05fr]">
+          <div>
+            <SectionKicker>Üye alanı</SectionKicker>
+            <h2 className="mt-[18px] font-heading text-[32px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[42px]">
+              Eğitim bittiğinde
+              <br />
+              erişiminiz bitmiyor.
+            </h2>
+            <p className="mt-[22px] max-w-[480px] text-[16.5px] leading-[1.62] text-[#5C6273]">
+              Katılımcı panelinde ders kayıtlarınız, şablonlar ve kontrol listeleri, birebir seans takviminiz,
+              faturalarınız ve soru-cevap kanalı tek yerde toplanır.
+            </p>
+            <div className="mt-[30px] grid grid-cols-1 gap-x-[26px] gap-y-3 sm:grid-cols-2">
+              {panelOzellik.map((o) => (
+                <div key={o} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
+                  <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-[10px] font-bold text-brand">
+                    ✓
+                  </span>
+                  <span>{o}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-[34px] flex items-center gap-[18px]">
+              <Link
+                href="/giris"
+                className="inline-flex h-[50px] items-center gap-[9px] rounded-[10px] bg-ink px-[22px] text-[15.5px] font-semibold text-white hover:bg-brand"
+              >
+                Panele giriş yap <span>→</span>
+              </Link>
+              <span className="font-mono text-xs text-[#8A8F9E]">Katılımcılara özel</span>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-[0_26px_60px_rgba(10,13,24,0.1)]">
+            <div className="flex h-10 items-center gap-2 border-b border-ink/8 px-4">
+              <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
+              <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
+              <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
+              <span className="ml-3 font-mono text-[10.5px] text-[#9CA1AE]">panel.ahmetekinciakademi.com</span>
+            </div>
+            <div className="p-[22px]">
+              <div className="flex items-center justify-between gap-5 rounded-xl bg-ink px-[22px] py-5 text-white">
+                <div>
+                  <div className="font-mono text-[10px] tracking-[0.14em] text-white/50 uppercase">
+                    Kaldığın yerden devam et
+                  </div>
+                  <div className="mt-2 text-[16px] font-semibold">Modül 4 · Kampanya bütçe ölçekleme</div>
+                </div>
+                <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-brand text-sm">
+                  ▶
+                </span>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {panelKart.map((k) => (
+                  <div key={k.etiket} className="rounded-[11px] border border-ink/10 p-4">
+                    <div className="font-mono text-[10px] tracking-[0.1em] text-[#9CA1AE] uppercase">{k.etiket}</div>
+                    <div className="mt-2 text-[15px] font-semibold">{k.deger}</div>
+                    <div className="mt-3 h-[5px] overflow-hidden rounded-full bg-ink/8">
+                      <div className="h-full rounded-full bg-brand" style={{ width: k.yuzde }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section id="yorumlar" className="mx-auto max-w-[1240px] px-8 pt-26 pb-24">
+        <div className="mb-12 flex flex-wrap items-end justify-between gap-10">
+          <div>
+            <SectionKicker>Katılımcı yorumları</SectionKicker>
+            <h2 className="mt-[18px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[44px]">
+              Eğitimden sonra ne değişti
+            </h2>
+          </div>
+          <Link href="/yorumlar" className="text-[14.5px] font-semibold whitespace-nowrap">
+            Tüm yorumlar →
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2 lg:grid-cols-3">
+          {yorumlar.map((y) => (
+            <TestimonialCard key={y.isim} {...y} />
+          ))}
+        </div>
+      </section>
+
+      <CorporateStrip text="Ekibinize özel, yerinde ya da uzaktan dijital pazarlama eğitimi." />
+
+      {/* FAQ */}
+      <section className="mx-auto grid max-w-[1240px] grid-cols-1 gap-18 px-8 py-26 lg:grid-cols-[0.75fr_1.25fr]">
+        <div>
+          <SectionKicker>SSS</SectionKicker>
+          <h2 className="mt-[18px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
+            Sık sorulanlar
+          </h2>
+          <p className="mt-5 text-[15.5px] leading-[1.62] text-[#5C6273]">
+            Aradığınız yanıt yoksa ön görüşmede tek tek konuşuruz.
+          </p>
+          <Link href="/iletisim" className="mt-5 inline-flex text-[14.5px] font-semibold">
+            WhatsApp&apos;tan sor →
+          </Link>
+        </div>
+        <FaqAccordion items={sss} />
+      </section>
+
+      {/* Closing CTA */}
+      <section className="relative overflow-hidden bg-ink text-white">
+        <div className="absolute -top-45 right-[10%] h-[520px] w-[520px] rounded-full bg-brand opacity-22 blur-[120px]" />
+        <div className="relative mx-auto flex max-w-[1240px] flex-wrap items-end justify-between gap-14 px-8 py-26">
+          <h2 className="max-w-[660px] font-heading text-[32px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[48px]">
+            Hangi programın size uyduğunu <span className="text-brand">konuşarak</span> bulalım.
+          </h2>
+          <Link
+            href="#egitimler"
+            className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-7 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] hover:bg-white hover:text-ink"
+          >
+            Eğitimleri incele <span>→</span>
+          </Link>
+        </div>
+      </section>
+
+      <PublicFooter />
+    </div>
+  );
+}
