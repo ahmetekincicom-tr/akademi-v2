@@ -85,8 +85,10 @@ export function CourseEditor({
   const arsivle = async () => {
     if (!originalSlug) return;
     setKaydediliyor("arsiv");
-    await arsivleCourse(originalSlug);
+    setHata(null);
+    const sonuc = await arsivleCourse(originalSlug);
     setKaydediliyor(null);
+    if (sonuc?.error) setHata(sonuc.error);
   };
 
   const modulEkle = () => setModules((prev) => prev.concat({ ad: "", dersler: [] }));

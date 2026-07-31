@@ -39,6 +39,7 @@ const groups: MenuGroup[] = [
       { href: "/admin/odemeler", label: "Ödemeler", icon: "card", sayac: "odeme" },
       { href: "/admin/entegrasyonlar", label: "Entegrasyonlar", icon: "plug" },
       { href: "/admin/ayarlar", label: "Ayarlar", icon: "sliders" },
+      { href: "/admin/tani", label: "Sistem tanılama", icon: "shield" },
     ],
   },
 ];
@@ -57,6 +58,7 @@ const pageTitles: Record<string, string> = {
   "/admin/video": "Video kütüphanesi",
   "/admin/entegrasyonlar": "Entegrasyonlar",
   "/admin/ayarlar": "Ayarlar",
+  "/admin/tani": "Sistem tanılama",
 };
 
 function isActive(pathname: string, href: string) {

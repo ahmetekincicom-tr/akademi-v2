@@ -126,7 +126,13 @@ export async function getCourses(client?: SupabaseClient): Promise<Course[]> {
     .select(COURSE_SELECT)
     .order("created_at", { ascending: true });
 
-  if (error || !data) return [];
+  if (error) {
+    // Silently returning [] here made an RLS or schema failure look exactly
+    // like "no courses exist", which cost a lot of debugging time.
+    console.error("[courses] getCourses başarısız:", error.message, error.details ?? "", error.hint ?? "");
+    return [];
+  }
+  if (!data) return [];
   return (data as unknown as CourseRow[]).map(mapCourse);
 }
 
@@ -134,6 +140,10 @@ export async function getCourseBySlug(slug: string, client?: SupabaseClient): Pr
   const supabase = client ?? createPublicClient();
   const { data, error } = await supabase.from("courses").select(COURSE_SELECT).eq("slug", slug).maybeSingle();
 
-  if (error || !data) return undefined;
+  if (error) {
+    console.error("[courses] getCourseBySlug başarısız:", slug, error.message, error.details ?? "");
+    return undefined;
+  }
+  if (!data) return undefined;
   return mapCourse(data as unknown as CourseRow);
 }

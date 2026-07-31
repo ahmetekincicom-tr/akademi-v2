@@ -104,8 +104,17 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
   let savedId = courseId;
 
   if (courseId) {
-    const { error } = await supabase.from("courses").update(row).eq("id", courseId);
+    // .select() matters: without it a write blocked by RLS returns no error and
+    // zero affected rows, which is indistinguishable from success.
+    const { data: guncellenen, error } = await supabase
+      .from("courses")
+      .update(row)
+      .eq("id", courseId)
+      .select("id");
     if (error) return { error: error.code === "23505" ? "Bu URL zaten kullanılıyor." : error.message };
+    if (!guncellenen || guncellenen.length === 0) {
+      return { error: "Değişiklik kaydedilemedi. Yönetici yetkisi doğrulanamadı (RLS)." };
+    }
   } else {
     const { data: inserted, error } = await supabase.from("courses").insert(row).select("id").single();
     if (error) return { error: error.code === "23505" ? "Bu URL zaten kullanılıyor." : error.message };
@@ -160,8 +169,20 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
   redirect("/admin/egitimler");
 }
 
-export async function arsivleCourse(slug: string) {
+export async function arsivleCourse(slug: string): Promise<{ error?: string }> {
   const supabase = await createClient();
-  await supabase.from("courses").update({ durum: "arsivlendi", satisa_acik: false }).eq("slug", slug);
+  const { data, error } = await supabase
+    .from("courses")
+    .update({ durum: "arsivlendi", satisa_acik: false })
+    .eq("slug", slug)
+    .select("id");
+
+  if (error) return { error: error.message };
+  // RLS rejects silently by matching zero rows rather than erroring, so an
+  // empty result here means the write was blocked, not that it succeeded.
+  if (!data || data.length === 0) {
+    return { error: "Kayıt güncellenemedi. Yönetici yetkisi doğrulanamadı (RLS)." };
+  }
+
   redirect("/admin/egitimler");
 }
