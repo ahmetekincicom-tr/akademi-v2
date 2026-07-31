@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import { TopLoader } from "@/components/site/TopLoader";
+import { getMarka } from "@/lib/marka";
 import "./globals.css";
 
 const heading = Space_Grotesk({
@@ -21,10 +22,18 @@ const mono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
-export const metadata: Metadata = {
-  title: "Ahmet Ekinci Akademi",
-  description: "Ankara merkezli, birebir dijital pazarlama eğitimi — Meta Ads, sosyal medya yönetimi ve yapay zekâ araçları.",
-};
+// Favicon admin panelinden yüklenebildiği için metadata dinamik üretilir;
+// yüklenmemişse app/favicon.ico devreye girer.
+export async function generateMetadata(): Promise<Metadata> {
+  const marka = await getMarka();
+
+  return {
+    title: "Ahmet Ekinci Akademi",
+    description:
+      "Ankara merkezli, birebir dijital pazarlama eğitimi — Meta Ads, sosyal medya yönetimi ve yapay zekâ araçları.",
+    ...(marka.favicon ? { icons: { icon: marka.favicon, shortcut: marka.favicon, apple: marka.favicon } } : {}),
+  };
+}
 
 export default function RootLayout({
   children,

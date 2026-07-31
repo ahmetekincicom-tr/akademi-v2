@@ -32,6 +32,7 @@ const groups: MenuGroup[] = [
       { href: "/admin/yorumlar", label: "Katılımcı yorumları", icon: "message" },
       { href: "/admin/referanslar", label: "Referans logoları", icon: "sparkle" },
       { href: "/admin/yasal", label: "Yasal metinler", icon: "file" },
+      { href: "/admin/marka", label: "Logo ve favicon", icon: "sparkle" },
     ],
   },
   {
@@ -56,6 +57,7 @@ const pageTitles: Record<string, string> = {
   "/admin/yorumlar": "Katılımcı yorumları",
   "/admin/referanslar": "Referans logoları",
   "/admin/yasal": "Yasal metinler",
+  "/admin/marka": "Logo ve favicon",
   "/admin/seanslar": "Seans takvimi",
   "/admin/video": "Video kütüphanesi",
   "/admin/entegrasyonlar": "Entegrasyonlar",
