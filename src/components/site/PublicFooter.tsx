@@ -11,7 +11,10 @@ import {
   whatsappLink,
 } from "@/lib/iletisim";
 
-type FooterLink = { label: string; href?: string; dis?: boolean };
+import type { IconName } from "@/components/Icon";
+
+// ikon verilmezse listelerde ince bir "+" işareti kullanılır
+type FooterLink = { label: string; href?: string; dis?: boolean; ikon?: IconName };
 
 const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
   {
@@ -40,11 +43,21 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
     // çıkış yapmış ziyaretçiyi giriş ekranına atıyordu.
     baslik: "İletişim",
     linkler: [
-      { label: WHATSAPP_NUMARALAR[0].gosterim, href: whatsappLink(WHATSAPP_NUMARALAR[0].numara), dis: true },
-      { label: WHATSAPP_NUMARALAR[1].gosterim, href: whatsappLink(WHATSAPP_NUMARALAR[1].numara), dis: true },
-      { label: EPOSTA, href: `mailto:${EPOSTA}`, dis: true },
-      { label: INSTAGRAM_KULLANICI, href: INSTAGRAM_URL, dis: true },
-      { label: SEHIR },
+      {
+        label: WHATSAPP_NUMARALAR[0].gosterim,
+        href: whatsappLink(WHATSAPP_NUMARALAR[0].numara),
+        dis: true,
+        ikon: "whatsapp",
+      },
+      {
+        label: WHATSAPP_NUMARALAR[1].gosterim,
+        href: whatsappLink(WHATSAPP_NUMARALAR[1].numara),
+        dis: true,
+        ikon: "whatsapp",
+      },
+      { label: EPOSTA, href: `mailto:${EPOSTA}`, dis: true, ikon: "mail" },
+      { label: INSTAGRAM_KULLANICI, href: INSTAGRAM_URL, dis: true, ikon: "instagram" },
+      { label: SEHIR, ikon: "pin" },
     ],
   },
 ];
@@ -86,31 +99,48 @@ export function PublicFooter() {
           <div key={k.baslik}>
             <div className="font-mono text-[10.5px] tracking-[0.16em] text-white/40 uppercase">{k.baslik}</div>
             <div className="mt-[18px] flex flex-col gap-[11px]">
-              {k.linkler.map((l) =>
-                !l.href ? (
-                  <span key={l.label} className="text-[14.5px] break-words text-white/45">
-                    {l.label}
-                  </span>
-                ) : l.dis ? (
+              {k.linkler.map((l) => {
+                const isaret = (
+                  <Icon
+                    name={l.ikon ?? "plus"}
+                    size={l.ikon ? 15 : 13}
+                    strokeWidth={l.ikon ? 1.7 : 1.5}
+                    className="mt-[3px] flex-none text-white/35 transition group-hover:text-brand"
+                  />
+                );
+                const govde = (
+                  <>
+                    {isaret}
+                    <span className="min-w-0 break-words">{l.label}</span>
+                  </>
+                );
+                const stil =
+                  "group flex items-start gap-[10px] text-[14.5px] leading-[1.4] text-white/65 transition hover:text-white";
+
+                if (!l.href) {
+                  return (
+                    <span key={l.label} className={`${stil} hover:text-white/45`}>
+                      {isaret}
+                      <span className="min-w-0 break-words text-white/45">{l.label}</span>
+                    </span>
+                  );
+                }
+                return l.dis ? (
                   <a
                     key={l.label}
                     href={l.href}
                     target={l.href.startsWith("mailto:") ? undefined : "_blank"}
                     rel="noreferrer"
-                    className="text-[14.5px] break-words text-white/65 transition hover:text-white"
+                    className={stil}
                   >
-                    {l.label}
+                    {govde}
                   </a>
                 ) : (
-                  <Link
-                    key={l.label}
-                    href={l.href}
-                    className="text-[14.5px] text-white/65 transition hover:text-white"
-                  >
-                    {l.label}
+                  <Link key={l.label} href={l.href} className={stil}>
+                    {govde}
                   </Link>
-                ),
-              )}
+                );
+              })}
             </div>
           </div>
         ))}
