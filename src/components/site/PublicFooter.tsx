@@ -37,6 +37,13 @@ const footerColumns = [
 ];
 
 
+const YASAL_LINKLER = [
+  { label: "Mesafeli satış sözleşmesi", href: "/satis-sozlesmesi" },
+  { label: "İptal & iade", href: "/iptal-iade-politikasi" },
+  { label: "Gizlilik & güvenlik", href: "/gizlilik-politikasi" },
+  { label: "KVKK", href: "/kisisel-verilerin-islenmesi" },
+];
+
 export function PublicFooter() {
   return (
     <footer className="border-t border-white/10 bg-ink text-white/60">
@@ -77,16 +84,12 @@ export function PublicFooter() {
       </div>
       <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-6 border-t border-white/10 px-8 py-[22px] pb-10 text-[13px]">
         <span>© 2021–2026 Ahmet Ekinci Akademi. Tüm hakları saklıdır.</span>
-        <div className="flex gap-[22px]">
-          <Link href="#" className="text-white/55 hover:text-white">
-            Mesafeli satış sözleşmesi
-          </Link>
-          <Link href="#" className="text-white/55 hover:text-white">
-            Gizlilik
-          </Link>
-          <Link href="#" className="text-white/55 hover:text-white">
-            İptal &amp; iade
-          </Link>
+        <div className="flex flex-wrap gap-x-[22px] gap-y-2">
+          {YASAL_LINKLER.map((l) => (
+            <Link key={l.href} href={l.href} className="text-white/55 hover:text-white">
+              {l.label}
+            </Link>
+          ))}
         </div>
       </div>
     </footer>
