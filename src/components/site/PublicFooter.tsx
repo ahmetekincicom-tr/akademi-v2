@@ -1,9 +1,19 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { Icon } from "@/components/Icon";
-import { SOSYAL } from "@/lib/iletisim";
+import {
+  SOSYAL,
+  WHATSAPP_NUMARALAR,
+  EPOSTA,
+  INSTAGRAM_KULLANICI,
+  INSTAGRAM_URL,
+  SEHIR,
+  whatsappLink,
+} from "@/lib/iletisim";
 
-const footerColumns = [
+type FooterLink = { label: string; href?: string; dis?: boolean };
+
+const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
   {
     baslik: "Akademi",
     linkler: [
@@ -12,6 +22,7 @@ const footerColumns = [
       { label: "Referanslar", href: "/referanslar" },
       { label: "Katılımcı yorumları", href: "/yorumlar" },
       { label: "İletişim", href: "/iletisim" },
+      { label: "Panele giriş", href: "/giris" },
     ],
   },
   {
@@ -25,13 +36,15 @@ const footerColumns = [
     ],
   },
   {
-    baslik: "Üye alanı",
+    // Panel bağlantıları buradaydı; hepsi korumalı olduğu için footer'ı gören
+    // çıkış yapmış ziyaretçiyi giriş ekranına atıyordu.
+    baslik: "İletişim",
     linkler: [
-      { label: "Panele giriş", href: "/giris" },
-      { label: "Derslerim", href: "/panel/dersler" },
-      { label: "Doküman kütüphanesi", href: "/panel/dokumanlar" },
-      { label: "Faturalarım", href: "/panel/hesabim" },
-      { label: "Destek", href: "/panel/soru-cevap" },
+      { label: WHATSAPP_NUMARALAR[0].gosterim, href: whatsappLink(WHATSAPP_NUMARALAR[0].numara), dis: true },
+      { label: WHATSAPP_NUMARALAR[1].gosterim, href: whatsappLink(WHATSAPP_NUMARALAR[1].numara), dis: true },
+      { label: EPOSTA, href: `mailto:${EPOSTA}`, dis: true },
+      { label: INSTAGRAM_KULLANICI, href: INSTAGRAM_URL, dis: true },
+      { label: SEHIR },
     ],
   },
 ];
@@ -73,11 +86,31 @@ export function PublicFooter() {
           <div key={k.baslik}>
             <div className="font-mono text-[10.5px] tracking-[0.16em] text-white/40 uppercase">{k.baslik}</div>
             <div className="mt-[18px] flex flex-col gap-[11px]">
-              {k.linkler.map((l) => (
-                <Link key={l.label} href={l.href} className="text-[14.5px] text-white/65 hover:text-white">
-                  {l.label}
-                </Link>
-              ))}
+              {k.linkler.map((l) =>
+                !l.href ? (
+                  <span key={l.label} className="text-[14.5px] break-words text-white/45">
+                    {l.label}
+                  </span>
+                ) : l.dis ? (
+                  <a
+                    key={l.label}
+                    href={l.href}
+                    target={l.href.startsWith("mailto:") ? undefined : "_blank"}
+                    rel="noreferrer"
+                    className="text-[14.5px] break-words text-white/65 transition hover:text-white"
+                  >
+                    {l.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={l.label}
+                    href={l.href}
+                    className="text-[14.5px] text-white/65 transition hover:text-white"
+                  >
+                    {l.label}
+                  </Link>
+                ),
+              )}
             </div>
           </div>
         ))}
