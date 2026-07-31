@@ -157,7 +157,7 @@ export function PanelShell({
           <form action={cikisYap}>
             <button
               type="submit"
-              className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-[9px] border border-white/12 text-[13px] font-semibold text-white/70 transition hover:border-white/30 hover:text-white"
+              className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-[9px] border border-[#E5484D]/35 text-[13px] font-semibold text-[#FF9A9D] transition hover:border-[#E5484D] hover:bg-[#E5484D] hover:text-white"
             >
               <Icon name="logout" size={15} />
               Çıkış yap

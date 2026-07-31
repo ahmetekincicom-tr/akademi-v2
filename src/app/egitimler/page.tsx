@@ -7,6 +7,10 @@ import { siteNav } from "@/components/site/siteNav";
 import { EgitimlerFiltre } from "@/components/site/EgitimlerFiltre";
 import { getCourses } from "@/lib/courses";
 
+// Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
+// build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
+export const dynamic = "force-dynamic";
+
 export default async function EgitimlerPage() {
   const courses = await getCourses();
 

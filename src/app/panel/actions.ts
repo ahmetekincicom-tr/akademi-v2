@@ -57,5 +57,5 @@ export async function profilGuncelle(input: {
 export async function cikisYap() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/giris");
+  redirect("/");
 }

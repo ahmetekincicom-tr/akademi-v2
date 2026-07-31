@@ -29,6 +29,8 @@ const groups: MenuGroup[] = [
       { href: "/admin/egitimler", label: "Eğitimler", icon: "book" },
       { href: "/admin/video", label: "Video kütüphanesi", icon: "playCircle", sayac: "video" },
       { href: "/admin/dokumanlar", label: "Dokümanlar", icon: "folder" },
+      { href: "/admin/yorumlar", label: "Katılımcı yorumları", icon: "message" },
+      { href: "/admin/referanslar", label: "Referans logoları", icon: "sparkle" },
     ],
   },
   {
@@ -49,6 +51,8 @@ const pageTitles: Record<string, string> = {
   "/admin/destek": "Destek talepleri",
   "/admin/mesajlar": "Gelen mesajlar",
   "/admin/dokumanlar": "Dokümanlar",
+  "/admin/yorumlar": "Katılımcı yorumları",
+  "/admin/referanslar": "Referans logoları",
   "/admin/seanslar": "Seans takvimi",
   "/admin/video": "Video kütüphanesi",
   "/admin/entegrasyonlar": "Entegrasyonlar",
@@ -159,7 +163,7 @@ export function AdminShell({
             <form action={cikisYap} className="flex-1">
               <button
                 type="submit"
-                className="flex h-9 w-full items-center justify-center gap-[6px] rounded-[9px] border border-white/12 text-[12.5px] font-semibold text-white/70 transition hover:border-white/30 hover:text-white"
+                className="flex h-9 w-full items-center justify-center gap-[6px] rounded-[9px] border border-[#E5484D]/35 text-[12.5px] font-semibold text-[#FF9A9D] transition hover:border-[#E5484D] hover:bg-[#E5484D] hover:text-white"
               >
                 <Icon name="logout" size={14} />
                 Çıkış

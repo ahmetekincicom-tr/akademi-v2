@@ -6,9 +6,14 @@ import { SectionKicker } from "@/components/site/SectionKicker";
 import { siteNav } from "@/components/site/siteNav";
 import { YorumlarFiltre } from "@/components/site/YorumlarFiltre";
 import { getCourses } from "@/lib/courses";
+import { getYorumlar } from "@/lib/icerik";
+
+// Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
+// build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
+export const dynamic = "force-dynamic";
 
 export default async function YorumlarPage() {
-  const courses = await getCourses();
+  const [courses, yorumlar] = await Promise.all([getCourses(), getYorumlar()]);
 
   return (
     <div className="bg-white">
@@ -25,7 +30,7 @@ export default async function YorumlarPage() {
         </p>
       </section>
 
-      <YorumlarFiltre courses={courses} />
+      <YorumlarFiltre yorumlar={yorumlar} kurslar={courses.map((c) => ({ id: c.id, etiket: c.baslikVurgu }))} />
 
       <CorporateStrip text="Ekibinize özel, yerinde ya da uzaktan dijital pazarlama eğitimi." />
       <PublicFooter />

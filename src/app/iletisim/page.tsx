@@ -5,6 +5,14 @@ import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { IletisimFormu } from "@/components/site/IletisimFormu";
 import { siteNav } from "@/components/site/siteNav";
+import {
+  WHATSAPP_NUMARALAR,
+  EPOSTA,
+  INSTAGRAM_KULLANICI,
+  INSTAGRAM_URL,
+  SEHIR,
+  whatsappLink,
+} from "@/lib/iletisim";
 
 export const metadata: Metadata = {
   title: "İletişim — Ahmet Ekinci Akademi",
@@ -14,10 +22,26 @@ export const metadata: Metadata = {
 
 // href olmayan kanallar tıklanabilir görünmesin diye link yerine kart olarak çizilir.
 const kanallar: { baslik: string; deger: string; not: string; href?: string }[] = [
-  { baslik: "WhatsApp", deger: "+90 5xx xxx xx xx", not: "En hızlı yanıt genelde buradan gelir" },
-  { baslik: "Instagram", deger: "@ahmetekinciakademi", not: "Program tanıtımları ve katılımcı içerikleri" },
-  { baslik: "E-posta", deger: "iletisim@ahmetekinci.com.tr", not: "Kurumsal talepler ve fatura yazışmaları" },
-  { baslik: "Ofis", deger: "Çankaya, Ankara", not: "Yüz yüze görüşme ve eğitimler için" },
+  {
+    baslik: "WhatsApp",
+    deger: WHATSAPP_NUMARALAR[0].gosterim,
+    not: "En hızlı yanıt genelde buradan gelir",
+    href: whatsappLink(WHATSAPP_NUMARALAR[0].numara),
+  },
+  {
+    baslik: "WhatsApp (2. hat)",
+    deger: WHATSAPP_NUMARALAR[1].gosterim,
+    not: "Yoğun saatlerde alternatif hat",
+    href: whatsappLink(WHATSAPP_NUMARALAR[1].numara),
+  },
+  {
+    baslik: "Instagram",
+    deger: INSTAGRAM_KULLANICI,
+    not: "Program tanıtımları ve katılımcı içerikleri",
+    href: INSTAGRAM_URL,
+  },
+  { baslik: "E-posta", deger: EPOSTA, not: "Kurumsal talepler ve fatura yazışmaları", href: `mailto:${EPOSTA}` },
+  { baslik: "Ofis", deger: SEHIR, not: "Yüz yüze görüşme ve eğitimler için" },
 ];
 
 export default function IletisimPage() {

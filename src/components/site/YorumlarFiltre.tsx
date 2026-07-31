@@ -2,27 +2,25 @@
 
 import { useMemo, useState } from "react";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
-import type { Course, Testimonial } from "@/lib/courses";
+import type { Testimonial } from "@/lib/courses";
+import type { Yorum } from "@/lib/icerik";
 
-const genel: Testimonial[] = [
-  {
-    metin:
-      "Her soruma anında ve detaylı geri bildirim aldığım akıcı bir eğitimdi. Birebir olması “sıkılır mıyız?” endişesi yaratmıştı ama hiç bitmesin istedim.",
-    isim: "Selame Hopurcuoğlu Yorulmaz",
-    rol: "Oyunlaştırma Tasarımcısı",
-  },
-  { metin: "Eğitim sonrasında da her zaman destek vereceğini garanti etmesi insanı güvende hissettiriyor.", isim: "Seren Aker", rol: "Lojistik" },
-  {
-    metin: "Çalıştığım firmanın detaylarına hâkim olması ve önceden araştırma yaparak hazırlanması eğitimi çok daha verimli kıldı.",
-    isim: "Yasemin Turan",
-    rol: "Marketing Communication Specialist",
-  },
-];
 
-export function YorumlarFiltre({ courses }: { courses: Course[] }) {
+export function YorumlarFiltre({
+  yorumlar,
+  kurslar,
+}: {
+  yorumlar: Yorum[];
+  kurslar: { id: string; etiket: string }[];
+}) {
+  const cevir = (y: Yorum): Testimonial => ({ metin: y.metin, isim: y.isim, rol: y.rol });
+
   const gruplar: { etiket: string; yorumlar: Testimonial[] }[] = [
-    { etiket: "Genel", yorumlar: genel },
-    ...courses.map((c) => ({ etiket: c.baslikVurgu, yorumlar: c.yorumlar })),
+    { etiket: "Genel", yorumlar: yorumlar.filter((y) => !y.courseId).map(cevir) },
+    ...kurslar.map((k) => ({
+      etiket: k.etiket,
+      yorumlar: yorumlar.filter((y) => y.courseId === k.id).map(cevir),
+    })),
   ];
 
   const [tab, setTab] = useState("Tümü");
@@ -32,7 +30,7 @@ export function YorumlarFiltre({ courses }: { courses: Course[] }) {
     if (tab === "Tümü") return gruplar.flatMap((g) => g.yorumlar);
     return gruplar.find((g) => g.etiket === tab)?.yorumlar ?? [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, courses]);
+  }, [tab, yorumlar, kurslar]);
 
   return (
     <section className="mx-auto max-w-[1240px] px-8 pb-24">

@@ -10,11 +10,11 @@ import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
 import { getCourses, getCourseBySlug, egitmenStats, kutuNot } from "@/lib/courses";
+import { getYorumlar } from "@/lib/icerik";
 
-export async function generateStaticParams() {
-  const courses = await getCourses();
-  return courses.map((c) => ({ slug: c.slug }));
-}
+// Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
+// build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -35,8 +35,12 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
   const course = await getCourseBySlug(slug);
   if (!course) notFound();
 
-  const courses = await getCourses();
+  const [courses, tumYorumlar] = await Promise.all([getCourses(), getYorumlar()]);
   const digerler = courses.filter((c) => c.slug !== course.slug);
+
+  // Bu eğitime iliştirilmiş yorumlar; yoksa genel yorumlara düşer.
+  const kursYorumlari = tumYorumlar.filter((y) => y.courseId === course.id);
+  const yorumlar = (kursYorumlari.length ? kursYorumlari : tumYorumlar.filter((y) => !y.courseId)).slice(0, 4);
 
   return (
     <div className="bg-white">
@@ -216,8 +220,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               </Link>
             </div>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              {course.yorumlar.map((y) => (
-                <TestimonialCard key={y.isim} {...y} />
+              {yorumlar.map((y) => (
+                <TestimonialCard key={y.id} metin={y.metin} isim={y.isim} rol={y.rol} />
               ))}
             </div>
           </section>

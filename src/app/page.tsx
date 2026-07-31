@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { getCourses } from "@/lib/courses";
+import { getYorumlar, getReferanslar } from "@/lib/icerik";
+import { ReferansLogo } from "@/components/site/ReferansLogo";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
@@ -33,39 +36,8 @@ const platforms = [
   "Business Manager",
 ];
 
-const logos = ["referans 01", "referans 02", "referans 03", "referans 04", "referans 05", "referans 06", "referans 07", "referans 08"];
 
-const programs = [
-  {
-    etiket: "Meta Ads",
-    sure: "15 saat",
-    modul: "6 modül",
-    baslik: "Birebir Meta Business Eğitimi",
-    aciklama:
-      "Reklam hesabı kurulumundan ölçeklemeye kadar Meta Ads'in tamamı; kendi bütçeniz ve kendi kampanyalarınız üzerinden.",
-    maddeler: ["Hesap, piksel ve dönüşüm kurulumu", "Hedef kitle ve kreatif testleri", "Raporlama ve bütçe ölçekleme"],
-    href: "/egitimler/meta-business",
-  },
-  {
-    etiket: "Sosyal medya",
-    sure: "22 saat",
-    modul: "8 modül",
-    baslik: "Birebir Sosyal Medya Eğitimi",
-    aciklama:
-      "İçerik üretiminden topluluk yönetimine, bir markanın sosyal medyasını baştan sona yürütme pratiği.",
-    maddeler: ["İçerik stratejisi ve takvim kurulumu", "Çekim, kurgu ve metin akışı", "Büyüme ölçümü ve raporlama"],
-    href: "/egitimler/sosyal-medya",
-  },
-  {
-    etiket: "Yapay zekâ",
-    sure: "7 saat",
-    modul: "4 modül",
-    baslik: "Pazarlamada Yapay Zekâ Eğitimi",
-    aciklama: "Pazarlama işinizi hızlandıran yapay zekâ araçları: içerik, görsel, analiz ve otomasyon akışları.",
-    maddeler: ["Metin ve görsel üretim akışları", "Veriden içgörü çıkarma", "Tekrar eden işlerin otomasyonu"],
-    href: "/egitimler/yapay-zeka",
-  },
-];
+
 
 const farklar = [
   {
@@ -133,42 +105,6 @@ const panelKart = [
   { etiket: "Sonraki seans", deger: "12 Ağustos, 14:00", yuzde: "50%" },
 ];
 
-const yorumlar = [
-  {
-    metin:
-      "Her soruma anında ve detaylı geri bildirim aldığım akıcı bir eğitimdi. Birebir olması “sıkılır mıyız?” endişesi yaratmıştı ama hiç bitmesin istedim.",
-    isim: "Selame Hopurcuoğlu Yorulmaz",
-    rol: "Oyunlaştırma Tasarımcısı",
-  },
-  {
-    metin:
-      "Piyasadaki eğitimlerin çoğunu almış biri olarak söyleyebilirim: öğrendiklerimi uygulamaya döktüm ve sonuçlarını almaya başladım bile.",
-    isim: "Sema Şengün",
-    rol: "Sosyal Medya Yöneticisi",
-  },
-  {
-    metin: "Reklam eğitimi desteği almaya başladıktan sonra satışlarımda ve takipçi sayımda gözle görülür bir artış oldu.",
-    isim: "Ahmet Bahçeci",
-    rol: "e-Ticaret Satıcısı",
-  },
-  {
-    metin:
-      "Karmaşık görünen konuları sade ve anlaşılır aktarması konuyu hızlı kavramamı sağladı. Teoride kalmadı, pratikte nasıl uygulanacağını da gösterdi.",
-    isim: "Burçin Uğur",
-    rol: "e-Ticaret Satıcısı",
-  },
-  {
-    metin: "Eğitim sonrasında da her zaman destek vereceğini garanti etmesi insanı güvende hissettiriyor.",
-    isim: "Seren Aker",
-    rol: "Lojistik",
-  },
-  {
-    metin:
-      "Çalıştığım firmanın detaylarına hâkim olması ve önceden araştırma yaparak hazırlanması eğitimi çok daha verimli kıldı.",
-    isim: "Yasemin Turan",
-    rol: "Marketing Communication Specialist",
-  },
-];
 
 const sss = [
   {
@@ -209,7 +145,23 @@ function SectionKicker({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function HomePage() {
+// Eğitim kartları veritabanından geliyor; sayfa build anında dondurulursa
+// admin panelinde yayınlanan program burada görünmez.
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const [courses, logos, siteYorumlari] = await Promise.all([getCourses(), getReferanslar(), getYorumlar()]);
+  const yorumlar = siteYorumlari.slice(0, 6).map((y) => ({ metin: y.metin, isim: y.isim, rol: y.rol }));
+  const programs = courses.slice(0, 3).map((c) => ({
+    etiket: c.etiket,
+    sure: c.sure,
+    modul: c.modul,
+    baslik: c.baslik,
+    aciklama: c.aciklama,
+    maddeler: c.maddeler.slice(0, 3),
+    href: `/egitimler/${c.slug}`,
+  }));
+
   return (
     <div className="bg-white">
       <AnnouncementBar />
@@ -318,12 +270,7 @@ export default function HomePage() {
           >
             <div className="animate-marquee-slow flex w-max gap-[22px]">
               {logos.concat(logos).map((l, i) => (
-                <div
-                  key={l + i}
-                  className="placeholder-block flex h-[46px] w-[132px] flex-none items-center justify-center rounded-[8px] font-mono text-[10px] tracking-[0.06em] text-[#9CA1AE]"
-                >
-                  {l}
-                </div>
+                <ReferansLogo key={l.id + i} referans={l} className="h-[46px] w-[132px] flex-none" />
               ))}
             </div>
           </div>

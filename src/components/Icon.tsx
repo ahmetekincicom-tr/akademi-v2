@@ -31,7 +31,10 @@ export type IconName =
   | "chevronRight"
   | "logout"
   | "upload"
-  | "sparkle";
+  | "sparkle"
+  | "instagram"
+  | "linkedin"
+  | "whatsapp";
 
 const paths: Record<IconName, React.ReactNode> = {
   grid: (
@@ -144,6 +147,25 @@ const paths: Record<IconName, React.ReactNode> = {
     </>
   ),
   sparkle: <path d="M12 3.5 13.9 9l5.6 1.9-5.6 1.9L12 18.5 10.1 12.8 4.5 10.9 10.1 9z" />,
+  instagram: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  linkedin: (
+    <>
+      <path d="M4.5 9.5v11M4.5 4.6v.05" />
+      <path d="M10 20.5v-6.2a3.3 3.3 0 0 1 6.6 0v6.2M10 9.5v11" />
+    </>
+  ),
+  whatsapp: (
+    <>
+      <path d="M3.5 20.5l1.3-4.3a8 8 0 1 1 3 3z" />
+      <path d="M9 9.2c.2 1.6 1.3 3.2 2.7 4.2.8.6 1.7 1 2.4 1 .5 0 .9-.5 1-1.1l-1.6-.8-.8.8a6 6 0 0 1-2-2l.8-.8-.8-1.6c-.6.1-1.1.5-1.1 1z" />
+    </>
+  ),
 };
 
 // Filled shapes read wrong with a stroke-only treatment.

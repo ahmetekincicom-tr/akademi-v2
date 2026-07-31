@@ -33,6 +33,10 @@ const sss = [
   { soru: "Eğitim sonrası ekip için destek devam ediyor mu?", cevap: "Evet. Soru-cevap kanalı ekip için açık kalır; kampanya veya içerik gözden geçirme talepleri karşılanır." },
 ];
 
+// Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
+// build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
+export const dynamic = "force-dynamic";
+
 export default async function KurumsalPage() {
   const courses = await getCourses();
 

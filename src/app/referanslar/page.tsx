@@ -7,10 +7,13 @@ import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { siteNav } from "@/components/site/siteNav";
+import { getYorumlar, getReferanslar } from "@/lib/icerik";
+import { ReferansLogo } from "@/components/site/ReferansLogo";
 
 export const metadata: Metadata = { title: "Referanslar — Ahmet Ekinci Akademi" };
 
-const logos = Array.from({ length: 12 }, (_, i) => `referans ${String(i + 1).padStart(2, "0")}`);
+// Referanslar ve yorumlar admin panelinden yönetiliyor.
+export const dynamic = "force-dynamic";
 
 const segmentler = [
   { yuzde: "38%", baslik: "İşletme sahipleri", metin: "Kendi reklam hesabını ajansa bırakmadan yönetmeyi öğrenen kobi sahipleri." },
@@ -19,16 +22,9 @@ const segmentler = [
   { yuzde: "14%", baslik: "Kariyer değiştirenler", metin: "Dijital pazarlama alanına yeni geçiş yapan profesyoneller." },
 ];
 
-const yorumlar = [
-  { metin: "Her soruma anında ve detaylı geri bildirim aldığım akıcı bir eğitimdi. Birebir olması “sıkılır mıyız?” endişesi yaratmıştı ama hiç bitmesin istedim.", isim: "Selame Hopurcuoğlu Yorulmaz", rol: "Oyunlaştırma Tasarımcısı" },
-  { metin: "Piyasadaki eğitimlerin çoğunu almış biri olarak söyleyebilirim: öğrendiklerimi uygulamaya döktüm ve sonuçlarını almaya başladım bile.", isim: "Sema Şengün", rol: "Sosyal Medya Yöneticisi" },
-  { metin: "Reklam eğitimi desteği almaya başladıktan sonra satışlarımda ve takipçi sayımda gözle görülür bir artış oldu.", isim: "Ahmet Bahçeci", rol: "e-Ticaret Satıcısı" },
-  { metin: "Karmaşık görünen konuları sade ve anlaşılır aktarması konuyu hızlı kavramamı sağladı. Teoride kalmadı, pratikte nasıl uygulanacağını da gösterdi.", isim: "Burçin Uğur", rol: "e-Ticaret Satıcısı" },
-  { metin: "Eğitim sonrasında da her zaman destek vereceğini garanti etmesi insanı güvende hissettiriyor.", isim: "Seren Aker", rol: "Lojistik" },
-  { metin: "Çalıştığım firmanın detaylarına hâkim olması ve önceden araştırma yaparak hazırlanması eğitimi çok daha verimli kıldı.", isim: "Yasemin Turan", rol: "Marketing Communication Specialist" },
-];
 
-export default function ReferanslarPage() {
+export default async function ReferanslarPage() {
+  const [referanslar, yorumlar] = await Promise.all([getReferanslar(), getYorumlar()]);
   return (
     <div className="bg-white">
       <AnnouncementBar />
@@ -48,13 +44,8 @@ export default function ReferanslarPage() {
       <section className="border-y border-ink/8 bg-mist">
         <div className="mx-auto max-w-[1240px] px-8 py-14">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
-            {logos.map((l) => (
-              <div
-                key={l}
-                className="placeholder-block flex h-[64px] items-center justify-center rounded-[9px] font-mono text-[10px] tracking-[0.06em] text-[#9CA1AE]"
-              >
-                {l}
-              </div>
+            {referanslar.map((r) => (
+              <ReferansLogo key={r.id} referans={r} className="h-[64px]" />
             ))}
           </div>
         </div>
@@ -90,8 +81,8 @@ export default function ReferanslarPage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2 lg:grid-cols-3">
-            {yorumlar.map((y) => (
-              <TestimonialCard key={y.isim} {...y} />
+            {yorumlar.slice(0, 6).map((y) => (
+              <TestimonialCard key={y.id} metin={y.metin} isim={y.isim} rol={y.rol} />
             ))}
           </div>
         </div>

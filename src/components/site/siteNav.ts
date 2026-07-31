@@ -4,6 +4,5 @@ export const siteNav: NavItem[] = [
   { label: "Eğitimler", href: "/egitimler" },
   { label: "Hakkımızda", href: "/hakkimizda" },
   { label: "Referanslar", href: "/referanslar" },
-  { label: "Blog", href: "/blog" },
   { label: "İletişim", href: "/iletisim" },
 ];

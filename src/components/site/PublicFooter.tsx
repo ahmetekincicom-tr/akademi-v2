@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { Icon } from "@/components/Icon";
+import { SOSYAL } from "@/lib/iletisim";
 
 const footerColumns = [
   {
@@ -8,7 +10,6 @@ const footerColumns = [
       { label: "Ana sayfa", href: "/" },
       { label: "Hakkımızda", href: "/hakkimizda" },
       { label: "Referanslar", href: "/referanslar" },
-      { label: "Blog", href: "/blog" },
       { label: "Katılımcı yorumları", href: "/yorumlar" },
       { label: "İletişim", href: "/iletisim" },
     ],
@@ -35,7 +36,6 @@ const footerColumns = [
   },
 ];
 
-const sosyal = ["Instagram", "WhatsApp", "LinkedIn", "Telefon"];
 
 export function PublicFooter() {
   return (
@@ -47,14 +47,18 @@ export function PublicFooter() {
             Dijital çağın dinamiklerine uygun, birebir eğitim deneyimi. Ankara ve online.
           </p>
           <div className="mt-[22px] flex gap-[10px]">
-            {sosyal.map((s) => (
-              <Link
-                key={s}
-                href="#"
-                className="inline-flex h-[34px] items-center rounded-[8px] border border-white/14 px-[13px] font-mono text-[10.5px] tracking-[0.08em] text-white/70 uppercase hover:border-brand hover:text-white"
+            {SOSYAL.map((s) => (
+              <a
+                key={s.ad}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={s.ad}
+                title={s.ad}
+                className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-[10px] border border-white/14 text-white/70 transition hover:border-brand hover:bg-brand hover:text-white"
               >
-                {s}
-              </Link>
+                <Icon name={s.ikon} size={17} />
+              </a>
             ))}
           </div>
         </div>

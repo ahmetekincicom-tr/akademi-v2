@@ -11,6 +11,7 @@ export type FaqItem = { soru: string; cevap: string };
 export type Testimonial = { metin: string; isim: string; rol: string };
 
 export type Course = {
+  id: string;
   slug: string;
   etiket: string;
   sure: string;
@@ -47,9 +48,10 @@ export const kutuNot = [
 ];
 
 const COURSE_SELECT =
-  "slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, content, modules(sira, baslik, meta, lessons(sira, baslik, sure))";
+  "id, slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, content, modules(sira, baslik, meta, lessons(sira, baslik, sure))";
 
 type CourseRow = {
+  id: string;
   slug: string;
   baslik: string;
   baslik_vurgu: string;
@@ -92,6 +94,7 @@ function mapCourse(row: CourseRow): Course {
     }));
 
   return {
+    id: row.id,
     slug: row.slug,
     etiket: row.content.etiket,
     sure: row.sure ?? "",
