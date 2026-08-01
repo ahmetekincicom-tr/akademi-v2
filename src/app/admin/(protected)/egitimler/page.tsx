@@ -37,16 +37,26 @@ export default async function EgitimlerListePage() {
           const dersSayi = e.modules.reduce((n, m) => n + m.lessons.length, 0);
           const meta = [e.sure, `${e.modules.length} modül`, `${dersSayi} ders`].filter(Boolean).join(" · ");
           return (
-            <div key={e.slug} className="flex flex-wrap items-center gap-[18px] rounded-[15px] border border-ink/10 bg-white p-5 px-5">
-              <div className="placeholder-block aspect-[16/10] w-[112px] flex-none rounded-[10px]" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-[10px]">
-                  <span className="text-[16.5px] font-semibold tracking-[-0.015em]">{e.baslik}</span>
-                  <StatusBadge durum={DURUM_ETIKET[e.durum] ?? e.durum} />
+            // Kart mobilde tek sütun: yan yana dizilen başlık, durum üçlüsü ve
+            // düğme dar ekranda üst üste biniyordu.
+            <div
+              key={e.slug}
+              className="flex flex-col gap-4 rounded-[15px] border border-ink/10 bg-white p-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-[18px] sm:p-5"
+            >
+              <div className="flex min-w-0 items-center gap-4 sm:flex-1">
+                <div className="placeholder-block aspect-[16/10] w-[78px] flex-none rounded-[10px] sm:w-[112px]" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-[10px]">
+                    <span className="text-[15.5px] leading-[1.25] font-semibold tracking-[-0.015em] sm:text-[16.5px]">
+                      {e.baslik}
+                    </span>
+                    <StatusBadge durum={DURUM_ETIKET[e.durum] ?? e.durum} />
+                  </div>
+                  <div className="mt-[6px] font-mono text-[11px] text-[#656B7A]">{meta}</div>
                 </div>
-                <div className="mt-[6px] font-mono text-[11px] text-[#656B7A]">{meta}</div>
               </div>
-              <div className="flex flex-none gap-[22px]">
+
+              <div className="grid grid-cols-3 gap-3 border-t border-ink/8 pt-3 sm:flex sm:flex-none sm:gap-[22px] sm:border-t-0 sm:pt-0">
                 {[
                   { etiket: "Sitede", deger: e.sitede_gorunur ? "Görünür" : "Gizli" },
                   { etiket: "Satış", deger: e.satisa_acik ? "Açık" : "Kapalı" },
@@ -58,14 +68,13 @@ export default async function EgitimlerListePage() {
                   </div>
                 ))}
               </div>
-              <div className="flex flex-none gap-[9px]">
-                <Link
-                  href={`/admin/egitimler/${e.slug}/duzenle`}
-                  className="flex h-[38px] items-center rounded-[9px] border border-ink/13 bg-white px-[15px] text-[13.5px] font-semibold text-ink hover:border-brand hover:bg-brand hover:text-white"
-                >
-                  Düzenle
-                </Link>
-              </div>
+
+              <Link
+                href={`/admin/egitimler/${e.slug}/duzenle`}
+                className="flex h-[42px] flex-none items-center justify-center rounded-[9px] border border-ink/13 bg-white px-[15px] text-[13.5px] font-semibold text-ink hover:border-brand hover:bg-brand hover:text-white sm:h-[38px]"
+              >
+                Düzenle
+              </Link>
             </div>
           );
         })}

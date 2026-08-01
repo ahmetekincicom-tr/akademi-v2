@@ -33,18 +33,20 @@ export default async function SeanslarPage() {
     return (
       <div
         key={s.id}
-        className="flex flex-wrap items-center gap-4 border-b border-ink/7 px-6 py-[16px] last:border-b-0"
+        className="flex flex-col gap-3 border-b border-ink/7 px-5 py-4 last:border-b-0 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:px-6 sm:py-[16px]"
       >
-        <div className="w-[150px] flex-none">
+        {/* Mobilde satır tek sütuna iner: seans adı daha önce 60 piksele
+            sıkışıp "Birebi…" diye kırpılıyordu. */}
+        <div className="order-2 sm:order-none sm:w-[150px] sm:flex-none">
           <div className="font-mono text-[12px] font-medium text-ink">{saatBicimi.format(new Date(s.baslangic))}</div>
           <div className="mt-[2px] font-mono text-[10px] text-[#656B7A]">{s.sureDk} dk</div>
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-[15px] font-semibold text-ink">{s.konu || "Birebir seans"}</div>
-          <div className="mt-1 truncate font-mono text-[10.5px] text-[#656B7A]">{s.program}</div>
+        <div className="order-1 min-w-0 sm:order-none sm:flex-1">
+          <div className="text-[15px] leading-[1.3] font-semibold text-ink">{s.konu || "Birebir seans"}</div>
+          <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">{s.program}</div>
         </div>
         <span
-          className="flex-none rounded-full px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] uppercase"
+          className="order-3 w-fit flex-none rounded-full px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] uppercase sm:order-none"
           style={{ background: st.bg, color: st.renk }}
         >
           {etiket}
@@ -54,7 +56,7 @@ export default async function SeanslarPage() {
             href={toplanti}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-brand px-[15px] text-[13.5px] font-semibold text-white transition hover:bg-ink"
+            className="order-4 inline-flex h-9 w-fit flex-none items-center gap-[6px] rounded-[9px] bg-brand px-[15px] text-[13.5px] font-semibold text-white transition hover:bg-ink sm:order-none"
           >
             <Icon name="external" size={14} />
             Toplantıya katıl

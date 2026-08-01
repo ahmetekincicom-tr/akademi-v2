@@ -78,7 +78,7 @@ export function DersPlayer({
   };
 
   return (
-    <main className="p-[34px] px-[34px] pt-[26px] pb-14">
+    <main className="p-4 pt-4 pb-14 sm:p-[34px] sm:pt-[26px]">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-6">
         <div className="flex min-w-0 items-center gap-4">
           <Link
@@ -93,33 +93,22 @@ export function DersPlayer({
               {kurs.baslik}
               {aktifDers ? ` · ${aktifDers.modulBaslik}` : ""}
             </div>
-            <h1 className="mt-[6px] font-heading text-2xl leading-[1.15] font-semibold tracking-[-0.03em] sm:text-[26px]">
+            <h1 className="mt-[6px] font-heading text-[19px] leading-[1.2] font-semibold tracking-[-0.03em] sm:text-[26px]">
               {aktifDers?.ad ?? "Bu eğitimde henüz ders yok"}
             </h1>
           </div>
         </div>
-        {aktifDers && (
-          <button
-            type="button"
-            onClick={toggleTamamla}
-            disabled={kaydediliyor}
-            className="inline-flex h-[46px] flex-none items-center gap-2 rounded-[10px] px-[22px] text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-60"
-            style={{ background: bitti ? "#E9EDF7" : "#1C56F3", color: bitti ? "#3A3F4F" : "#FFFFFF" }}
-          >
-            {bitti && <Icon name="check" size={16} strokeWidth={2.4} />}
-            {bitti ? "Tamamlandı" : "Dersi tamamlandı işaretle"}
-          </button>
-        )}
+        {aktifDers && <TamamlaDugmesi bitti={bitti} kaydediliyor={kaydediliyor} onClick={toggleTamamla} className="hidden sm:inline-flex" />}
       </div>
 
       {courses.length > 1 && (
-        <div className="mb-5 flex flex-wrap gap-2">
+        <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
           {courses.map((c) => (
             <button
               key={c.slug}
               type="button"
               onClick={() => kursDegistir(c.slug)}
-              className="h-9 rounded-[9px] border px-[14px] text-[13.5px] font-semibold"
+              className="h-9 flex-none rounded-[9px] border px-[14px] text-[13.5px] font-semibold whitespace-nowrap"
               style={{
                 borderColor: c.slug === kursSlug ? "#1C56F3" : "rgba(15,17,24,0.13)",
                 background: c.slug === kursSlug ? "rgba(28,86,243,0.08)" : "#FFFFFF",
@@ -161,7 +150,11 @@ export function DersPlayer({
             )}
           </div>
 
-          <div className="rounded-2xl border border-ink/10 bg-white px-[26px] py-6">
+          {aktifDers && (
+            <TamamlaDugmesi bitti={bitti} kaydediliyor={kaydediliyor} onClick={toggleTamamla} className="w-full sm:hidden" />
+          )}
+
+          <div className="rounded-2xl border border-ink/10 bg-white px-5 py-5 sm:px-[26px] sm:py-6">
             <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Ders hakkında</h2>
             <p className="mt-3 text-[15px] leading-[1.7] whitespace-pre-line text-[#5C6273]">
               {!aktifDers
@@ -233,5 +226,30 @@ export function DersPlayer({
         </div>
       </div>
     </main>
+  );
+}
+
+function TamamlaDugmesi({
+  bitti,
+  kaydediliyor,
+  onClick,
+  className = "",
+}: {
+  bitti: boolean;
+  kaydediliyor: boolean;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={kaydediliyor}
+      className={`inline-flex h-[46px] flex-none items-center justify-center gap-2 rounded-[10px] px-[22px] text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-60 ${className}`}
+      style={{ background: bitti ? "#E9EDF7" : "#1C56F3", color: bitti ? "#3A3F4F" : "#FFFFFF" }}
+    >
+      {bitti && <Icon name="check" size={16} strokeWidth={2.4} />}
+      {bitti ? "Tamamlandı" : "Dersi tamamlandı işaretle"}
+    </button>
   );
 }

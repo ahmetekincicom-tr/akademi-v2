@@ -91,15 +91,15 @@ export function SeansYonetimi({
     return (
       <div
         key={s.id}
-        className="flex flex-wrap items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] last:border-b-0 hover:bg-[#F7F9FF]"
+        className="flex flex-col gap-3 border-b border-ink/7 px-4 py-4 last:border-b-0 hover:bg-[#F7F9FF] sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:px-[22px] sm:py-[14px]"
       >
-        <div className="w-[150px] flex-none font-mono text-[11.5px] text-[#3A3F4F]">
+        <div className="order-2 font-mono text-[11.5px] text-[#3A3F4F] sm:order-none sm:w-[150px] sm:flex-none">
           {saatBicimi.format(new Date(s.baslangic))}
           <span className="mt-[2px] block text-[10px] text-[#656B7A]">{s.sureDk} dk</span>
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold">{s.isim}</div>
-          <div className="mt-[2px] truncate font-mono text-[10.5px] text-[#656B7A]">
+        <div className="order-1 min-w-0 sm:order-none sm:flex-1">
+          <div className="text-sm leading-[1.3] font-semibold">{s.isim}</div>
+          <div className="mt-[2px] font-mono text-[10.5px] text-[#656B7A]">
             {s.konu || "Konu belirtilmedi"} · {s.program}
           </div>
         </div>
@@ -108,7 +108,7 @@ export function SeansYonetimi({
             href={toplanti}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-8 flex-none items-center gap-[5px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand"
+            className="order-3 inline-flex h-8 w-fit flex-none items-center gap-[5px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand sm:order-none"
           >
             <Icon name="external" size={13} />
             Toplantı
