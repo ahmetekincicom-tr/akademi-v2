@@ -7,6 +7,7 @@ import { durumStil } from "@/lib/admin/shared";
 import { talepDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import type { DestekTalep } from "@/lib/destek";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 /**
  * Shared by the admin support screen and the student Q&A page. The admin view
@@ -25,6 +26,7 @@ export function TalepGorunumu({
   kurslar?: { id: string; ad: string }[];
 }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [seciliId, setSeciliId] = useState<string | null>(talepler[0]?.id ?? null);
   const [yanit, setYanit] = useState("");
   const [yeniAcik, setYeniAcik] = useState(false);
@@ -41,9 +43,12 @@ export function TalepGorunumu({
     setHata(null);
     startTransition(async () => {
       const r = await mesajGonder(secili.id, yanit);
-      if (r?.error) setHata(r.error);
-      else {
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
         setYanit("");
+        bildir.basarili("Mesajın gönderildi.");
         router.refresh();
       }
     });
@@ -53,8 +58,11 @@ export function TalepGorunumu({
     setHata(null);
     startTransition(async () => {
       const r = await talepAc(yeniBaslik, yeniMesaj, yeniKurs || undefined);
-      if (r?.error) setHata(r.error);
-      else {
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili("Destek talebin oluşturuldu.");
         setYeniBaslik("");
         setYeniMesaj("");
         setYeniKurs("");
@@ -67,8 +75,12 @@ export function TalepGorunumu({
   const durumDegistir = (durum: "acik" | "yanitlandi" | "kapandi") => {
     if (!secili) return;
     startTransition(async () => {
-      await talepDurumDegistir(secili.id, durum);
-      router.refresh();
+      const r = await talepDurumDegistir(secili.id, durum);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili("Talep durumu güncellendi.");
+        router.refresh();
+      }
     });
   };
 

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { referansKaydet, referansSil } from "@/app/admin/(protected)/icerik-actions";
 import { Icon } from "@/components/Icon";
 import { Toggle } from "./Toggle";
+import { useBildirim } from "@/components/Bildirim";
 
 export type AdminReferans = {
   id: string;
@@ -22,6 +23,7 @@ const BOS = { ad: "", sektor: "", siteUrl: "", sira: "0", yayinda: true };
 
 export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[] }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [duzenlenen, setDuzenlenen] = useState<string | "yeni" | null>(null);
   const [form, setForm] = useState(BOS);
   const [dosya, setDosya] = useState<File | null>(null);
@@ -56,6 +58,7 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
       if (error) {
         setYukleniyor(false);
         setHata(error.message);
+        bildir.hata(`Logo yüklenemedi: ${error.message}`);
         return;
       }
       logoYolu = yol;
@@ -68,10 +71,13 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
     });
 
     setYukleniyor(false);
-    if (r?.error) setHata(r.error);
-    else {
+    if (r?.error) {
+      setHata(r.error);
+      bildir.hata(r.error);
+    } else {
       setDuzenlenen(null);
       setDosya(null);
+      bildir.basarili("Referans kaydedildi.");
       router.refresh();
     }
   };
@@ -79,9 +85,12 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
   const sil = (r: AdminReferans) => {
     startTransition(async () => {
       const sonuc = await referansSil(r.id, r.logoYolu);
-      if (sonuc?.error) setHata(sonuc.error);
-      else {
+      if (sonuc?.error) {
+        setHata(sonuc.error);
+        bildir.hata(sonuc.error);
+      } else {
         setDuzenlenen(null);
+        bildir.basarili("Referans silindi.");
         router.refresh();
       }
     });

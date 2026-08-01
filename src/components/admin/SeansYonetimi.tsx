@@ -8,6 +8,7 @@ import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
 import { guvenliUrl } from "@/lib/guvenli-url";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 export type SeansSatir = {
   id: string;
@@ -30,6 +31,7 @@ export function SeansYonetimi({
   kurslar: { id: string; ad: string }[];
 }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [formAcik, setFormAcik] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [islemde, startTransition] = useTransition();
@@ -48,8 +50,11 @@ export function SeansYonetimi({
     setHata(null);
     startTransition(async () => {
       const r = await seansEkle(form);
-      if (r?.error) setHata(r.error);
-      else {
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili("Seans planlandı.");
         setForm({ userId: "", courseId: "", baslangic: "", sureDk: "60", konu: "", toplantiLink: "" });
         setFormAcik(false);
         router.refresh();
@@ -59,15 +64,23 @@ export function SeansYonetimi({
 
   const durumDegistir = (id: string, durum: SeansSatir["durum"]) => {
     startTransition(async () => {
-      await seansDurumDegistir(id, durum);
-      router.refresh();
+      const r = await seansDurumDegistir(id, durum);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili("Seans durumu güncellendi.");
+        router.refresh();
+      }
     });
   };
 
   const sil = (id: string) => {
     startTransition(async () => {
-      await seansSil(id);
-      router.refresh();
+      const r = await seansSil(id);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili("Seans silindi.");
+        router.refresh();
+      }
     });
   };
 

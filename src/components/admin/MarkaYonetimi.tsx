@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { markaGuncelle, type MarkaAlan } from "@/app/admin/(protected)/marka/actions";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 export type MarkaGorunum = {
   logoKoyuZemin: string | null;
@@ -74,6 +75,7 @@ export function MarkaYonetimi({ marka }: { marka: MarkaGorunum }) {
 
 function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [islemde, startTransition] = useTransition();
@@ -94,21 +96,32 @@ function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
     if (error) {
       setYukleniyor(false);
       setHata(error.message);
+      bildir.hata(`Dosya yüklenemedi: ${error.message}`);
       return;
     }
 
     const r = await markaGuncelle(kart.alan, yol);
     setYukleniyor(false);
-    if (r?.error) setHata(r.error);
-    else router.refresh();
+    if (r?.error) {
+      setHata(r.error);
+      bildir.hata(r.error);
+    } else {
+      bildir.basarili(`${kart.baslik} güncellendi.`);
+      router.refresh();
+    }
   };
 
   const kaldir = () => {
     setHata(null);
     startTransition(async () => {
       const r = await markaGuncelle(kart.alan, null);
-      if (r?.error) setHata(r.error);
-      else router.refresh();
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili(`${kart.baslik} kaldırıldı.`);
+        router.refresh();
+      }
     });
   };
 

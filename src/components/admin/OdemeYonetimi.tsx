@@ -6,6 +6,7 @@ import { odemeEkle, odemeDurumDegistir, odemeSil } from "@/app/admin/(protected)
 import { durumStil } from "@/lib/admin/shared";
 import { para, odemeDurumEtiket, tarihBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 export type OdemeSatir = {
   id: string;
@@ -37,6 +38,7 @@ export function OdemeYonetimi({
   kurslar: SecimOgesi[];
 }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [filtre, setFiltre] = useState<"hepsi" | "odendi" | "bekliyor" | "iade">("hepsi");
   const [formAcik, setFormAcik] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
@@ -64,8 +66,11 @@ export function OdemeYonetimi({
     setHata(null);
     startTransition(async () => {
       const r = await odemeEkle(form);
-      if (r?.error) setHata(r.error);
-      else {
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili("Ödeme kaydedildi.");
         setForm({ ...form, userId: "", courseId: "", tutar: "", faturaNo: "" });
         setFormAcik(false);
         router.refresh();
@@ -75,15 +80,23 @@ export function OdemeYonetimi({
 
   const durumDegistir = (id: string, durum: "odendi" | "bekliyor" | "iade") => {
     startTransition(async () => {
-      await odemeDurumDegistir(id, durum);
-      router.refresh();
+      const r = await odemeDurumDegistir(id, durum);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili("Ödeme durumu güncellendi.");
+        router.refresh();
+      }
     });
   };
 
   const sil = (id: string) => {
     startTransition(async () => {
-      await odemeSil(id);
-      router.refresh();
+      const r = await odemeSil(id);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili("Ödeme kaydı silindi.");
+        router.refresh();
+      }
     });
   };
 

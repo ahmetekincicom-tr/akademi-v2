@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { kayitEkle, kayitKaldir } from "@/app/admin/(protected)/ogrenciler/actions";
 import { Icon } from "@/components/Icon";
 import { konumEtiketi, cihazEtiketi, type OturumKaydi, type PaylasimSinyali } from "@/lib/oturum";
+import { useBildirim } from "@/components/Bildirim";
 
 export type AdminKurs = { id: string; slug: string; baslik: string };
 
@@ -46,6 +47,7 @@ function basHarfler(isim: string) {
 
 export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgrenci[]; kurslar: AdminKurs[] }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [arama, setArama] = useState("");
   const [seciliId, setSeciliId] = useState<string | null>(null);
   const [eklenecekKurs, setEklenecekKurs] = useState("");
@@ -66,9 +68,12 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
     setHata(null);
     startTransition(async () => {
       const r = await kayitEkle(secili.id, eklenecekKurs);
-      if (r?.error) setHata(r.error);
-      else {
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
         setEklenecekKurs("");
+        bildir.basarili(`${secili.isim} eğitime atandı.`);
         router.refresh();
       }
     });
@@ -79,8 +84,13 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
     setHata(null);
     startTransition(async () => {
       const r = await kayitKaldir(secili.id, courseId);
-      if (r?.error) setHata(r.error);
-      else router.refresh();
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili("Eğitim kaydı kaldırıldı.");
+        router.refresh();
+      }
     });
   };
 

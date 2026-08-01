@@ -12,6 +12,7 @@ import { Icon } from "@/components/Icon";
 import { guvenliUrl } from "@/lib/guvenli-url";
 import { para, saatBicimi, tarihBicimi } from "@/lib/admin/format";
 import { GORUSME_DURUM_ETIKET, type Gorusme, type GorusmeDurum, type GorusmeAyarlari } from "@/lib/gorusme";
+import { useBildirim } from "@/components/Bildirim";
 
 const DURUM_RENK: Record<GorusmeDurum, { bg: string; fg: string }> = {
   talep: { bg: "rgba(28,86,243,0.12)", fg: "#1C56F3" },
@@ -41,6 +42,7 @@ export function GorusmeYonetimi({
   ayarlar: GorusmeAyarlari;
 }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [hata, setHata] = useState<string | null>(null);
   const [acikId, setAcikId] = useState<string | null>(null);
   const [ayarAcik, setAyarAcik] = useState(false);
@@ -49,13 +51,20 @@ export function GorusmeYonetimi({
   const bekleyen = gorusmeler.filter((g) => g.durum === "talep" || g.durum === "odeme_bekliyor");
   const planli = gorusmeler.filter((g) => g.durum === "planlandi");
 
-  const calistir = (fn: () => Promise<{ error?: string } | void>, sonra?: () => void) => {
+  const calistir = (
+    fn: () => Promise<{ error?: string } | void>,
+    sonra?: () => void,
+    basariMesaji = "Kaydedildi.",
+  ) => {
     setHata(null);
     startTransition(async () => {
       const r = await fn();
-      if (r && "error" in r && r.error) setHata(r.error);
-      else {
+      if (r && "error" in r && r.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
         sonra?.();
+        bildir.basarili(basariMesaji);
         router.refresh();
       }
     });
@@ -172,7 +181,13 @@ export function GorusmeYonetimi({
                   <select
                     value={g.durum}
                     disabled={islemde}
-                    onChange={(e) => calistir(() => gorusmeDurumDegistir(g.id, e.target.value as GorusmeDurum))}
+                    onChange={(e) =>
+                      calistir(
+                        () => gorusmeDurumDegistir(g.id, e.target.value as GorusmeDurum),
+                        undefined,
+                        "Görüşme durumu güncellendi.",
+                      )
+                    }
                     className="h-8 flex-none rounded-[7px] border-0 px-[7px] font-mono text-[9.5px] tracking-[0.08em] uppercase outline-none"
                     style={{ background: renk.bg, color: renk.fg }}
                   >
@@ -220,7 +235,11 @@ function Detay({
   g: Gorusme;
   ayarlar: GorusmeAyarlari;
   islemde: boolean;
-  calistir: (fn: () => Promise<{ error?: string } | void>, sonra?: () => void) => void;
+  calistir: (
+    fn: () => Promise<{ error?: string } | void>,
+    sonra?: () => void,
+    basariMesaji?: string,
+  ) => void;
   kapat: () => void;
 }) {
   const [baslangic, setBaslangic] = useState(yerelInput(g.baslangic));
@@ -277,7 +296,7 @@ function Detay({
             <button
               type="button"
               disabled={islemde}
-              onClick={() => calistir(() => gorusmeOdemeOnayla(g.id, referans))}
+              onClick={() => calistir(() => gorusmeOdemeOnayla(g.id, referans), undefined, "Ödeme onaylandı.")}
               className="inline-flex h-[42px] items-center gap-[6px] rounded-[9px] bg-[#157A4E] px-4 text-[13.5px] font-semibold text-white transition hover:bg-ink disabled:opacity-60"
             >
               <Icon name="check" size={15} />
@@ -329,7 +348,11 @@ function Detay({
           type="button"
           disabled={islemde || odemeBekliyor}
           onClick={() =>
-            calistir(() => gorusmePlanla({ id: g.id, baslangic, sureDk, toplantiLink, adminNotu }), kapat)
+            calistir(
+              () => gorusmePlanla({ id: g.id, baslangic, sureDk, toplantiLink, adminNotu }),
+              kapat,
+              "Görüşme planlandı.",
+            )
           }
           className="h-[42px] rounded-[9px] bg-brand px-5 text-[13.5px] font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
         >
@@ -350,7 +373,11 @@ function AyarFormu({
 }: {
   ayarlar: GorusmeAyarlari;
   islemde: boolean;
-  calistir: (fn: () => Promise<{ error?: string } | void>, sonra?: () => void) => void;
+  calistir: (
+    fn: () => Promise<{ error?: string } | void>,
+    sonra?: () => void,
+    basariMesaji?: string,
+  ) => void;
 }) {
   const [form, setForm] = useState({
     ucretsizHak: String(ayarlar.ucretsizHak),
@@ -422,7 +449,7 @@ function AyarFormu({
       <button
         type="button"
         disabled={islemde}
-        onClick={() => calistir(() => gorusmeAyarKaydet(form))}
+        onClick={() => calistir(() => gorusmeAyarKaydet(form), undefined, "Görüşme ayarları kaydedildi.")}
         className="mt-5 h-[46px] rounded-[10px] bg-brand px-6 text-[15px] font-semibold text-white transition hover:bg-ink disabled:opacity-60"
       >
         {islemde ? "Kaydediliyor…" : "Ayarları kaydet"}

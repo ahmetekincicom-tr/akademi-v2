@@ -6,6 +6,7 @@ import { yasalKaydet } from "@/app/admin/(protected)/yasal/actions";
 import { Icon } from "@/components/Icon";
 import { Toggle } from "./Toggle";
 import type { YasalSayfa } from "@/lib/yasal";
+import { useBildirim } from "@/components/Bildirim";
 
 export function YasalYonetimi({ sayfalar }: { sayfalar: YasalSayfa[] }) {
   const router = useRouter();
@@ -59,14 +60,18 @@ function YasalKarti({
   const [yayinda, setYayinda] = useState(sayfa.yayinda);
   const [durum, setDurum] = useState<{ tip: "ok" | "hata"; mesaj: string } | null>(null);
   const [islemde, startTransition] = useTransition();
+  const bildir = useBildirim();
 
   const kaydet = () => {
     setDurum(null);
     startTransition(async () => {
       const r = await yasalKaydet({ slug: sayfa.slug, baslik, ozet, icerik, guncelleme, yayinda });
-      if (r?.error) setDurum({ tip: "hata", mesaj: r.error });
-      else {
+      if (r?.error) {
+        setDurum({ tip: "hata", mesaj: r.error });
+        bildir.hata(r.error);
+      } else {
         setDurum({ tip: "ok", mesaj: "Kaydedildi." });
+        bildir.basarili(`${baslik || sayfa.slug} kaydedildi.`);
         onKaydedildi();
       }
     });

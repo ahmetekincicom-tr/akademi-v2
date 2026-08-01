@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import { guvenliUrl } from "@/lib/guvenli-url";
 import { para, saatBicimi } from "@/lib/admin/format";
 import { GORUSME_DURUM_ETIKET, type Gorusme, type GorusmeAyarlari } from "@/lib/gorusme";
+import { useBildirim } from "@/components/Bildirim";
 
 const DURUM_RENK: Record<string, { bg: string; fg: string }> = {
   talep: { bg: "rgba(28,86,243,0.12)", fg: "#1C56F3" },
@@ -26,6 +27,7 @@ export function GorusmeGorunumu({
   hak: { kullanilan: number; kalan: number; bekleyen: boolean; sonrakiUcretli: boolean };
 }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [formAcik, setFormAcik] = useState(false);
   const [konu, setKonu] = useState("");
   const [aciklama, setAciklama] = useState("");
@@ -37,8 +39,11 @@ export function GorusmeGorunumu({
     setHata(null);
     startTransition(async () => {
       const r = await gorusmeTalepEt({ konu, aciklama, tercihZaman: tercih });
-      if (r?.error) setHata(r.error);
-      else {
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili("Görüşme talebin alındı. En kısa sürede planlayıp buraya ekleyeceğiz.");
         setKonu("");
         setAciklama("");
         setTercih("");
@@ -52,8 +57,13 @@ export function GorusmeGorunumu({
     setHata(null);
     startTransition(async () => {
       const r = await gorusmeIptalEt(id);
-      if (r?.error) setHata(r.error);
-      else router.refresh();
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili("Talebin iptal edildi.");
+        router.refresh();
+      }
     });
   };
 

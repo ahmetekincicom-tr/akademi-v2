@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import { TopLoader } from "@/components/site/TopLoader";
+import { BildirimSaglayici } from "@/components/Bildirim";
 import { getMarka } from "@/lib/marka";
 import "./globals.css";
 
@@ -44,7 +45,7 @@ export default function RootLayout({
     <html lang="tr" className={`${heading.variable} ${body.variable} ${mono.variable}`}>
       <body className="antialiased font-body text-ink bg-white">
         <TopLoader />
-        {children}
+        <BildirimSaglayici>{children}</BildirimSaglayici>
       </body>
     </html>
   );

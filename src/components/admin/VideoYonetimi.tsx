@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { dersVideoKaydet } from "@/app/admin/(protected)/video/actions";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 export type VideoDers = {
   id: string;
@@ -17,6 +18,7 @@ export type VideoDers = {
 
 export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; bunnyAktif: boolean }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [arama, setArama] = useState("");
   const [sadeceEksik, setSadeceEksik] = useState(false);
   const [duzenlenen, setDuzenlenen] = useState<string | null>(null);
@@ -47,9 +49,12 @@ export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; b
     setHata(null);
     startTransition(async () => {
       const r = await dersVideoKaydet(lessonId, url, aciklama);
-      if (r?.error) setHata(r.error);
-      else {
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
         setDuzenlenen(null);
+        bildir.basarili("Ders videosu kaydedildi.");
         router.refresh();
       }
     });

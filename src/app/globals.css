@@ -149,4 +149,19 @@
   .animate-rise {
     animation: aea-rise 0.7s ease both;
   }
+
+  @keyframes aea-bildirim {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .bildirim-giris {
+    animation: aea-bildirim 0.22s ease both;
+  }
 }

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { dokumanIndirmeLinki } from "@/app/admin/(protected)/dokumanlar/actions";
 import { baytBoyut, tarihBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 export type OgrenciDokuman = {
   id: string;
@@ -18,13 +19,18 @@ export type OgrenciDokuman = {
 export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] }) {
   const [hata, setHata] = useState<string | null>(null);
   const [islemde, startTransition] = useTransition();
+  const bildir = useBildirim();
 
   const indir = (yol: string) => {
     setHata(null);
     startTransition(async () => {
       const r = await dokumanIndirmeLinki(yol);
       if (r.url) window.open(r.url, "_blank");
-      else setHata(r.error ?? "Bağlantı alınamadı.");
+      else {
+        const m = r.error ?? "Bağlantı alınamadı.";
+        setHata(m);
+        bildir.hata(m);
+      }
     });
   };
 

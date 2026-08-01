@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { mesajOkunduIsaretle, mesajSil } from "@/app/mesaj-actions";
 import { Icon } from "@/components/Icon";
 import { saatBicimi } from "@/lib/admin/format";
+import { useBildirim } from "@/components/Bildirim";
 
 export type MesajSatir = {
   id: string;
@@ -29,6 +30,7 @@ const filtreler: { id: "hepsi" | "okunmadi" | "teklif" | "iletisim"; ad: string 
 
 export function MesajYonetimi({ mesajlar }: { mesajlar: MesajSatir[] }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [filtre, setFiltre] = useState<"hepsi" | "okunmadi" | "teklif" | "iletisim">("hepsi");
   const [seciliId, setSeciliId] = useState<string | null>(mesajlar[0]?.id ?? null);
   const [islemde, startTransition] = useTransition();
@@ -44,16 +46,24 @@ export function MesajYonetimi({ mesajlar }: { mesajlar: MesajSatir[] }) {
 
   const okunduDegistir = (id: string, okundu: boolean) => {
     startTransition(async () => {
-      await mesajOkunduIsaretle(id, okundu);
-      router.refresh();
+      const r = await mesajOkunduIsaretle(id, okundu);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili(okundu ? "Okundu olarak işaretlendi." : "Okunmadı olarak işaretlendi.");
+        router.refresh();
+      }
     });
   };
 
   const sil = (id: string) => {
     startTransition(async () => {
-      await mesajSil(id);
-      setSeciliId(null);
-      router.refresh();
+      const r = await mesajSil(id);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        setSeciliId(null);
+        bildir.basarili("Mesaj silindi.");
+        router.refresh();
+      }
     });
   };
 

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { dokumanKaydet, dokumanSil, dokumanIndirmeLinki } from "@/app/admin/(protected)/dokumanlar/actions";
 import { baytBoyut, tarihBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 export type DokumanSatir = {
   id: string;
@@ -25,6 +26,7 @@ export function DokumanYonetimi({
   kurslar: { id: string; ad: string }[];
 }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [baslik, setBaslik] = useState("");
   const [courseId, setCourseId] = useState("");
   const [dosya, setDosya] = useState<File | null>(null);
@@ -49,6 +51,7 @@ export function DokumanYonetimi({
     if (upErr) {
       setYukleniyor(false);
       setHata(upErr.message);
+      bildir.hata(`Dosya yüklenemedi: ${upErr.message}`);
       return;
     }
 
@@ -63,11 +66,13 @@ export function DokumanYonetimi({
     setYukleniyor(false);
     if (r?.error) {
       setHata(r.error);
+      bildir.hata(r.error);
       return;
     }
     setBaslik("");
     setDosya(null);
     setCourseId("");
+    bildir.basarili("Doküman yüklendi.");
     router.refresh();
   };
 
@@ -75,15 +80,24 @@ export function DokumanYonetimi({
     startTransition(async () => {
       const r = await dokumanIndirmeLinki(yol);
       if (r.url) window.open(r.url, "_blank");
-      else setHata(r.error ?? "Bağlantı alınamadı.");
+      else {
+        const m = r.error ?? "Bağlantı alınamadı.";
+        setHata(m);
+        bildir.hata(m);
+      }
     });
   };
 
   const sil = (id: string, yol: string) => {
     startTransition(async () => {
       const r = await dokumanSil(id, yol);
-      if (r?.error) setHata(r.error);
-      else router.refresh();
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili("Doküman silindi.");
+        router.refresh();
+      }
     });
   };
 

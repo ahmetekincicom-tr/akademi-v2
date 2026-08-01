@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ayarKaydet } from "@/app/admin/(protected)/ayar-actions";
+import { useBildirim } from "@/components/Bildirim";
 
 export type AyarAlan = {
   ad: string;
@@ -38,6 +39,7 @@ export function AyarFormu({
 
 function AyarKarti({ grup, baslangic }: { grup: AyarGrubu; baslangic: Record<string, string> }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [form, setForm] = useState<Record<string, string>>(() =>
     Object.fromEntries(grup.alanlar.map((a) => [a.ad, baslangic[a.ad] ?? ""])),
   );
@@ -48,9 +50,12 @@ function AyarKarti({ grup, baslangic }: { grup: AyarGrubu; baslangic: Record<str
     setDurum(null);
     startTransition(async () => {
       const r = await ayarKaydet(grup.anahtar, form);
-      if (r?.error) setDurum({ tip: "hata", mesaj: r.error });
-      else {
+      if (r?.error) {
+        setDurum({ tip: "hata", mesaj: r.error });
+        bildir.hata(r.error);
+      } else {
         setDurum({ tip: "ok", mesaj: "Kaydedildi." });
+        bildir.basarili("Ayarlar kaydedildi.");
         router.refresh();
       }
     });

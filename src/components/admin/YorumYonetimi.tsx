@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { yorumKaydet, yorumSil } from "@/app/admin/(protected)/icerik-actions";
 import { Icon } from "@/components/Icon";
 import { Toggle } from "./Toggle";
+import { useBildirim } from "@/components/Bildirim";
 
 export type AdminYorum = {
   id: string;
@@ -26,6 +27,7 @@ export function YorumYonetimi({
   kurslar: { id: string; ad: string }[];
 }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [duzenlenen, setDuzenlenen] = useState<string | "yeni" | null>(null);
   const [form, setForm] = useState(BOS);
   const [hata, setHata] = useState<string | null>(null);
@@ -53,10 +55,14 @@ export function YorumYonetimi({
   const kaydet = () => {
     setHata(null);
     startTransition(async () => {
-      const r = await yorumKaydet({ ...form, id: duzenlenen === "yeni" ? undefined : (duzenlenen ?? undefined) });
-      if (r?.error) setHata(r.error);
-      else {
+      const yeniMi = duzenlenen === "yeni";
+      const r = await yorumKaydet({ ...form, id: yeniMi ? undefined : (duzenlenen ?? undefined) });
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
         setDuzenlenen(null);
+        bildir.basarili(yeniMi ? "Yorum eklendi." : "Yorum güncellendi.");
         router.refresh();
       }
     });
@@ -65,9 +71,12 @@ export function YorumYonetimi({
   const sil = (id: string) => {
     startTransition(async () => {
       const r = await yorumSil(id);
-      if (r?.error) setHata(r.error);
-      else {
+      if (r?.error) {
+        setHata(r.error);
+        bildir.hata(r.error);
+      } else {
         setDuzenlenen(null);
+        bildir.basarili("Yorum silindi.");
         router.refresh();
       }
     });

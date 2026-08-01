@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { dersDurumDegistir } from "@/app/panel/actions";
 import type { PanelCourse } from "@/lib/panel";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 export function DersPlayer({
   courses,
@@ -17,6 +18,7 @@ export function DersPlayer({
   baslangicDersId: string | null;
 }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [kursSlug, setKursSlug] = useState(baslangicKursSlug);
   const [aktifDersId, setAktifDersId] = useState(baslangicDersId);
   const [tamamlananlar, setTamamlananlar] = useState<Set<string>>(
@@ -50,8 +52,20 @@ export function DersPlayer({
     });
 
     startTransition(async () => {
-      await dersDurumDegistir(aktifDers.id, yeniDurum);
-      router.refresh();
+      const r = await dersDurumDegistir(aktifDers.id, yeniDurum);
+      if (r?.error) {
+        // Kayıt geçmediyse işareti geri al, yoksa ekran yalan söyler.
+        setTamamlananlar((prev) => {
+          const next = new Set(prev);
+          if (yeniDurum) next.delete(aktifDers.id);
+          else next.add(aktifDers.id);
+          return next;
+        });
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili(yeniDurum ? "Ders tamamlandı olarak işaretlendi." : "Ders tamamlanmadı olarak işaretlendi.");
+        router.refresh();
+      }
     });
   };
 

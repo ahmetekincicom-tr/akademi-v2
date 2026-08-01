@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Toggle } from "./Toggle";
 import { saveCourse, arsivleCourse } from "@/app/admin/(protected)/egitimler/actions";
 import { Icon } from "@/components/Icon";
+import { useBildirim } from "@/components/Bildirim";
 
 // Rows loaded from the database carry their id so saving updates them in place
 // instead of recreating them (which would wipe student progress). Rows added in
@@ -45,6 +46,7 @@ export function CourseEditor({
   mode: "yeni" | "duzenle";
   initial?: CourseEditorInitial;
 }) {
+  const bildir = useBildirim();
   const [ad, setAd] = useState(initial.ad);
   const [sure, setSure] = useState(initial.sure);
   const [format, setFormat] = useState(initial.format);
@@ -79,7 +81,12 @@ export function CourseEditor({
       durum,
     });
     setKaydediliyor(null);
-    if (sonuc?.error) setHata(sonuc.error);
+    if (sonuc?.error) {
+      setHata(sonuc.error);
+      bildir.hata(sonuc.error);
+      return;
+    }
+    bildir.basarili(durum === "yayinda" ? "Eğitim yayınlandı." : "Eğitim taslak olarak kaydedildi.");
   };
 
   const arsivle = async () => {
@@ -88,7 +95,12 @@ export function CourseEditor({
     setHata(null);
     const sonuc = await arsivleCourse(originalSlug);
     setKaydediliyor(null);
-    if (sonuc?.error) setHata(sonuc.error);
+    if (sonuc?.error) {
+      setHata(sonuc.error);
+      bildir.hata(sonuc.error);
+      return;
+    }
+    bildir.basarili("Eğitim arşivlendi.");
   };
 
   const modulEkle = () => setModules((prev) => prev.concat({ ad: "", dersler: [] }));

@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { profilGuncelle } from "@/app/panel/actions";
 import { createClient } from "@/lib/supabase/client";
 import type { PanelProfile } from "@/lib/panel";
+import { useBildirim } from "@/components/Bildirim";
 
 export function HesapFormu({ profil }: { profil: PanelProfile }) {
   const router = useRouter();
+  const bildir = useBildirim();
   const [ad, setAd] = useState(profil.ad);
   const [soyad, setSoyad] = useState(profil.soyad);
   const [telefon, setTelefon] = useState(profil.telefon);
@@ -24,9 +26,12 @@ export function HesapFormu({ profil }: { profil: PanelProfile }) {
     setSonuc(null);
     const r = await profilGuncelle({ ad, soyad, telefon, sirket });
     setKaydediliyor(false);
-    if (r?.error) setSonuc({ tip: "hata", mesaj: r.error });
-    else {
+    if (r?.error) {
+      setSonuc({ tip: "hata", mesaj: r.error });
+      bildir.hata(r.error);
+    } else {
       setSonuc({ tip: "ok", mesaj: "Bilgilerin güncellendi." });
+      bildir.basarili("Bilgilerin güncellendi.");
       router.refresh();
     }
   };
@@ -38,9 +43,12 @@ export function HesapFormu({ profil }: { profil: PanelProfile }) {
     }
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password: yeniSifre });
-    if (error) setSifreDurum({ tip: "hata", mesaj: error.message });
-    else {
+    if (error) {
+      setSifreDurum({ tip: "hata", mesaj: error.message });
+      bildir.hata(error.message);
+    } else {
       setSifreDurum({ tip: "ok", mesaj: "Şifren güncellendi." });
+      bildir.basarili("Şifren güncellendi.");
       setYeniSifre("");
     }
   };
