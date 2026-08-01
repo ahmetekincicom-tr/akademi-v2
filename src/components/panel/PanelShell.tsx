@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/panel/actions";
@@ -60,14 +61,28 @@ export function PanelShell({
 }) {
   const pathname = usePathname();
   const pageTitle = pageTitles[pathname] ?? "Panel";
+  const [menuAcik, setMenuAcik] = useState(false);
 
   const adimlar: BreadcrumbAdim[] =
     pathname === "/panel" ? [{ label: "Panel" }] : [{ label: "Panel", href: "/panel" }, { label: pageTitle }];
 
   return (
     <div className="flex min-h-screen bg-paper">
-      <aside className="sticky top-0 flex h-screen w-[264px] flex-none flex-col bg-ink text-white/66">
-        <div className="border-b border-white/10 px-[22px] pt-[22px] pb-5">
+      {menuAcik && (
+        <button
+          type="button"
+          aria-label="Menüyü kapat"
+          onClick={() => setMenuAcik(false)}
+          className="fixed inset-0 z-40 bg-ink/55 lg:hidden"
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[264px] flex-none flex-col bg-ink text-white/66 transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
+          menuAcik ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-white/10 px-[22px] pt-[22px] pb-5">
           <Link href="/" className="flex items-center gap-[11px] text-white">
             <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">
               AE
@@ -77,6 +92,14 @@ export function PanelShell({
               <span className="font-mono text-[9px] tracking-[0.2em] text-white/45 uppercase">Öğrenci paneli</span>
             </span>
           </Link>
+          <button
+            type="button"
+            aria-label="Menüyü kapat"
+            onClick={() => setMenuAcik(false)}
+            className="flex h-8 w-8 items-center justify-center rounded-[8px] text-white/55 transition hover:bg-white/10 hover:text-white lg:hidden"
+          >
+            <Icon name="x" size={16} />
+          </button>
         </div>
 
         <div className="border-b border-white/8 px-[18px] pt-4 pb-[14px]">
@@ -121,6 +144,7 @@ export function PanelShell({
                     key={m.href}
                     href={m.href}
                     aria-current={active ? "page" : undefined}
+                    onClick={() => setMenuAcik(false)}
                     className="flex items-center gap-[11px] rounded-[9px] border-l-2 px-3 py-[9px] text-sm font-medium transition hover:bg-white/[0.07] hover:text-white"
                     style={{
                       borderColor: active ? "#1C56F3" : "transparent",
@@ -170,14 +194,25 @@ export function PanelShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/90 backdrop-blur-[14px]">
-          <div className="flex h-[70px] items-center justify-between gap-6 px-[34px]">
-            <Breadcrumb adimlar={adimlar} />
+          <div className="flex h-[70px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-[34px]">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                type="button"
+                aria-label="Menüyü aç"
+                onClick={() => setMenuAcik(true)}
+                className="flex h-9 w-9 flex-none items-center justify-center rounded-[9px] border border-ink/13 bg-white text-ink transition hover:border-brand hover:text-brand lg:hidden"
+              >
+                <Icon name="menu" size={17} />
+              </button>
+              <Breadcrumb adimlar={adimlar} />
+            </div>
             <Link
               href="/panel/soru-cevap"
-              className="inline-flex h-[38px] flex-none items-center gap-2 rounded-[9px] bg-ink px-[15px] text-[13.5px] font-semibold text-white transition hover:bg-brand"
+              aria-label="Destek talebi"
+              className="inline-flex h-[38px] flex-none items-center gap-2 rounded-[9px] bg-ink px-[11px] text-[13.5px] font-semibold text-white transition hover:bg-brand sm:px-[15px]"
             >
               <Icon name="message" size={15} />
-              Destek talebi
+              <span className="hidden sm:inline">Destek talebi</span>
             </Link>
           </div>
         </header>

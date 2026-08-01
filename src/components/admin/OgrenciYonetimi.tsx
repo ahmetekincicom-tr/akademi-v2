@@ -95,7 +95,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
   };
 
   return (
-    <main className="p-7 pb-14">
+    <main className="p-4 pb-14 sm:p-7">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
@@ -119,81 +119,83 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
       </div>
 
       <div className="mt-[18px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
-        <div className="grid grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
-          <span>Öğrenci</span>
-          <span>Eğitimler</span>
-          <span>İlerleme</span>
-          <span>Kayıt</span>
-          <span />
-        </div>
-
-        {listelenen.length === 0 ? (
-          <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">
-            {ogrenciler.length === 0 ? "Henüz kayıtlı kullanıcı yok." : "Aramanla eşleşen öğrenci bulunamadı."}
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] min-w-[820px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+            <span>Öğrenci</span>
+            <span>Eğitimler</span>
+            <span>İlerleme</span>
+            <span>Kayıt</span>
+            <span />
           </div>
-        ) : (
-          listelenen.map((o) => {
-            const toplamDers = o.kayitlar.reduce((n, r) => n + r.dersSayisi, 0);
-            const toplamBitti = o.kayitlar.reduce((n, r) => n + r.tamamlanan, 0);
-            const yuzde = toplamDers ? Math.round((toplamBitti / toplamDers) * 100) : 0;
-            return (
-              <div
-                key={o.id}
-                className="grid grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] transition last:border-b-0 hover:bg-[#F7F9FF]"
-              >
-                <div className="flex min-w-0 items-center gap-[11px]">
-                  <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#F2F4FA] font-mono text-[11px] font-medium text-[#5C6273]">
-                    {basHarfler(o.isim)}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="flex items-center gap-2">
-                      <span className="truncate text-sm font-semibold">{o.isim}</span>
-                      {o.admin && (
-                        <span className="flex-none rounded-full bg-ink px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-white uppercase">
-                          admin
-                        </span>
-                      )}
-                      {o.sinyal.supheli && (
-                        <span
-                          title={o.sinyal.gerekce}
-                          className="flex-none rounded-full bg-[rgba(201,138,27,0.16)] px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-[#A5711A] uppercase"
-                        >
-                          paylaşım?
-                        </span>
-                      )}
-                    </span>
-                    <span className="block truncate font-mono text-[10px] text-[#8A8F9E]">{o.eposta}</span>
-                  </span>
-                </div>
-                <div className="min-w-0 text-[13.5px] text-[#3A3F4F]">
-                  {o.kayitlar.length ? o.kayitlar.map((r) => r.baslik).join(", ") : "—"}
-                </div>
-                <div>
-                  <div className="h-[5px] overflow-hidden rounded-full bg-ink/8">
-                    <div className="h-full rounded-full bg-brand" style={{ width: `${yuzde}%` }} />
-                  </div>
-                  <div className="mt-[5px] font-mono text-[10px] text-[#8A8F9E]">
-                    {o.kayitlar.length ? `${yuzde}% · ${toplamBitti}/${toplamDers}` : "kayıt yok"}
-                  </div>
-                </div>
-                <div className="font-mono text-[11px] text-[#5C6273]">
-                  {tarihBicimi.format(new Date(o.kayitTarihi))}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSeciliId(o.id === seciliId ? null : o.id);
-                    setHata(null);
-                    setEklenecekKurs("");
-                  }}
-                  className="h-8 rounded-[8px] border border-ink/13 bg-white text-[12.5px] font-semibold text-ink hover:border-ink hover:bg-ink hover:text-white"
+
+          {listelenen.length === 0 ? (
+            <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">
+              {ogrenciler.length === 0 ? "Henüz kayıtlı kullanıcı yok." : "Aramanla eşleşen öğrenci bulunamadı."}
+            </div>
+          ) : (
+            listelenen.map((o) => {
+              const toplamDers = o.kayitlar.reduce((n, r) => n + r.dersSayisi, 0);
+              const toplamBitti = o.kayitlar.reduce((n, r) => n + r.tamamlanan, 0);
+              const yuzde = toplamDers ? Math.round((toplamBitti / toplamDers) * 100) : 0;
+              return (
+                <div
+                  key={o.id}
+                  className="grid grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] min-w-[820px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] transition last:border-b-0 hover:bg-[#F7F9FF]"
                 >
-                  {o.id === seciliId ? "Kapat" : "Detay"}
-                </button>
-              </div>
-            );
-          })
-        )}
+                  <div className="flex min-w-0 items-center gap-[11px]">
+                    <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#F2F4FA] font-mono text-[11px] font-medium text-[#5C6273]">
+                      {basHarfler(o.isim)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-2">
+                        <span className="truncate text-sm font-semibold">{o.isim}</span>
+                        {o.admin && (
+                          <span className="flex-none rounded-full bg-ink px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-white uppercase">
+                            admin
+                          </span>
+                        )}
+                        {o.sinyal.supheli && (
+                          <span
+                            title={o.sinyal.gerekce}
+                            className="flex-none rounded-full bg-[rgba(201,138,27,0.16)] px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-[#A5711A] uppercase"
+                          >
+                            paylaşım?
+                          </span>
+                        )}
+                      </span>
+                      <span className="block truncate font-mono text-[10px] text-[#8A8F9E]">{o.eposta}</span>
+                    </span>
+                  </div>
+                  <div className="min-w-0 text-[13.5px] text-[#3A3F4F]">
+                    {o.kayitlar.length ? o.kayitlar.map((r) => r.baslik).join(", ") : "—"}
+                  </div>
+                  <div>
+                    <div className="h-[5px] overflow-hidden rounded-full bg-ink/8">
+                      <div className="h-full rounded-full bg-brand" style={{ width: `${yuzde}%` }} />
+                    </div>
+                    <div className="mt-[5px] font-mono text-[10px] text-[#8A8F9E]">
+                      {o.kayitlar.length ? `${yuzde}% · ${toplamBitti}/${toplamDers}` : "kayıt yok"}
+                    </div>
+                  </div>
+                  <div className="font-mono text-[11px] text-[#5C6273]">
+                    {tarihBicimi.format(new Date(o.kayitTarihi))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSeciliId(o.id === seciliId ? null : o.id);
+                      setHata(null);
+                      setEklenecekKurs("");
+                    }}
+                    className="h-8 rounded-[8px] border border-ink/13 bg-white text-[12.5px] font-semibold text-ink hover:border-ink hover:bg-ink hover:text-white"
+                  >
+                    {o.id === seciliId ? "Kapat" : "Detay"}
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
 
       {secili && (

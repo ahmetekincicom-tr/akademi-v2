@@ -15,7 +15,7 @@ export function YasalYonetimi({ sayfalar }: { sayfalar: YasalSayfa[] }) {
   const yayindaSayisi = sayfalar.filter((s) => s.yayinda).length;
 
   return (
-    <main className="p-7 pb-14">
+    <main className="p-4 pb-14 sm:p-7">
       <div>
         <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
           Yasal metinler

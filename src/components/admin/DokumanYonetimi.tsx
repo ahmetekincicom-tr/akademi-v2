@@ -102,7 +102,7 @@ export function DokumanYonetimi({
   };
 
   return (
-    <main className="p-7 pb-14">
+    <main className="p-4 pb-14 sm:p-7">
       <div>
         <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
           Dokümanlar
@@ -163,51 +163,53 @@ export function DokumanYonetimi({
       </div>
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-ink/10 bg-white">
-        <div className="grid grid-cols-[2fr_1.4fr_0.7fr_0.8fr_1fr_150px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
-          <span>Dosya</span>
-          <span>Eğitim</span>
-          <span>Tip</span>
-          <span>Boyut</span>
-          <span>Yüklendi</span>
-          <span />
-        </div>
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-[2fr_1.4fr_0.7fr_0.8fr_1fr_150px] min-w-[860px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+            <span>Dosya</span>
+            <span>Eğitim</span>
+            <span>Tip</span>
+            <span>Boyut</span>
+            <span>Yüklendi</span>
+            <span />
+          </div>
 
-        {dokumanlar.length === 0 ? (
-          <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">Henüz doküman yüklenmedi.</div>
-        ) : (
-          dokumanlar.map((d) => (
-            <div
-              key={d.id}
-              className="grid grid-cols-[2fr_1.4fr_0.7fr_0.8fr_1fr_150px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] last:border-b-0 hover:bg-[#F7F9FF]"
-            >
-              <div className="min-w-0 truncate text-sm font-semibold">{d.baslik}</div>
-              <div className="min-w-0 truncate text-[13.5px] text-[#3A3F4F]">{d.program}</div>
-              <div className="font-mono text-[11px] text-[#5C6273]">{d.dosyaTipi || "—"}</div>
-              <div className="font-mono text-[11px] text-[#5C6273]">{baytBoyut(d.boyut)}</div>
-              <div className="font-mono text-[11px] text-[#5C6273]">{tarihBicimi.format(new Date(d.tarih))}</div>
-              <div className="flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  disabled={islemde}
-                  onClick={() => indir(d.dosyaYolu)}
-                  className="inline-flex h-8 items-center gap-[6px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
-                >
-                  <Icon name="download" size={13} />
-                  İndir
-                </button>
-                <button
-                  type="button"
-                  disabled={islemde}
-                  onClick={() => sil(d.id, d.dosyaYolu)}
-                  aria-label="Dosyayı sil"
-                  className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
-                >
-                  <Icon name="x" size={14} />
-                </button>
+          {dokumanlar.length === 0 ? (
+            <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">Henüz doküman yüklenmedi.</div>
+          ) : (
+            dokumanlar.map((d) => (
+              <div
+                key={d.id}
+                className="grid grid-cols-[2fr_1.4fr_0.7fr_0.8fr_1fr_150px] min-w-[860px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] last:border-b-0 hover:bg-[#F7F9FF]"
+              >
+                <div className="min-w-0 truncate text-sm font-semibold">{d.baslik}</div>
+                <div className="min-w-0 truncate text-[13.5px] text-[#3A3F4F]">{d.program}</div>
+                <div className="font-mono text-[11px] text-[#5C6273]">{d.dosyaTipi || "—"}</div>
+                <div className="font-mono text-[11px] text-[#5C6273]">{baytBoyut(d.boyut)}</div>
+                <div className="font-mono text-[11px] text-[#5C6273]">{tarihBicimi.format(new Date(d.tarih))}</div>
+                <div className="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={islemde}
+                    onClick={() => indir(d.dosyaYolu)}
+                    className="inline-flex h-8 items-center gap-[6px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
+                  >
+                    <Icon name="download" size={13} />
+                    İndir
+                  </button>
+                  <button
+                    type="button"
+                    disabled={islemde}
+                    onClick={() => sil(d.id, d.dosyaYolu)}
+                    aria-label="Dosyayı sil"
+                    className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                  >
+                    <Icon name="x" size={14} />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </main>
   );

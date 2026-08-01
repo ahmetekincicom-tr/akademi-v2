@@ -5,7 +5,7 @@ export default async function AdminAyarlarPage() {
   const degerler = await getAyarlar();
 
   return (
-    <main className="p-7 pb-14">
+    <main className="p-4 pb-14 sm:p-7">
       <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
         Ayarlar
       </h1>

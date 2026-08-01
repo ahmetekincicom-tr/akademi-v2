@@ -37,7 +37,8 @@ export type IconName =
   | "whatsapp"
   | "mail"
   | "phone"
-  | "pin";
+  | "pin"
+  | "menu";
 
 const paths: Record<IconName, React.ReactNode> = {
   grid: (
@@ -122,6 +123,7 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="m20.5 20.5-4.5-4.5" />
     </>
   ),
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   x: <path d="M18 6 6 18M6 6l12 12" />,
   check: <path d="m20 6.5-11 11-5-5" />,
   download: (

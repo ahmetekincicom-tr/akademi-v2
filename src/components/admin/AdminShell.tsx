@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/admin/logout-action";
@@ -108,11 +109,25 @@ export function AdminShell({
   sayilar: AdminSayilar;
 }) {
   const pathname = usePathname();
+  const [menuAcik, setMenuAcik] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-paper">
-      <aside className="sticky top-0 flex h-screen w-[250px] flex-none flex-col bg-ink text-white/64">
-        <div className="border-b border-white/9 px-5 pt-5 pb-[18px]">
+      {menuAcik && (
+        <button
+          type="button"
+          aria-label="Menüyü kapat"
+          onClick={() => setMenuAcik(false)}
+          className="fixed inset-0 z-40 bg-ink/55 lg:hidden"
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[250px] flex-none flex-col bg-ink text-white/64 transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
+          menuAcik ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between border-b border-white/9 px-5 pt-5 pb-[18px]">
           <Link href="/admin" className="flex items-center gap-[11px] text-white">
             <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">
               AE
@@ -122,6 +137,14 @@ export function AdminShell({
               <span className="font-mono text-[9px] tracking-[0.2em] text-white/42 uppercase">Admin</span>
             </span>
           </Link>
+          <button
+            type="button"
+            aria-label="Menüyü kapat"
+            onClick={() => setMenuAcik(false)}
+            className="flex h-8 w-8 items-center justify-center rounded-[8px] text-white/55 transition hover:bg-white/10 hover:text-white lg:hidden"
+          >
+            <Icon name="x" size={16} />
+          </button>
         </div>
 
         <nav className="flex flex-col gap-[14px] overflow-auto px-3 pt-[14px] pb-2">
@@ -136,6 +159,7 @@ export function AdminShell({
                     key={m.href}
                     href={m.href}
                     aria-current={active ? "page" : undefined}
+                    onClick={() => setMenuAcik(false)}
                     className="flex items-center gap-[11px] rounded-[9px] border-l-2 px-3 py-[9px] text-[13.5px] font-medium transition hover:bg-white/[0.07] hover:text-white"
                     style={{
                       borderColor: active ? "#1C56F3" : "transparent",
@@ -190,14 +214,25 @@ export function AdminShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/92 backdrop-blur-[14px]">
-          <div className="flex h-[66px] items-center justify-between gap-5 px-7">
-            <Breadcrumb adimlar={breadcrumbAdimlari(pathname)} />
+          <div className="flex h-[66px] items-center justify-between gap-3 px-4 sm:gap-5 sm:px-7">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                type="button"
+                aria-label="Menüyü aç"
+                onClick={() => setMenuAcik(true)}
+                className="flex h-9 w-9 flex-none items-center justify-center rounded-[9px] border border-ink/13 bg-white text-ink transition hover:border-brand hover:text-brand lg:hidden"
+              >
+                <Icon name="menu" size={17} />
+              </button>
+              <Breadcrumb adimlar={breadcrumbAdimlari(pathname)} />
+            </div>
             <Link
               href="/admin/egitimler/yeni"
-              className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-ink px-[15px] text-[13.5px] font-semibold text-white transition hover:bg-brand"
+              aria-label="Yeni eğitim"
+              className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-ink px-[11px] text-[13.5px] font-semibold text-white transition hover:bg-brand sm:px-[15px]"
             >
               <Icon name="plus" size={15} />
-              Yeni eğitim
+              <span className="hidden sm:inline">Yeni eğitim</span>
             </Link>
           </div>
         </header>

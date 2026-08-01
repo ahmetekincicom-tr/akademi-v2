@@ -5,7 +5,7 @@ export default async function YeniEgitimlerPage() {
   const urunler = await getOnerilenCourses();
 
   return (
-    <main className="p-[34px] pb-14">
+    <main className="p-4 pb-14 sm:p-[34px]">
       <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">
         Yeni eğitimler
       </h1>

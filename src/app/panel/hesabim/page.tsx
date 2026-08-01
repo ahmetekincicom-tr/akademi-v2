@@ -22,7 +22,7 @@ export default async function HesabimPage() {
   const oturumlar = await getOturumlar(supabase, { limit: 20 });
 
   return (
-    <main className="p-[34px] pb-14">
+    <main className="p-4 pb-14 sm:p-[34px]">
       <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">Hesabım</h1>
 
       <div className="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-white">

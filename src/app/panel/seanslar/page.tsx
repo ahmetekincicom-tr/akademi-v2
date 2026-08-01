@@ -65,7 +65,7 @@ export default async function SeanslarPage() {
   };
 
   return (
-    <main className="p-[34px] pb-14">
+    <main className="p-4 pb-14 sm:p-[34px]">
       <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">
         Birebir seanslar
       </h1>

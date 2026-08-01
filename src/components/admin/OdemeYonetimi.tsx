@@ -101,7 +101,7 @@ export function OdemeYonetimi({
   };
 
   return (
-    <main className="p-7 pb-14">
+    <main className="p-4 pb-14 sm:p-7">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
@@ -247,66 +247,68 @@ export function OdemeYonetimi({
       </div>
 
       <div className="mt-[18px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
-        <div className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_150px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
-          <span>Öğrenci</span>
-          <span>Eğitim</span>
-          <span>Tarih</span>
-          <span>Yöntem</span>
-          <span className="text-right">Tutar</span>
-          <span />
-        </div>
-
-        {listelenen.length === 0 ? (
-          <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">
-            {odemeler.length === 0 ? "Henüz ödeme kaydı yok." : "Bu filtreyle eşleşen kayıt yok."}
+        <div className="overflow-x-auto">
+          <div className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_150px] min-w-[900px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+            <span>Öğrenci</span>
+            <span>Eğitim</span>
+            <span>Tarih</span>
+            <span>Yöntem</span>
+            <span className="text-right">Tutar</span>
+            <span />
           </div>
-        ) : (
-          listelenen.map((o) => {
-            const etiket = odemeDurumEtiket[o.durum];
-            const st = durumStil(etiket);
-            return (
-              <div
-                key={o.id}
-                className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_150px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] last:border-b-0 hover:bg-[#F7F9FF]"
-              >
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold">{o.isim}</div>
-                  {o.faturaNo && (
-                    <div className="truncate font-mono text-[10px] text-[#8A8F9E]">{o.faturaNo}</div>
-                  )}
+
+          {listelenen.length === 0 ? (
+            <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">
+              {odemeler.length === 0 ? "Henüz ödeme kaydı yok." : "Bu filtreyle eşleşen kayıt yok."}
+            </div>
+          ) : (
+            listelenen.map((o) => {
+              const etiket = odemeDurumEtiket[o.durum];
+              const st = durumStil(etiket);
+              return (
+                <div
+                  key={o.id}
+                  className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_150px] min-w-[900px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] last:border-b-0 hover:bg-[#F7F9FF]"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold">{o.isim}</div>
+                    {o.faturaNo && (
+                      <div className="truncate font-mono text-[10px] text-[#8A8F9E]">{o.faturaNo}</div>
+                    )}
+                  </div>
+                  <div className="min-w-0 truncate text-[13.5px] text-[#3A3F4F]">{o.program}</div>
+                  <div className="font-mono text-[11px] text-[#5C6273]">
+                    {tarihBicimi.format(new Date(o.odemeTarihi))}
+                  </div>
+                  <div className="min-w-0 truncate text-[13px] text-[#5C6273]">{o.yontem || "—"}</div>
+                  <div className="text-right font-heading text-[15px] font-semibold">{para(o.tutar)}</div>
+                  <div className="flex items-center justify-end gap-2">
+                    <select
+                      value={o.durum}
+                      disabled={islemde}
+                      onChange={(e) => durumDegistir(o.id, e.target.value as OdemeSatir["durum"])}
+                      className="h-8 rounded-[7px] border-0 px-[7px] font-mono text-[9.5px] tracking-[0.08em] uppercase outline-none"
+                      style={{ background: st.bg, color: st.renk }}
+                    >
+                      <option value="odendi">Ödendi</option>
+                      <option value="bekliyor">Bekliyor</option>
+                      <option value="iade">İade</option>
+                    </select>
+                    <button
+                      type="button"
+                      disabled={islemde}
+                      onClick={() => sil(o.id)}
+                      aria-label="Ödemeyi sil"
+                      className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                    >
+                      <Icon name="x" size={14} />
+                    </button>
+                  </div>
                 </div>
-                <div className="min-w-0 truncate text-[13.5px] text-[#3A3F4F]">{o.program}</div>
-                <div className="font-mono text-[11px] text-[#5C6273]">
-                  {tarihBicimi.format(new Date(o.odemeTarihi))}
-                </div>
-                <div className="min-w-0 truncate text-[13px] text-[#5C6273]">{o.yontem || "—"}</div>
-                <div className="text-right font-heading text-[15px] font-semibold">{para(o.tutar)}</div>
-                <div className="flex items-center justify-end gap-2">
-                  <select
-                    value={o.durum}
-                    disabled={islemde}
-                    onChange={(e) => durumDegistir(o.id, e.target.value as OdemeSatir["durum"])}
-                    className="h-8 rounded-[7px] border-0 px-[7px] font-mono text-[9.5px] tracking-[0.08em] uppercase outline-none"
-                    style={{ background: st.bg, color: st.renk }}
-                  >
-                    <option value="odendi">Ödendi</option>
-                    <option value="bekliyor">Bekliyor</option>
-                    <option value="iade">İade</option>
-                  </select>
-                  <button
-                    type="button"
-                    disabled={islemde}
-                    onClick={() => sil(o.id)}
-                    aria-label="Ödemeyi sil"
-                    className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
-                  >
-                    <Icon name="x" size={14} />
-                  </button>
-                </div>
-              </div>
-            );
-          })
-        )}
+              );
+            })
+          )}
+        </div>
       </div>
     </main>
   );

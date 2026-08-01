@@ -71,7 +71,7 @@ export function GorusmeGorunumu({
     "h-[46px] rounded-[10px] border border-ink/13 bg-white px-[14px] text-[15px] text-ink outline-none focus:border-brand";
 
   return (
-    <main className="p-[34px] pb-14">
+    <main className="p-4 pb-14 sm:p-[34px]">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">

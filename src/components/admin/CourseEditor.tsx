@@ -124,7 +124,7 @@ export function CourseEditor({
   const baslik = mode === "yeni" ? "Yeni eğitim" : ad || "Eğitim düzenle";
 
   return (
-    <main className="p-7 pb-14">
+    <main className="p-4 pb-14 sm:p-7">
       <Link
         href="/admin/egitimler"
         className="inline-flex items-center gap-[6px] text-[13.5px] font-semibold text-[#5C6273] transition hover:text-brand"
