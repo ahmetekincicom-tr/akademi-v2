@@ -38,8 +38,8 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
       <section className="rounded-2xl border border-ink/10 bg-white p-6">
         <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Kayıt duyurusu</h2>
         <p className="mt-1 max-w-[620px] text-[13.5px] leading-[1.6] text-[#5C6273]">
-          Eğitim detay sayfalarının en üstünde, koyu hero&apos;nun üzerinde beyaz bir şerit olarak çıkar. Her ay
-          güncellemen yeterli.
+          Eğitim detay sayfalarında, eğitim başlığının hemen üstünde beyaz bir kutu olarak çıkar; çerçevesi yavaşça
+          mavi yanıp söner. Her ay güncellemen yeterli.
         </p>
 
         <label className="mt-5 flex flex-col gap-2">
@@ -66,13 +66,14 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
         {form.kayitDuyurusu && (
           <div className="mt-5">
             <div className={ETIKET}>Önizleme</div>
-            <div className="mt-2 overflow-hidden rounded-[10px] border border-ink/12">
-              <div className="flex items-center gap-[10px] bg-white px-4 py-[11px]">
-                <span className="h-[7px] w-[7px] flex-none rounded-full bg-brand" />
-                <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{form.kayitDuyurusu}</span>
+            <div className="mt-2 rounded-[12px] bg-ink p-6">
+              <div className="duyuru-nefes inline-block max-w-full rounded-[13px] border-2 bg-white px-[18px] py-[13px]">
+                <span className="text-[15.5px] leading-[1.45] font-semibold tracking-[-0.01em] text-ink">
+                  {form.kayitDuyurusu}
+                </span>
               </div>
-              <div className="bg-ink px-4 py-3 font-mono text-[10px] tracking-[0.12em] text-white/55 uppercase">
-                hero buradan başlar
+              <div className="mt-4 font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] text-white">
+                Eğitim başlığı buraya gelir
               </div>
             </div>
           </div>

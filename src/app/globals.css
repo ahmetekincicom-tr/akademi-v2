@@ -210,3 +210,24 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Kayıt duyurusu kutusu: çerçeve ve halesi yavaşça nefes alır. Siren gibi
+   hızlı bir yanıp sönme yerine 3,2 saniyelik yumuşak bir geçiş. */
+@keyframes aea-duyuru-nefes {
+  0%,
+  100% {
+    border-color: rgba(28, 86, 243, 0.3);
+    box-shadow: 0 0 0 0 rgba(28, 86, 243, 0);
+  }
+  50% {
+    border-color: rgba(28, 86, 243, 0.95);
+    box-shadow:
+      0 0 0 4px rgba(28, 86, 243, 0.12),
+      0 0 24px rgba(28, 86, 243, 0.4);
+  }
+}
+
+.duyuru-nefes {
+  border-color: rgba(28, 86, 243, 0.3);
+  animation: aea-duyuru-nefes 3.2s ease-in-out infinite;
+}
