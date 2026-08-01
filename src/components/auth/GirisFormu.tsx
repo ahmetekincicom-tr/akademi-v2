@@ -74,7 +74,7 @@ export function GirisFormu({ hedef }: { hedef: string }) {
 
         <div className="mt-[26px] flex flex-col gap-4">
           <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">E-posta</span>
+            <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">E-posta</span>
             <input
               type="email"
               placeholder="ornek@sirket.com"
@@ -85,7 +85,7 @@ export function GirisFormu({ hedef }: { hedef: string }) {
           </label>
           <label className="flex flex-col gap-2">
             <span className="flex items-center justify-between">
-              <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Şifre</span>
+              <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Şifre</span>
               <button
                 type="button"
                 onClick={() => setVisible((v) => !v)}
@@ -122,7 +122,7 @@ export function GirisFormu({ hedef }: { hedef: string }) {
           {yukleniyor ? "Giriş yapılıyor…" : "Giriş yap"}
         </button>
 
-        <p className="mt-[26px] text-sm leading-[1.6] text-[#8A8F9E]">
+        <p className="mt-[26px] text-sm leading-[1.6] text-[#656B7A]">
           Panel erişimi yalnızca eğitime katılan kişiler içindir. Sorun yaşarsan{" "}
           <Link href="/iletisim">WhatsApp&apos;tan yaz</Link>.
         </p>

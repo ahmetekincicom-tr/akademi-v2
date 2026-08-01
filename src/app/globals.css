@@ -38,6 +38,15 @@
     color: var(--color-brand);
   }
 
+  /* Paragraf içindeki bağlantılar yalnızca renkle ayrılıyordu; renk körü bir
+     kullanıcı bunların bağlantı olduğunu göremiyor (WCAG 1.4.1). Bloklar
+     hâlindeki gezinme bağlantıları <p> içinde olmadığı için etkilenmez. */
+  p a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+  }
+
   ::selection {
     background: rgba(28, 86, 243, 0.22);
   }
@@ -163,5 +172,41 @@
 
   .bildirim-giris {
     animation: aea-bildirim 0.22s ease both;
+  }
+}
+
+/* Erişilebilirlik düzeltmeleri — Tailwind yardımcılarından sonra gelir ki
+   outline-none gibi sınıfları geçebilsin. */
+
+/* Kodda 65 yerde outline-none var ve düğme/bağlantılarda karşılığı konmamış;
+   klavyeyle gezen kullanıcı nerede olduğunu göremiyordu. :focus-visible fareyle
+   tıklamada devreye girmez, yalnızca klavye ve programatik odakta. */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* iOS Safari, 16px altındaki bir alana odaklanınca sayfayı yakınlaştırıyor ve
+   düzen zıplıyor. Tailwind sınıfları eleman seçicisini geçtiği için !important
+   şart; onay kutuları hariç tutuldu, orada yazı boyutu görünürlüğü etkilemiyor. */
+@media (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Hareket duyarlılığı: işletim sisteminde azaltılmış hareket açıksa kayan
+   şerit, nabız ve süzülme animasyonları durur. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

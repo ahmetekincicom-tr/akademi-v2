@@ -68,14 +68,14 @@ export function HesapFormu({ profil }: { profil: PanelProfile }) {
         </span>
         <div className="min-w-0">
           <div className="truncate text-[17px] font-semibold">{profil.tamAd}</div>
-          <div className="mt-[3px] truncate font-mono text-[11px] text-[#8A8F9E]">{profil.email}</div>
+          <div className="mt-[3px] truncate font-mono text-[11px] text-[#656B7A]">{profil.email}</div>
         </div>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-[18px] sm:grid-cols-2">
         {alanlar.map((a) => (
           <label key={a.etiket} className="flex flex-col gap-[7px]">
-            <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">{a.etiket}</span>
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">{a.etiket}</span>
             <input
               type="text"
               value={a.deger}
@@ -85,12 +85,12 @@ export function HesapFormu({ profil }: { profil: PanelProfile }) {
           </label>
         ))}
         <label className="flex flex-col gap-[7px]">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">E-posta</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">E-posta</span>
           <input
             type="text"
             value={profil.email}
             disabled
-            className="h-[46px] rounded-[10px] border border-ink/10 bg-mist px-[14px] text-[15px] text-[#8A8F9E]"
+            className="h-[46px] rounded-[10px] border border-ink/10 bg-mist px-[14px] text-[15px] text-[#656B7A]"
           />
         </label>
       </div>
@@ -129,7 +129,7 @@ export function HesapFormu({ profil }: { profil: PanelProfile }) {
       {sifreAcik && (
         <div className="mt-5 max-w-[420px] rounded-[12px] border border-ink/11 bg-mist p-5">
           <label className="flex flex-col gap-[7px]">
-            <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Yeni şifre</span>
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Yeni şifre</span>
             <input
               type="password"
               value={yeniSifre}

@@ -27,7 +27,7 @@ export function YasalSayfaGorunumu({ sayfa, digerleri }: { sayfa: YasalSayfa; di
           <p className="mt-5 max-w-[620px] text-[16.5px] leading-[1.62] text-[#5C6273]">{sayfa.ozet}</p>
         )}
         {sayfa.guncelleme && (
-          <p className="mt-4 font-mono text-[11px] tracking-[0.08em] text-[#9CA1AE] uppercase">
+          <p className="mt-4 font-mono text-[11px] tracking-[0.08em] text-[#656B7A] uppercase">
             Son güncelleme: {tarihBicimi.format(new Date(sayfa.guncelleme))}
           </p>
         )}
@@ -58,7 +58,7 @@ export function YasalSayfaGorunumu({ sayfa, digerleri }: { sayfa: YasalSayfa; di
           <aside className="flex flex-col gap-4 lg:sticky lg:top-6">
             {digerleri.length > 0 && (
               <div className="rounded-2xl border border-ink/10 bg-mist p-6">
-                <div className="font-mono text-[10px] tracking-[0.14em] text-[#8A8F9E] uppercase">Diğer belgeler</div>
+                <div className="font-mono text-[10px] tracking-[0.14em] text-[#656B7A] uppercase">Diğer belgeler</div>
                 <div className="mt-4 flex flex-col gap-[11px]">
                   {digerleri.map((d) => (
                     <Link
@@ -74,7 +74,7 @@ export function YasalSayfaGorunumu({ sayfa, digerleri }: { sayfa: YasalSayfa; di
             )}
 
             <div className="rounded-2xl border border-ink/10 bg-white p-6">
-              <div className="font-mono text-[10px] tracking-[0.14em] text-[#8A8F9E] uppercase">Soru mu var?</div>
+              <div className="font-mono text-[10px] tracking-[0.14em] text-[#656B7A] uppercase">Soru mu var?</div>
               <p className="mt-3 text-[14px] leading-[1.6] text-[#5C6273]">
                 Bu belgelerle ilgili her konuda bize ulaşabilirsin.
               </p>

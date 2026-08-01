@@ -158,7 +158,7 @@ export default async function AdminGenelBakisPage() {
   return (
     <main className="flex flex-col gap-5 p-7 pb-14">
       <div>
-        <div className="font-mono text-[10px] tracking-[0.14em] text-[#8A8F9E] uppercase">Genel bakış</div>
+        <div className="font-mono text-[10px] tracking-[0.14em] text-[#656B7A] uppercase">Genel bakış</div>
         <h1 className="mt-[9px] font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
           Akademi durumu
         </h1>
@@ -167,10 +167,10 @@ export default async function AdminGenelBakisPage() {
       <div className="grid grid-cols-2 gap-[14px] lg:grid-cols-4">
         {kpiler.map((k) => (
           <div key={k.etiket} className="rounded-[14px] border border-ink/10 bg-white p-[19px] px-[19px] pt-[17px] pb-[15px]">
-            <span className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">{k.etiket}</span>
+            <span className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">{k.etiket}</span>
             <div className="mt-[13px]">
               <div className="font-heading text-2xl leading-none font-semibold tracking-[-0.03em]">{k.deger}</div>
-              <div className="mt-[6px] text-[12.5px] text-[#8A8F9E]">{k.alt}</div>
+              <div className="mt-[6px] text-[12.5px] text-[#656B7A]">{k.alt}</div>
             </div>
           </div>
         ))}
@@ -181,10 +181,10 @@ export default async function AdminGenelBakisPage() {
           <div className="rounded-2xl border border-ink/10 bg-white p-[22px] px-[22px] pt-5 pb-[22px]">
             <div className="flex items-center justify-between gap-4">
               <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Aylık gelir</h2>
-              <span className="font-mono text-[10px] tracking-[0.1em] text-[#8A8F9E] uppercase">Son 6 ay</span>
+              <span className="font-mono text-[10px] tracking-[0.1em] text-[#656B7A] uppercase">Son 6 ay</span>
             </div>
             {toplamGelir === 0 ? (
-              <p className="mt-6 text-sm text-[#8A8F9E]">
+              <p className="mt-6 text-sm text-[#656B7A]">
                 Henüz kayıtlı ödeme yok. Ödemeler sayfasından ekledikçe burada grafikleşir.
               </p>
             ) : (
@@ -201,7 +201,7 @@ export default async function AdminGenelBakisPage() {
                         background: i === aylar.length - 1 ? "#1C56F3" : "rgba(28,86,243,0.3)",
                       }}
                     />
-                    <span className="font-mono text-[10.5px] text-[#8A8F9E]">{a.ay}</span>
+                    <span className="font-mono text-[10.5px] text-[#656B7A]">{a.ay}</span>
                   </div>
                 ))}
               </div>
@@ -216,7 +216,7 @@ export default async function AdminGenelBakisPage() {
               </Link>
             </div>
             {sonIslemler.length === 0 ? (
-              <div className="px-[22px] py-8 text-center text-sm text-[#8A8F9E]">Henüz ödeme kaydı yok.</div>
+              <div className="px-[22px] py-8 text-center text-sm text-[#656B7A]">Henüz ödeme kaydı yok.</div>
             ) : (
               sonIslemler.map((i) => {
                 const kisi = i.profiles as unknown as { ad: string | null; soyad: string | null; email: string | null } | null;
@@ -230,7 +230,7 @@ export default async function AdminGenelBakisPage() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-sm font-semibold">{isim}</div>
-                      <div className="mt-[2px] font-mono text-[10.5px] text-[#8A8F9E]">
+                      <div className="mt-[2px] font-mono text-[10.5px] text-[#656B7A]">
                         {kisaTarihBicimi.format(new Date(i.odeme_tarihi))}
                         {i.yontem ? ` · ${i.yontem}` : ""}
                       </div>
@@ -280,7 +280,7 @@ export default async function AdminGenelBakisPage() {
           <div className="rounded-2xl border border-ink/10 bg-white p-[22px] px-[22px] pt-5 pb-[22px]">
             <h2 className="font-heading text-[17px] font-semibold tracking-[-0.02em]">Program performansı</h2>
             {programPerf.length === 0 ? (
-              <p className="mt-4 text-[13.5px] text-[#8A8F9E]">Yayında eğitim yok.</p>
+              <p className="mt-4 text-[13.5px] text-[#656B7A]">Yayında eğitim yok.</p>
             ) : (
               <div className="mt-[18px] flex flex-col gap-[14px]">
                 {programPerf.map((p) => (
@@ -292,7 +292,7 @@ export default async function AdminGenelBakisPage() {
                     <div className="mt-[7px] h-[6px] overflow-hidden rounded-full bg-ink/8">
                       <div className="h-full rounded-full bg-brand" style={{ width: `${p.genislik}%` }} />
                     </div>
-                    <div className="mt-[5px] font-mono text-[10px] text-[#9CA1AE]">
+                    <div className="mt-[5px] font-mono text-[10px] text-[#656B7A]">
                       tamamlanma %{p.tamamlanma} · {p.dersSayisi} ders
                     </div>
                   </div>

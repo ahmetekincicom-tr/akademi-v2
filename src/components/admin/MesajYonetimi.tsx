@@ -101,7 +101,7 @@ export function MesajYonetimi({ mesajlar }: { mesajlar: MesajSatir[] }) {
 
       {mesajlar.length === 0 ? (
         <div className="mt-[18px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
             <Icon name="message" size={22} />
           </div>
           <p className="mx-auto mt-4 max-w-[420px] text-[14.5px] leading-[1.6] text-[#5C6273]">
@@ -112,7 +112,7 @@ export function MesajYonetimi({ mesajlar }: { mesajlar: MesajSatir[] }) {
         <div className="mt-[18px] grid grid-cols-1 items-start gap-5 xl:grid-cols-[380px_1fr]">
           <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
             {listelenen.length === 0 ? (
-              <div className="px-[18px] py-10 text-center text-sm text-[#8A8F9E]">
+              <div className="px-[18px] py-10 text-center text-sm text-[#656B7A]">
                 Bu filtreyle eşleşen mesaj yok.
               </div>
             ) : (
@@ -147,7 +147,7 @@ export function MesajYonetimi({ mesajlar }: { mesajlar: MesajSatir[] }) {
                     </span>
                   </span>
                   <span className="truncate text-[13px] text-[#5C6273]">{m.konu || m.mesaj}</span>
-                  <span className="font-mono text-[10.5px] text-[#9CA1AE]">
+                  <span className="font-mono text-[10.5px] text-[#656B7A]">
                     {saatBicimi.format(new Date(m.tarih))}
                   </span>
                 </button>
@@ -162,7 +162,7 @@ export function MesajYonetimi({ mesajlar }: { mesajlar: MesajSatir[] }) {
                   <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">
                     {secili.konu || "İletişim mesajı"}
                   </h2>
-                  <div className="mt-1 font-mono text-[10.5px] text-[#8A8F9E]">
+                  <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">
                     {saatBicimi.format(new Date(secili.tarih))}
                     {secili.program !== "—" ? ` · ${secili.program}` : ""}
                   </div>
@@ -181,7 +181,7 @@ export function MesajYonetimi({ mesajlar }: { mesajlar: MesajSatir[] }) {
                     disabled={islemde}
                     onClick={() => sil(secili.id)}
                     aria-label="Mesajı sil"
-                    className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                    className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-ink/12 text-[#656B7A] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
                   >
                     <Icon name="x" size={15} />
                   </button>
@@ -196,14 +196,14 @@ export function MesajYonetimi({ mesajlar }: { mesajlar: MesajSatir[] }) {
                   { etiket: "Şirket", deger: secili.sirket || "—" },
                 ].map((a) => (
                   <div key={a.etiket} className="bg-white px-6 py-[14px]">
-                    <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">{a.etiket}</div>
+                    <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">{a.etiket}</div>
                     <div className="mt-[5px] text-[14.5px] font-medium break-words">{a.deger}</div>
                   </div>
                 ))}
               </div>
 
               <div className="px-6 py-5">
-                <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">Mesaj</div>
+                <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">Mesaj</div>
                 <p className="mt-3 text-[15px] leading-[1.7] whitespace-pre-line text-[#2B303D]">{secili.mesaj}</p>
 
                 <div className="mt-6 flex flex-wrap gap-3">

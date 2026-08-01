@@ -37,13 +37,13 @@ export default async function HesabimPage() {
           <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Eğitim kayıtlarım</h2>
         </div>
         {courses.length === 0 ? (
-          <div className="px-[26px] py-8 text-[14.5px] text-[#8A8F9E]">Henüz bir eğitim kaydın bulunmuyor.</div>
+          <div className="px-[26px] py-8 text-[14.5px] text-[#656B7A]">Henüz bir eğitim kaydın bulunmuyor.</div>
         ) : (
           courses.map((c) => (
             <div key={c.id} className="flex flex-wrap items-center gap-4 border-b border-ink/7 px-[26px] py-[18px] last:border-b-0">
               <div className="min-w-0 flex-1">
                 <div className="text-[15.5px] font-semibold">{c.baslik}</div>
-                <div className="mt-1 font-mono text-[10.5px] text-[#8A8F9E]">
+                <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">
                   {tarihBicimi.format(new Date(c.atanmaTarihi))} · {c.dersSayisi} ders
                 </div>
               </div>
@@ -65,7 +65,7 @@ export default async function HesabimPage() {
         </div>
 
         {oturumlar.length === 0 ? (
-          <div className="px-[26px] py-8 text-[14.5px] text-[#8A8F9E]">
+          <div className="px-[26px] py-8 text-[14.5px] text-[#656B7A]">
             Henüz kayıtlı bir giriş yok. Bir sonraki girişinden itibaren burada listelenecek.
           </div>
         ) : (
@@ -79,7 +79,7 @@ export default async function HesabimPage() {
               </span>
               <div className="min-w-0 flex-1">
                 <div className="text-[14.5px] font-semibold">{konumEtiketi(o)}</div>
-                <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#8A8F9E]">
+                <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#656B7A]">
                   {cihazEtiketi(o)}
                   {o.ip && ` · ${o.ip}`}
                 </div>

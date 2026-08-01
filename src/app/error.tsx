@@ -26,7 +26,7 @@ export default function Error({
         </p>
 
         {error.digest && (
-          <p className="mt-4 font-mono text-[11px] text-[#9CA1AE]">Hata kodu: {error.digest}</p>
+          <p className="mt-4 font-mono text-[11px] text-[#656B7A]">Hata kodu: {error.digest}</p>
         )}
 
         <div className="mt-9 flex flex-wrap gap-3">

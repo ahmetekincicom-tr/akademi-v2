@@ -223,14 +223,15 @@ export default async function HomePage() {
               <div className="mt-[6px] text-[15px] font-semibold">Canlı · 1 eğitmen · 1 katılımcı</div>
             </div>
             <div className="animate-float-delay absolute right-[-18px] bottom-[52px] rounded-[13px] bg-brand px-[18px] py-4 text-white shadow-[0_20px_44px_rgba(28,86,243,0.4)]">
-              <div className="font-mono text-[10px] tracking-[0.14em] text-white/72 uppercase">Ders sonrası</div>
+              {/* Marka mavisi üstünde AA eşiği white/85; altındaki tonlar kalıyor. */}
+              <div className="font-mono text-[10px] tracking-[0.14em] text-white/90 uppercase">Ders sonrası</div>
               <div className="mt-[6px] text-[15px] font-semibold">Ömür boyu soru-cevap</div>
             </div>
           </div>
         </div>
         <div className="relative mt-[-40px] overflow-hidden border-t border-white/9">
           <div className="mx-auto flex max-w-[1240px] items-center gap-8 px-8 py-[22px]">
-            <span className="font-mono text-[10.5px] tracking-[0.16em] whitespace-nowrap text-white/40 uppercase">
+            <span className="font-mono text-[10.5px] tracking-[0.16em] whitespace-nowrap text-white/55 uppercase">
               Çalıştığımız platformlar
             </span>
             <div
@@ -258,7 +259,7 @@ export default async function HomePage() {
       {/* Logos */}
       <section className="border-b border-ink/8 bg-mist">
         <div className="mx-auto flex max-w-[1240px] items-center gap-10 px-8 py-[34px]">
-          <span className="max-w-[150px] font-mono text-[10.5px] leading-[1.6] tracking-[0.16em] text-[#8A8F9E] uppercase">
+          <span className="max-w-[150px] font-mono text-[10.5px] leading-[1.6] tracking-[0.16em] text-[#656B7A] uppercase">
             Eğitimlerimizi tercih eden kuruluşlar
           </span>
           <div
@@ -303,7 +304,7 @@ export default async function HomePage() {
               className="flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
             >
               <div className="placeholder-block relative flex aspect-video items-end border-b border-ink/8 p-[14px]">
-                <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#8A8F9E]">
+                <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
                   program görseli 16:9
                 </span>
                 <span className="absolute top-[14px] left-[14px] rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
@@ -392,7 +393,7 @@ export default async function HomePage() {
                 <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[8px] bg-brand font-mono text-[11px] font-medium text-white">
                   {a.no}
                 </span>
-                <span className="font-mono text-[10.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">{a.etiket}</span>
+                <span className="font-mono text-[10.5px] tracking-[0.12em] text-[#656B7A] uppercase">{a.etiket}</span>
               </div>
               <h3 className="mt-5 text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{a.baslik}</h3>
               <p className="mt-[10px] text-[14.5px] leading-[1.65] text-[#5C6273]">{a.metin}</p>
@@ -432,7 +433,7 @@ export default async function HomePage() {
               >
                 Panele giriş yap <span>→</span>
               </Link>
-              <span className="font-mono text-xs text-[#8A8F9E]">Katılımcılara özel</span>
+              <span className="font-mono text-xs text-[#656B7A]">Katılımcılara özel</span>
             </div>
           </div>
           <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-[0_26px_60px_rgba(10,13,24,0.1)]">
@@ -440,7 +441,7 @@ export default async function HomePage() {
               <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
               <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
               <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
-              <span className="ml-3 font-mono text-[10.5px] text-[#9CA1AE]">panel.ahmetekinciakademi.com</span>
+              <span className="ml-3 font-mono text-[10.5px] text-[#656B7A]">panel.ahmetekinciakademi.com</span>
             </div>
             <div className="p-[22px]">
               <div className="flex items-center justify-between gap-5 rounded-xl bg-ink px-[22px] py-5 text-white">
@@ -457,7 +458,7 @@ export default async function HomePage() {
               <div className="mt-4 grid grid-cols-2 gap-3">
                 {panelKart.map((k) => (
                   <div key={k.etiket} className="rounded-[11px] border border-ink/10 p-4">
-                    <div className="font-mono text-[10px] tracking-[0.1em] text-[#9CA1AE] uppercase">{k.etiket}</div>
+                    <div className="font-mono text-[10px] tracking-[0.1em] text-[#656B7A] uppercase">{k.etiket}</div>
                     <div className="mt-2 text-[15px] font-semibold">{k.deger}</div>
                     <div className="mt-3 h-[5px] overflow-hidden rounded-full bg-ink/8">
                       <div className="h-full rounded-full bg-brand" style={{ width: k.yuzde }} />

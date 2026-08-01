@@ -15,7 +15,7 @@ export function TestimonialCard({
         <div className="avatar-block h-[38px] w-[38px] flex-none rounded-full" />
         <div>
           <div className="text-[14.5px] font-semibold">{isim}</div>
-          <div className="font-mono text-[10.5px] tracking-[0.04em] text-[#8A8F9E]">{rol}</div>
+          <div className="font-mono text-[10.5px] tracking-[0.04em] text-[#656B7A]">{rol}</div>
         </div>
       </figcaption>
     </figure>

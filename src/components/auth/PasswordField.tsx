@@ -6,7 +6,7 @@ function strengthOf(password: string) {
   const len = password.length;
   const level = len === 0 ? 0 : len < 6 ? 1 : len < 10 ? 2 : 3;
   return [
-    { yuzde: "0%", etiket: "—", renk: "#9CA1AE" },
+    { yuzde: "0%", etiket: "—", renk: "#656B7A" },
     { yuzde: "33%", etiket: "zayıf", renk: "#D93C3C" },
     { yuzde: "66%", etiket: "orta", renk: "#C98A1B" },
     { yuzde: "100%", etiket: "güçlü", renk: "#1C56F3" },
@@ -32,7 +32,7 @@ export function PasswordField({
   return (
     <label className="flex flex-col gap-2">
       <span className="flex items-center justify-between">
-        <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">{label}</span>
+        <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">{label}</span>
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}

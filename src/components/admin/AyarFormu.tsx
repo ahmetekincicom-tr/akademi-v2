@@ -64,12 +64,12 @@ function AyarKarti({ grup, baslangic }: { grup: AyarGrubu; baslangic: Record<str
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-6">
       <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">{grup.baslik}</h2>
-      <p className="mt-1 max-w-[640px] text-[13.5px] leading-[1.6] text-[#8A8F9E]">{grup.aciklama}</p>
+      <p className="mt-1 max-w-[640px] text-[13.5px] leading-[1.6] text-[#656B7A]">{grup.aciklama}</p>
 
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {grup.alanlar.map((a) => (
           <label key={a.ad} className={a.genis ? "flex flex-col gap-2 sm:col-span-2" : "flex flex-col gap-2"}>
-            <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">{a.etiket}</span>
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">{a.etiket}</span>
             <input
               type={a.gizli ? "password" : "text"}
               value={form[a.ad] ?? ""}
@@ -77,7 +77,7 @@ function AyarKarti({ grup, baslangic }: { grup: AyarGrubu; baslangic: Record<str
               placeholder={a.yerTutucu}
               className="h-[46px] rounded-[10px] border border-ink/13 bg-white px-[13px] text-sm text-ink outline-none focus:border-brand"
             />
-            {a.ipucu && <span className="text-[12px] text-[#9CA1AE]">{a.ipucu}</span>}
+            {a.ipucu && <span className="text-[12px] text-[#656B7A]">{a.ipucu}</span>}
           </label>
         ))}
       </div>

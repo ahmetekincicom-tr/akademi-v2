@@ -44,7 +44,7 @@ export default async function EgitimlerListePage() {
                   <span className="text-[16.5px] font-semibold tracking-[-0.015em]">{e.baslik}</span>
                   <StatusBadge durum={DURUM_ETIKET[e.durum] ?? e.durum} />
                 </div>
-                <div className="mt-[6px] font-mono text-[11px] text-[#8A8F9E]">{meta}</div>
+                <div className="mt-[6px] font-mono text-[11px] text-[#656B7A]">{meta}</div>
               </div>
               <div className="flex flex-none gap-[22px]">
                 {[
@@ -53,7 +53,7 @@ export default async function EgitimlerListePage() {
                   { etiket: "Fiyat", deger: e.fiyat_gorunur ? "Görünür" : "Gizli" },
                 ].map((s) => (
                   <div key={s.etiket}>
-                    <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">{s.etiket}</div>
+                    <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">{s.etiket}</div>
                     <div className="mt-[6px] text-[13.5px] font-semibold tracking-[-0.01em]">{s.deger}</div>
                   </div>
                 ))}
@@ -70,7 +70,7 @@ export default async function EgitimlerListePage() {
           );
         })}
         {(!courses || courses.length === 0) && (
-          <div className="rounded-[15px] border border-dashed border-ink/15 bg-white p-8 text-center text-sm text-[#8A8F9E]">
+          <div className="rounded-[15px] border border-dashed border-ink/15 bg-white p-8 text-center text-sm text-[#656B7A]">
             Henüz eğitim eklenmedi.
           </div>
         )}

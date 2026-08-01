@@ -97,7 +97,7 @@ export function PublicFooter() {
         </div>
         {footerColumns.map((k) => (
           <div key={k.baslik}>
-            <div className="font-mono text-[10.5px] tracking-[0.16em] text-white/40 uppercase">{k.baslik}</div>
+            <div className="font-mono text-[10.5px] tracking-[0.16em] text-white/55 uppercase">{k.baslik}</div>
             <div className="mt-[18px] flex flex-col gap-[11px]">
               {k.linkler.map((l) => {
                 const isaret = (
@@ -105,7 +105,7 @@ export function PublicFooter() {
                     name={l.ikon ?? "plus"}
                     size={l.ikon ? 15 : 13}
                     strokeWidth={l.ikon ? 1.7 : 1.5}
-                    className="mt-[3px] flex-none text-white/35 transition group-hover:text-brand"
+                    className="mt-[3px] flex-none text-white/55 transition group-hover:text-brand"
                   />
                 );
                 const govde = (

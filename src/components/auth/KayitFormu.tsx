@@ -66,7 +66,7 @@ export function KayitFormu() {
 
         <div className="mt-[26px] grid grid-cols-2 gap-4">
           <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Ad</span>
+            <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Ad</span>
             <input
               type="text"
               placeholder="Selin"
@@ -76,7 +76,7 @@ export function KayitFormu() {
             />
           </label>
           <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Soyad</span>
+            <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Soyad</span>
             <input
               type="text"
               placeholder="Kaya"
@@ -89,7 +89,7 @@ export function KayitFormu() {
 
         <div className="mt-4 flex flex-col gap-4">
           <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">E-posta</span>
+            <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">E-posta</span>
             <input
               type="email"
               placeholder="ornek@sirket.com"
@@ -130,7 +130,7 @@ export function KayitFormu() {
         >
           {yukleniyor ? "Hesap oluşturuluyor…" : "Hesabı oluştur"}
         </button>
-        <p className="mt-5 text-sm text-[#8A8F9E]">
+        <p className="mt-5 text-sm text-[#656B7A]">
           Zaten hesabın var mı? <Link href="/giris">Giriş yap</Link>
         </p>
       </div>

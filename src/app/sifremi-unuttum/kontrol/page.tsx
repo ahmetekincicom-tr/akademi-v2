@@ -16,7 +16,7 @@ export default function EPostaKontrolPage() {
           belirleyebilirsin.
         </p>
         <div className="mt-[26px] rounded-[13px] border border-ink/11 bg-white px-5 py-[18px]">
-          <div className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Gelmedi mi?</div>
+          <div className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Gelmedi mi?</div>
           <p className="mt-[9px] text-sm leading-[1.6] text-[#3A3F4F]">
             Spam klasörünü kontrol et. 60 saniye sonra tekrar gönderebilirsin.
           </p>

@@ -283,7 +283,7 @@ function Bolum({ baslik, satirlar }: { baslik: string; satirlar: Satir[] }) {
               <span className="block text-[13.5px] break-words" style={{ color: r.fg }}>
                 {s.deger}
               </span>
-              {s.not && <span className="mt-[3px] block text-[12.5px] text-[#8A8F9E]">{s.not}</span>}
+              {s.not && <span className="mt-[3px] block text-[12.5px] text-[#656B7A]">{s.not}</span>}
             </span>
           </div>
         );

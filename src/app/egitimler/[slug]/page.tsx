@@ -88,7 +88,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               <div className="mt-11 grid grid-cols-2 gap-9 sm:grid-cols-4">
                 {course.hizli.map((h) => (
                   <div key={h.etiket}>
-                    <div className="font-mono text-[10px] tracking-[0.14em] text-white/42 uppercase">{h.etiket}</div>
+                    <div className="font-mono text-[10px] tracking-[0.14em] text-white/55 uppercase">{h.etiket}</div>
                     <div className="mt-2 font-heading text-[21px] font-semibold tracking-[-0.02em]">{h.deger}</div>
                   </div>
                 ))}
@@ -146,11 +146,11 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 </div>
               </div>
               <div className="rounded-[15px] border border-ink/11 p-[26px] pt-[26px] pb-7">
-                <div className="font-mono text-[10.5px] tracking-[0.14em] text-[#8A8F9E] uppercase">Bu program değil</div>
+                <div className="font-mono text-[10.5px] tracking-[0.14em] text-[#656B7A] uppercase">Bu program değil</div>
                 <div className="mt-[18px] flex flex-col gap-[13px]">
                   {course.uygunDegil.map((u) => (
                     <div key={u} className="flex items-start gap-[11px] text-[15px] leading-[1.55] text-[#5C6273]">
-                      <span className="mt-[2px] flex h-[17px] w-[17px] flex-none items-center justify-center rounded-[6px] bg-ink/8 text-[11px] font-bold text-[#8A8F9E]">
+                      <span className="mt-[2px] flex h-[17px] w-[17px] flex-none items-center justify-center rounded-[6px] bg-ink/8 text-[11px] font-bold text-[#656B7A]">
                         —
                       </span>
                       <span>{u}</span>
@@ -169,7 +169,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             <div className="grid grid-cols-1 gap-px overflow-hidden rounded-[15px] border border-ink/10 bg-ink/10 sm:grid-cols-3">
               {course.format.map((f) => (
                 <div key={f.etiket} className="bg-white p-6 px-6 pt-6 pb-[26px]">
-                  <div className="font-mono text-[10.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">{f.etiket}</div>
+                  <div className="font-mono text-[10.5px] tracking-[0.12em] text-[#656B7A] uppercase">{f.etiket}</div>
                   <div className="mt-[10px] text-[16.5px] font-semibold tracking-[-0.015em]">{f.deger}</div>
                   <div className="mt-[6px] text-sm leading-[1.6] text-[#5C6273]">{f.not}</div>
                 </div>
@@ -180,7 +180,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           <section id="egitmen" className="mt-22">
             <div className="grid grid-cols-1 overflow-hidden rounded-[18px] border border-ink/11 md:grid-cols-[300px_1fr]">
               <div className="placeholder-block flex min-h-[280px] items-end p-4">
-                <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#8A8F9E]">eğitmen portresi</span>
+                <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">eğitmen portresi</span>
               </div>
               <div className="p-9 pt-9 pb-[38px]">
                 <div className="font-mono text-[10.5px] tracking-[0.16em] text-brand uppercase">Eğitmen</div>
@@ -316,7 +316,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             >
               <div className="placeholder-block aspect-[4/3] w-[130px] flex-none rounded-[11px]" />
               <div className="min-w-0">
-                <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#8A8F9E]">
+                <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#656B7A]">
                   {d.sure} · {d.modul}
                 </div>
                 <div className="mt-[10px] font-heading text-[20px] leading-[1.2] font-semibold tracking-[-0.02em]">

@@ -135,7 +135,7 @@ function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
         <div className="min-w-0 flex-1">
           <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">{kart.baslik}</h2>
           <p className="mt-1 max-w-[440px] text-[13.5px] leading-[1.6] text-[#5C6273]">{kart.aciklama}</p>
-          <p className="mt-2 font-mono text-[11px] text-[#9CA1AE]">{kart.oneri}</p>
+          <p className="mt-2 font-mono text-[11px] text-[#656B7A]">{kart.oneri}</p>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <label className="inline-flex h-[42px] cursor-pointer items-center gap-2 rounded-[10px] bg-brand px-5 text-sm font-semibold text-white transition hover:bg-ink">
@@ -166,14 +166,14 @@ function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
               </button>
             )}
 
-            {mesgul && <span className="text-[13.5px] text-[#8A8F9E]">İşleniyor…</span>}
+            {mesgul && <span className="text-[13.5px] text-[#656B7A]">İşleniyor…</span>}
           </div>
 
           {hata && <div className="mt-3 text-sm text-danger-ink">{hata}</div>}
         </div>
 
         <div className="flex-none">
-          <div className="mb-2 font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">Önizleme</div>
+          <div className="mb-2 font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">Önizleme</div>
           <div className={`${onizlemeStil} ${kart.kucuk ? "h-[76px] w-[76px]" : "h-[76px] w-[220px]"}`}>
             {url ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -183,7 +183,7 @@ function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
                 className={kart.kucuk ? "h-10 w-10 object-contain" : "max-h-[46px] max-w-[180px] object-contain"}
               />
             ) : (
-              <span className="px-3 text-center font-mono text-[10.5px] text-[#9CA1AE]">
+              <span className="px-3 text-center font-mono text-[10.5px] text-[#656B7A]">
                 yüklenmedi · yerleşik işaret
               </span>
             )}

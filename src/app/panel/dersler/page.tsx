@@ -15,7 +15,7 @@ export default async function DersIzlemePage({
     return (
       <main className="p-4 pb-14 sm:p-[34px]">
         <div className="rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
             <Icon name="playCircle" size={22} />
           </div>
           <h1 className="mt-4 font-heading text-xl font-semibold tracking-[-0.02em]">Görüntülenecek ders yok</h1>

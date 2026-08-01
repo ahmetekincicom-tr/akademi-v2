@@ -112,18 +112,18 @@ export function PanelShell({
                 <Icon name="play" size={13} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-mono text-[9px] tracking-[0.16em] text-white/42 uppercase">
+                <span className="block font-mono text-[9px] tracking-[0.16em] text-white/55 uppercase">
                   {programSayisi > 1 ? `Aktif program · ${programSayisi} kayıt` : "Aktif program"}
                 </span>
                 <span className="mt-[3px] block truncate text-[13px] font-semibold text-white">
                   {aktifProgram.baslik}
                 </span>
               </span>
-              <Icon name="chevronRight" size={14} className="flex-none text-white/35 transition group-hover:text-white/70" />
+              <Icon name="chevronRight" size={14} className="flex-none text-white/55 transition group-hover:text-white/70" />
             </Link>
           ) : (
             <div className="rounded-[11px] border border-white/12 bg-white/[0.04] px-3 py-[11px]">
-              <span className="block font-mono text-[9px] tracking-[0.16em] text-white/42 uppercase">
+              <span className="block font-mono text-[9px] tracking-[0.16em] text-white/55 uppercase">
                 Aktif program
               </span>
               <span className="mt-[3px] block text-[13px] font-semibold text-white/70">Henüz kayıt yok</span>
@@ -134,7 +134,7 @@ export function PanelShell({
         <nav className="flex flex-col gap-[14px] overflow-auto px-[14px] pt-[14px] pb-2">
           {groups.map((g) => (
             <div key={g.title} className="flex flex-col gap-[2px]">
-              <div className="px-[13px] pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/32 uppercase">
+              <div className="px-[13px] pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/55 uppercase">
                 {g.title}
               </div>
               {g.items.map((m) => {
@@ -177,7 +177,7 @@ export function PanelShell({
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[13.5px] font-semibold text-white">{profil.tamAd}</span>
-              <span className="block truncate font-mono text-[10px] text-white/42">{profil.email}</span>
+              <span className="block truncate font-mono text-[10px] text-white/55">{profil.email}</span>
             </span>
           </div>
           <form action={cikisYap}>

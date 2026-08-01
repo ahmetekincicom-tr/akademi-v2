@@ -48,7 +48,7 @@ export default async function AdminGirisPage({
                 name="email"
                 autoFocus
                 placeholder="ad@ahmetekinci.com"
-                className="h-12 rounded-[11px] border border-white/15 bg-white/5 px-4 text-[15px] text-white outline-none placeholder:text-white/30 focus:border-brand focus:bg-white/8"
+                className="h-12 rounded-[11px] border border-white/15 bg-white/5 px-4 text-[15px] text-white outline-none placeholder:text-white/55 focus:border-brand focus:bg-white/8"
               />
             </label>
             <label className="flex flex-col gap-2">
@@ -57,7 +57,7 @@ export default async function AdminGirisPage({
                 type="password"
                 name="sifre"
                 placeholder="••••••••"
-                className="h-12 rounded-[11px] border border-white/15 bg-white/5 px-4 text-[15px] text-white outline-none placeholder:text-white/30 focus:border-brand focus:bg-white/8"
+                className="h-12 rounded-[11px] border border-white/15 bg-white/5 px-4 text-[15px] text-white outline-none placeholder:text-white/55 focus:border-brand focus:bg-white/8"
               />
             </label>
             <button

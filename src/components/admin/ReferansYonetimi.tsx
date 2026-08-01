@@ -136,7 +136,7 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-ink/10 bg-white">
         {referanslar.length === 0 ? (
-          <div className="px-[22px] py-12 text-center text-sm text-[#8A8F9E]">
+          <div className="px-[22px] py-12 text-center text-sm text-[#656B7A]">
             Henüz referans eklenmemiş. Sağ üstten ekleyebilirsin.
           </div>
         ) : (
@@ -152,12 +152,12 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={r.logoUrl} alt={r.ad} className="max-h-8 max-w-full object-contain" />
                   ) : (
-                    <span className="truncate font-mono text-[10px] text-[#9CA1AE]">logo yok</span>
+                    <span className="truncate font-mono text-[10px] text-[#656B7A]">logo yok</span>
                   )}
                 </span>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold">{r.ad}</div>
-                  {r.sektor && <div className="font-mono text-[10.5px] text-[#8A8F9E]">{r.sektor}</div>}
+                  {r.sektor && <div className="font-mono text-[10.5px] text-[#656B7A]">{r.sektor}</div>}
                 </div>
                 <span
                   className="flex-none rounded-full px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] uppercase"
@@ -182,7 +182,7 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
                     disabled={mesgul}
                     onClick={() => sil(r)}
                     aria-label="Referansı sil"
-                    className="flex h-8 w-8 items-center justify-center rounded-[8px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                    className="flex h-8 w-8 items-center justify-center rounded-[8px] border border-ink/12 text-[#656B7A] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
                   >
                     <Icon name="x" size={14} />
                   </button>
@@ -247,7 +247,7 @@ function ReferansFormu({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Kurum adı</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Kurum adı</span>
           <input
             type="text"
             value={form.ad}
@@ -257,7 +257,7 @@ function ReferansFormu({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Sektör</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Sektör</span>
           <input
             type="text"
             value={form.sektor}
@@ -267,7 +267,7 @@ function ReferansFormu({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Web sitesi</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Web sitesi</span>
           <input
             type="text"
             value={form.siteUrl}
@@ -277,7 +277,7 @@ function ReferansFormu({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Sıra</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Sıra</span>
           <input
             type="number"
             value={form.sira}
@@ -286,14 +286,14 @@ function ReferansFormu({
           />
         </label>
         <label className="flex flex-col gap-2 sm:col-span-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Logo</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Logo</span>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => setDosya(e.target.files?.[0] ?? null)}
             className="h-[46px] rounded-[10px] border border-ink/13 bg-white px-[13px] pt-[11px] text-[13px] text-ink outline-none file:mr-3 file:rounded-[6px] file:border-0 file:bg-mist file:px-3 file:py-1 file:text-[12px] file:font-semibold focus:border-brand"
           />
-          <span className="text-[12px] text-[#9CA1AE]">
+          <span className="text-[12px] text-[#656B7A]">
             {logoNotu ?? "Şeffaf zeminli PNG veya SVG en iyi sonucu verir."}
           </span>
         </label>

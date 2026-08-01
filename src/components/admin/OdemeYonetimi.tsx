@@ -124,12 +124,12 @@ export function OdemeYonetimi({
       {formAcik && (
         <div className="mt-5 rounded-2xl border border-brand/30 bg-white p-6">
           <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Yeni ödeme kaydı</h2>
-          <p className="mt-1 text-[13.5px] text-[#8A8F9E]">
+          <p className="mt-1 text-[13.5px] text-[#656B7A]">
             Satış site dışında yapıldığı için ödemeyi buraya elle kaydediyorsun.
           </p>
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Öğrenci</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Öğrenci</span>
               <select
                 value={form.userId}
                 onChange={(e) => setForm({ ...form, userId: e.target.value })}
@@ -144,7 +144,7 @@ export function OdemeYonetimi({
               </select>
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Eğitim</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Eğitim</span>
               <select
                 value={form.courseId}
                 onChange={(e) => setForm({ ...form, courseId: e.target.value })}
@@ -159,7 +159,7 @@ export function OdemeYonetimi({
               </select>
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Tutar (₺)</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Tutar (₺)</span>
               <input
                 type="text"
                 inputMode="decimal"
@@ -170,7 +170,7 @@ export function OdemeYonetimi({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Yöntem</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Yöntem</span>
               <input
                 type="text"
                 value={form.yontem}
@@ -180,7 +180,7 @@ export function OdemeYonetimi({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Tarih</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Tarih</span>
               <input
                 type="date"
                 value={form.odemeTarihi}
@@ -189,7 +189,7 @@ export function OdemeYonetimi({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Durum</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Durum</span>
               <select
                 value={form.durum}
                 onChange={(e) => setForm({ ...form, durum: e.target.value as typeof form.durum })}
@@ -201,7 +201,7 @@ export function OdemeYonetimi({
               </select>
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Fatura no</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Fatura no</span>
               <input
                 type="text"
                 value={form.faturaNo}
@@ -248,7 +248,7 @@ export function OdemeYonetimi({
 
       <div className="mt-[18px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_150px] min-w-[900px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+          <div className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_150px] min-w-[900px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
             <span>Öğrenci</span>
             <span>Eğitim</span>
             <span>Tarih</span>
@@ -258,7 +258,7 @@ export function OdemeYonetimi({
           </div>
 
           {listelenen.length === 0 ? (
-            <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">
+            <div className="px-[22px] py-10 text-center text-sm text-[#656B7A]">
               {odemeler.length === 0 ? "Henüz ödeme kaydı yok." : "Bu filtreyle eşleşen kayıt yok."}
             </div>
           ) : (
@@ -273,7 +273,7 @@ export function OdemeYonetimi({
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{o.isim}</div>
                     {o.faturaNo && (
-                      <div className="truncate font-mono text-[10px] text-[#8A8F9E]">{o.faturaNo}</div>
+                      <div className="truncate font-mono text-[10px] text-[#656B7A]">{o.faturaNo}</div>
                     )}
                   </div>
                   <div className="min-w-0 truncate text-[13.5px] text-[#3A3F4F]">{o.program}</div>
@@ -284,6 +284,7 @@ export function OdemeYonetimi({
                   <div className="text-right font-heading text-[15px] font-semibold">{para(o.tutar)}</div>
                   <div className="flex items-center justify-end gap-2">
                     <select
+                      aria-label="Ödeme durumu"
                       value={o.durum}
                       disabled={islemde}
                       onChange={(e) => durumDegistir(o.id, e.target.value as OdemeSatir["durum"])}
@@ -299,7 +300,7 @@ export function OdemeYonetimi({
                       disabled={islemde}
                       onClick={() => sil(o.id)}
                       aria-label="Ödemeyi sil"
-                      className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                      className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#656B7A] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
                     >
                       <Icon name="x" size={14} />
                     </button>

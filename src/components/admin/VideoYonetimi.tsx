@@ -76,7 +76,7 @@ export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; b
 
       <div className="mt-[22px] flex flex-wrap items-center gap-[10px]">
         <div className="flex h-[42px] max-w-[380px] min-w-[240px] flex-1 items-center gap-[9px] rounded-[10px] border border-ink/12 bg-white px-[14px]">
-          <Icon name="search" size={15} className="flex-none text-[#9CA1AE]" />
+          <Icon name="search" size={15} className="flex-none text-[#656B7A]" />
           <input
             type="text"
             placeholder="Ders veya eğitim ara"
@@ -101,7 +101,7 @@ export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; b
 
       <div className="mt-[18px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-[2fr_1.5fr_1fr_0.8fr_110px] min-w-[780px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+          <div className="grid grid-cols-[2fr_1.5fr_1fr_0.8fr_110px] min-w-[780px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
             <span>Ders</span>
             <span>Eğitim</span>
             <span>Modül</span>
@@ -110,7 +110,7 @@ export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; b
           </div>
 
           {listelenen.length === 0 ? (
-            <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">
+            <div className="px-[22px] py-10 text-center text-sm text-[#656B7A]">
               {dersler.length === 0 ? "Henüz ders tanımlanmamış." : "Eşleşen ders bulunamadı."}
             </div>
           ) : (
@@ -119,7 +119,7 @@ export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; b
                 <div className="grid grid-cols-[2fr_1.5fr_1fr_0.8fr_110px] min-w-[780px] items-center gap-4 px-[22px] py-[14px] hover:bg-[#F7F9FF]">
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{d.ad}</div>
-                    {d.sure && <div className="font-mono text-[10px] text-[#8A8F9E]">{d.sure}</div>}
+                    {d.sure && <div className="font-mono text-[10px] text-[#656B7A]">{d.sure}</div>}
                   </div>
                   <div className="min-w-0 truncate text-[13.5px] text-[#3A3F4F]">{d.kurs}</div>
                   <div className="min-w-0 truncate font-mono text-[11px] text-[#5C6273]">{d.modul}</div>
@@ -148,7 +148,7 @@ export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; b
                   <div className="border-t border-ink/8 bg-[#FAFBFF] px-[22px] py-5">
                     <div className="grid grid-cols-1 gap-4">
                       <label className="flex flex-col gap-2">
-                        <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+                        <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
                           Video bağlantısı
                         </span>
                         <input
@@ -164,7 +164,7 @@ export function VideoYonetimi({ dersler, bunnyAktif }: { dersler: VideoDers[]; b
                         />
                       </label>
                       <label className="flex flex-col gap-2">
-                        <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+                        <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
                           Ders açıklaması
                         </span>
                         <textarea

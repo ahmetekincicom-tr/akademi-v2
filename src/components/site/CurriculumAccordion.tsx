@@ -57,7 +57,7 @@ export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-[17.5px] font-semibold tracking-[-0.015em]">{m.baslik}</span>
-                  <span className="mt-1 block font-mono text-[11px] tracking-[0.06em] text-[#8A8F9E]">{m.meta}</span>
+                  <span className="mt-1 block font-mono text-[11px] tracking-[0.06em] text-[#656B7A]">{m.meta}</span>
                 </span>
                 <span className="flex h-7 w-7 flex-none items-center justify-center rounded-[8px] bg-[#F2F4FA] font-mono text-[15px] text-brand">
                   {isOpen ? "–" : "+"}
@@ -72,7 +72,7 @@ export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }
                     >
                       <span className="h-[5px] w-[5px] flex-none rounded-full bg-brand" />
                       <span className="flex-1">{d.ad}</span>
-                      <span className="font-mono text-[11px] text-[#9CA1AE]">{d.sure}</span>
+                      <span className="font-mono text-[11px] text-[#656B7A]">{d.sure}</span>
                     </div>
                   ))}
                 </div>

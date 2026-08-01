@@ -15,7 +15,7 @@ export function BunnyDurum({ kutuphane, imzalama }: { kutuphane: boolean; imzala
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-6">
       <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Bunny Stream</h2>
-      <p className="mt-1 max-w-[640px] text-[13.5px] leading-[1.6] text-[#8A8F9E]">
+      <p className="mt-1 max-w-[640px] text-[13.5px] leading-[1.6] text-[#656B7A]">
         Video barındırma bilgileri güvenlik nedeniyle veritabanında değil, sunucu ortam değişkenlerinde tutulur.
         Vercel&apos;de Settings → Environment Variables altından tanımlarsın. Ders videolarını Video sayfasından
         bağlıyorsun.

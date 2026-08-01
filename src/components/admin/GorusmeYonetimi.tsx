@@ -24,7 +24,7 @@ const DURUM_RENK: Record<GorusmeDurum, { bg: string; fg: string }> = {
 
 const ALAN =
   "h-[42px] rounded-[9px] border border-ink/13 bg-white px-[12px] text-[13.5px] text-ink outline-none focus:border-brand";
-const ETIKET = "font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase";
+const ETIKET = "font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase";
 
 /** datetime-local yerel saati ister; ISO'nun Z'li hali kutuya girmez. */
 function yerelInput(iso: string | null) {
@@ -128,7 +128,7 @@ export function GorusmeYonetimi({
         </div>
 
         {gorusmeler.length === 0 ? (
-          <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">Henüz görüşme talebi yok.</div>
+          <div className="px-[22px] py-10 text-center text-sm text-[#656B7A]">Henüz görüşme talebi yok.</div>
         ) : (
           gorusmeler.map((g) => {
             const renk = DURUM_RENK[g.durum];
@@ -150,7 +150,7 @@ export function GorusmeYonetimi({
                         {g.ucretsiz ? "ücretsiz hak" : g.odendi ? `ödendi · ${g.ucret ? para(g.ucret) : "—"}` : g.ucret ? `${para(g.ucret)} · ödenmedi` : "ücretli"}
                       </span>
                     </div>
-                    <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#8A8F9E]">
+                    <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#656B7A]">
                       {g.konu} · talep {tarihBicimi.format(new Date(g.olusturma))}
                     </div>
                   </div>
@@ -159,10 +159,10 @@ export function GorusmeYonetimi({
                     {g.baslangic ? (
                       <>
                         {saatBicimi.format(new Date(g.baslangic))}
-                        <span className="mt-[2px] block text-[10px] text-[#9CA1AE]">{g.sureDk} dk</span>
+                        <span className="mt-[2px] block text-[10px] text-[#656B7A]">{g.sureDk} dk</span>
                       </>
                     ) : (
-                      <span className="text-[10.5px] text-[#9CA1AE]">planlanmadı</span>
+                      <span className="text-[10.5px] text-[#656B7A]">planlanmadı</span>
                     )}
                   </div>
 
@@ -179,6 +179,7 @@ export function GorusmeYonetimi({
                   )}
 
                   <select
+                    aria-label="Görüşme durumu"
                     value={g.durum}
                     disabled={islemde}
                     onChange={(e) =>
@@ -258,7 +259,7 @@ function Detay({
             <div className={ETIKET}>Öğrenci</div>
             <p className="mt-[6px] text-[13.5px] text-[#3A3F4F]">
               {g.kisiAd}
-              {g.kisiEmail && <span className="block font-mono text-[11px] text-[#8A8F9E]">{g.kisiEmail}</span>}
+              {g.kisiEmail && <span className="block font-mono text-[11px] text-[#656B7A]">{g.kisiEmail}</span>}
             </p>
           </div>
           <div>
@@ -359,7 +360,7 @@ function Detay({
           {islemde ? "Kaydediliyor…" : "Planla ve bildir"}
         </button>
         {odemeBekliyor && (
-          <span className="self-center text-[12.5px] text-[#8A8F9E]">Önce ödemeyi onayla.</span>
+          <span className="self-center text-[12.5px] text-[#656B7A]">Önce ödemeyi onayla.</span>
         )}
       </div>
     </div>
@@ -455,7 +456,7 @@ function AyarFormu({
         {islemde ? "Kaydediliyor…" : "Ayarları kaydet"}
       </button>
 
-      <p className="mt-4 border-t border-ink/8 pt-4 font-mono text-[11px] text-[#8A8F9E]">
+      <p className="mt-4 border-t border-ink/8 pt-4 font-mono text-[11px] text-[#656B7A]">
         Veritabanında kayıtlı hâli: {ayarlar.ucretsizHak} ücretsiz hak · {para(ayarlar.ucret)} · {ayarlar.sureDk} dk ·
         talepler {ayarlar.aktif ? "açık" : "kapalı"} · ödeme talimatı{" "}
         {ayarlar.odemeAciklamasi ? `${ayarlar.odemeAciklamasi.length} karakter` : "boş"}

@@ -89,7 +89,7 @@ export function DersPlayer({
             Panel
           </Link>
           <div className="min-w-0">
-            <div className="truncate font-mono text-[10.5px] tracking-[0.1em] text-[#8A8F9E] uppercase">
+            <div className="truncate font-mono text-[10.5px] tracking-[0.1em] text-[#656B7A] uppercase">
               {kurs.baslik}
               {aktifDers ? ` · ${aktifDers.modulBaslik}` : ""}
             </div>
@@ -181,7 +181,7 @@ export function DersPlayer({
             <div className="mt-[10px] h-[5px] w-full overflow-hidden rounded-full bg-mist">
               <div className="h-full rounded-full bg-brand" style={{ width: `${kursYuzde}%` }} />
             </div>
-            <div className="mt-2 font-mono text-[11px] text-[#8A8F9E]">
+            <div className="mt-2 font-mono text-[11px] text-[#656B7A]">
               {kursTamamlanan}/{tumDersler.length} ders tamamlandı
             </div>
           </div>
@@ -193,7 +193,7 @@ export function DersPlayer({
                   <div className="text-[13px] font-semibold text-ink">
                     {mi + 1}. {m.baslik}
                   </div>
-                  <div className="mt-[2px] font-mono text-[10.5px] text-[#8A8F9E]">
+                  <div className="mt-[2px] font-mono text-[10.5px] text-[#656B7A]">
                     {m.dersler.filter((d) => tamamlananlar.has(d.id)).length}/{m.dersler.length} ders
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export function DersPlayer({
                       >
                         {d.ad}
                       </span>
-                      {d.sure && <span className="flex-none font-mono text-[10.5px] text-[#9CA1AE]">{d.sure}</span>}
+                      {d.sure && <span className="flex-none font-mono text-[10.5px] text-[#656B7A]">{d.sure}</span>}
                     </button>
                   );
                 })}

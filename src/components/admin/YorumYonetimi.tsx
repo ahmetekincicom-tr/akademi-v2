@@ -120,7 +120,7 @@ export function YorumYonetimi({
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-ink/10 bg-white">
         {yorumlar.length === 0 ? (
-          <div className="px-[22px] py-12 text-center text-sm text-[#8A8F9E]">
+          <div className="px-[22px] py-12 text-center text-sm text-[#656B7A]">
             Henüz yorum eklenmemiş. Sağ üstten ekleyebilirsin.
           </div>
         ) : (
@@ -132,7 +132,7 @@ export function YorumYonetimi({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[14.5px] leading-[1.55] text-[#2B303D]">“{y.metin}”</p>
-                  <div className="mt-2 font-mono text-[10.5px] text-[#8A8F9E]">
+                  <div className="mt-2 font-mono text-[10.5px] text-[#656B7A]">
                     {y.isim}
                     {y.rol ? ` · ${y.rol}` : ""}
                     {y.courseId ? ` · ${kurslar.find((k) => k.id === y.courseId)?.ad ?? "eğitim"}` : ""}
@@ -161,7 +161,7 @@ export function YorumYonetimi({
                     disabled={islemde}
                     onClick={() => sil(y.id)}
                     aria-label="Yorumu sil"
-                    className="flex h-8 w-8 items-center justify-center rounded-[8px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                    className="flex h-8 w-8 items-center justify-center rounded-[8px] border border-ink/12 text-[#656B7A] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
                   >
                     <Icon name="x" size={14} />
                   </button>
@@ -222,7 +222,7 @@ function YorumFormu({
       {baslik && <h2 className="mb-4 font-heading text-lg font-semibold tracking-[-0.02em]">{baslik}</h2>}
 
       <label className="flex flex-col gap-2">
-        <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Yorum metni</span>
+        <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Yorum metni</span>
         <textarea
           value={form.metin}
           onChange={(e) => setForm({ ...form, metin: e.target.value })}
@@ -233,7 +233,7 @@ function YorumFormu({
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">İsim</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">İsim</span>
           <input
             type="text"
             value={form.isim}
@@ -243,7 +243,7 @@ function YorumFormu({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Ünvan / şirket</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Ünvan / şirket</span>
           <input
             type="text"
             value={form.rol}
@@ -253,7 +253,7 @@ function YorumFormu({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">İlgili eğitim</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">İlgili eğitim</span>
           <select
             value={form.courseId}
             onChange={(e) => setForm({ ...form, courseId: e.target.value })}
@@ -268,7 +268,7 @@ function YorumFormu({
           </select>
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Sıra</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Sıra</span>
           <input
             type="number"
             value={form.sira}

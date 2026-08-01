@@ -99,23 +99,23 @@ export function TeklifFormu({
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Ad soyad</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Ad soyad</span>
           <input type="text" value={ad} onChange={(e) => setAd(e.target.value)} placeholder="Adın ve soyadın" className={alanStil} />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">E-posta</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">E-posta</span>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ornek@sirket.com" className={alanStil} />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Telefon</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Telefon</span>
           <input type="tel" value={telefon} onChange={(e) => setTelefon(e.target.value)} placeholder="+90 5xx xxx xx xx" className={alanStil} />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Şirket (opsiyonel)</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Şirket (opsiyonel)</span>
           <input type="text" value={sirket} onChange={(e) => setSirket(e.target.value)} placeholder="Marka veya şirket adı" className={alanStil} />
         </label>
         <label className="flex flex-col gap-2 sm:col-span-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">İlgilendiğin program</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">İlgilendiğin program</span>
           <select value={kurs} onChange={(e) => setKurs(e.target.value)} className={alanStil}>
             {kurslar.length === 0 && <option value="">Program seçilemiyor</option>}
             {kurslar.map((k) => (
@@ -128,7 +128,7 @@ export function TeklifFormu({
       </div>
 
       <label className="mt-4 flex flex-col gap-2">
-        <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">
+        <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">
           Hedefin (opsiyonel)
         </span>
         <textarea

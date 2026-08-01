@@ -32,7 +32,7 @@ export default function GlobalError({
             Sayfayı yeniden yüklemeyi dene. Sorun devam ederse lütfen bize bildir.
           </p>
           {error.digest && (
-            <p style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "#9CA1AE" }}>Hata kodu: {error.digest}</p>
+            <p style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "#656B7A" }}>Hata kodu: {error.digest}</p>
           )}
           <button
             type="button"

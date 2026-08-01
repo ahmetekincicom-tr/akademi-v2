@@ -168,7 +168,7 @@ export function CourseEditor({
             <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Temel bilgiler</h2>
             <div className="mt-[18px] grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-2 sm:col-span-2">
-                <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Program adı</span>
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Program adı</span>
                 <input
                   type="text"
                   value={ad}
@@ -178,7 +178,7 @@ export function CourseEditor({
                 />
               </label>
               <label className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Toplam süre</span>
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Toplam süre</span>
                 <input
                   type="text"
                   value={sure}
@@ -188,7 +188,7 @@ export function CourseEditor({
                 />
               </label>
               <label className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Format</span>
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Format</span>
                 <input
                   type="text"
                   value={format}
@@ -198,7 +198,7 @@ export function CourseEditor({
                 />
               </label>
               <label className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Seviye</span>
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Seviye</span>
                 <input
                   type="text"
                   value={seviye}
@@ -208,7 +208,7 @@ export function CourseEditor({
                 />
               </label>
               <label className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">URL</span>
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">URL</span>
                 <input
                   type="text"
                   value={url}
@@ -218,7 +218,7 @@ export function CourseEditor({
                 />
               </label>
               <label className="flex flex-col gap-2 sm:col-span-2">
-                <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Kısa açıklama</span>
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Kısa açıklama</span>
                 <textarea
                   value={aciklama}
                   onChange={(e) => setAciklama(e.target.value)}
@@ -233,7 +233,7 @@ export function CourseEditor({
             <div className="flex items-center justify-between gap-4 border-b border-ink/8 px-6 py-5">
               <div>
                 <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Müfredat</h2>
-                <p className="mt-[5px] text-[13px] text-[#8A8F9E]">
+                <p className="mt-[5px] text-[13px] text-[#656B7A]">
                   {modules.length} modül · {dersSayi} ders
                 </p>
               </div>
@@ -259,7 +259,7 @@ export function CourseEditor({
                     placeholder="Modül adı"
                     className="h-10 min-w-0 flex-1 rounded-[9px] border border-ink/13 bg-white px-[13px] text-[14.5px] font-semibold text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
                   />
-                  <span className="flex-none font-mono text-[10.5px] text-[#8A8F9E]">{m.dersler.length} ders</span>
+                  <span className="flex-none font-mono text-[10.5px] text-[#656B7A]">{m.dersler.length} ders</span>
                   <button
                     type="button"
                     onClick={() => dersEkle(mi)}
@@ -272,7 +272,7 @@ export function CourseEditor({
                     type="button"
                     onClick={() => modulSil(mi)}
                     aria-label="Modülü sil"
-                    className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/13 bg-white text-[#8A8F9E] transition hover:border-danger/45 hover:text-danger"
+                    className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/13 bg-white text-[#656B7A] transition hover:border-danger/45 hover:text-danger"
                   >
                     <Icon name="x" size={15} />
                   </button>
@@ -310,7 +310,7 @@ export function CourseEditor({
                       type="button"
                       onClick={() => dersSil(mi, di)}
                       aria-label="Dersi sil"
-                      className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/12 bg-white text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger"
+                      className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/12 bg-white text-[#656B7A] transition hover:border-danger/45 hover:text-danger"
                     >
                       <Icon name="x" size={14} />
                     </button>
@@ -319,14 +319,14 @@ export function CourseEditor({
               </div>
             ))}
             {modules.length === 0 && (
-              <div className="px-6 py-8 text-center text-sm text-[#8A8F9E]">Henüz modül eklenmedi.</div>
+              <div className="px-6 py-8 text-center text-sm text-[#656B7A]">Henüz modül eklenmedi.</div>
             )}
           </div>
         </div>
 
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl border border-ink/10 bg-white p-[22px] px-[22px] pt-5 pb-[22px]">
-            <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">Yayın</div>
+            <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">Yayın</div>
             <div className="mt-[14px] flex flex-col gap-[11px]">
               <Toggle
                 checked={yayin.site}
@@ -350,10 +350,10 @@ export function CourseEditor({
           </div>
 
           <div className="rounded-2xl border border-ink/10 bg-white p-[22px] px-[22px] pt-5 pb-[22px]">
-            <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">Kapak görseli</div>
+            <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">Kapak görseli</div>
             <div className="mt-[14px] flex aspect-[16/10] flex-col items-center justify-center gap-2 rounded-[11px] border border-dashed border-ink/20 bg-mist">
-              <Icon name="upload" size={20} className="text-[#9CA1AE]" />
-              <span className="text-[13px] text-[#8A8F9E]">Sürükle veya seç · 1600×1000</span>
+              <Icon name="upload" size={20} className="text-[#656B7A]" />
+              <span className="text-[13px] text-[#656B7A]">Sürükle veya seç · 1600×1000</span>
             </div>
           </div>
 

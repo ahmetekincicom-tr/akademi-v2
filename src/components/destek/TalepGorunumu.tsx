@@ -115,7 +115,7 @@ export function TalepGorunumu({
         <div className="mt-5 rounded-2xl border border-brand/30 bg-white p-6">
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Konu</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Konu</span>
               <input
                 type="text"
                 value={yeniBaslik}
@@ -126,7 +126,7 @@ export function TalepGorunumu({
             </label>
             {kurslar.length > 0 && (
               <label className="flex flex-col gap-2">
-                <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">İlgili eğitim</span>
+                <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">İlgili eğitim</span>
                 <select
                   value={yeniKurs}
                   onChange={(e) => setYeniKurs(e.target.value)}
@@ -142,7 +142,7 @@ export function TalepGorunumu({
               </label>
             )}
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Sorun</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Sorun</span>
               <textarea
                 value={yeniMesaj}
                 onChange={(e) => setYeniMesaj(e.target.value)}
@@ -165,7 +165,7 @@ export function TalepGorunumu({
 
       {talepler.length === 0 ? (
         <div className="mt-[22px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
             <Icon name="message" size={22} />
           </div>
           <p className="mx-auto mt-4 max-w-[420px] text-[14.5px] leading-[1.6] text-[#5C6273]">
@@ -195,7 +195,7 @@ export function TalepGorunumu({
                       {etiket}
                     </span>
                   </span>
-                  <span className="truncate font-mono text-[10.5px] text-[#8A8F9E]">
+                  <span className="truncate font-mono text-[10.5px] text-[#656B7A]">
                     {adminMi ? `${t.kisiAd} · ` : ""}
                     {t.program} · {saatBicimi.format(new Date(t.guncelleme))}
                   </span>
@@ -209,13 +209,14 @@ export function TalepGorunumu({
               <div className="flex flex-wrap items-center gap-3 border-b border-ink/8 px-6 py-[18px]">
                 <div className="min-w-0 flex-1">
                   <h2 className="truncate font-heading text-lg font-semibold tracking-[-0.02em]">{secili.baslik}</h2>
-                  <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#8A8F9E]">
+                  <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#656B7A]">
                     {adminMi ? `${secili.kisiAd} · ` : ""}
                     {secili.program}
                   </div>
                 </div>
                 {adminMi && (
                   <select
+                    aria-label="Talep durumu"
                     value={secili.durum}
                     disabled={islemde}
                     onChange={(e) => durumDegistir(e.target.value as "acik" | "yanitlandi" | "kapandi")}
@@ -249,7 +250,7 @@ export function TalepGorunumu({
                         >
                           {m.egitmenMi ? "Eğitmen" : "Öğrenci"}
                         </span>
-                        <span className="font-mono text-[10px] text-[#9CA1AE]">
+                        <span className="font-mono text-[10px] text-[#656B7A]">
                           {benim ? "Sen" : m.gonderenAd}
                         </span>
                       </span>
@@ -274,7 +275,7 @@ export function TalepGorunumu({
                         {m.metin}
                       </div>
 
-                      <span className="mt-[5px] px-1 font-mono text-[10px] text-[#9CA1AE]">
+                      <span className="mt-[5px] px-1 font-mono text-[10px] text-[#656B7A]">
                         {saatBicimi.format(new Date(m.tarih))}
                       </span>
                     </div>
@@ -301,7 +302,7 @@ export function TalepGorunumu({
                   </button>
                 </div>
               ) : (
-                <div className="border-t border-ink/8 px-6 py-5 text-[13.5px] text-[#8A8F9E]">
+                <div className="border-t border-ink/8 px-6 py-5 text-[13.5px] text-[#656B7A]">
                   Bu talep kapatıldı.
                 </div>
               )}

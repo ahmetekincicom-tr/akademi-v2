@@ -107,7 +107,7 @@ export default function HakkimizdaPage() {
       <section className="mx-auto max-w-[1240px] px-8 pt-4 pb-24">
         <div className="grid grid-cols-1 overflow-hidden rounded-[18px] border border-ink/11 md:grid-cols-[300px_1fr]">
           <div className="placeholder-block flex min-h-[280px] items-end p-4">
-            <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#8A8F9E]">eğitmen portresi</span>
+            <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">eğitmen portresi</span>
           </div>
           <div className="p-9 pt-9 pb-[38px]">
             <div className="font-mono text-[10.5px] tracking-[0.16em] text-brand uppercase">Eğitmen</div>

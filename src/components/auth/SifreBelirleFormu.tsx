@@ -37,7 +37,7 @@ export function SifreBelirleFormu() {
         <div className="mt-[26px] flex flex-col gap-4">
           <PasswordField label="Yeni şifre" placeholder="En az 8 karakter" value={password} onChange={setPassword} showStrength />
           <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Şifreyi tekrar yaz</span>
+            <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Şifreyi tekrar yaz</span>
             <input
               type="password"
               placeholder="••••••••"

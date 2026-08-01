@@ -104,7 +104,7 @@ export default async function KurumsalPage() {
                   <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[8px] bg-brand font-mono text-[11px] font-medium text-white">
                     {a.no}
                   </span>
-                  <span className="font-mono text-[10.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">{a.etiket}</span>
+                  <span className="font-mono text-[10.5px] tracking-[0.12em] text-[#656B7A] uppercase">{a.etiket}</span>
                 </div>
                 <h3 className="mt-5 text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{a.baslik}</h3>
                 <p className="mt-[10px] text-[14.5px] leading-[1.65] text-[#5C6273]">{a.metin}</p>
@@ -130,7 +130,7 @@ export default async function KurumsalPage() {
               href={`/egitimler/${c.slug}`}
               className="flex flex-col rounded-2xl border border-ink/11 p-6 transition hover:-translate-y-1 hover:border-brand/45 hover:shadow-[0_20px_44px_rgba(10,13,24,0.1)]"
             >
-              <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#8A8F9E]">
+              <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#656B7A]">
                 {c.sure} · {c.modul}
               </div>
               <div className="mt-3 font-heading text-lg leading-[1.25] font-semibold tracking-[-0.02em]">{c.baslik}</div>

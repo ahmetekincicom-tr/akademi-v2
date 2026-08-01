@@ -108,7 +108,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
       </div>
 
       <div className="mt-[22px] flex h-[42px] max-w-[380px] items-center gap-[9px] rounded-[10px] border border-ink/12 bg-white px-[14px]">
-        <Icon name="search" size={15} className="flex-none text-[#9CA1AE]" />
+        <Icon name="search" size={15} className="flex-none text-[#656B7A]" />
         <input
           type="text"
           placeholder="İsim veya e-posta ara"
@@ -120,7 +120,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
 
       <div className="mt-[18px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] min-w-[820px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+          <div className="grid grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] min-w-[820px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
             <span>Öğrenci</span>
             <span>Eğitimler</span>
             <span>İlerleme</span>
@@ -129,7 +129,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
           </div>
 
           {listelenen.length === 0 ? (
-            <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">
+            <div className="px-[22px] py-10 text-center text-sm text-[#656B7A]">
               {ogrenciler.length === 0 ? "Henüz kayıtlı kullanıcı yok." : "Aramanla eşleşen öğrenci bulunamadı."}
             </div>
           ) : (
@@ -163,7 +163,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                           </span>
                         )}
                       </span>
-                      <span className="block truncate font-mono text-[10px] text-[#8A8F9E]">{o.eposta}</span>
+                      <span className="block truncate font-mono text-[10px] text-[#656B7A]">{o.eposta}</span>
                     </span>
                   </div>
                   <div className="min-w-0 text-[13.5px] text-[#3A3F4F]">
@@ -173,7 +173,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                     <div className="h-[5px] overflow-hidden rounded-full bg-ink/8">
                       <div className="h-full rounded-full bg-brand" style={{ width: `${yuzde}%` }} />
                     </div>
-                    <div className="mt-[5px] font-mono text-[10px] text-[#8A8F9E]">
+                    <div className="mt-[5px] font-mono text-[10px] text-[#656B7A]">
                       {o.kayitlar.length ? `${yuzde}% · ${toplamBitti}/${toplamDers}` : "kayıt yok"}
                     </div>
                   </div>
@@ -206,7 +206,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
             </span>
             <div className="min-w-0 flex-1">
               <div className="font-heading text-[19px] font-semibold tracking-[-0.02em]">{secili.isim}</div>
-              <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#8A8F9E]">{secili.eposta}</div>
+              <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#656B7A]">{secili.eposta}</div>
             </div>
             <button
               type="button"
@@ -223,10 +223,10 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
           )}
 
           <div className="px-6 py-5">
-            <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">Kayıtlı eğitimler</div>
+            <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">Kayıtlı eğitimler</div>
             <div className="mt-3 flex flex-col gap-[10px]">
               {secili.kayitlar.length === 0 && (
-                <div className="rounded-[11px] border border-dashed border-ink/16 px-[15px] py-[18px] text-center text-[13.5px] text-[#8A8F9E]">
+                <div className="rounded-[11px] border border-dashed border-ink/16 px-[15px] py-[18px] text-center text-[13.5px] text-[#656B7A]">
                   Bu öğrenciye henüz eğitim atanmamış.
                 </div>
               )}
@@ -236,7 +236,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                   <span className="font-mono text-[10.5px] text-[#5C6273]">
                     {r.yuzde}% · {r.tamamlanan}/{r.dersSayisi} ders
                   </span>
-                  <span className="font-mono text-[10.5px] text-[#9CA1AE]">
+                  <span className="font-mono text-[10.5px] text-[#656B7A]">
                     {tarihBicimi.format(new Date(r.atanmaTarihi))}
                   </span>
                   <button
@@ -254,6 +254,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
             {atanabilir.length > 0 && (
               <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-ink/8 pt-5">
                 <select
+                  aria-label="Atanacak eğitim"
                   value={eklenecekKurs}
                   onChange={(e) => setEklenecekKurs(e.target.value)}
                   className="h-[42px] min-w-[260px] rounded-[10px] border border-ink/13 bg-white px-[13px] text-sm text-ink outline-none focus:border-brand"
@@ -278,10 +279,10 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
 
             <div className="mt-6 border-t border-ink/8 pt-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+                <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
                   Giriş hareketleri
                 </div>
-                <div className="font-mono text-[10.5px] text-[#8A8F9E]">
+                <div className="font-mono text-[10.5px] text-[#656B7A]">
                   son 30 gün · {secili.sinyal.girisSayisi} giriş · {secili.sinyal.ipSayisi} IP ·{" "}
                   {secili.sinyal.sehirSayisi} şehir
                 </div>
@@ -306,7 +307,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
 
               <div className="mt-3 flex flex-col gap-[7px]">
                 {secili.oturumlar.length === 0 ? (
-                  <div className="rounded-[11px] border border-dashed border-ink/16 px-[15px] py-[18px] text-center text-[13.5px] text-[#8A8F9E]">
+                  <div className="rounded-[11px] border border-dashed border-ink/16 px-[15px] py-[18px] text-center text-[13.5px] text-[#656B7A]">
                     Bu kullanıcı için kayıtlı giriş yok.
                   </div>
                 ) : (
@@ -316,9 +317,9 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                       className="flex flex-wrap items-center gap-3 rounded-[10px] border border-ink/10 px-[13px] py-[10px]"
                     >
                       <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold">{konumEtiketi(k)}</span>
-                      <span className="truncate font-mono text-[10.5px] text-[#8A8F9E]">{cihazEtiketi(k)}</span>
+                      <span className="truncate font-mono text-[10.5px] text-[#656B7A]">{cihazEtiketi(k)}</span>
                       <span className="font-mono text-[10.5px] text-[#5C6273]">{k.ip || "—"}</span>
-                      <span className="font-mono text-[10.5px] text-[#9CA1AE]">
+                      <span className="font-mono text-[10.5px] text-[#656B7A]">
                         {anBicimi.format(new Date(k.tarih))}
                       </span>
                     </div>

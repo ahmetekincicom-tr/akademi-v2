@@ -80,7 +80,7 @@ export function IletisimFormu() {
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Ad soyad</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Ad soyad</span>
           <input
             type="text"
             value={ad}
@@ -90,7 +90,7 @@ export function IletisimFormu() {
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">E-posta</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">E-posta</span>
           <input
             type="email"
             value={email}
@@ -100,7 +100,7 @@ export function IletisimFormu() {
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Telefon</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Telefon</span>
           <input
             type="tel"
             value={telefon}
@@ -110,7 +110,7 @@ export function IletisimFormu() {
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Konu</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Konu</span>
           <select value={konu} onChange={(e) => setKonu(e.target.value)} className={alanStil}>
             {konular.map((k) => (
               <option key={k} value={k}>
@@ -122,7 +122,7 @@ export function IletisimFormu() {
       </div>
 
       <label className="mt-4 flex flex-col gap-2">
-        <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">Mesaj</span>
+        <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Mesaj</span>
         <textarea
           value={mesaj}
           onChange={(e) => setMesaj(e.target.value)}

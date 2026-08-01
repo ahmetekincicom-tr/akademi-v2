@@ -85,7 +85,7 @@ function YasalKarti({
       <div className="flex flex-wrap items-center gap-4 px-6 py-[16px]">
         <div className="min-w-0 flex-1">
           <div className="text-[15.5px] font-semibold">{sayfa.baslik}</div>
-          <div className="mt-1 font-mono text-[10.5px] text-[#8A8F9E]">
+          <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">
             /{sayfa.slug} · {karakterSayisi > 0 ? `${karakterSayisi.toLocaleString("tr-TR")} karakter` : "metin boş"}
           </div>
         </div>
@@ -121,11 +121,11 @@ function YasalKarti({
         <div className="border-t border-ink/8 bg-[#FAFBFF] px-6 py-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <label className="flex flex-col gap-2 sm:col-span-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Başlık</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Başlık</span>
               <input type="text" value={baslik} onChange={(e) => setBaslik(e.target.value)} className={alan} />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
                 Son güncelleme tarihi
               </span>
               <input
@@ -136,7 +136,7 @@ function YasalKarti({
               />
             </label>
             <label className="flex flex-col gap-2 sm:col-span-3">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
                 Kısa özet (başlığın altında görünür)
               </span>
               <input type="text" value={ozet} onChange={(e) => setOzet(e.target.value)} className={alan} />
@@ -144,14 +144,14 @@ function YasalKarti({
           </div>
 
           <label className="mt-4 flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Belge metni</span>
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Belge metni</span>
             <textarea
               value={icerik}
               onChange={(e) => setIcerik(e.target.value)}
               placeholder="Metni buraya yapıştır."
               className="min-h-[420px] resize-y rounded-[10px] border border-ink/13 bg-white px-[14px] py-3 font-mono text-[13px] leading-[1.7] text-ink outline-none focus:border-brand"
             />
-            <span className="text-[12px] leading-[1.6] text-[#9CA1AE]">
+            <span className="text-[12px] leading-[1.6] text-[#656B7A]">
               Düz metin yapıştırabilirsin. Biçimlendirme için: <code>##</code> ile başlayan satır başlık olur,{" "}
               <code>-</code> ile başlayan satır madde olur, <code>1.</code> ile başlayan satır numaralı madde olur.
               &ldquo;MADDE 5&rdquo; gibi satırlar otomatik başlık sayılır. Boş satır paragrafları ayırır.

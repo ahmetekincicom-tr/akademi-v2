@@ -15,12 +15,12 @@ export function Breadcrumb({ adimlar }: { adimlar: BreadcrumbAdim[] }) {
             {a.href && !sonuncu ? (
               <Link
                 href={a.href}
-                className="truncate font-medium text-[#8A8F9E] transition hover:text-brand"
+                className="truncate font-medium text-[#656B7A] transition hover:text-brand"
               >
                 {a.label}
               </Link>
             ) : (
-              <span className={sonuncu ? "truncate font-semibold text-ink" : "truncate text-[#8A8F9E]"}>
+              <span className={sonuncu ? "truncate font-semibold text-ink" : "truncate text-[#656B7A]"}>
                 {a.label}
               </span>
             )}

@@ -37,11 +37,11 @@ export default async function SeanslarPage() {
       >
         <div className="w-[150px] flex-none">
           <div className="font-mono text-[12px] font-medium text-ink">{saatBicimi.format(new Date(s.baslangic))}</div>
-          <div className="mt-[2px] font-mono text-[10px] text-[#9CA1AE]">{s.sureDk} dk</div>
+          <div className="mt-[2px] font-mono text-[10px] text-[#656B7A]">{s.sureDk} dk</div>
         </div>
         <div className="min-w-0 flex-1">
           <div className="truncate text-[15px] font-semibold text-ink">{s.konu || "Birebir seans"}</div>
-          <div className="mt-1 truncate font-mono text-[10.5px] text-[#8A8F9E]">{s.program}</div>
+          <div className="mt-1 truncate font-mono text-[10.5px] text-[#656B7A]">{s.program}</div>
         </div>
         <span
           className="flex-none rounded-full px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] uppercase"
@@ -75,7 +75,7 @@ export default async function SeanslarPage() {
 
       {seanslar.length === 0 ? (
         <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
             <Icon name="clock" size={22} />
           </div>
           <p className="mx-auto mt-4 max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
@@ -95,7 +95,7 @@ export default async function SeanslarPage() {
               <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">Yaklaşan</h2>
             </div>
             {yaklasan.length === 0 ? (
-              <div className="px-6 py-8 text-center text-sm text-[#8A8F9E]">Planlanmış seansın yok.</div>
+              <div className="px-6 py-8 text-center text-sm text-[#656B7A]">Planlanmış seansın yok.</div>
             ) : (
               yaklasan.map(kart)
             )}

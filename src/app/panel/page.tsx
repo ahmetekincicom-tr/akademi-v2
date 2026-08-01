@@ -43,7 +43,7 @@ export default async function PanelOverviewPage() {
 
       {courses.length === 0 ? (
         <div className="rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
             <Icon name="grid" size={22} />
           </div>
           <h2 className="mt-4 font-heading text-xl font-semibold tracking-[-0.02em]">Henüz bir eğitim kaydın yok</h2>
@@ -63,11 +63,11 @@ export default async function PanelOverviewPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {kpiler.map((k) => (
               <div key={k.etiket} className="rounded-2xl border border-ink/10 bg-white p-5">
-                <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">{k.etiket}</div>
+                <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">{k.etiket}</div>
                 <div className="mt-[10px] font-heading text-[30px] leading-none font-semibold tracking-[-0.03em]">
                   {k.deger}
                 </div>
-                <div className="mt-2 text-[13px] text-[#8A8F9E]">{k.alt}</div>
+                <div className="mt-2 text-[13px] text-[#656B7A]">{k.alt}</div>
               </div>
             ))}
           </div>
@@ -84,7 +84,7 @@ export default async function PanelOverviewPage() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-[15px] font-semibold text-ink">{c.baslik}</div>
-                    <div className="mt-1 font-mono text-[11.5px] text-[#8A8F9E]">
+                    <div className="mt-1 font-mono text-[11.5px] text-[#656B7A]">
                       {c.modules.length} modül · {c.dersSayisi} ders{c.sure ? ` · ${c.sure}` : ""}
                     </div>
                     <div className="mt-[10px] h-[6px] w-full overflow-hidden rounded-full bg-mist">
@@ -107,7 +107,7 @@ export default async function PanelOverviewPage() {
             {aktifKurs && aktifKurs.modules.length > 0 && (
               <div className="rounded-2xl border border-ink/10 bg-white p-6">
                 <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Modül ilerlemesi</h2>
-                <p className="mt-1 truncate text-[13px] text-[#8A8F9E]">{aktifKurs.baslik}</p>
+                <p className="mt-1 truncate text-[13px] text-[#656B7A]">{aktifKurs.baslik}</p>
                 <div className="mt-5 flex flex-col gap-[14px]">
                   {aktifKurs.modules.map((m, i) => (
                     <div key={m.id}>
@@ -115,7 +115,7 @@ export default async function PanelOverviewPage() {
                         <span className="min-w-0 truncate text-[13.5px] text-ink">
                           {i + 1}. {m.baslik}
                         </span>
-                        <span className="flex-none font-mono text-[11.5px] text-[#8A8F9E]">{m.yuzde}%</span>
+                        <span className="flex-none font-mono text-[11.5px] text-[#656B7A]">{m.yuzde}%</span>
                       </div>
                       <div className="mt-2 h-[5px] w-full overflow-hidden rounded-full bg-mist">
                         <div className="h-full rounded-full bg-brand" style={{ width: `${m.yuzde}%` }} />

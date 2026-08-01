@@ -29,7 +29,7 @@ export default async function YeniEgitimlerPage() {
             >
               <div className="placeholder-block aspect-[4/3] w-[120px] flex-none rounded-[11px]" />
               <div className="flex min-w-0 flex-1 flex-col">
-                <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#8A8F9E]">
+                <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#656B7A]">
                   {[u.sure, u.etiket].filter(Boolean).join(" · ")}
                 </div>
                 <div className="mt-[9px] font-heading text-[19px] leading-[1.22] font-semibold tracking-[-0.02em]">

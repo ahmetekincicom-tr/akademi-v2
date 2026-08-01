@@ -35,7 +35,7 @@ export function SifremiUnuttumFormu() {
           olur.
         </p>
         <label className="mt-[26px] flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#8A8F9E] uppercase">E-posta</span>
+          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">E-posta</span>
           <input
             type="email"
             placeholder="ornek@sirket.com"
@@ -52,7 +52,7 @@ export function SifremiUnuttumFormu() {
         >
           {yukleniyor ? "Gönderiliyor…" : "Sıfırlama bağlantısı gönder"}
         </button>
-        <p className="mt-[22px] text-sm leading-[1.6] text-[#8A8F9E]">
+        <p className="mt-[22px] text-sm leading-[1.6] text-[#656B7A]">
           E-postana erişimin yoksa <Link href="/iletisim">destek ekibine yaz</Link>; kimliğini doğrulayıp adresi güncelleyelim.
         </p>
       </div>

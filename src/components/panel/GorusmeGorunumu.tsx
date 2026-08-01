@@ -96,25 +96,25 @@ export function GorusmeGorunumu({
       {/* Hak özeti */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-ink/10 bg-white p-5">
-          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">Kalan ücretsiz hak</div>
+          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Kalan ücretsiz hak</div>
           <div className="mt-[10px] font-heading text-[30px] leading-none font-semibold tracking-[-0.03em]">
             {hak.kalan}
           </div>
-          <div className="mt-2 text-[13px] text-[#8A8F9E]">{ayarlar.ucretsizHak} hakkın var</div>
+          <div className="mt-2 text-[13px] text-[#656B7A]">{ayarlar.ucretsizHak} hakkın var</div>
         </div>
         <div className="rounded-2xl border border-ink/10 bg-white p-5">
-          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">Kullanılan</div>
+          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Kullanılan</div>
           <div className="mt-[10px] font-heading text-[30px] leading-none font-semibold tracking-[-0.03em]">
             {hak.kullanilan}
           </div>
-          <div className="mt-2 text-[13px] text-[#8A8F9E]">iptal edilenler sayılmaz</div>
+          <div className="mt-2 text-[13px] text-[#656B7A]">iptal edilenler sayılmaz</div>
         </div>
         <div className="rounded-2xl border border-ink/10 bg-white p-5">
-          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">Sonraki görüşme</div>
+          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Sonraki görüşme</div>
           <div className="mt-[10px] font-heading text-[30px] leading-none font-semibold tracking-[-0.03em]">
             {hak.sonrakiUcretli ? (ayarlar.ucret > 0 ? para(ayarlar.ucret) : "Ücretli") : "Ücretsiz"}
           </div>
-          <div className="mt-2 text-[13px] text-[#8A8F9E]">
+          <div className="mt-2 text-[13px] text-[#656B7A]">
             {ayarlar.sureDk} dakika · birebir
             {!hak.sonrakiUcretli && ayarlar.ucret > 0 && (
               <span className="mt-[3px] block">Hakların bitince {para(ayarlar.ucret)}</span>
@@ -126,7 +126,7 @@ export function GorusmeGorunumu({
       {/* Ücretlendirme her zaman görünür: ödeme bilgisi yalnızca borç doğunca
           ortaya çıkarsa öğrenci ne ödeyeceğini önceden bilemez. */}
       <div className="mt-4 rounded-2xl border border-ink/10 bg-white p-5">
-        <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">
+        <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">
           Ücretlendirme ve ödeme
         </div>
         <p className="mt-[10px] text-[14px] leading-[1.7] text-[#5C6273]">
@@ -136,7 +136,7 @@ export function GorusmeGorunumu({
         </p>
         {ayarlar.odemeAciklamasi && (
           <div className="mt-4 rounded-[11px] bg-mist px-4 py-[14px]">
-            <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">Ödeme bilgileri</div>
+            <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Ödeme bilgileri</div>
             <p className="mt-2 text-[13.5px] leading-[1.7] whitespace-pre-line text-[#3A3F4F]">
               {ayarlar.odemeAciklamasi}
             </p>
@@ -173,7 +173,7 @@ export function GorusmeGorunumu({
 
           <div className="mt-5 flex flex-col gap-4">
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Konu</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Konu</span>
               <input
                 type="text"
                 value={konu}
@@ -183,7 +183,7 @@ export function GorusmeGorunumu({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
                 Detay (opsiyonel)
               </span>
               <textarea
@@ -194,7 +194,7 @@ export function GorusmeGorunumu({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
                 Tercih ettiğin zamanlar
               </span>
               <input
@@ -226,7 +226,7 @@ export function GorusmeGorunumu({
 
         {gorusmeler.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
               <Icon name="clock" size={22} />
             </div>
             <p className="mx-auto mt-4 max-w-[420px] text-[14.5px] leading-[1.6] text-[#5C6273]">
@@ -260,7 +260,7 @@ export function GorusmeGorunumu({
                       </div>
                     ) : (
                       g.tercihZaman && (
-                        <div className="mt-2 font-mono text-[11px] text-[#8A8F9E]">
+                        <div className="mt-2 font-mono text-[11px] text-[#656B7A]">
                           Tercihin: {g.tercihZaman}
                         </div>
                       )
@@ -306,14 +306,14 @@ export function GorusmeGorunumu({
                       {ayarlar.odemeAciklamasi ||
                         "Ödeme bilgileri için bizimle iletişime geçebilirsin. Ödemen görüldüğünde görüşme saatini planlayıp buraya ekleyeceğiz."}
                     </p>
-                    <p className="mt-2 text-[12.5px] text-[#8A8F9E]">
+                    <p className="mt-2 text-[12.5px] text-[#656B7A]">
                       Ödemen onaylandığında bu talep otomatik olarak planlamaya geçer.
                     </p>
                   </div>
                 )}
 
                 {g.durum === "planlandi" && !link && (
-                  <p className="mt-3 text-[13px] text-[#8A8F9E]">
+                  <p className="mt-3 text-[13px] text-[#656B7A]">
                     Görüşme bağlantısı yaklaşınca burada görünecek.
                   </p>
                 )}

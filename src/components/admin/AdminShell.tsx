@@ -134,7 +134,7 @@ export function AdminShell({
             </span>
             <span className="flex flex-col leading-[1.15]">
               <span className="font-heading text-sm font-semibold">Akademi Yönetim</span>
-              <span className="font-mono text-[9px] tracking-[0.2em] text-white/42 uppercase">Admin</span>
+              <span className="font-mono text-[9px] tracking-[0.2em] text-white/55 uppercase">Admin</span>
             </span>
           </Link>
           <button
@@ -150,7 +150,7 @@ export function AdminShell({
         <nav className="flex flex-col gap-[14px] overflow-auto px-3 pt-[14px] pb-2">
           {groups.map((g) => (
             <div key={g.title} className="flex flex-col gap-[2px]">
-              <div className="px-3 pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/30 uppercase">{g.title}</div>
+              <div className="px-3 pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/55 uppercase">{g.title}</div>
               {g.items.map((m) => {
                 const active = isActive(pathname, m.href);
                 const sayi = m.sayac ? sayilar[m.sayac] : 0;
@@ -188,7 +188,7 @@ export function AdminShell({
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-[13px] font-semibold text-white">{isim}</span>
-              <span className="block truncate font-mono text-[9.5px] text-white/42">{email}</span>
+              <span className="block truncate font-mono text-[9.5px] text-white/55">{email}</span>
             </span>
           </div>
           <div className="mt-3 flex gap-2">

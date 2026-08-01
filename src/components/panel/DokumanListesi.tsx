@@ -47,7 +47,7 @@ export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] })
 
       {dokumanlar.length === 0 ? (
         <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#9CA1AE]">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
             <Icon name="folder" size={22} />
           </div>
           <p className="mx-auto mt-4 max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
@@ -66,7 +66,7 @@ export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] })
               </span>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-[15px] font-semibold text-ink">{d.baslik}</div>
-                <div className="mt-1 font-mono text-[10.5px] text-[#8A8F9E]">
+                <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">
                   {d.program} · {baytBoyut(d.boyut)} · {tarihBicimi.format(new Date(d.tarih))}
                 </div>
               </div>

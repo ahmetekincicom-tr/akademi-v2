@@ -30,7 +30,7 @@ export function Toggle({
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-semibold text-ink">{label}</span>
-        {sublabel && <span className="mt-[2px] block text-[12.5px] text-[#8A8F9E]">{sublabel}</span>}
+        {sublabel && <span className="mt-[2px] block text-[12.5px] text-[#656B7A]">{sublabel}</span>}
       </span>
     </button>
   );

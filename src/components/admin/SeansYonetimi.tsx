@@ -95,11 +95,11 @@ export function SeansYonetimi({
       >
         <div className="w-[150px] flex-none font-mono text-[11.5px] text-[#3A3F4F]">
           {saatBicimi.format(new Date(s.baslangic))}
-          <span className="mt-[2px] block text-[10px] text-[#9CA1AE]">{s.sureDk} dk</span>
+          <span className="mt-[2px] block text-[10px] text-[#656B7A]">{s.sureDk} dk</span>
         </div>
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-semibold">{s.isim}</div>
-          <div className="mt-[2px] truncate font-mono text-[10.5px] text-[#8A8F9E]">
+          <div className="mt-[2px] truncate font-mono text-[10.5px] text-[#656B7A]">
             {s.konu || "Konu belirtilmedi"} · {s.program}
           </div>
         </div>
@@ -115,6 +115,7 @@ export function SeansYonetimi({
           </a>
         )}
         <select
+          aria-label="Seans durumu"
           value={s.durum}
           disabled={islemde}
           onChange={(e) => durumDegistir(s.id, e.target.value as SeansSatir["durum"])}
@@ -130,7 +131,7 @@ export function SeansYonetimi({
           disabled={islemde}
           onClick={() => sil(s.id)}
           aria-label="Seansı sil"
-          className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
+          className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#656B7A] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
         >
           <Icon name="x" size={14} />
         </button>
@@ -164,7 +165,7 @@ export function SeansYonetimi({
           <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Yeni seans</h2>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Öğrenci</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Öğrenci</span>
               <select
                 value={form.userId}
                 onChange={(e) => setForm({ ...form, userId: e.target.value })}
@@ -179,7 +180,7 @@ export function SeansYonetimi({
               </select>
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Eğitim</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Eğitim</span>
               <select
                 value={form.courseId}
                 onChange={(e) => setForm({ ...form, courseId: e.target.value })}
@@ -194,7 +195,7 @@ export function SeansYonetimi({
               </select>
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Tarih ve saat</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Tarih ve saat</span>
               <input
                 type="datetime-local"
                 value={form.baslangic}
@@ -203,7 +204,7 @@ export function SeansYonetimi({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Süre (dk)</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Süre (dk)</span>
               <input
                 type="number"
                 value={form.sureDk}
@@ -212,7 +213,7 @@ export function SeansYonetimi({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Konu</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Konu</span>
               <input
                 type="text"
                 value={form.konu}
@@ -222,7 +223,7 @@ export function SeansYonetimi({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Toplantı linki</span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Toplantı linki</span>
               <input
                 type="text"
                 value={form.toplantiLink}
@@ -251,7 +252,7 @@ export function SeansYonetimi({
           <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">Yaklaşan</h2>
         </div>
         {yaklasan.length === 0 ? (
-          <div className="px-[22px] py-8 text-center text-sm text-[#8A8F9E]">Planlanmış seans yok.</div>
+          <div className="px-[22px] py-8 text-center text-sm text-[#656B7A]">Planlanmış seans yok.</div>
         ) : (
           yaklasan.map(satir)
         )}

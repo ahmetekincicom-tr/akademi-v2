@@ -116,7 +116,7 @@ export function DokumanYonetimi({
         <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Yeni dosya yükle</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Başlık</span>
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Başlık</span>
             <input
               type="text"
               value={baslik}
@@ -126,7 +126,7 @@ export function DokumanYonetimi({
             />
           </label>
           <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Eğitim</span>
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Eğitim</span>
             <select
               value={courseId}
               onChange={(e) => setCourseId(e.target.value)}
@@ -141,7 +141,7 @@ export function DokumanYonetimi({
             </select>
           </label>
           <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.12em] text-[#8A8F9E] uppercase">Dosya</span>
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Dosya</span>
             <input
               type="file"
               onChange={(e) => setDosya(e.target.files?.[0] ?? null)}
@@ -164,7 +164,7 @@ export function DokumanYonetimi({
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-ink/10 bg-white">
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-[2fr_1.4fr_0.7fr_0.8fr_1fr_150px] min-w-[860px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+          <div className="grid grid-cols-[2fr_1.4fr_0.7fr_0.8fr_1fr_150px] min-w-[860px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
             <span>Dosya</span>
             <span>Eğitim</span>
             <span>Tip</span>
@@ -174,7 +174,7 @@ export function DokumanYonetimi({
           </div>
 
           {dokumanlar.length === 0 ? (
-            <div className="px-[22px] py-10 text-center text-sm text-[#8A8F9E]">Henüz doküman yüklenmedi.</div>
+            <div className="px-[22px] py-10 text-center text-sm text-[#656B7A]">Henüz doküman yüklenmedi.</div>
           ) : (
             dokumanlar.map((d) => (
               <div
@@ -201,7 +201,7 @@ export function DokumanYonetimi({
                     disabled={islemde}
                     onClick={() => sil(d.id, d.dosyaYolu)}
                     aria-label="Dosyayı sil"
-                    className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#9CA1AE] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
+                    className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#656B7A] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
                   >
                     <Icon name="x" size={14} />
                   </button>
