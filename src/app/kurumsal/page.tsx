@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
@@ -42,7 +41,6 @@ export default async function KurumsalPage() {
 
   return (
     <div className="bg-white">
-      <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="İletişime geç" ctaHref="/iletisim" />
 
       <section className="relative overflow-hidden bg-ink text-white">

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getCourses } from "@/lib/courses";
 import { getYorumlar, getReferanslar } from "@/lib/icerik";
 import { ReferansLogo } from "@/components/site/ReferansLogo";
-import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
@@ -164,7 +163,6 @@ export default async function HomePage() {
 
   return (
     <div className="bg-white">
-      <AnnouncementBar />
       <PublicHeader nav={nav} ctaLabel="Eğitimleri incele" ctaHref="#egitimler" />
 
       {/* Hero */}

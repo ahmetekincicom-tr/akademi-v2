@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
@@ -27,7 +26,6 @@ const zaman = [
 export default function HakkimizdaPage() {
   return (
     <div className="bg-white">
-      <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
 
       <section className="relative overflow-hidden bg-ink text-white">

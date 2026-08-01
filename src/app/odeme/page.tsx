@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
@@ -38,7 +37,6 @@ export default async function OnGorusmePage({
 
   return (
     <div className="bg-white">
-      <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
 
       <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-12">

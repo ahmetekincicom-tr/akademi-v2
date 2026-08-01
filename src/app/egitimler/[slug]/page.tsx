@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
@@ -36,7 +35,6 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
   return (
     <div className="bg-white">
-      <AnnouncementBar />
       <PublicHeader nav={nav} ctaLabel="Hemen katıl" ctaHref="#katil" />
 
       <section className="relative overflow-hidden bg-ink text-white">
@@ -48,6 +46,20 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           }}
         />
         <div className="absolute -top-45 -right-25 h-[600px] w-[600px] rounded-full bg-brand opacity-18 blur-[120px]" />
+        {/* Kayıt duyurusu: koyu hero üzerinde beyaz zeminle ayrışır, animasyon
+            yok — sayfa açılır açılmaz sabit durur. Metni ve görünürlüğü
+            /admin/site-icerik'ten yönetilir. */}
+        {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
+          <div className="relative border-b border-white/10 bg-white">
+            <div className="mx-auto flex max-w-[1240px] items-center gap-[10px] px-5 py-[11px] sm:px-8">
+              <span className="h-[7px] w-[7px] flex-none rounded-full bg-brand" />
+              <span className="text-[13.5px] leading-[1.4] font-semibold tracking-[-0.01em] text-ink sm:text-[15px]">
+                {icerik.kayitDuyurusu}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-9 pb-22">
           <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.08em] text-white/45">
             <Link href="/" className="text-white/45 hover:text-white">
@@ -62,16 +74,6 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           </div>
           <div className="mt-10 grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="animate-rise">
-              {/* Kayıt durumu duyurusu — metni ve görünürlüğü admin panelinden
-                  yönetilir; kapalıyken hero başlıkla başlar. */}
-              {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
-                <div className="animate-pulse-dot inline-flex max-w-full items-center gap-[10px] rounded-full border border-brand/60 bg-brand/18 py-[9px] pr-[16px] pl-[13px]">
-                  <span className="flex h-[7px] w-[7px] flex-none rounded-full bg-brand shadow-[0_0_0_4px_rgba(28,86,243,0.28)]" />
-                  <span className="text-[13px] leading-[1.4] font-semibold tracking-[-0.01em] text-white sm:text-[14.5px]">
-                    {icerik.kayitDuyurusu}
-                  </span>
-                </div>
-              )}
               <h1 className="mt-[26px] font-heading text-[38px] leading-[1.06] font-semibold tracking-[-0.04em] sm:text-[46px] lg:text-[56px] lg:leading-[1.04]">
                 Birebir <span className="text-brand">{course.baslikVurgu}</span> {course.slug === "meta-business" ? "Eğitimi" : ""}
               </h1>

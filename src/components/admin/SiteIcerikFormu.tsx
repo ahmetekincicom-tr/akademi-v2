@@ -38,7 +38,8 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
       <section className="rounded-2xl border border-ink/10 bg-white p-6">
         <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Kayıt duyurusu</h2>
         <p className="mt-1 max-w-[620px] text-[13.5px] leading-[1.6] text-[#5C6273]">
-          Eğitim detay sayfalarında başlığın hemen üstünde, yanıp sönen bir noktayla çıkar. Her ay güncellemen yeterli.
+          Eğitim detay sayfalarının en üstünde, koyu hero&apos;nun üzerinde beyaz bir şerit olarak çıkar. Her ay
+          güncellemen yeterli.
         </p>
 
         <label className="mt-5 flex flex-col gap-2">
@@ -65,9 +66,14 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
         {form.kayitDuyurusu && (
           <div className="mt-5">
             <div className={ETIKET}>Önizleme</div>
-            <div className="mt-2 inline-flex max-w-full items-center gap-[10px] rounded-full bg-ink py-[9px] pr-[16px] pl-[13px]">
-              <span className="flex h-[7px] w-[7px] flex-none rounded-full bg-brand shadow-[0_0_0_4px_rgba(28,86,243,0.3)]" />
-              <span className="text-[14px] font-semibold text-white">{form.kayitDuyurusu}</span>
+            <div className="mt-2 overflow-hidden rounded-[10px] border border-ink/12">
+              <div className="flex items-center gap-[10px] bg-white px-4 py-[11px]">
+                <span className="h-[7px] w-[7px] flex-none rounded-full bg-brand" />
+                <span className="text-[15px] font-semibold tracking-[-0.01em] text-ink">{form.kayitDuyurusu}</span>
+              </div>
+              <div className="bg-ink px-4 py-3 font-mono text-[10px] tracking-[0.12em] text-white/55 uppercase">
+                hero buradan başlar
+              </div>
             </div>
           </div>
         )}

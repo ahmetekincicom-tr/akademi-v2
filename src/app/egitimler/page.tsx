@@ -1,4 +1,3 @@
-import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
@@ -16,7 +15,6 @@ export default async function EgitimlerPage() {
 
   return (
     <div className="bg-white">
-      <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="İletişime geç" ctaHref="/iletisim" />
 
       <section className="relative overflow-hidden bg-ink text-white">
