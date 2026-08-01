@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getCourses } from "@/lib/courses";
 import { getYorumlar, getReferanslar } from "@/lib/icerik";
-import { ReferansLogo } from "@/components/site/ReferansLogo";
+import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
@@ -255,29 +255,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Logos — logo yüklenmemişse boş bir şerit bırakmak yerine hiç çizme. */}
-      {logos.length > 0 && (
-      <section className="border-b border-ink/8 bg-mist">
-        <div className="mx-auto flex max-w-[1240px] flex-col gap-4 px-5 py-[34px] sm:flex-row sm:items-center sm:gap-10 sm:px-8">
-          <span className="font-mono text-[10.5px] leading-[1.6] tracking-[0.16em] text-[#656B7A] uppercase sm:max-w-[150px]">
-            Eğitimlerimizi tercih eden kuruluşlar
-          </span>
-          <div
-            className="flex-1 overflow-hidden"
-            style={{
-              maskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
-              WebkitMaskImage: "linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)",
-            }}
-          >
-            <div className="animate-marquee-slow flex w-max gap-[22px]">
-              {logos.concat(logos).map((l, i) => (
-                <ReferansLogo key={l.id + i} referans={l} className="h-[46px] w-[132px] flex-none" />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-      )}
+      <ReferansBulutu referanslar={logos} />
 
       {/* Programs */}
       <section id="egitimler" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">

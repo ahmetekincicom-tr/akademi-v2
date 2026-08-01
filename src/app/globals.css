@@ -405,3 +405,15 @@
 .duyuru-koyu::after {
   animation: aea-duyuru-parilti var(--duyuru-sure) linear infinite;
 }
+
+/* Referans şeridi: yarı yola gelince başa dönsün diye liste iki kez basılır.
+   Üzerine gelince durur — bir logoyu okumak ya da tıklamak isteyen kullanıcı
+   kayan şeridi kovalamak zorunda kalmaz. */
+.referans-bulutu-serit {
+  animation: aea-marquee 34s linear infinite;
+}
+
+.referans-bulutu:hover .referans-bulutu-serit,
+.referans-bulutu:focus-within .referans-bulutu-serit {
+  animation-play-state: paused;
+}

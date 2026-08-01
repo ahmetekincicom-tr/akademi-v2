@@ -5,7 +5,16 @@ import { guvenliUrl } from "@/lib/guvenli-url";
  * Renders an uploaded logo, or the company name when no image exists yet, so a
  * reference added without artwork still shows up instead of leaving a gap.
  */
-export function ReferansLogo({ referans, className }: { referans: Referans; className?: string }) {
+export function ReferansLogo({
+  referans,
+  className,
+  ariaGizli,
+}: {
+  referans: Referans;
+  className?: string;
+  /** Şeritteki ikinci kopya için: aynı isimler ekran okuyucuda tekrarlanmasın. */
+  ariaGizli?: boolean;
+}) {
   const icerik = referans.logoUrl ? (
     // Supabase Storage host; next/image would need it added to remotePatterns.
     // eslint-disable-next-line @next/next/no-img-element
@@ -24,11 +33,19 @@ export function ReferansLogo({ referans, className }: { referans: Referans; clas
   const siteUrl = guvenliUrl(referans.siteUrl);
 
   return siteUrl ? (
-    <a href={siteUrl} target="_blank" rel="noreferrer" title={referans.ad} className={stil}>
+    <a
+      href={siteUrl}
+      target="_blank"
+      rel="noreferrer"
+      title={referans.ad}
+      className={stil}
+      aria-hidden={ariaGizli || undefined}
+      tabIndex={ariaGizli ? -1 : undefined}
+    >
       {icerik}
     </a>
   ) : (
-    <div title={referans.ad} className={stil}>
+    <div title={referans.ad} className={stil} aria-hidden={ariaGizli || undefined}>
       {icerik}
     </div>
   );
