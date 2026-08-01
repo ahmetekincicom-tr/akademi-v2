@@ -211,23 +211,55 @@
   }
 }
 
-/* Kayıt duyurusu kutusu: çerçeve ve halesi yavaşça nefes alır. Siren gibi
-   hızlı bir yanıp sönme yerine 3,2 saniyelik yumuşak bir geçiş. */
-@keyframes aea-duyuru-nefes {
-  0%,
-  100% {
-    border-color: rgba(28, 86, 243, 0.3);
-    box-shadow: 0 0 0 0 rgba(28, 86, 243, 0);
-  }
-  50% {
-    border-color: rgba(28, 86, 243, 0.95);
-    box-shadow:
-      0 0 0 4px rgba(28, 86, 243, 0.12),
-      0 0 24px rgba(28, 86, 243, 0.4);
+/* Kayıt duyurusu kutusu.
+   Kenarlık, iki katmanlı bir arka planla çiziliyor: padding-box beyaz zemini,
+   border-box ise dönen bir konik degradeyi taşıyor. Böylece çerçevenin
+   üzerinde dolaşan bir ışık oluşuyor — düz bir yanıp sönmeden daha sakin.
+   @property olmadan özel bir açı değeri interpole edilemez; desteklemeyen
+   tarayıcıda degrade sabit kalır, kutu yine düzgün görünür. */
+@property --duyuru-aci {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes aea-duyuru-donus {
+  to {
+    --duyuru-aci: 360deg;
   }
 }
 
-.duyuru-nefes {
-  border-color: rgba(28, 86, 243, 0.3);
-  animation: aea-duyuru-nefes 3.2s ease-in-out infinite;
+/* Işık kenarı turlarken hale de hafifçe soluyor; ikisi farklı sürede
+   olduğu için tekrar eden bir ritim hissi vermiyor. */
+@keyframes aea-duyuru-hale {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(28, 86, 243, 0);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px rgba(28, 86, 243, 0.1),
+      0 0 26px rgba(28, 86, 243, 0.34);
+  }
+}
+
+.duyuru-parlak {
+  --duyuru-yuzde: 7%;
+  position: relative;
+  isolation: isolate;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(#ffffff, #ffffff) padding-box,
+    conic-gradient(
+        from var(--duyuru-aci),
+        rgba(28, 86, 243, 0.22),
+        var(--color-brand) var(--duyuru-yuzde),
+        #dbe6ff calc(var(--duyuru-yuzde) * 2),
+        var(--color-brand) calc(var(--duyuru-yuzde) * 3),
+        rgba(28, 86, 243, 0.22) calc(var(--duyuru-yuzde) * 4)
+      )
+      border-box;
+  animation:
+    aea-duyuru-donus 4s linear infinite,
+    aea-duyuru-hale 3.2s ease-in-out infinite;
 }

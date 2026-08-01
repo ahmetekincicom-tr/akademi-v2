@@ -67,7 +67,7 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
           <div className="mt-5">
             <div className={ETIKET}>Önizleme</div>
             <div className="mt-2 rounded-[12px] bg-ink p-6">
-              <div className="duyuru-nefes inline-block max-w-full rounded-[13px] border-2 bg-white px-[18px] py-[13px]">
+              <div className="duyuru-parlak inline-block max-w-full rounded-[13px] border-2 bg-white px-[18px] py-[13px]">
                 <span className="text-[15.5px] leading-[1.45] font-semibold tracking-[-0.01em] text-ink">
                   {form.kayitDuyurusu}
                 </span>
