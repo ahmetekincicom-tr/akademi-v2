@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
+import { guvenliUrl } from "@/lib/guvenli-url";
 import { Icon } from "@/components/Icon";
 
 export default async function SeanslarPage() {
@@ -28,6 +29,7 @@ export default async function SeanslarPage() {
   const kart = (s: (typeof seanslar)[number]) => {
     const etiket = seansDurumEtiket[s.durum];
     const st = durumStil(etiket);
+    const toplanti = guvenliUrl(s.toplantiLink);
     return (
       <div
         key={s.id}
@@ -47,9 +49,9 @@ export default async function SeanslarPage() {
         >
           {etiket}
         </span>
-        {s.toplantiLink && s.durum === "planlandi" && (
+        {toplanti && s.durum === "planlandi" && (
           <a
-            href={s.toplantiLink}
+            href={toplanti}
             target="_blank"
             rel="noreferrer"
             className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-brand px-[15px] text-[13.5px] font-semibold text-white transition hover:bg-ink"

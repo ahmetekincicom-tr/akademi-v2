@@ -6,6 +6,7 @@ import { seansEkle, seansDurumDegistir, seansSil } from "@/app/admin/(protected)
 import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
+import { guvenliUrl } from "@/lib/guvenli-url";
 import { Icon } from "@/components/Icon";
 
 export type SeansSatir = {
@@ -73,6 +74,7 @@ export function SeansYonetimi({
   const satir = (s: SeansSatir) => {
     const etiket = seansDurumEtiket[s.durum];
     const st = durumStil(etiket);
+    const toplanti = guvenliUrl(s.toplantiLink);
     return (
       <div
         key={s.id}
@@ -88,9 +90,9 @@ export function SeansYonetimi({
             {s.konu || "Konu belirtilmedi"} · {s.program}
           </div>
         </div>
-        {s.toplantiLink && (
+        {toplanti && (
           <a
-            href={s.toplantiLink}
+            href={toplanti}
             target="_blank"
             rel="noreferrer"
             className="inline-flex h-8 flex-none items-center gap-[5px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand"

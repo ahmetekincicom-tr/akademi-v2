@@ -1,3 +1,5 @@
+import { guvenliUrl } from "@/lib/guvenli-url";
+
 /**
  * Turns a pasted YouTube/Vimeo link into its embed form so the lesson player
  * can drop it straight into an iframe. Anything else is returned untouched and
@@ -15,7 +17,12 @@ export function videoGomme(url: string): { tip: "iframe" | "dosya"; src: string 
   const vimeo = temiz.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vimeo) return { tip: "iframe", src: `https://player.vimeo.com/video/${vimeo[1]}` };
 
-  if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(temiz)) return { tip: "dosya", src: temiz };
+  // Taninmayan bir deger dogrudan iframe'e/videoya gidiyordu; sadece http(s)
+  // kabul et ki "javascript:" veya "data:" tarayicida calisamasin.
+  const guvenli = guvenliUrl(temiz);
+  if (!guvenli) return null;
 
-  return { tip: "iframe", src: temiz };
+  if (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(guvenli)) return { tip: "dosya", src: guvenli };
+
+  return { tip: "iframe", src: guvenli };
 }

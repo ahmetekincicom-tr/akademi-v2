@@ -12,7 +12,13 @@ function tazele() {
   revalidatePath("/admin/marka");
 }
 
+const IZINLI_ALANLAR: MarkaAlan[] = ["logo_koyu_zemin", "logo_acik_zemin", "favicon"];
+
 export async function markaGuncelle(alan: MarkaAlan, yeniYol: string | null) {
+  // Server action'lar herkese acik uc noktalardir; TypeScript tipi calisma
+  // zamaninda yok, bu yuzden sutun adi burada dogrulanir.
+  if (!IZINLI_ALANLAR.includes(alan)) return { error: "Geçersiz alan." };
+
   const supabase = await createClient();
 
   const oncekiler = await getMarkaYollari(supabase);

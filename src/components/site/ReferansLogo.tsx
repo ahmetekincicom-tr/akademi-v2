@@ -1,4 +1,5 @@
 import type { Referans } from "@/lib/icerik";
+import { guvenliUrl } from "@/lib/guvenli-url";
 
 /**
  * Renders an uploaded logo, or the company name when no image exists yet, so a
@@ -20,8 +21,10 @@ export function ReferansLogo({ referans, className }: { referans: Referans; clas
 
   const stil = `group flex items-center justify-center rounded-[9px] border border-ink/10 bg-mist ${className ?? ""}`;
 
-  return referans.siteUrl ? (
-    <a href={referans.siteUrl} target="_blank" rel="noreferrer" title={referans.ad} className={stil}>
+  const siteUrl = guvenliUrl(referans.siteUrl);
+
+  return siteUrl ? (
+    <a href={siteUrl} target="_blank" rel="noreferrer" title={referans.ad} className={stil}>
       {icerik}
     </a>
   ) : (
