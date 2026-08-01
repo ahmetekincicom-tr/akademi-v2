@@ -1,15 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
 import { OgrenciYonetimi, type AdminOgrenci, type AdminKurs } from "@/components/admin/OgrenciYonetimi";
+import { getOturumlar, paylasimSinyali, type OturumKaydi } from "@/lib/oturum";
 
 export default async function OgrencilerPage() {
   const supabase = await createClient();
 
-  const [{ data: profiles }, { data: enrollments }, { data: courses }, { data: progress }] = await Promise.all([
-    supabase.from("profiles").select("id, ad, soyad, email, role, created_at").order("created_at"),
-    supabase.from("enrollments").select("user_id, course_id, atanma_tarihi"),
-    supabase.from("courses").select("id, slug, baslik, modules(lessons(id))").order("created_at"),
-    supabase.from("lesson_progress").select("user_id, lesson_id").eq("tamamlandi", true),
-  ]);
+  const [{ data: profiles }, { data: enrollments }, { data: courses }, { data: progress }, oturumlar] =
+    await Promise.all([
+      supabase.from("profiles").select("id, ad, soyad, email, role, created_at").order("created_at"),
+      supabase.from("enrollments").select("user_id, course_id, atanma_tarihi"),
+      supabase.from("courses").select("id, slug, baslik, modules(lessons(id))").order("created_at"),
+      supabase.from("lesson_progress").select("user_id, lesson_id").eq("tamamlandi", true),
+      // Yönetici RLS politikası tüm kullanıcıların kayıtlarını görmesine izin verir.
+      getOturumlar(supabase),
+    ]);
+
+  // Kişi başına grupla; liste zaten tarihe göre azalan sırada.
+  const kisiOturumlari = new Map<string, OturumKaydi[]>();
+  for (const k of oturumlar) {
+    const mevcut = kisiOturumlari.get(k.userId);
+    if (mevcut) mevcut.push(k);
+    else kisiOturumlari.set(k.userId, [k]);
+  }
 
   type CourseRow = { id: string; slug: string; baslik: string; modules: { lessons: { id: string }[] }[] };
   const courseRows = (courses ?? []) as unknown as CourseRow[];
@@ -42,12 +54,15 @@ export default async function OgrencilerPage() {
   const ogrenciler: AdminOgrenci[] = (profiles ?? []).map((p) => {
     const kendiKayitlari = (enrollments ?? []).filter((e) => e.user_id === p.id);
     const ad = [p.ad, p.soyad].filter(Boolean).join(" ");
+    const kendiOturumlari = kisiOturumlari.get(p.id) ?? [];
     return {
       id: p.id,
       isim: ad || (p.email ?? "İsimsiz kayıt"),
       eposta: p.email ?? "",
       admin: p.role === "admin",
       kayitTarihi: p.created_at,
+      oturumlar: kendiOturumlari,
+      sinyal: paylasimSinyali(kendiOturumlari),
       kayitlar: kendiKayitlari.map((e) => {
         const toplam = kursDersSayisi.get(e.course_id) ?? 0;
         const bitti = tamamlanan.get(`${p.id}:${e.course_id}`) ?? 0;

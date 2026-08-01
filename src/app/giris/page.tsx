@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { CheckToggle } from "@/components/auth/CheckToggle";
 import { createClient } from "@/lib/supabase/client";
+import { oturumKaydet } from "@/app/oturum-actions";
 
 function GirisForm() {
   const router = useRouter();
@@ -29,11 +30,14 @@ function GirisForm() {
     setHata(false);
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setYukleniyor(false);
     if (error) {
+      setYukleniyor(false);
       setHata(true);
       return;
     }
+    // Oturum çerezi yazıldıktan sonra: IP ve konumu sunucu kendi okur.
+    await oturumKaydet();
+    setYukleniyor(false);
     router.push(hedef);
     router.refresh();
   };

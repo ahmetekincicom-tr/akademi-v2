@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { oturumKaydet } from "@/app/oturum-actions";
 
 export async function girisYap(formData: FormData) {
   const email = String(formData.get("email") ?? "");
@@ -25,6 +26,8 @@ export async function girisYap(formData: FormData) {
     await supabase.auth.signOut();
     redirect(`/admin/giris?hata=yetki&next=${encodeURIComponent(next)}`);
   }
+
+  await oturumKaydet();
 
   redirect(next.startsWith("/admin") ? next : "/admin");
 }

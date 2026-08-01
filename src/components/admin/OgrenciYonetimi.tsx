@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { kayitEkle, kayitKaldir } from "@/app/admin/(protected)/ogrenciler/actions";
 import { Icon } from "@/components/Icon";
+import { konumEtiketi, cihazEtiketi, type OturumKaydi, type PaylasimSinyali } from "@/lib/oturum";
 
 export type AdminKurs = { id: string; slug: string; baslik: string };
 
@@ -21,9 +22,17 @@ export type AdminOgrenci = {
     tamamlanan: number;
     yuzde: number;
   }[];
+  oturumlar: OturumKaydi[];
+  sinyal: PaylasimSinyali;
 };
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", year: "numeric" });
+const anBicimi = new Intl.DateTimeFormat("tr-TR", {
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+});
 
 function basHarfler(isim: string) {
   return isim
@@ -132,6 +141,14 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                       {o.admin && (
                         <span className="flex-none rounded-full bg-ink px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-white uppercase">
                           admin
+                        </span>
+                      )}
+                      {o.sinyal.supheli && (
+                        <span
+                          title={o.sinyal.gerekce}
+                          className="flex-none rounded-full bg-[rgba(201,138,27,0.16)] px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-[#A5711A] uppercase"
+                        >
+                          paylaşım?
                         </span>
                       )}
                     </span>
@@ -246,6 +263,57 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                 </button>
               </div>
             )}
+
+            <div className="mt-6 border-t border-ink/8 pt-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A8F9E] uppercase">
+                  Giriş hareketleri
+                </div>
+                <div className="font-mono text-[10.5px] text-[#8A8F9E]">
+                  son 30 gün · {secili.sinyal.girisSayisi} giriş · {secili.sinyal.ipSayisi} IP ·{" "}
+                  {secili.sinyal.sehirSayisi} şehir
+                </div>
+              </div>
+
+              <div
+                className="mt-3 rounded-[11px] px-4 py-3 text-[13px] leading-[1.6]"
+                style={
+                  secili.sinyal.supheli
+                    ? { background: "rgba(201,138,27,0.09)", color: "#A5711A" }
+                    : { background: "#F2F4FA", color: "#5C6273" }
+                }
+              >
+                {secili.sinyal.gerekce}
+                {secili.sinyal.supheli && (
+                  <span className="mt-1 block text-[12.5px] opacity-80">
+                    Bu bir kanıt değil, bir işaret. Mobil operatörler IP değiştirir, insanlar seyahat eder — karar
+                    vermeden önce kişiyle konuş.
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-3 flex flex-col gap-[7px]">
+                {secili.oturumlar.length === 0 ? (
+                  <div className="rounded-[11px] border border-dashed border-ink/16 px-[15px] py-[18px] text-center text-[13.5px] text-[#8A8F9E]">
+                    Bu kullanıcı için kayıtlı giriş yok.
+                  </div>
+                ) : (
+                  secili.oturumlar.slice(0, 15).map((k) => (
+                    <div
+                      key={k.id}
+                      className="flex flex-wrap items-center gap-3 rounded-[10px] border border-ink/10 px-[13px] py-[10px]"
+                    >
+                      <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold">{konumEtiketi(k)}</span>
+                      <span className="truncate font-mono text-[10.5px] text-[#8A8F9E]">{cihazEtiketi(k)}</span>
+                      <span className="font-mono text-[10.5px] text-[#5C6273]">{k.ip || "—"}</span>
+                      <span className="font-mono text-[10.5px] text-[#9CA1AE]">
+                        {anBicimi.format(new Date(k.tarih))}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

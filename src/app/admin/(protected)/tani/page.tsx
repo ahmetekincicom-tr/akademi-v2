@@ -73,6 +73,7 @@ export default async function TaniPage() {
     { ad: "marka", faz: "Faz 6" },
     { ad: "gorusmeler", faz: "Faz 7" },
     { ad: "gorusme_ayarlari", faz: "Faz 7" },
+    { ad: "oturum_kayitlari", faz: "Faz 8" },
   ];
 
   const tabloDurumu: Satir[] = [];
