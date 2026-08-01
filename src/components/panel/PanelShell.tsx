@@ -23,6 +23,7 @@ const groups: MenuGroup[] = [
     title: "Destek",
     items: [
       { href: "/panel/seanslar", label: "Birebir seanslar", icon: "clock" },
+      { href: "/panel/gorusmeler", label: "Danışmanlık görüşmeleri", icon: "calendar" },
       { href: "/panel/soru-cevap", label: "Soru-cevap", icon: "message" },
     ],
   },
@@ -40,6 +41,7 @@ const pageTitles: Record<string, string> = {
   "/panel/dersler": "Ders izleme",
   "/panel/dokumanlar": "Doküman kütüphanesi",
   "/panel/seanslar": "Birebir seanslar",
+  "/panel/gorusmeler": "Danışmanlık görüşmeleri",
   "/panel/soru-cevap": "Soru-cevap",
   "/panel/yeni-egitimler": "Yeni eğitimler",
   "/panel/hesabim": "Hesabım",

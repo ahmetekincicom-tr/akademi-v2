@@ -7,7 +7,14 @@ import { initials } from "@/lib/admin/shared";
 import { Icon, type IconName } from "@/components/Icon";
 import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 
-export type AdminSayilar = { ogrenci: number; talep: number; odeme: number; video: number; mesaj: number };
+export type AdminSayilar = {
+  ogrenci: number;
+  talep: number;
+  odeme: number;
+  video: number;
+  mesaj: number;
+  gorusme: number;
+};
 
 type MenuItem = { href: string; label: string; icon: IconName; sayac?: keyof AdminSayilar };
 type MenuGroup = { title: string; items: MenuItem[] };
@@ -21,6 +28,7 @@ const groups: MenuGroup[] = [
       { href: "/admin/destek", label: "Destek talepleri", icon: "message", sayac: "talep" },
       { href: "/admin/mesajlar", label: "Gelen mesajlar", icon: "external", sayac: "mesaj" },
       { href: "/admin/seanslar", label: "Seans takvimi", icon: "calendar" },
+      { href: "/admin/gorusmeler", label: "Danışmanlık talepleri", icon: "clock", sayac: "gorusme" },
     ],
   },
   {
@@ -59,6 +67,7 @@ const pageTitles: Record<string, string> = {
   "/admin/yasal": "Yasal metinler",
   "/admin/marka": "Logo ve favicon",
   "/admin/seanslar": "Seans takvimi",
+  "/admin/gorusmeler": "Danışmanlık talepleri",
   "/admin/video": "Video kütüphanesi",
   "/admin/entegrasyonlar": "Entegrasyonlar",
   "/admin/ayarlar": "Ayarlar",
