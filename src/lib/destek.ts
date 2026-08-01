@@ -4,6 +4,13 @@ export type DestekMesaj = {
   id: string;
   gonderenId: string;
   gonderenAd: string;
+  /**
+   * Derived from the ticket owner rather than the sender's role column: a
+   * student cannot read the admin's profile row under RLS, so asking the
+   * database "is this person an admin" comes back empty on the panel side.
+   * Anyone who is not the person who opened the ticket is answering it.
+   */
+  egitmenMi: boolean;
   metin: string;
   tarih: string;
 };
@@ -50,23 +57,35 @@ export async function getTalepler(): Promise<DestekTalep[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("support_tickets").select(TICKET_SELECT).order("updated_at", { ascending: false });
 
-  return ((data ?? []) as unknown as TicketRow[]).map((t) => ({
-    id: t.id,
-    userId: t.user_id,
-    kisiAd: kisiAdi(t.profiles),
-    baslik: t.baslik,
-    program: t.courses?.baslik ?? "Genel",
-    durum: t.durum,
-    tarih: t.created_at,
-    guncelleme: t.updated_at,
-    mesajlar: [...t.support_messages]
-      .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-      .map((m) => ({
-        id: m.id,
-        gonderenId: m.gonderen_id,
-        gonderenAd: kisiAdi(m.profiles),
-        metin: m.metin,
-        tarih: m.created_at,
-      })),
-  }));
+  return ((data ?? []) as unknown as TicketRow[]).map((t) => {
+    const sahipAd = kisiAdi(t.profiles);
+
+    return {
+      id: t.id,
+      userId: t.user_id,
+      kisiAd: sahipAd,
+      baslik: t.baslik,
+      program: t.courses?.baslik ?? "Genel",
+      durum: t.durum,
+      tarih: t.created_at,
+      guncelleme: t.updated_at,
+      mesajlar: [...t.support_messages]
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+        .map((m) => {
+          const egitmenMi = m.gonderen_id !== t.user_id;
+          const okunanAd = kisiAdi(m.profiles);
+          // Okunamayan profil "—" döner; öğrenciye tire göstermek yerine rolü yaz.
+          const ad = okunanAd !== "—" ? okunanAd : egitmenMi ? "Eğitmen" : sahipAd;
+
+          return {
+            id: m.id,
+            gonderenId: m.gonderen_id,
+            gonderenAd: ad,
+            egitmenMi,
+            metin: m.metin,
+            tarih: m.created_at,
+          };
+        }),
+    };
+  });
 }

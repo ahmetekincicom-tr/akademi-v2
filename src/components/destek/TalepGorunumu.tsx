@@ -231,19 +231,51 @@ export function TalepGorunumu({
               <div className="flex max-h-[460px] flex-col gap-4 overflow-auto px-6 py-5">
                 {secili.mesajlar.map((m) => {
                   const benim = m.gonderenId === benimId;
+                  // Konum ve renk role göre: aynı konuşma iki panelde de aynı
+                  // görünsün, kimin baktığına göre yer değiştirmesin.
                   return (
-                    <div key={m.id} className={benim ? "flex flex-col items-end" : "flex flex-col items-start"}>
+                    <div
+                      key={m.id}
+                      className={m.egitmenMi ? "flex flex-col items-start" : "flex flex-col items-end"}
+                    >
+                      <span className="mb-[5px] flex items-center gap-[6px] px-1">
+                        <span
+                          className="rounded-full px-[7px] py-[2px] font-mono text-[9px] tracking-[0.09em] uppercase"
+                          style={
+                            m.egitmenMi
+                              ? { background: "rgba(28,86,243,0.13)", color: "#1C56F3" }
+                              : { background: "rgba(10,13,24,0.07)", color: "#5C6273" }
+                          }
+                        >
+                          {m.egitmenMi ? "Eğitmen" : "Öğrenci"}
+                        </span>
+                        <span className="font-mono text-[10px] text-[#9CA1AE]">
+                          {benim ? "Sen" : m.gonderenAd}
+                        </span>
+                      </span>
+
                       <div
-                        className="max-w-[80%] rounded-[13px] px-4 py-3 text-[14.5px] leading-[1.6]"
-                        style={{
-                          background: benim ? "#1C56F3" : "#F2F4FA",
-                          color: benim ? "#FFFFFF" : "#2B303D",
-                        }}
+                        className="max-w-[80%] px-4 py-3 text-[14.5px] leading-[1.6] whitespace-pre-line"
+                        style={
+                          m.egitmenMi
+                            ? {
+                                background: "#1C56F3",
+                                color: "#FFFFFF",
+                                borderRadius: "13px 13px 13px 4px",
+                              }
+                            : {
+                                background: "#F2F4FA",
+                                color: "#2B303D",
+                                border: "1px solid rgba(10,13,24,0.08)",
+                                borderRadius: "13px 13px 4px 13px",
+                              }
+                        }
                       >
                         {m.metin}
                       </div>
-                      <span className="mt-[5px] font-mono text-[10px] text-[#9CA1AE]">
-                        {benim ? "Sen" : m.gonderenAd} · {saatBicimi.format(new Date(m.tarih))}
+
+                      <span className="mt-[5px] px-1 font-mono text-[10px] text-[#9CA1AE]">
+                        {saatBicimi.format(new Date(m.tarih))}
                       </span>
                     </div>
                   );
