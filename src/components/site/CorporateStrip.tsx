@@ -3,7 +3,7 @@ import Link from "next/link";
 export function CorporateStrip({ text }: { text: string }) {
   return (
     <section className="bg-brand text-white">
-      <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-9 px-8 py-9">
+      <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-9 px-5 sm:px-8 py-9">
         <div className="flex flex-wrap items-baseline gap-5">
           <span className="font-mono text-[10.5px] tracking-[0.16em] text-white/90 uppercase">Kurumsal</span>
           <span className="text-[18px] font-medium tracking-[-0.015em]">{text}</span>

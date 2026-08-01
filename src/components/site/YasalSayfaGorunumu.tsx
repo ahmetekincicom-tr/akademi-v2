@@ -18,7 +18,7 @@ export function YasalSayfaGorunumu({ sayfa, digerleri }: { sayfa: YasalSayfa; di
       <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
 
-      <section className="mx-auto max-w-[1240px] px-8 pt-16 pb-10">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-10">
         <SectionKicker>Yasal</SectionKicker>
         <h1 className="mt-[18px] max-w-[720px] font-heading text-[34px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[42px]">
           {sayfa.baslik}
@@ -33,7 +33,7 @@ export function YasalSayfaGorunumu({ sayfa, digerleri }: { sayfa: YasalSayfa; di
         )}
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 pb-24">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pb-24">
         <div className="grid grid-cols-1 items-start gap-[22px] lg:grid-cols-[1fr_300px]">
           <article className="rounded-2xl border border-ink/10 bg-white p-8 sm:p-10">
             {bosMu ? (

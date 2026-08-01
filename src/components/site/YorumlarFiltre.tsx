@@ -33,7 +33,7 @@ export function YorumlarFiltre({
   }, [tab, yorumlar, kurslar]);
 
   return (
-    <section className="mx-auto max-w-[1240px] px-8 pb-24">
+    <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pb-24">
       <div className="flex flex-wrap gap-2">
         {tabs.map((t) => {
           const secili = tab === t;

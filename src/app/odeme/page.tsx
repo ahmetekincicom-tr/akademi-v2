@@ -41,7 +41,7 @@ export default async function OnGorusmePage({
       <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
 
-      <section className="mx-auto max-w-[1240px] px-8 pt-16 pb-12">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-12">
         <SectionKicker>Ön görüşme</SectionKicker>
         <h1 className="mt-[18px] max-w-[660px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[46px]">
           Önce konuşalım, sonra kapsamı birlikte kuralım.
@@ -52,7 +52,7 @@ export default async function OnGorusmePage({
         </p>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 pb-24">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pb-24">
         <div className="grid grid-cols-1 items-start gap-[22px] lg:grid-cols-[1fr_380px]">
           <TeklifFormu kurslar={kurslar} secilenSlug={kurs} />
 

@@ -50,7 +50,7 @@ export default function IletisimPage() {
       <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
 
-      <section className="mx-auto max-w-[1240px] px-8 pt-16 pb-14">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-14">
         <SectionKicker>İletişim</SectionKicker>
         <h1 className="mt-[18px] max-w-[620px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[46px]">
           Hangi programın size uyduğunu konuşarak bulalım.
@@ -60,7 +60,7 @@ export default function IletisimPage() {
         </p>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 pb-24">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pb-24">
         <div className="grid grid-cols-1 gap-[22px] lg:grid-cols-[1fr_380px]">
           <div className="rounded-2xl border border-ink/10 bg-white p-8">
             <IletisimFormu />

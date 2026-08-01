@@ -30,7 +30,7 @@ export default async function ReferanslarPage() {
       <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
 
-      <section className="mx-auto max-w-[1240px] px-8 pt-16 pb-14">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-14">
         <SectionKicker>Referanslar</SectionKicker>
         <h1 className="mt-[18px] max-w-[640px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[46px]">
           400&apos;den fazla katılımcı, tek katılımcılık ilkesiyle eğitildi.
@@ -42,7 +42,7 @@ export default async function ReferanslarPage() {
       </section>
 
       <section className="border-y border-ink/8 bg-mist">
-        <div className="mx-auto max-w-[1240px] px-8 py-14">
+        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-14">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
             {referanslar.map((r) => (
               <ReferansLogo key={r.id} referans={r} className="h-[64px]" />
@@ -51,7 +51,7 @@ export default async function ReferanslarPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 py-20">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
         <SectionKicker>Kimlerle çalıştık</SectionKicker>
         <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
           Katılımcı profili
@@ -68,7 +68,7 @@ export default async function ReferanslarPage() {
       </section>
 
       <section className="border-t border-ink/8 bg-mist">
-        <div className="mx-auto max-w-[1240px] px-8 py-20">
+        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
           <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
             <div>
               <SectionKicker>Katılımcı yorumları</SectionKicker>

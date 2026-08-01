@@ -54,7 +54,7 @@ export default async function KurumsalPage() {
           }}
         />
         <div className="absolute -top-40 -right-20 h-[520px] w-[520px] rounded-full bg-brand opacity-18 blur-[120px]" />
-        <div className="relative mx-auto max-w-[1240px] px-8 pt-20 pb-24">
+        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-20 pb-24">
           <SectionKicker tone="light">Kurumsal</SectionKicker>
           <h1 className="mt-[18px] max-w-[680px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[48px]">
             Ekibinize özel, <span className="text-brand">yerinde ya da uzaktan</span> dijital pazarlama eğitimi.
@@ -75,7 +75,7 @@ export default async function KurumsalPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 pt-22 pb-20">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-22 pb-20">
         <SectionKicker>Fark</SectionKicker>
         <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
           Standart kurumsal eğitim programı değil.
@@ -92,7 +92,7 @@ export default async function KurumsalPage() {
       </section>
 
       <section className="border-y border-ink/8 bg-mist">
-        <div className="mx-auto max-w-[1240px] px-8 py-20">
+        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
           <SectionKicker>Süreç</SectionKicker>
           <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
             Kurumsal eğitim nasıl kuruluyor
@@ -114,7 +114,7 @@ export default async function KurumsalPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 py-20">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
           <div>
             <SectionKicker>Programlar</SectionKicker>
@@ -144,7 +144,7 @@ export default async function KurumsalPage() {
       </section>
 
       <section className="border-t border-ink/8 bg-mist">
-        <div className="mx-auto max-w-[1240px] px-8 py-20">
+        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
           <TestimonialCard
             metin="Ekibimizin reklam hesabı üzerinde çalışarak ilerlemesi teoriyi hemen pratiğe dökmemizi sağladı. Eğitim bitince rapor ve takip listesiyle devam ettik."
             isim="Kurumsal Katılımcı"
@@ -153,7 +153,7 @@ export default async function KurumsalPage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-8 py-24 lg:grid-cols-[0.75fr_1.25fr]">
+      <section className="mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 py-24 lg:grid-cols-[0.75fr_1.25fr]">
         <div>
           <SectionKicker>SSS</SectionKicker>
           <h2 className="mt-[18px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">

@@ -28,7 +28,7 @@ export default async function EgitimlerPage() {
           }}
         />
         <div className="absolute -top-40 -right-20 h-[520px] w-[520px] rounded-full bg-brand opacity-18 blur-[120px]" />
-        <div className="relative mx-auto max-w-[1240px] px-8 pt-20 pb-24">
+        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-20 pb-24">
           <SectionKicker tone="light">Eğitimler</SectionKicker>
           <h1 className="mt-[18px] max-w-[640px] font-heading text-[38px] leading-[1.06] font-semibold tracking-[-0.035em] sm:text-[48px]">
             Üç program. <span className="text-brand">Aynı yöntem:</span> birebir.

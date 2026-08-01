@@ -13,7 +13,7 @@ export default function NotFound() {
     <div className="flex min-h-screen flex-col bg-white">
       <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
 
-      <main className="mx-auto flex w-full max-w-[1240px] flex-1 flex-col justify-center px-8 py-24">
+      <main className="mx-auto flex w-full max-w-[1240px] flex-1 flex-col justify-center px-5 sm:px-8 py-24">
         <span className="font-mono text-[11px] tracking-[0.16em] text-brand uppercase">404</span>
         <h1 className="mt-4 max-w-[620px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[46px]">
           Aradığın sayfayı bulamadık.

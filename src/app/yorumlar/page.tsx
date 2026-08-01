@@ -20,7 +20,7 @@ export default async function YorumlarPage() {
       <AnnouncementBar />
       <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
 
-      <section className="mx-auto max-w-[1240px] px-8 pt-16 pb-10">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-10">
         <SectionKicker>Katılımcı yorumları</SectionKicker>
         <h1 className="mt-[18px] max-w-[640px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[46px]">
           Eğitimden sonra ne değişti

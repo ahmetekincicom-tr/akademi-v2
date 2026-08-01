@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { MobilMenu } from "./MobilMenu";
 
 export type NavItem = { label: string; href: string };
 
+/**
+ * Stays a server component: <Logo> is async and reads the uploaded brand mark,
+ * so marking this file "use client" would drag it into the browser bundle where
+ * it cannot hydrate — and the header would render but never respond. The mobile
+ * toggle lives in its own client component instead.
+ */
 export function PublicHeader({
   nav,
   ctaLabel,
@@ -16,8 +23,9 @@ export function PublicHeader({
 }) {
   return (
     <header className="sticky top-0 z-60 border-b border-ink/9 bg-white/90 backdrop-blur-[14px]">
-      <div className="mx-auto flex h-[74px] max-w-[1240px] items-center justify-between gap-8 px-8">
+      <div className="mx-auto flex h-[74px] max-w-[1240px] items-center justify-between gap-8 px-5 sm:px-8">
         <Logo href={logoHref} />
+
         <nav className="hidden items-center gap-[26px] lg:flex">
           {nav.map((item) => (
             <Link
@@ -42,6 +50,8 @@ export function PublicHeader({
             {ctaLabel}
           </Link>
         </nav>
+
+        <MobilMenu nav={nav} ctaLabel={ctaLabel} ctaHref={ctaHref} />
       </div>
     </header>
   );

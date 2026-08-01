@@ -39,7 +39,7 @@ export default function HakkimizdaPage() {
           }}
         />
         <div className="absolute -top-40 -right-20 h-[520px] w-[520px] rounded-full bg-brand opacity-18 blur-[120px]" />
-        <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-16 px-8 pt-20 pb-24 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-16 px-5 sm:px-8 pt-20 pb-24 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <SectionKicker tone="light">Hakkımızda</SectionKicker>
             <h1 className="mt-[18px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[48px]">
@@ -59,7 +59,7 @@ export default function HakkimizdaPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 py-20">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           {[...egitmenStats, { n: "1:1", t: "her programda tek katılımcı" }].map((s) => (
             <div key={s.t}>
@@ -71,7 +71,7 @@ export default function HakkimizdaPage() {
       </section>
 
       <section className="border-y border-ink/8 bg-mist">
-        <div className="mx-auto max-w-[1240px] px-8 py-20">
+        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
           <SectionKicker>Değerlerimiz</SectionKicker>
           <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
             Nasıl çalıştığımızı belirleyen dört ilke
@@ -88,7 +88,7 @@ export default function HakkimizdaPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 py-20">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
         <SectionKicker>Yolculuk</SectionKicker>
         <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
           2021&apos;den bugüne
@@ -104,7 +104,7 @@ export default function HakkimizdaPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1240px] px-8 pt-4 pb-24">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-4 pb-24">
         <div className="grid grid-cols-1 overflow-hidden rounded-[18px] border border-ink/11 md:grid-cols-[300px_1fr]">
           <div className="placeholder-block flex min-h-[280px] items-end p-4">
             <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">eğitmen portresi</span>

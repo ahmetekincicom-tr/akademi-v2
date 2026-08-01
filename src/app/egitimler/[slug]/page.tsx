@@ -56,7 +56,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           }}
         />
         <div className="absolute -top-45 -right-25 h-[600px] w-[600px] rounded-full bg-brand opacity-18 blur-[120px]" />
-        <div className="relative mx-auto max-w-[1240px] px-8 pt-9 pb-22">
+        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-9 pb-22">
           <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.08em] text-white/45">
             <Link href="/" className="text-white/45 hover:text-white">
               Ana sayfa
@@ -103,7 +103,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         </div>
       </section>
 
-      <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-8 lg:grid-cols-[1fr_380px]">
+      <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 lg:grid-cols-[1fr_380px]">
         <main className="min-w-0 py-20 pb-24">
           <section>
             <SectionKicker>Kazanımlar</SectionKicker>
@@ -298,7 +298,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
       <CorporateStrip text="Bu programı ekibiniz için özelleştirelim." />
 
-      <section className="mx-auto max-w-[1240px] px-8 pt-22 pb-24">
+      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-22 pb-24">
         <div className="mb-9 flex flex-wrap items-end justify-between gap-6">
           <h2 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
             Diğer programlar

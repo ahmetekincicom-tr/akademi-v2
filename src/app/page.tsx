@@ -177,7 +177,7 @@ export default async function HomePage() {
           }}
         />
         <div className="absolute -top-40 -right-30 h-[620px] w-[620px] rounded-full bg-brand opacity-20 blur-[120px]" />
-        <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-8 pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div className="animate-rise">
             <div className="inline-flex h-8 items-center gap-[10px] rounded-full border border-brand/55 bg-brand/14 px-[14px] font-mono text-[11px] tracking-[0.14em] text-[#A9C0FF] uppercase">
               <span className="h-[6px] w-[6px] rounded-full bg-brand" />
@@ -212,17 +212,18 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
-          <div className="relative pb-24">
+          <div className="relative pb-10 lg:pb-24">
             <div className="placeholder-block-dark relative flex aspect-[4/5] items-end overflow-hidden rounded-[18px] p-[22px]">
               <span className="rounded-[7px] bg-ink/72 px-[11px] py-[7px] font-mono text-[11px] tracking-[0.08em] text-white/60">
                 ahmet ekinci — portre / dikey
               </span>
             </div>
-            <div className="animate-float absolute bottom-[130px] -left-[34px] rounded-[13px] bg-white px-[18px] py-4 text-ink shadow-[0_20px_44px_rgba(0,0,0,0.34)]">
+            {/* Mobilde portrenin altında akar; lg'de tasarımdaki gibi üzerine yüzer. */}
+            <div className="animate-float mt-4 rounded-[13px] bg-white px-[18px] py-4 text-ink shadow-[0_20px_44px_rgba(0,0,0,0.34)] lg:absolute lg:bottom-[130px] lg:-left-[34px] lg:mt-0">
               <div className="font-mono text-[10px] tracking-[0.14em] text-[#6B7080] uppercase">Ders formatı</div>
               <div className="mt-[6px] text-[15px] font-semibold">Canlı · 1 eğitmen · 1 katılımcı</div>
             </div>
-            <div className="animate-float-delay absolute right-[-18px] bottom-[52px] rounded-[13px] bg-brand px-[18px] py-4 text-white shadow-[0_20px_44px_rgba(28,86,243,0.4)]">
+            <div className="animate-float-delay mt-3 rounded-[13px] bg-brand px-[18px] py-4 text-white shadow-[0_20px_44px_rgba(28,86,243,0.4)] lg:absolute lg:right-[-18px] lg:bottom-[52px] lg:mt-0">
               {/* Marka mavisi üstünde AA eşiği white/85; altındaki tonlar kalıyor. */}
               <div className="font-mono text-[10px] tracking-[0.14em] text-white/90 uppercase">Ders sonrası</div>
               <div className="mt-[6px] text-[15px] font-semibold">Ömür boyu soru-cevap</div>
@@ -230,7 +231,7 @@ export default async function HomePage() {
           </div>
         </div>
         <div className="relative mt-[-40px] overflow-hidden border-t border-white/9">
-          <div className="mx-auto flex max-w-[1240px] items-center gap-8 px-8 py-[22px]">
+          <div className="mx-auto flex max-w-[1240px] flex-col gap-3 px-5 py-[22px] sm:flex-row sm:items-center sm:gap-8 sm:px-8">
             <span className="font-mono text-[10.5px] tracking-[0.16em] whitespace-nowrap text-white/55 uppercase">
               Çalıştığımız platformlar
             </span>
@@ -256,10 +257,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Logos */}
+      {/* Logos — logo yüklenmemişse boş bir şerit bırakmak yerine hiç çizme. */}
+      {logos.length > 0 && (
       <section className="border-b border-ink/8 bg-mist">
-        <div className="mx-auto flex max-w-[1240px] items-center gap-10 px-8 py-[34px]">
-          <span className="max-w-[150px] font-mono text-[10.5px] leading-[1.6] tracking-[0.16em] text-[#656B7A] uppercase">
+        <div className="mx-auto flex max-w-[1240px] flex-col gap-4 px-5 py-[34px] sm:flex-row sm:items-center sm:gap-10 sm:px-8">
+          <span className="font-mono text-[10.5px] leading-[1.6] tracking-[0.16em] text-[#656B7A] uppercase sm:max-w-[150px]">
             Eğitimlerimizi tercih eden kuruluşlar
           </span>
           <div
@@ -277,9 +279,10 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* Programs */}
-      <section id="egitimler" className="mx-auto max-w-[1240px] px-8 pt-26 pb-24">
+      <section id="egitimler" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-10">
           <div>
             <SectionKicker>Programlar</SectionKicker>
@@ -347,7 +350,7 @@ export default async function HomePage() {
       {/* Neden birebir */}
       <section id="neden" className="relative overflow-hidden bg-ink text-white">
         <div className="absolute -bottom-55 -left-35 h-[560px] w-[560px] rounded-full bg-brand opacity-16 blur-[130px]" />
-        <div className="relative mx-auto max-w-[1240px] px-8 py-26">
+        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 py-26">
           <div className="flex flex-wrap items-end justify-between gap-12">
             <div className="max-w-[620px]">
               <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.16em] text-[#7FA0FF] uppercase">
@@ -381,7 +384,7 @@ export default async function HomePage() {
       </section>
 
       {/* Süreç */}
-      <section id="surec" className="mx-auto max-w-[1240px] px-8 pt-26 pb-24">
+      <section id="surec" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
         <SectionKicker>Süreç</SectionKicker>
         <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[44px]">
           Kayıttan sonra nasıl ilerliyoruz
@@ -404,7 +407,7 @@ export default async function HomePage() {
 
       {/* Üye alanı preview */}
       <section id="panel" className="border-y border-ink/8 bg-mist">
-        <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-16 px-8 py-24 lg:grid-cols-[0.95fr_1.05fr]">
+        <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-16 px-5 sm:px-8 py-24 lg:grid-cols-[0.95fr_1.05fr]">
           <div>
             <SectionKicker>Üye alanı</SectionKicker>
             <h2 className="mt-[18px] font-heading text-[32px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[42px]">
@@ -472,7 +475,7 @@ export default async function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section id="yorumlar" className="mx-auto max-w-[1240px] px-8 pt-26 pb-24">
+      <section id="yorumlar" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-10">
           <div>
             <SectionKicker>Katılımcı yorumları</SectionKicker>
@@ -494,7 +497,7 @@ export default async function HomePage() {
       <CorporateStrip text="Ekibinize özel, yerinde ya da uzaktan dijital pazarlama eğitimi." />
 
       {/* FAQ */}
-      <section className="mx-auto grid max-w-[1240px] grid-cols-1 gap-18 px-8 py-26 lg:grid-cols-[0.75fr_1.25fr]">
+      <section className="mx-auto grid max-w-[1240px] grid-cols-1 gap-18 px-5 sm:px-8 py-26 lg:grid-cols-[0.75fr_1.25fr]">
         <div>
           <SectionKicker>SSS</SectionKicker>
           <h2 className="mt-[18px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
@@ -513,7 +516,7 @@ export default async function HomePage() {
       {/* Closing CTA */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute -top-45 right-[10%] h-[520px] w-[520px] rounded-full bg-brand opacity-22 blur-[120px]" />
-        <div className="relative mx-auto flex max-w-[1240px] flex-wrap items-end justify-between gap-14 px-8 py-26">
+        <div className="relative mx-auto flex max-w-[1240px] flex-wrap items-end justify-between gap-14 px-5 sm:px-8 py-26">
           <h2 className="max-w-[660px] font-heading text-[32px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[48px]">
             Hangi programın size uyduğunu <span className="text-brand">konuşarak</span> bulalım.
           </h2>

@@ -73,7 +73,7 @@ const YASAL_LINKLER = [
 export function PublicFooter() {
   return (
     <footer className="border-t border-white/10 bg-ink text-white/60">
-      <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-12 px-8 py-16 pb-7 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-12 px-5 sm:px-8 py-16 pb-7 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
         <div>
           <Logo variant="light" />
           <p className="mt-[18px] max-w-[280px] text-[14.5px] leading-[1.65]">
@@ -145,7 +145,7 @@ export function PublicFooter() {
           </div>
         ))}
       </div>
-      <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-6 border-t border-white/10 px-8 py-[22px] pb-10 text-[13px]">
+      <div className="mx-auto flex max-w-[1240px] flex-wrap items-center justify-between gap-6 border-t border-white/10 px-5 sm:px-8 py-[22px] pb-10 text-[13px]">
         <span>© 2021–2026 Ahmet Ekinci Akademi. Tüm hakları saklıdır.</span>
         <div className="flex flex-wrap gap-x-[22px] gap-y-2">
           {YASAL_LINKLER.map((l) => (

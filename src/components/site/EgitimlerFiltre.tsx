@@ -16,7 +16,7 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
       : courses.filter((c) => (tab === "Online" ? c.online : tab === "Yüz yüze" ? c.yuzYuze : true));
 
   return (
-    <section className="mx-auto max-w-[1240px] px-8 py-16 pb-24">
+    <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-16 pb-24">
       <div className="flex flex-wrap gap-2">
         {tabs.map((t) => {
           const secili = tab === t;
