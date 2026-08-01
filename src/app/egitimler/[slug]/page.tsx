@@ -67,11 +67,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 <div
                   className={
                     icerik.duyuruStili === "koyu"
-                      ? "duyuru-koyu mb-7 inline-block max-w-full px-[22px] py-[15px]"
+                      ? "duyuru-koyu mb-7 inline-block max-w-full"
                       : "duyuru-parlak mb-7 inline-block max-w-full rounded-[13px] px-[18px] py-[13px]"
                   }
                 >
-                  <span className="text-[14px] leading-[1.45] font-semibold tracking-[-0.01em] sm:text-[15.5px]">
+                  <span
+                    className={
+                      icerik.duyuruStili === "koyu"
+                        ? ""
+                        : "text-[14px] leading-[1.45] font-semibold tracking-[-0.01em] sm:text-[15.5px]"
+                    }
+                  >
                     {icerik.kayitDuyurusu}
                   </span>
                 </div>

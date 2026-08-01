@@ -265,12 +265,32 @@
 }
 
 /* --- Duyuru: koyu varyant ---
-   Kaynak bileşenin (shiny-cta) sadık portu: siyah gövde, hap biçimi, kenarda
-   dolaşan konik degrade, üstüne nokta deseni ve içeriden geçen bir parıltı.
-   Kaynaktaki hover durumları alınmadı; bu tıklanabilir bir düğme değil. */
+   Kaynak bileşenin (shiny-cta) birebir portu. Değerler kaynaktaki gibi
+   bırakıldı: vurgu rengi `blue` (#0000FF) — marka mavimiz #1C56F3 siyah
+   üzerinde çok parlak kalıp gövdeyi maviye boyuyor. Ölçüler de kaynaktaki
+   gibi rem cinsinden; kutunun düğme oranlarını koruması bu efektin
+   geometrisi için önemli. */
 @property --duyuru-aci-2 {
   syntax: "<angle>";
   initial-value: 0deg;
+  inherits: false;
+}
+
+@property --duyuru-aci-fark {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@property --duyuru-yuzde {
+  syntax: "<percentage>";
+  initial-value: 5%;
+  inherits: false;
+}
+
+@property --duyuru-parlak {
+  syntax: "<color>";
+  initial-value: white;
   inherits: false;
 }
 
@@ -297,28 +317,39 @@
 }
 
 .duyuru-koyu {
-  --duyuru-yuzde: 6%;
   --duyuru-zemin: #000000;
-  --duyuru-vurgu: var(--color-brand);
-  position: relative;
+  --duyuru-zemin-ince: #1a1818;
+  --duyuru-vurgu: blue;
+  --duyuru-vurgu-ince: #8484ff;
+  --duyuru-sure: 3s;
+  --duyuru-golge: 2px;
+  --duyuru-gecis: 800ms cubic-bezier(0.25, 1, 0.5, 1);
+
   isolation: isolate;
+  position: relative;
   overflow: hidden;
+  outline-offset: 4px;
+  padding: 1.25rem 2.5rem;
+  font-size: 1.125rem;
+  line-height: 1.2;
+  font-weight: 500;
   border: 1px solid transparent;
   border-radius: 360px;
   color: #ffffff;
   background:
     linear-gradient(var(--duyuru-zemin), var(--duyuru-zemin)) padding-box,
     conic-gradient(
-        from var(--duyuru-aci-2),
+        from calc(var(--duyuru-aci-2) - var(--duyuru-aci-fark)),
         transparent,
         var(--duyuru-vurgu) var(--duyuru-yuzde),
-        #ffffff calc(var(--duyuru-yuzde) * 2),
+        var(--duyuru-parlak) calc(var(--duyuru-yuzde) * 2),
         var(--duyuru-vurgu) calc(var(--duyuru-yuzde) * 3),
         transparent calc(var(--duyuru-yuzde) * 4)
       )
       border-box;
-  box-shadow: inset 0 0 0 1px #1a1818;
-  animation: aea-duyuru-donus-2 4s linear infinite;
+  box-shadow: inset 0 0 0 1px var(--duyuru-zemin-ince);
+  transition: var(--duyuru-gecis);
+  transition-property: --duyuru-aci-fark, --duyuru-yuzde, --duyuru-parlak;
 }
 
 .duyuru-koyu::before,
@@ -333,18 +364,21 @@
   z-index: -1;
 }
 
-/* Nokta dokusu — konik bir maskeyle turun tersinden aydınlanır. */
+/* Nokta dokusu */
 .duyuru-koyu::before {
-  --nokta: 2px;
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
-  background: radial-gradient(circle at var(--nokta) var(--nokta), #ffffff calc(var(--nokta) / 4), transparent 0)
+  --boyut: calc(100% - var(--duyuru-golge) * 3);
+  --konum: 2px;
+  --aralik: calc(var(--konum) * 2);
+  width: var(--boyut);
+  height: var(--boyut);
+  background: radial-gradient(circle at var(--konum) var(--konum), white calc(var(--konum) / 4), transparent 0)
     padding-box;
-  background-size: calc(var(--nokta) * 2) calc(var(--nokta) * 2);
+  background-size: var(--aralik) var(--aralik);
   background-repeat: space;
   mask-image: conic-gradient(from calc(var(--duyuru-aci-2) + 45deg), black, transparent 10% 90%, black);
   border-radius: inherit;
   opacity: 0.4;
+  z-index: -1;
 }
 
 /* İçeriden geçen parıltı */
@@ -353,10 +387,7 @@
   aspect-ratio: 1;
   background: linear-gradient(-50deg, transparent, var(--duyuru-vurgu), transparent);
   mask-image: radial-gradient(circle at bottom, transparent 40%, black);
-  /* Kaynakta bu düğme dar; bizim şerit çok daha geniş olduğu için aynı
-     opaklıkta parıltı bütün gövdeyi maviye boyuyordu. */
-  opacity: 0.22;
-  animation: aea-duyuru-parilti 10s linear infinite;
+  opacity: 0.6;
 }
 
 .duyuru-koyu > span {
@@ -364,13 +395,44 @@
   z-index: 1;
 }
 
-/* Kaynakta bu gölge opacity:0 ile durur ve yalnızca hover'da açılır. Hover
-   durumlarını almadığımız için burada düşük sabit bir opaklıkla duruyor —
-   tam opaklıkta gövdeyi tamamen maviye boyuyor. */
 .duyuru-koyu > span::before {
-  width: calc(100% + 1rem);
-  height: calc(100% + 1rem);
+  --boyut: calc(100% + 1rem);
+  width: var(--boyut);
+  height: var(--boyut);
   box-shadow: inset 0 -1ex 2rem 4px var(--duyuru-vurgu);
-  opacity: 0.32;
-  animation: aea-duyuru-nefes 6s linear infinite;
+  opacity: 0;
+  transition: opacity var(--duyuru-gecis);
+  animation: calc(var(--duyuru-sure) * 1.5) aea-duyuru-nefes linear infinite;
+}
+
+.duyuru-koyu,
+.duyuru-koyu::before,
+.duyuru-koyu::after {
+  animation:
+    aea-duyuru-donus-2 var(--duyuru-sure) linear infinite,
+    aea-duyuru-donus-2 calc(var(--duyuru-sure) / 0.4) linear infinite reverse paused;
+  animation-composition: add;
+}
+
+.duyuru-koyu::after {
+  animation:
+    aea-duyuru-parilti var(--duyuru-sure) linear infinite,
+    aea-duyuru-parilti calc(var(--duyuru-sure) / 0.4) linear infinite reverse paused;
+  animation-composition: add;
+}
+
+.duyuru-koyu:is(:hover, :focus-visible) {
+  --duyuru-yuzde: 20%;
+  --duyuru-aci-fark: 95deg;
+  --duyuru-parlak: var(--duyuru-vurgu-ince);
+}
+
+.duyuru-koyu:is(:hover, :focus-visible),
+.duyuru-koyu:is(:hover, :focus-visible)::before,
+.duyuru-koyu:is(:hover, :focus-visible)::after {
+  animation-play-state: running;
+}
+
+.duyuru-koyu:is(:hover, :focus-visible) > span::before {
+  opacity: 1;
 }

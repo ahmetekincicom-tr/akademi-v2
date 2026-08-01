@@ -107,10 +107,8 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
 
                     <div className="mt-3 rounded-[11px] bg-ink p-5">
                       {se.deger === "koyu" ? (
-                        <div className="duyuru-koyu inline-block max-w-full px-[22px] py-[15px]">
-                          <span className="text-[14.5px] leading-[1.45] font-semibold tracking-[-0.01em]">
-                            {form.kayitDuyurusu}
-                          </span>
+                        <div className="duyuru-koyu inline-block max-w-full">
+                          <span>{form.kayitDuyurusu}</span>
                         </div>
                       ) : (
                         <div className="duyuru-parlak inline-block max-w-full rounded-[13px] px-[18px] py-[13px]">
