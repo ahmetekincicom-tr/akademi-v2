@@ -353,7 +353,9 @@
   aspect-ratio: 1;
   background: linear-gradient(-50deg, transparent, var(--duyuru-vurgu), transparent);
   mask-image: radial-gradient(circle at bottom, transparent 40%, black);
-  opacity: 0.6;
+  /* Kaynakta bu düğme dar; bizim şerit çok daha geniş olduğu için aynı
+     opaklıkta parıltı bütün gövdeyi maviye boyuyordu. */
+  opacity: 0.22;
   animation: aea-duyuru-parilti 10s linear infinite;
 }
 
@@ -362,9 +364,13 @@
   z-index: 1;
 }
 
+/* Kaynakta bu gölge opacity:0 ile durur ve yalnızca hover'da açılır. Hover
+   durumlarını almadığımız için burada düşük sabit bir opaklıkla duruyor —
+   tam opaklıkta gövdeyi tamamen maviye boyuyor. */
 .duyuru-koyu > span::before {
   width: calc(100% + 1rem);
   height: calc(100% + 1rem);
   box-shadow: inset 0 -1ex 2rem 4px var(--duyuru-vurgu);
+  opacity: 0.32;
   animation: aea-duyuru-nefes 6s linear infinite;
 }
