@@ -27,7 +27,12 @@ export async function girisYap(formData: FormData) {
     redirect(`/admin/giris?hata=yetki&next=${encodeURIComponent(next)}`);
   }
 
-  await oturumKaydet();
+  // Giriş kaydı yan iş; başarısız olsa da yönlendirmeyi engellememeli.
+  try {
+    await oturumKaydet();
+  } catch (e) {
+    console.error("[admin giris] oturum kaydı yazılamadı:", e);
+  }
 
   redirect(next.startsWith("/admin") ? next : "/admin");
 }

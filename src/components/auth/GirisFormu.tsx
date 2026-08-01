@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { CheckToggle } from "@/components/auth/CheckToggle";
 import { createClient } from "@/lib/supabase/client";
 import { oturumKaydet } from "@/app/oturum-actions";
@@ -14,33 +13,49 @@ import { oturumKaydet } from "@/app/oturum-actions";
  * once ended up blank.
  */
 export function GirisFormu({ hedef }: { hedef: string }) {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const [remember, setRemember] = useState(true);
-  const [hata, setHata] = useState(false);
+  const [hata, setHata] = useState<string | null>(null);
   const [yukleniyor, setYukleniyor] = useState(false);
 
   const handleSubmit = async () => {
     if (!email || !password) {
-      setHata(true);
+      setHata("E-posta ve şifre alanlarını doldur.");
       return;
     }
     setYukleniyor(true);
-    setHata(false);
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
+    setHata(null);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setYukleniyor(false);
+        setHata(
+          error.message === "Invalid login credentials"
+            ? "E-posta veya şifre hatalı. Şifreni hatırlamıyorsan sıfırlama bağlantısı isteyebilirsin."
+            : error.message,
+        );
+        return;
+      }
+
+      // Giriş kaydı bir yan iş. Tablo yoksa veya bu çağrı düşerse giriş yine de
+      // tamamlanmalı — burada beklenmeyen bir hata girişi engellemesin.
+      try {
+        await oturumKaydet();
+      } catch (e) {
+        console.error("[giris] oturum kaydı yazılamadı:", e);
+      }
+
+      // Tam sayfa geçişi: yeni yazılan oturum çerezi ilk istekte sunucuya gider,
+      // böylece proxy oturumu göremeyip girişe geri atmaz.
+      window.location.assign(hedef);
+    } catch (e) {
       setYukleniyor(false);
-      setHata(true);
-      return;
+      setHata(e instanceof Error ? e.message : "Beklenmeyen bir hata oldu. Tekrar dene.");
     }
-    // Oturum çerezi yazıldıktan sonra: IP ve konumu sunucu kendi okur.
-    await oturumKaydet();
-    setYukleniyor(false);
-    router.push(hedef);
-    router.refresh();
   };
 
   return (
@@ -53,9 +68,7 @@ export function GirisFormu({ hedef }: { hedef: string }) {
             <span className="flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-danger text-[11px] font-bold text-white">
               !
             </span>
-            <span className="text-sm leading-[1.5] text-danger-ink">
-              E-posta veya şifre hatalı. Şifreni hatırlamıyorsan sıfırlama bağlantısı isteyebilirsin.
-            </span>
+            <span className="text-sm leading-[1.5] text-danger-ink">{hata}</span>
           </div>
         )}
 
