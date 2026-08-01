@@ -41,9 +41,11 @@ export default async function ReferanslarPage() {
 
       <section className="border-y border-ink/8 bg-mist">
         <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-14">
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+          {/* Hücre ne kadar dar olursa geniş yazı logoları o kadar küçülüyor
+              (max-w yüzde tarafına takılıyor). Mobilde üç değil iki sütun. */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {referanslar.map((r) => (
-              <ReferansLogo key={r.id} referans={r} className="h-[64px]" />
+              <ReferansLogo key={r.id} referans={r} className="h-[64px] px-4" />
             ))}
           </div>
         </div>

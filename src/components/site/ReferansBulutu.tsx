@@ -32,8 +32,9 @@ export function ReferansBulutu({ referanslar }: { referanslar: Referans[] }) {
               <ReferansLogo
                 key={`${r.id}-${i}`}
                 referans={r}
-                className="h-[54px] w-[140px] flex-none sm:h-[58px] sm:w-[156px]"
+                className="h-[62px] min-w-[148px] flex-none px-7 sm:h-[66px] sm:px-8"
                 ariaGizli={i >= referanslar.length}
+                gri
               />
             ))}
           </div>
