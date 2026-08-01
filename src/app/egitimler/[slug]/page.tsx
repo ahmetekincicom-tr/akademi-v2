@@ -6,6 +6,7 @@ import { PublicFooter } from "@/components/site/PublicFooter";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
+import { HeroHizliBilgi } from "@/components/site/HeroHizliBilgi";
 import { getCourseBySlug, kutuNot } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 
@@ -73,14 +74,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 Birebir <span className="text-brand">{course.baslikVurgu}</span> {course.slug === "meta-business" ? "Eğitimi" : ""}
               </h1>
               <p className="mt-6 max-w-[560px] text-[19px] leading-[1.62] text-white/68">{course.heroAciklama}</p>
-              <div className="mt-11 grid grid-cols-2 gap-9 sm:grid-cols-4">
-                {course.hizli.map((h) => (
-                  <div key={h.etiket}>
-                    <div className="font-mono text-[10px] tracking-[0.14em] text-white/55 uppercase">{h.etiket}</div>
-                    <div className="mt-2 font-heading text-[21px] font-semibold tracking-[-0.02em]">{h.deger}</div>
-                  </div>
-                ))}
-              </div>
+              <HeroHizliBilgi bilgiler={course.hizli} />
             </div>
             <div className="placeholder-block-dark relative flex aspect-[4/3] items-end overflow-hidden rounded-2xl p-5">
               <span className="rounded-[7px] bg-ink/72 px-[11px] py-[7px] font-mono text-[11px] tracking-[0.08em] text-white/60">
