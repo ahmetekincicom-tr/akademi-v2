@@ -106,8 +106,32 @@ export function GorusmeGorunumu({
           </div>
           <div className="mt-2 text-[13px] text-[#8A8F9E]">
             {ayarlar.sureDk} dakika · birebir
+            {!hak.sonrakiUcretli && ayarlar.ucret > 0 && (
+              <span className="mt-[3px] block">Hakların bitince {para(ayarlar.ucret)}</span>
+            )}
           </div>
         </div>
+      </div>
+
+      {/* Ücretlendirme her zaman görünür: ödeme bilgisi yalnızca borç doğunca
+          ortaya çıkarsa öğrenci ne ödeyeceğini önceden bilemez. */}
+      <div className="mt-4 rounded-2xl border border-ink/10 bg-white p-5">
+        <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">
+          Ücretlendirme ve ödeme
+        </div>
+        <p className="mt-[10px] text-[14px] leading-[1.7] text-[#5C6273]">
+          Her katılımcının {ayarlar.ucretsizHak} ücretsiz birebir görüşme hakkı var. Hakların bittikten sonra her
+          görüşme {ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} olarak planlanır ve {ayarlar.sureDk} dakika
+          sürer. İptal ettiğin talepler hakkından düşmez.
+        </p>
+        {ayarlar.odemeAciklamasi && (
+          <div className="mt-4 rounded-[11px] bg-mist px-4 py-[14px]">
+            <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#8A8F9E] uppercase">Ödeme bilgileri</div>
+            <p className="mt-2 text-[13.5px] leading-[1.7] whitespace-pre-line text-[#3A3F4F]">
+              {ayarlar.odemeAciklamasi}
+            </p>
+          </div>
+        )}
       </div>
 
       {!ayarlar.aktif && (

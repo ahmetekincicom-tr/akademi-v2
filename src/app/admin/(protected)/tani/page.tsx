@@ -69,6 +69,10 @@ export default async function TaniPage() {
     { ad: "iletisim_mesajlari", faz: "Faz 3" },
     { ad: "yorumlar", faz: "Faz 4" },
     { ad: "referanslar", faz: "Faz 4" },
+    { ad: "yasal_sayfalar", faz: "Faz 5" },
+    { ad: "marka", faz: "Faz 6" },
+    { ad: "gorusmeler", faz: "Faz 7" },
+    { ad: "gorusme_ayarlari", faz: "Faz 7" },
   ];
 
   const tabloDurumu: Satir[] = [];
@@ -159,6 +163,64 @@ export default async function TaniPage() {
     };
   }
 
+  // --- Görüşme ayarları: admin panelinde kaydedilen değer gerçekten yazıldı mı,
+  // ve öğrenci panelinin okuduğu satır bu mu? İkisini de göster.
+  const { data: ayarSatir, error: ayarHata } = await admin
+    .from("gorusme_ayarlari")
+    .select("ucretsiz_hak, ucret, sure_dk, odeme_aciklamasi, aktif, updated_at")
+    .maybeSingle();
+
+  const gorusmeTani: Satir[] = [
+    {
+      ad: "gorusme_ayarlari satırı",
+      durum: ayarHata ? "hata" : ayarSatir ? "ok" : "hata",
+      deger: ayarHata ? `HATA: ${ayarHata.message}` : ayarSatir ? "okunuyor" : "satır yok",
+      not: !ayarHata && !ayarSatir ? "Migration çalıştırılmamış; panel koddaki varsayılanları gösterir." : undefined,
+    },
+  ];
+
+  if (ayarSatir) {
+    gorusmeTani.push(
+      { ad: "ucretsiz_hak", durum: "ok", deger: String(ayarSatir.ucretsiz_hak) },
+      { ad: "ucret", durum: "ok", deger: String(ayarSatir.ucret) },
+      { ad: "sure_dk", durum: "ok", deger: String(ayarSatir.sure_dk) },
+      { ad: "aktif", durum: ayarSatir.aktif ? "ok" : "uyari", deger: String(ayarSatir.aktif) },
+      {
+        ad: "odeme_aciklamasi",
+        durum: ayarSatir.odeme_aciklamasi ? "ok" : "uyari",
+        deger: ayarSatir.odeme_aciklamasi ? `${ayarSatir.odeme_aciklamasi.length} karakter` : "boş",
+        not: ayarSatir.odeme_aciklamasi ? undefined : "Öğrenci ödeme talimatı göremez.",
+      },
+      {
+        ad: "son güncelleme",
+        durum: "ok",
+        deger: String(ayarSatir.updated_at),
+        not: "Kaydet'e bastıktan sonra bu zaman değişmiyorsa yazma işlemi geçmiyor demektir.",
+      },
+    );
+
+    // Aynı satırı zararsız biçimde geri yaz: RLS engelliyorsa 0 satır döner.
+    const { data: ayarYazma, error: ayarYazmaHata } = await admin
+      .from("gorusme_ayarlari")
+      .update({ ucretsiz_hak: ayarSatir.ucretsiz_hak })
+      .eq("id", true)
+      .select("id");
+
+    gorusmeTani.push({
+      ad: "Ayar yazma yetkisi",
+      durum: ayarYazmaHata ? "hata" : (ayarYazma?.length ?? 0) > 0 ? "ok" : "hata",
+      deger: ayarYazmaHata
+        ? `HATA: ${ayarYazmaHata.message}`
+        : (ayarYazma?.length ?? 0) > 0
+          ? "yazabiliyor"
+          : "0 satır — RLS engelliyor",
+      not:
+        !ayarYazmaHata && (ayarYazma?.length ?? 0) === 0
+          ? "Hak ve ücret ayarları bu yüzden kaydedilmiyor."
+          : undefined,
+    });
+  }
+
   const env: Satir[] = [
     {
       ad: "NEXT_PUBLIC_SUPABASE_URL",
@@ -186,6 +248,7 @@ export default async function TaniPage() {
 
       <Bolum baslik="Kimlik ve yetki" satirlar={[...satirlar, yazmaDurum]} />
       <Bolum baslik="Eğitim verisi" satirlar={kurs} />
+      <Bolum baslik="Görüşme ayarları (öğrenci panelinin okuduğu satır)" satirlar={gorusmeTani} />
       <Bolum baslik="Tablolar (hangi migration uygulanmış)" satirlar={tabloDurumu} />
       <Bolum baslik="Ortam değişkenleri" satirlar={env} />
     </main>

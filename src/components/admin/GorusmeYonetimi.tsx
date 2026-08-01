@@ -88,7 +88,24 @@ export function GorusmeYonetimi({
         </div>
       )}
 
-      {ayarAcik && <AyarFormu ayarlar={ayarlar} islemde={islemde} calistir={calistir} />}
+      {!ayarlar.okundu && (
+        <div className="mt-5 rounded-[11px] border border-danger/35 bg-danger/7 px-4 py-3 text-[13.5px] text-danger-ink">
+          Ayarlar veritabanından okunamadı — aşağıda gördüğün değerler koddaki varsayılanlar, gerçek kayıt değil.
+          Görüşme migration&apos;ı çalıştırılmamış olabilir. <strong>/admin/tani</strong> sayfası nedenini söyler.
+        </div>
+      )}
+
+      {ayarAcik && (
+        // Sunucudan gelen değer değişince form yeniden kurulur; böylece kayıt
+        // sessizce başarısız olursa admin kendi yazdığını değil, veritabanındaki
+        // gerçek değeri görür.
+        <AyarFormu
+          key={[ayarlar.ucretsizHak, ayarlar.ucret, ayarlar.sureDk, ayarlar.aktif, ayarlar.odemeAciklamasi].join("|")}
+          ayarlar={ayarlar}
+          islemde={islemde}
+          calistir={calistir}
+        />
+      )}
 
       {!ayarlar.aktif && (
         <div className="mt-5 rounded-[11px] border border-[rgba(201,138,27,0.35)] bg-[rgba(201,138,27,0.08)] px-4 py-3 text-[13.5px] text-[#A5711A]">
@@ -410,6 +427,12 @@ function AyarFormu({
       >
         {islemde ? "Kaydediliyor…" : "Ayarları kaydet"}
       </button>
+
+      <p className="mt-4 border-t border-ink/8 pt-4 font-mono text-[11px] text-[#8A8F9E]">
+        Veritabanında kayıtlı hâli: {ayarlar.ucretsizHak} ücretsiz hak · {para(ayarlar.ucret)} · {ayarlar.sureDk} dk ·
+        talepler {ayarlar.aktif ? "açık" : "kapalı"} · ödeme talimatı{" "}
+        {ayarlar.odemeAciklamasi ? `${ayarlar.odemeAciklamasi.length} karakter` : "boş"}
+      </p>
     </div>
   );
 }

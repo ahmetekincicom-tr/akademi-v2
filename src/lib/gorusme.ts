@@ -28,6 +28,12 @@ export type GorusmeAyarlari = {
   sureDk: number;
   odemeAciklamasi: string;
   aktif: boolean;
+  /**
+   * False when the settings row could not be read. Without this the fallback
+   * values below are indistinguishable from real ones, so a broken read looks
+   * exactly like "admin never changed anything".
+   */
+  okundu: boolean;
 };
 
 export const GORUSME_DURUM_ETIKET: Record<GorusmeDurum, string> = {
@@ -101,10 +107,13 @@ export async function getGorusmeler(client: SupabaseClient): Promise<Gorusme[]> 
 }
 
 export async function getGorusmeAyarlari(client: SupabaseClient): Promise<GorusmeAyarlari> {
-  const { data } = await client
+  const { data, error } = await client
     .from("gorusme_ayarlari")
     .select("ucretsiz_hak, ucret, sure_dk, odeme_aciklamasi, aktif")
     .maybeSingle();
+
+  if (error) console.error("[gorusme] ayarlar okunamadı:", error.message);
+  else if (!data) console.error("[gorusme] ayar satırı yok — migration eksik olabilir.");
 
   return {
     ucretsizHak: data?.ucretsiz_hak ?? 3,
@@ -112,6 +121,7 @@ export async function getGorusmeAyarlari(client: SupabaseClient): Promise<Gorusm
     sureDk: data?.sure_dk ?? 45,
     odemeAciklamasi: data?.odeme_aciklamasi ?? "",
     aktif: data?.aktif ?? true,
+    okundu: Boolean(data),
   };
 }
 
