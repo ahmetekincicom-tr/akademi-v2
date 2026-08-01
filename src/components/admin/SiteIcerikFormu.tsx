@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { siteIcerikKaydet } from "@/app/admin/(protected)/site-icerik/actions";
 import { useBildirim } from "@/components/Bildirim";
-import type { SiteIcerik } from "@/lib/site-icerik";
+import type { SiteIcerik, DuyuruStili } from "@/lib/site-icerik";
 
 const ALAN =
   "h-[46px] rounded-[10px] border border-ink/13 bg-white px-[14px] text-[15px] text-ink outline-none focus:border-brand";
@@ -17,6 +17,7 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
   const [form, setForm] = useState({
     kayitDuyurusu: icerik.kayitDuyurusu,
     kayitDuyurusuAktif: icerik.kayitDuyurusuAktif,
+    duyuruStili: icerik.duyuruStili as DuyuruStili,
     egitmenAd: icerik.egitmenAd,
     egitmenUnvan: icerik.egitmenUnvan,
     egitmenBiyografi: icerik.egitmenBiyografi,
@@ -64,17 +65,67 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
         </label>
 
         {form.kayitDuyurusu && (
-          <div className="mt-5">
-            <div className={ETIKET}>Önizleme</div>
-            <div className="mt-2 rounded-[12px] bg-ink p-6">
-              <div className="duyuru-parlak inline-block max-w-full rounded-[13px] border-2 bg-white px-[18px] py-[13px]">
-                <span className="text-[15.5px] leading-[1.45] font-semibold tracking-[-0.01em] text-ink">
-                  {form.kayitDuyurusu}
-                </span>
-              </div>
-              <div className="mt-4 font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] text-white">
-                Eğitim başlığı buraya gelir
-              </div>
+          <div className="mt-6">
+            <div className={ETIKET}>Görünüm — birini seç</div>
+            <p className="mt-[6px] text-[13px] text-[#5C6273]">
+              İkisi de koyu hero üzerinde gösteriliyor. Kenarındaki ışık her ikisinde de turluyor.
+            </p>
+
+            <div className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {(
+                [
+                  { deger: "acik" as const, ad: "Beyaz kutu", not: "Koyu zeminde en yüksek kontrast." },
+                  { deger: "koyu" as const, ad: "Siyah hap", not: "Verdiğin kaynak tasarımın birebir hâli." },
+                ]
+              ).map((se) => {
+                const secili = form.duyuruStili === se.deger;
+                return (
+                  <button
+                    key={se.deger}
+                    type="button"
+                    onClick={() => setForm({ ...form, duyuruStili: se.deger })}
+                    aria-pressed={secili}
+                    className="rounded-[14px] border-2 p-4 text-left transition"
+                    style={{
+                      borderColor: secili ? "#1C56F3" : "rgba(10,13,24,0.12)",
+                      background: secili ? "rgba(28,86,243,0.05)" : "#FFFFFF",
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[14.5px] font-semibold text-ink">{se.ad}</span>
+                      <span
+                        className="flex h-[18px] w-[18px] items-center justify-center rounded-full border-2"
+                        style={{
+                          borderColor: secili ? "#1C56F3" : "rgba(10,13,24,0.2)",
+                          background: secili ? "#1C56F3" : "transparent",
+                        }}
+                      >
+                        {secili && <span className="h-[6px] w-[6px] rounded-full bg-white" />}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-[12.5px] text-[#5C6273]">{se.not}</div>
+
+                    <div className="mt-3 rounded-[11px] bg-ink p-5">
+                      {se.deger === "koyu" ? (
+                        <div className="duyuru-koyu inline-block max-w-full px-[22px] py-[15px]">
+                          <span className="text-[14.5px] leading-[1.45] font-semibold tracking-[-0.01em]">
+                            {form.kayitDuyurusu}
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="duyuru-parlak inline-block max-w-full rounded-[13px] px-[18px] py-[13px]">
+                          <span className="text-[14.5px] leading-[1.45] font-semibold tracking-[-0.01em] text-ink">
+                            {form.kayitDuyurusu}
+                          </span>
+                        </div>
+                      )}
+                      <div className="mt-3 font-heading text-[20px] leading-[1.15] font-semibold tracking-[-0.03em] text-white">
+                        Eğitim başlığı buraya gelir
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

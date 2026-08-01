@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function siteIcerikKaydet(input: {
   kayitDuyurusu: string;
   kayitDuyurusuAktif: boolean;
+  duyuruStili: string;
   egitmenAd: string;
   egitmenUnvan: string;
   egitmenBiyografi: string;
@@ -18,6 +19,7 @@ export async function siteIcerikKaydet(input: {
     .update({
       kayit_duyurusu: input.kayitDuyurusu.trim() || null,
       kayit_duyurusu_aktif: input.kayitDuyurusuAktif,
+      duyuru_stili: input.duyuruStili === "koyu" ? "koyu" : "acik",
       egitmen_ad: input.egitmenAd.trim(),
       egitmen_unvan: input.egitmenUnvan.trim() || null,
       egitmen_biyografi: input.egitmenBiyografi.trim() || null,

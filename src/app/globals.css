@@ -263,3 +263,108 @@
     aea-duyuru-donus 4s linear infinite,
     aea-duyuru-hale 3.2s ease-in-out infinite;
 }
+
+/* --- Duyuru: koyu varyant ---
+   Kaynak bileşenin (shiny-cta) sadık portu: siyah gövde, hap biçimi, kenarda
+   dolaşan konik degrade, üstüne nokta deseni ve içeriden geçen bir parıltı.
+   Kaynaktaki hover durumları alınmadı; bu tıklanabilir bir düğme değil. */
+@property --duyuru-aci-2 {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes aea-duyuru-donus-2 {
+  to {
+    --duyuru-aci-2: 360deg;
+  }
+}
+
+@keyframes aea-duyuru-parilti {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes aea-duyuru-nefes {
+  from,
+  to {
+    scale: 1;
+  }
+  50% {
+    scale: 1.2;
+  }
+}
+
+.duyuru-koyu {
+  --duyuru-yuzde: 6%;
+  --duyuru-zemin: #000000;
+  --duyuru-vurgu: var(--color-brand);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 360px;
+  color: #ffffff;
+  background:
+    linear-gradient(var(--duyuru-zemin), var(--duyuru-zemin)) padding-box,
+    conic-gradient(
+        from var(--duyuru-aci-2),
+        transparent,
+        var(--duyuru-vurgu) var(--duyuru-yuzde),
+        #ffffff calc(var(--duyuru-yuzde) * 2),
+        var(--duyuru-vurgu) calc(var(--duyuru-yuzde) * 3),
+        transparent calc(var(--duyuru-yuzde) * 4)
+      )
+      border-box;
+  box-shadow: inset 0 0 0 1px #1a1818;
+  animation: aea-duyuru-donus-2 4s linear infinite;
+}
+
+.duyuru-koyu::before,
+.duyuru-koyu::after,
+.duyuru-koyu > span::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  translate: -50% -50%;
+  z-index: -1;
+}
+
+/* Nokta dokusu — konik bir maskeyle turun tersinden aydınlanır. */
+.duyuru-koyu::before {
+  --nokta: 2px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+  background: radial-gradient(circle at var(--nokta) var(--nokta), #ffffff calc(var(--nokta) / 4), transparent 0)
+    padding-box;
+  background-size: calc(var(--nokta) * 2) calc(var(--nokta) * 2);
+  background-repeat: space;
+  mask-image: conic-gradient(from calc(var(--duyuru-aci-2) + 45deg), black, transparent 10% 90%, black);
+  border-radius: inherit;
+  opacity: 0.4;
+}
+
+/* İçeriden geçen parıltı */
+.duyuru-koyu::after {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(-50deg, transparent, var(--duyuru-vurgu), transparent);
+  mask-image: radial-gradient(circle at bottom, transparent 40%, black);
+  opacity: 0.6;
+  animation: aea-duyuru-parilti 10s linear infinite;
+}
+
+.duyuru-koyu > span {
+  position: relative;
+  z-index: 1;
+}
+
+.duyuru-koyu > span::before {
+  width: calc(100% + 1rem);
+  height: calc(100% + 1rem);
+  box-shadow: inset 0 -1ex 2rem 4px var(--duyuru-vurgu);
+  animation: aea-duyuru-nefes 6s linear infinite;
+}

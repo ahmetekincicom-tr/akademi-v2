@@ -64,8 +64,14 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               {/* Kayıt duyurusu: beyaz kutu, çerçevesi yavaşça mavi yanıp söner.
                   Metni ve görünürlüğü /admin/site-icerik'ten yönetilir. */}
               {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
-                <div className="duyuru-parlak mb-7 inline-block max-w-full rounded-[13px] border-2 bg-white px-[18px] py-[13px]">
-                  <span className="text-[14px] leading-[1.45] font-semibold tracking-[-0.01em] text-ink sm:text-[15.5px]">
+                <div
+                  className={
+                    icerik.duyuruStili === "koyu"
+                      ? "duyuru-koyu mb-7 inline-block max-w-full px-[22px] py-[15px]"
+                      : "duyuru-parlak mb-7 inline-block max-w-full rounded-[13px] px-[18px] py-[13px]"
+                  }
+                >
+                  <span className="text-[14px] leading-[1.45] font-semibold tracking-[-0.01em] sm:text-[15.5px]">
                     {icerik.kayitDuyurusu}
                   </span>
                 </div>
