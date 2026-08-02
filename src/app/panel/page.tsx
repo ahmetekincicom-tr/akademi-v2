@@ -2,9 +2,15 @@ import Link from "next/link";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 import { Icon } from "@/components/Icon";
 import { EgitimlerimKarti } from "@/components/panel/EgitimlerimKarti";
+import { BaslangicAdimlari } from "@/components/panel/BaslangicAdimlari";
+import { getBaslangic } from "@/lib/baslangic";
 
 export default async function PanelOverviewPage() {
-  const [profil, courses] = await Promise.all([getPanelProfile(), getPanelCourses()]);
+  const [profil, courses, baslangic] = await Promise.all([
+    getPanelProfile(),
+    getPanelCourses(),
+    getBaslangic(),
+  ]);
 
   const toplamDers = courses.reduce((n, c) => n + c.dersSayisi, 0);
   const toplamTamamlanan = courses.reduce((n, c) => n + c.tamamlanan, 0);
@@ -21,6 +27,7 @@ export default async function PanelOverviewPage() {
 
   return (
     <main className="flex flex-col gap-[26px] p-[34px] pb-14">
+      {!baslangic.tamamlandi && <BaslangicAdimlari adimlar={baslangic.adimlar} />}
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">
