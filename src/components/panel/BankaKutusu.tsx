@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/Icon";
+import { useNativeUygulama } from "@/lib/native";
 import type { Banka } from "@/lib/odeme";
 
 /**
@@ -11,6 +12,13 @@ import type { Banka } from "@/lib/odeme";
  */
 export function BankaKutusu({ banka }: { banka: Banka }) {
   const [kopyalandi, setKopyalandi] = useState(false);
+  const native = useNativeUygulama();
+
+  // Native uygulamada havale bilgisi gösterilmiyor. Apple'ın 3.1.3 maddesi
+  // uygulama içinden dışarıdaki bir ödemeye yönlendirmeyi kısıtlıyor; IBAN
+  // göstermek bu şekilde okunabilir ve incelemede reddedilme sebebi olur.
+  // Öğrenci ödemeyi web'den yapıyor, uygulama erişim için.
+  if (native) return null;
 
   const kopyala = async () => {
     if (!banka.iban) return;
