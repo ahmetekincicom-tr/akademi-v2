@@ -32,6 +32,7 @@ export function DersPlayer({
   const kurs = courses.find((c) => c.slug === kursSlug) ?? courses[0];
   const tumDersler = kurs.modules.flatMap((m) => m.dersler.map((d) => ({ ...d, modulBaslik: m.baslik })));
   const aktifDers = tumDersler.find((d) => d.id === aktifDersId) ?? tumDersler[0] ?? null;
+  const aktifSira = aktifDers ? tumDersler.findIndex((d) => d.id === aktifDers.id) + 1 : 0;
   const bitti = aktifDers ? tamamlananlar.has(aktifDers.id) : false;
   const video = aktifDers?.oynatma ?? null;
 
@@ -79,36 +80,38 @@ export function DersPlayer({
 
   return (
     <main className="p-4 pt-4 pb-14 sm:p-[34px] sm:pt-[26px]">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-6">
-        <div className="flex min-w-0 items-center gap-4">
-          <Link
-            href="/panel"
-            className="inline-flex h-[38px] flex-none items-center gap-[7px] rounded-[9px] border border-ink/13 bg-white pr-[15px] pl-[12px] text-[13.5px] font-semibold text-ink transition hover:border-brand hover:text-brand"
-          >
-            <Icon name="arrowLeft" size={15} />
-            Panel
-          </Link>
-          <div className="min-w-0">
-            <div className="truncate font-mono text-[10.5px] tracking-[0.1em] text-[#656B7A] uppercase">
-              {kurs.baslik}
-              {aktifDers ? ` · ${aktifDers.modulBaslik}` : ""}
-            </div>
-            <h1 className="mt-[6px] font-heading text-[19px] leading-[1.2] font-semibold tracking-[-0.03em] sm:text-[26px]">
-              {aktifDers?.ad ?? "Bu eğitimde henüz ders yok"}
-            </h1>
+      {/* Mobilde "← Panel" düğmesi yoktu sayılır: shell'in üst çubuğunda zaten
+          tıklanabilir bir "Panel" kırıntısı var. İki kez göstermek başlığın
+          yerini yiyordu. */}
+      <div className="mb-4 flex min-w-0 items-start gap-4 sm:mb-5">
+        <Link
+          href="/panel"
+          className="hidden h-[38px] flex-none items-center gap-[7px] rounded-[9px] border border-ink/13 bg-white pr-[15px] pl-[12px] text-[13.5px] font-semibold text-ink transition hover:border-brand hover:text-brand sm:inline-flex"
+        >
+          <Icon name="arrowLeft" size={15} />
+          Panel
+        </Link>
+        <div className="min-w-0">
+          <div className="truncate font-mono text-[10px] tracking-[0.1em] text-[#656B7A] uppercase sm:text-[10.5px]">
+            <span className="hidden sm:inline">{kurs.baslik} · </span>
+            {aktifDers?.modulBaslik ?? kurs.baslik}
           </div>
+          <h1 className="mt-[5px] font-heading text-[18px] leading-[1.22] font-semibold tracking-[-0.03em] sm:mt-[6px] sm:text-[26px]">
+            {aktifDers?.ad ?? "Bu eğitimde henüz ders yok"}
+          </h1>
         </div>
-        {aktifDers && <TamamlaDugmesi bitti={bitti} kaydediliyor={kaydediliyor} onClick={toggleTamamla} className="hidden sm:inline-flex" />}
       </div>
 
       {courses.length > 1 && (
-        <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
+        // Kaydırılabilir olduğu anlaşılsın diye şerit mobilde ekran kenarına
+        // kadar taşıyor; ortada kesilmiş gibi durmuyor.
+        <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:mb-5 sm:px-0">
           {courses.map((c) => (
             <button
               key={c.slug}
               type="button"
               onClick={() => kursDegistir(c.slug)}
-              className="h-9 flex-none rounded-[9px] border px-[14px] text-[13.5px] font-semibold whitespace-nowrap"
+              className="h-8 flex-none rounded-full border px-[13px] text-[12.5px] font-semibold whitespace-nowrap sm:h-9 sm:px-[15px] sm:text-[13px]"
               style={{
                 borderColor: c.slug === kursSlug ? "#1C56F3" : "rgba(15,17,24,0.13)",
                 background: c.slug === kursSlug ? "rgba(28,86,243,0.08)" : "#FFFFFF",
@@ -122,8 +125,15 @@ export function DersPlayer({
       )}
 
       <div className="grid grid-cols-1 items-start gap-[22px] xl:grid-cols-[1fr_372px]">
-        <div className="flex min-w-0 flex-col gap-[22px]">
-          <div className="overflow-hidden rounded-2xl border border-ink/12 bg-ink">
+        {/* Üç kart tek ızgarada: telefonda sıra oynatıcı → ders listesi →
+            açıklama oluyor, çünkü videodan sonra istenen şey sonraki derse
+            geçmek. Geniş ekranda liste sağ sütuna, açıklama oynatıcının altına
+            dönüyor. */}
+        <div className="min-w-0 xl:col-start-1 xl:row-start-1">
+          {/* Sayfanın asıl işi burası. Oynatıcı ve altındaki künye tek bir koyu
+              kart; tamamlama düğmesi de bu kartın içinde duruyor. Eskiden düğme
+              hem başlıkta hem videonun altında ayrı ayrı basılıyordu. */}
+          <div className="-mx-4 overflow-hidden bg-ink shadow-[0_22px_54px_-30px_rgba(10,13,24,0.55)] sm:mx-0 sm:rounded-[18px] sm:ring-1 sm:ring-ink/12">
             {video ? (
               video.tip === "iframe" ? (
                 <iframe
@@ -138,37 +148,43 @@ export function DersPlayer({
                 <video key={video.src} src={video.src} controls className="aspect-video w-full bg-ink" />
               )
             ) : (
-              <div className="flex aspect-video flex-col items-center justify-center gap-3 bg-ink text-center">
-                <span className="flex h-[66px] w-[66px] items-center justify-center rounded-full bg-white/[0.08] text-white/50">
-                  <Icon name="play" size={24} />
+              <div className="flex aspect-video flex-col items-center justify-center gap-[14px] bg-[linear-gradient(158deg,#191D2B_0%,#0A0D18_58%)] px-6 text-center">
+                <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-white/[0.07] pl-[3px] text-white/55 ring-1 ring-white/12 sm:h-[58px] sm:w-[58px]">
+                  <Icon name="play" size={20} />
                 </span>
-                <span className="px-6 text-[13.5px] text-white/45">
-                  Ders videosu henüz yüklenmedi.
-                  {aktifDers?.sure ? ` Planlanan süre: ${aktifDers.sure}.` : ""}
-                </span>
+                <div>
+                  <div className="text-[13.5px] font-medium text-white/75">Ders videosu henüz yüklenmedi</div>
+                  {aktifDers?.sure && (
+                    <div className="mt-[9px] inline-flex items-center gap-[7px] rounded-full bg-white/[0.07] px-[11px] py-[5px] font-mono text-[10.5px] tracking-[0.06em] text-white/60">
+                      <Icon name="clock" size={12} />
+                      Planlanan süre · {aktifDers.sure}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {aktifDers && (
+              <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-[11px] sm:px-5 sm:py-[13px]">
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.13em] text-white/60 uppercase">
+                    {aktifSira}. ders / {tumDersler.length}
+                    {aktifDers.sure ? ` · ${aktifDers.sure}` : ""}
+                  </div>
+                  <div className="mt-[3px] truncate text-[12.5px] text-white/85 sm:text-[13px]">
+                    {aktifDers.modulBaslik}
+                  </div>
+                </div>
+                <TamamlaDugmesi bitti={bitti} kaydediliyor={kaydediliyor} onClick={toggleTamamla} />
               </div>
             )}
           </div>
-
-          {aktifDers && (
-            <TamamlaDugmesi bitti={bitti} kaydediliyor={kaydediliyor} onClick={toggleTamamla} className="w-full sm:hidden" />
-          )}
-
-          <div className="rounded-2xl border border-ink/10 bg-white px-5 py-5 sm:px-[26px] sm:py-6">
-            <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Ders hakkında</h2>
-            <p className="mt-3 text-[15px] leading-[1.7] whitespace-pre-line text-[#5C6273]">
-              {!aktifDers
-                ? "Bu eğitime henüz ders eklenmemiş."
-                : aktifDers.aciklama ||
-                  "Bu ders için henüz açıklama eklenmedi. Dersi izleyip tamamlandı olarak işaretleyebilirsin."}
-            </p>
-          </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
+        <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white xl:col-start-2 xl:row-start-1">
           <div className="border-b border-ink/8 px-5 py-[18px]">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">Müfredat</h2>
+              <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">Eğitim içeriği</h2>
               <span className="font-mono text-[11.5px] text-brand">{kursYuzde}%</span>
             </div>
             <div className="mt-[10px] h-[5px] w-full overflow-hidden rounded-full bg-mist">
@@ -224,32 +240,47 @@ export function DersPlayer({
             ))}
           </div>
         </div>
+
+        <div className="rounded-2xl border border-ink/10 bg-white px-5 py-5 sm:px-[26px] sm:py-6 xl:col-start-1 xl:row-start-2">
+          <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Ders hakkında</h2>
+          <p className="mt-3 text-[15px] leading-[1.7] whitespace-pre-line text-[#5C6273]">
+            {!aktifDers
+              ? "Bu eğitime henüz ders eklenmemiş."
+              : aktifDers.aciklama ||
+                "Bu ders için henüz açıklama eklenmedi. Dersi izleyip tamamlandı olarak işaretleyebilirsin."}
+          </p>
+        </div>
       </div>
     </main>
   );
 }
 
+/**
+ * Koyu oynatıcı çubuğunun içinde durduğu için renkleri açık zemine göre değil
+ * koyuya göre seçildi. Etiket dar ekranda "Tamamla"ya iniyor: eskiden düğme
+ * "Dersi tamamlandı işaretle" yüzünden satırın tamamını kaplıyordu.
+ */
 function TamamlaDugmesi({
   bitti,
   kaydediliyor,
   onClick,
-  className = "",
 }: {
   bitti: boolean;
   kaydediliyor: boolean;
   onClick: () => void;
-  className?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={kaydediliyor}
-      className={`inline-flex h-[46px] flex-none items-center justify-center gap-2 rounded-[10px] px-[22px] text-[15px] font-semibold transition hover:opacity-90 disabled:opacity-60 ${className}`}
-      style={{ background: bitti ? "#E9EDF7" : "#1C56F3", color: bitti ? "#3A3F4F" : "#FFFFFF" }}
+      aria-pressed={bitti}
+      className="inline-flex h-[34px] flex-none items-center justify-center gap-[6px] rounded-[8px] px-[13px] text-[12.5px] font-semibold transition hover:opacity-90 disabled:opacity-60 sm:h-[36px] sm:px-[15px] sm:text-[13.5px]"
+      style={{ background: bitti ? "rgba(255,255,255,0.12)" : "#1C56F3", color: "#FFFFFF" }}
     >
-      {bitti && <Icon name="check" size={16} strokeWidth={2.4} />}
-      {bitti ? "Tamamlandı" : "Dersi tamamlandı işaretle"}
+      {bitti && <Icon name="check" size={14} strokeWidth={2.4} />}
+      <span className="sm:hidden">{bitti ? "Tamamlandı" : "Tamamla"}</span>
+      <span className="hidden sm:inline">{bitti ? "Tamamlandı" : "Tamamlandı işaretle"}</span>
     </button>
   );
 }
