@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { gorusmeTalepEt, gorusmeIptalEt } from "@/app/panel/gorusmeler/actions";
 import { Icon } from "@/components/Icon";
@@ -16,6 +16,11 @@ const DURUM_RENK: Record<string, { bg: string; fg: string }> = {
   tamamlandi: { bg: "rgba(24,140,90,0.13)", fg: "#157A4E" },
   iptal: { bg: "rgba(10,13,24,0.07)", fg: "#5C6273" },
 };
+
+/** Hareketi azalt tercihi açıkken yumuşak kaydırma yapılmaz. */
+function kaydirma(): ScrollBehavior {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+}
 
 export function GorusmeGorunumu({
   gorusmeler,
@@ -34,6 +39,18 @@ export function GorusmeGorunumu({
   const [tercih, setTercih] = useState("");
   const [hata, setHata] = useState<string | null>(null);
   const [islemde, startTransition] = useTransition();
+  const formRef = useRef<HTMLDivElement>(null);
+  const konuRef = useRef<HTMLInputElement>(null);
+  const listeRef = useRef<HTMLDivElement>(null);
+
+  // Talep formu artık düğmenin hemen altında açılıyor, ama kısa ekranlarda alt
+  // kenarı yine de kadraj dışında kalabiliyor. Açılınca forma kaydırıp ilk
+  // alana odaklanmak, kullanıcıyı alanı aramaktan tümüyle kurtarıyor.
+  useEffect(() => {
+    if (!formAcik) return;
+    formRef.current?.scrollIntoView({ behavior: kaydirma(), block: "nearest" });
+    konuRef.current?.focus({ preventScroll: true });
+  }, [formAcik]);
 
   const gonder = () => {
     setHata(null);
@@ -49,6 +66,9 @@ export function GorusmeGorunumu({
         setTercih("");
         setFormAcik(false);
         router.refresh();
+        // Form kapanınca ekranda hiçbir şey değişmemiş gibi duruyordu: yeni
+        // talep listede, mobilde çok aşağıda.
+        listeRef.current?.scrollIntoView({ behavior: kaydirma(), block: "start" });
       }
     });
   };
@@ -85,6 +105,8 @@ export function GorusmeGorunumu({
           <button
             type="button"
             onClick={() => setFormAcik((v) => !v)}
+            aria-expanded={formAcik}
+            aria-controls="gorusme-talep-formu"
             className="inline-flex h-11 items-center gap-[6px] rounded-[10px] bg-brand px-5 text-sm font-semibold text-white transition hover:bg-ink"
           >
             {!formAcik && <Icon name="plus" size={15} />}
@@ -92,6 +114,72 @@ export function GorusmeGorunumu({
           </button>
         )}
       </div>
+
+      {hata && (
+        <div className="mt-5 rounded-[11px] border border-danger/35 bg-danger/7 px-4 py-3 text-sm text-danger-ink">
+          {hata}
+        </div>
+      )}
+
+      {/* Form düğmenin hemen altında. Eskiden hak kartlarının ve ücretlendirme
+          kutusunun altında açılıyordu; telefonda düğmeye basan kişi ekranda
+          hiçbir şey değişmemiş sanıyordu. */}
+      {formAcik && (
+        <div id="gorusme-talep-formu" ref={formRef} className="mt-5 rounded-2xl border border-brand/30 bg-white p-5 sm:p-6">
+          <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Yeni görüşme talebi</h2>
+          <p className="mt-1 text-[13.5px] leading-[1.6] text-[#5C6273]">
+            {hak.sonrakiUcretli
+              ? `Ücretsiz hakların doldu. Bu görüşme ${ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} olarak planlanır; talebi gönderdikten sonra ödeme bilgileri burada görünür.`
+              : `Bu görüşme ücretsiz haklarından düşülecek. Kalan: ${hak.kalan}`}
+          </p>
+
+          <div className="mt-5 flex flex-col gap-4">
+            <label className="flex flex-col gap-2">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Konu</span>
+              <input
+                ref={konuRef}
+                type="text"
+                value={konu}
+                onChange={(e) => setKonu(e.target.value)}
+                placeholder="Örn. Kampanya bütçesini nasıl ölçekleyeceğim"
+                className={alan}
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
+                Detay (opsiyonel)
+              </span>
+              <textarea
+                value={aciklama}
+                onChange={(e) => setAciklama(e.target.value)}
+                placeholder="Görüşmede neye odaklanmak istediğini yazarsan hazırlıklı gelebiliriz."
+                className="min-h-[100px] resize-y rounded-[10px] border border-ink/13 bg-white px-[14px] py-3 text-[15px] leading-[1.6] text-ink outline-none focus:border-brand"
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
+                Tercih ettiğin zamanlar
+              </span>
+              <input
+                type="text"
+                value={tercih}
+                onChange={(e) => setTercih(e.target.value)}
+                placeholder="Örn. hafta içi 18:00 sonrası, cumartesi sabah"
+                className={alan}
+              />
+            </label>
+          </div>
+
+          <button
+            type="button"
+            onClick={gonder}
+            disabled={islemde || !konu.trim()}
+            className="mt-5 h-[46px] w-full rounded-[10px] bg-brand px-6 text-[15px] font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {islemde ? "Gönderiliyor…" : "Talebi gönder"}
+          </button>
+        </div>
+      )}
 
       {/* Hak özeti */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -156,70 +244,8 @@ export function GorusmeGorunumu({
         </div>
       )}
 
-      {hata && (
-        <div className="mt-5 rounded-[11px] border border-danger/35 bg-danger/7 px-4 py-3 text-sm text-danger-ink">
-          {hata}
-        </div>
-      )}
-
-      {formAcik && (
-        <div className="mt-5 rounded-2xl border border-brand/30 bg-white p-6">
-          <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Yeni görüşme talebi</h2>
-          <p className="mt-1 text-[13.5px] leading-[1.6] text-[#5C6273]">
-            {hak.sonrakiUcretli
-              ? `Ücretsiz hakların doldu. Bu görüşme ${ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} olarak planlanır; talebi gönderdikten sonra ödeme bilgileri burada görünür.`
-              : `Bu görüşme ücretsiz haklarından düşülecek. Kalan: ${hak.kalan}`}
-          </p>
-
-          <div className="mt-5 flex flex-col gap-4">
-            <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Konu</span>
-              <input
-                type="text"
-                value={konu}
-                onChange={(e) => setKonu(e.target.value)}
-                placeholder="Örn. Kampanya bütçesini nasıl ölçekleyeceğim"
-                className={alan}
-              />
-            </label>
-            <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
-                Detay (opsiyonel)
-              </span>
-              <textarea
-                value={aciklama}
-                onChange={(e) => setAciklama(e.target.value)}
-                placeholder="Görüşmede neye odaklanmak istediğini yazarsan hazırlıklı gelebiliriz."
-                className="min-h-[100px] resize-y rounded-[10px] border border-ink/13 bg-white px-[14px] py-3 text-[15px] leading-[1.6] text-ink outline-none focus:border-brand"
-              />
-            </label>
-            <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
-                Tercih ettiğin zamanlar
-              </span>
-              <input
-                type="text"
-                value={tercih}
-                onChange={(e) => setTercih(e.target.value)}
-                placeholder="Örn. hafta içi 18:00 sonrası, cumartesi sabah"
-                className={alan}
-              />
-            </label>
-          </div>
-
-          <button
-            type="button"
-            onClick={gonder}
-            disabled={islemde || !konu.trim()}
-            className="mt-5 h-[46px] rounded-[10px] bg-brand px-6 text-[15px] font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {islemde ? "Gönderiliyor…" : "Talebi gönder"}
-          </button>
-        </div>
-      )}
-
       {/* Liste */}
-      <div className="mt-6 overflow-hidden rounded-2xl border border-ink/10 bg-white">
+      <div ref={listeRef} className="mt-6 scroll-mt-4 overflow-hidden rounded-2xl border border-ink/10 bg-white">
         <div className="border-b border-ink/8 px-6 py-[15px]">
           <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">Görüşmelerim</h2>
         </div>
