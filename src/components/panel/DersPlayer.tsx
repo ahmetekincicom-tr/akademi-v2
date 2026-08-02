@@ -130,7 +130,7 @@ export function DersPlayer({
         </div>
       )}
 
-      <div className="grid grid-cols-1 items-start gap-[22px] xl:grid-cols-[1fr_372px]">
+      <div className="grid grid-cols-1 items-start gap-[22px] xl:grid-cols-[1fr_372px] xl:grid-rows-[auto_1fr]">
         {/* Üç kart tek ızgarada: telefonda sıra oynatıcı → ders listesi →
             açıklama oluyor, çünkü videodan sonra istenen şey sonraki derse
             geçmek. Geniş ekranda liste sağ sütuna, açıklama oynatıcının altına
@@ -187,7 +187,10 @@ export function DersPlayer({
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white xl:sticky xl:top-[94px] xl:col-start-2 xl:row-start-1">
+        {/* row-span-2 şart: liste yalnızca 1. satırdayken o satırın yüksekliğini
+            listenin boyu belirliyordu ve oynatıcı listeden kısa kalınca aradaki
+            fark "Ders hakkında"nın üstünde boşluk olarak duruyordu. */}
+        <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white xl:sticky xl:top-[94px] xl:col-start-2 xl:row-span-2 xl:row-start-1">
           <div className="border-b border-ink/8 px-5 py-[18px]">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">Eğitim içeriği</h2>
