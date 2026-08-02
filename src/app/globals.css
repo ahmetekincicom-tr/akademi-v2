@@ -417,3 +417,32 @@
 .referans-bulutu:focus-within .referans-bulutu-serit {
   animation-play-state: paused;
 }
+
+/* ---------------------------------------------------------------------------
+   Native uygulamaya özel düzeltmeler.
+
+   NativeIsaretci bileşeni Capacitor içinde çalışırken <html> üzerine
+   data-native="1" koyuyor. Buradaki kurallar yalnızca o durumda geçerli —
+   tarayıcıdaki site hiç etkilenmiyor.
+   --------------------------------------------------------------------------- */
+
+/* iOS tam ekranda sayfa lastik gibi esneyip sınırların dışına çıkıyor ve
+   arkadaki beyaz gövde görünüyordu: yukarı çekince mavi şeridin üstünde,
+   aşağı çekince alt kenarda. Esnemeyi kapatıyoruz. */
+[data-native="1"],
+[data-native="1"] body {
+  overscroll-behavior: none;
+}
+
+/* Esneme yine de olursa (bazı iOS sürümleri tamamen engellemiyor) arkada
+   beyaz değil marka rengi görünsün; şeritle aynı ton olduğu için fark
+   edilmiyor. */
+[data-native="1"] body {
+  background-color: var(--color-brand);
+}
+
+/* Yan menü açıkken arkadaki panelin kaymasını engelle. Menü kendi içinde
+   kayıyor; gövdenin de birlikte kayması iki katmanı aynı anda oynatıyordu. */
+[data-native="1"] body[data-menu-acik="1"] {
+  overflow: hidden;
+}

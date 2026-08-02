@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/panel/actions";
@@ -70,6 +70,17 @@ export function PanelShell({
   const pageTitle = pageTitles[pathname] ?? "Panel";
   const [menuAcik, setMenuAcik] = useState(false);
 
+  // Menü açıkken gövdeyi kilitle: menü kendi içinde kayarken arkadaki panel
+  // de kayıyordu, iki katman aynı anda oynuyordu. İşaret body'ye konuyor,
+  // kuralı globals.css'te yalnızca native için tanımlı — web değişmiyor.
+  useEffect(() => {
+    if (menuAcik) document.body.dataset.menuAcik = "1";
+    else delete document.body.dataset.menuAcik;
+    return () => {
+      delete document.body.dataset.menuAcik;
+    };
+  }, [menuAcik]);
+
   const adimlar: BreadcrumbAdim[] =
     pathname === "/panel" ? [{ label: "Panel" }] : [{ label: "Panel", href: "/panel" }, { label: pageTitle }];
 
@@ -80,13 +91,15 @@ export function PanelShell({
         sayfanın üstüne biniyor; arkası beyaz kalınca beyaz yazı okunmuyordu.
         Marka mavisi zemin veriyoruz, sistem yazısı beyaz kalıyor.
 
-        Yan menünün de üstünde (z-60) çünkü menü açıkken de durum çubuğu
-        görünür durumda. Tarayıcıda env() sıfır döndüğü için yüksekliği sıfır,
-        yani webde hiç görünmüyor.
+        z-45: başlığın (z-40) üstünde ama yan menünün (z-50) ALTINDA. Menünün
+        üstünde olduğunda menüyü kesiyordu; artık koyu menü kendi üst boşluğunu
+        kaplıyor ve beyaz sistem yazısı onun üzerinde de okunuyor.
+
+        Tarayıcıda env() sıfır döndüğü için yüksekliği sıfır — webde görünmüyor.
       */}
       <div
         aria-hidden
-        className="fixed inset-x-0 top-0 z-[60] h-[env(safe-area-inset-top)] bg-brand"
+        className="fixed inset-x-0 top-0 z-[45] h-[env(safe-area-inset-top)] bg-brand"
       />
 
       {menuAcik && (
@@ -99,7 +112,9 @@ export function PanelShell({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[264px] flex-none flex-col bg-ink text-white/66 transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
+        // h-dvh: iOS'ta h-screen tarayıcı çubuklarını hesaba katmıyor ve menü
+        // ekrandan taşıyordu, alttaki çıkış düğmesi kesiliyordu.
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[264px] flex-none flex-col bg-ink text-white/66 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -183,7 +198,8 @@ export function PanelShell({
           ))}
         </nav>
 
-        <div className="mt-auto px-[18px] pt-4 pb-[22px]">
+        {/* Alt güvenli alan: ana ekran çubuğu çıkış düğmesini kesiyordu. */}
+        <div className="mt-auto px-[18px] pt-4 pb-[calc(22px+env(safe-area-inset-bottom))]">
           {profil.admin && (
             <Link
               href="/admin"

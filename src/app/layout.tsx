@@ -5,6 +5,7 @@ import { BildirimSaglayici } from "@/components/Bildirim";
 import { Olcumleme, ONYUKLEME } from "@/components/site/Olcumleme";
 import { CerezBandi } from "@/components/site/CerezBandi";
 import { ServiceWorkerKaydi } from "@/components/site/ServiceWorkerKaydi";
+import { NativeIsaretci } from "@/components/site/NativeIsaretci";
 import { getMarka } from "@/lib/marka";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import "./globals.css";
@@ -78,6 +79,7 @@ export default async function RootLayout({
       <body className="antialiased font-body text-ink bg-white">
         <Olcumleme />
         <ServiceWorkerKaydi />
+        <NativeIsaretci />
         <TopLoader />
         <BildirimSaglayici>{children}</BildirimSaglayici>
         {olcumlemeVar && <CerezBandi />}
