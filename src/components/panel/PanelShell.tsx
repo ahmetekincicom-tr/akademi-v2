@@ -89,7 +89,8 @@ export function PanelShell({
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-[22px] pt-[22px] pb-5">
+        {/* Yan menü de tam ekran yüksekliğinde: üstü çentiğe girmesin. */}
+        <div className="flex items-center justify-between border-b border-white/10 px-[22px] pt-[calc(22px+env(safe-area-inset-top))] pb-5">
           <Link href="/" className="flex items-center gap-[11px] text-white">
             <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">
               AE
@@ -200,7 +201,12 @@ export function PanelShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/90 backdrop-blur-[14px]">
+        {/*
+          Güvenli alan boşluğu: uygulama tam ekran çalıştığı için (viewportFit
+          cover) içerik y=0'dan başlıyor ve başlık çentiğin/durum çubuğunun
+          altında kalıyordu. env() tarayıcıda 0 döndüğü için web etkilenmiyor.
+        */}
+        <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur-[14px]">
           <div className="flex h-[70px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-[34px]">
             <div className="flex min-w-0 items-center gap-3">
               <button

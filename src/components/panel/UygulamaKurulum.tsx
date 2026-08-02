@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Icon } from "@/components/Icon";
+import { useNativeUygulama } from "@/lib/native";
 
 /** Kapatıldığında bir daha rahatsız etmemek için. */
 const KAPATILDI = "aea-kurulum-kapatildi";
@@ -59,6 +60,9 @@ function cihazSunucudaOku(): string {
 export function UygulamaKurulum() {
   const kapatildi = useSyncExternalStore(abone, oku, sunucudaOku);
   const cihaz = useSyncExternalStore(cihazAbone, cihazOku, cihazSunucudaOku);
+  // Native uygulamanın içinde "ana ekrana ekle" demenin anlamı yok; kullanıcı
+  // zaten uygulamada. Web'de ve PWA'da gösterilmeye devam ediyor.
+  const native = useNativeUygulama();
   const [kurulu, iosEtiket] = cihaz.split("|");
   const iosMu = iosEtiket === "ios";
   const [olay, setOlay] = useState<KurulumOlayi | null>(null);
@@ -90,7 +94,7 @@ export function UygulamaKurulum() {
   };
 
   // Sunucuda ve kurulu cihazda hiç basma; kapatıldıysa da gösterme.
-  if (kapatildi !== "" || kurulu !== "tarayici") return null;
+  if (native || kapatildi !== "" || kurulu !== "tarayici") return null;
   if (!olay && !iosMu) return null;
 
   return (
