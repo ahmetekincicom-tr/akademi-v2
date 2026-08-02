@@ -1,16 +1,19 @@
 import { createClient } from "@/lib/supabase/server";
 import { OdemeYonetimi, type OdemeSatir, type SecimOgesi } from "@/components/admin/OdemeYonetimi";
+import { AyarFormu } from "@/components/admin/AyarFormu";
+import { getAyarlar, bankaGrubu } from "@/lib/admin/ayarlar";
 
 export default async function OdemelerPage() {
   const supabase = await createClient();
 
-  const [{ data: payments }, { data: profiles }, { data: courses }] = await Promise.all([
+  const [{ data: payments }, { data: profiles }, { data: courses }, ayarlar] = await Promise.all([
     supabase
       .from("payments")
       .select("id, tutar, yontem, durum, odeme_tarihi, fatura_no, profiles(ad, soyad, email), courses(baslik)")
       .order("odeme_tarihi", { ascending: false }),
     supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
     supabase.from("courses").select("id, baslik").order("created_at"),
+    getAyarlar(),
   ]);
 
   const odemeler: OdemeSatir[] = (payments ?? []).map((p) => {
@@ -35,5 +38,12 @@ export default async function OdemelerPage() {
 
   const kurslar: SecimOgesi[] = (courses ?? []).map((c) => ({ id: c.id, ad: c.baslik }));
 
-  return <OdemeYonetimi odemeler={odemeler} ogrenciler={ogrenciler} kurslar={kurslar} />;
+  return (
+    <>
+      <OdemeYonetimi odemeler={odemeler} ogrenciler={ogrenciler} kurslar={kurslar} />
+      <div className="px-4 pb-14 sm:px-7">
+        <AyarFormu gruplar={[bankaGrubu]} degerler={ayarlar} />
+      </div>
+    </>
+  );
 }

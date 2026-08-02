@@ -27,14 +27,54 @@ export type SeansSatir = {
   durum: "planlandi" | "tamamlandi" | "iptal";
 };
 
+/**
+ * Hem birebir eğitim oturumlarını hem eğitim sonrası seansları yönetiyor.
+ * İkisi ayrı kavram ama ekran işi birebir aynı: kişi seç, tarih ver, durum
+ * değiştir, kayıt bağlantısı yapıştır. İki kopya bırakmak yerine metinler ve
+ * server action'lar dışarıdan veriliyor.
+ */
+export type OturumMetinleri = {
+  baslik: string;
+  birim: string;
+  yeniDugme: string;
+  yeniBaslik: string;
+  eklendi: string;
+};
+
+export type OturumEylemleri = {
+  ekle: typeof seansEkle;
+  durumDegistir: typeof seansDurumDegistir;
+  sil: typeof seansSil;
+  kayitLinki: typeof seansKayitLinki;
+};
+
+const VARSAYILAN_METIN: OturumMetinleri = {
+  baslik: "Birebir seanslar",
+  birim: "seans",
+  yeniDugme: "Seans planla",
+  yeniBaslik: "Yeni seans",
+  eklendi: "Seans planlandı.",
+};
+
+const VARSAYILAN_EYLEM: OturumEylemleri = {
+  ekle: seansEkle,
+  durumDegistir: seansDurumDegistir,
+  sil: seansSil,
+  kayitLinki: seansKayitLinki,
+};
+
 export function SeansYonetimi({
   seanslar,
   ogrenciler,
   kurslar,
+  metin = VARSAYILAN_METIN,
+  eylem = VARSAYILAN_EYLEM,
 }: {
   seanslar: SeansSatir[];
   ogrenciler: { id: string; ad: string }[];
   kurslar: { id: string; ad: string }[];
+  metin?: OturumMetinleri;
+  eylem?: OturumEylemleri;
 }) {
   const router = useRouter();
   const bildir = useBildirim();
@@ -55,12 +95,12 @@ export function SeansYonetimi({
   const kaydet = () => {
     setHata(null);
     startTransition(async () => {
-      const r = await seansEkle(form);
+      const r = await eylem.ekle(form);
       if (r?.error) {
         setHata(r.error);
         bildir.hata(r.error);
       } else {
-        bildir.basarili("Seans planlandı.");
+        bildir.basarili(metin.eklendi);
         setForm({ userId: "", courseId: "", baslangic: "", sureDk: "60", konu: "", toplantiLink: "" });
         setFormAcik(false);
         router.refresh();
@@ -70,7 +110,7 @@ export function SeansYonetimi({
 
   const durumDegistir = (id: string, durum: SeansSatir["durum"]) => {
     startTransition(async () => {
-      const r = await seansDurumDegistir(id, durum);
+      const r = await eylem.durumDegistir(id, durum);
       if (r?.error) bildir.hata(r.error);
       else {
         bildir.basarili("Seans durumu güncellendi.");
@@ -86,7 +126,7 @@ export function SeansYonetimi({
 
   const kayitKaydet = (id: string) => {
     startTransition(async () => {
-      const r = await seansKayitLinki(id, kayitTaslak);
+      const r = await eylem.kayitLinki(id, kayitTaslak);
       if (r?.error) bildir.hata(r.error);
       else {
         bildir.basarili(kayitTaslak.trim() ? "Kayıt bağlantısı kaydedildi." : "Kayıt bağlantısı kaldırıldı.");
@@ -98,7 +138,7 @@ export function SeansYonetimi({
 
   const sil = (id: string) => {
     startTransition(async () => {
-      const r = await seansSil(id);
+      const r = await eylem.sil(id);
       if (r?.error) bildir.hata(r.error);
       else {
         bildir.basarili("Seans silindi.");
@@ -214,10 +254,10 @@ export function SeansYonetimi({
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
-            Birebir seanslar
+            {metin.baslik}
           </h1>
           <p className="mt-[7px] text-[14.5px] text-[#5C6273]">
-            {yaklasan.length} yaklaşan · {seanslar.length} toplam seans
+            {yaklasan.length} yaklaşan · {seanslar.length} toplam {metin.birim}
           </p>
         </div>
         <button
@@ -226,13 +266,13 @@ export function SeansYonetimi({
           className="inline-flex h-10 items-center gap-[6px] rounded-[10px] bg-brand px-4 text-[13.5px] font-semibold text-white transition hover:bg-ink"
         >
           {!formAcik && <Icon name="plus" size={15} />}
-          {formAcik ? "Vazgeç" : "Seans planla"}
+          {formAcik ? "Vazgeç" : metin.yeniDugme}
         </button>
       </div>
 
       {formAcik && (
         <div className="mt-5 rounded-2xl border border-brand/30 bg-white p-6">
-          <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Yeni seans</h2>
+          <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">{metin.yeniBaslik}</h2>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <label className="flex flex-col gap-2">
               <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Öğrenci</span>

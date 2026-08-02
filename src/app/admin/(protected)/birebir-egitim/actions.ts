@@ -1,0 +1,69 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+
+export async function oturumEkle(input: {
+  userId: string;
+  courseId: string;
+  baslangic: string;
+  sureDk: string;
+  konu: string;
+  toplantiLink: string;
+}) {
+  if (!input.userId) return { error: "Öğrenci seçmelisin." };
+  if (!input.baslangic) return { error: "Tarih ve saat gir." };
+
+  const sure = Number(input.sureDk) || 60;
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("egitim_oturumlari").insert({
+    user_id: input.userId,
+    course_id: input.courseId || null,
+    baslangic: new Date(input.baslangic).toISOString(),
+    sure_dk: sure,
+    konu: input.konu.trim() || null,
+    toplanti_link: input.toplantiLink.trim() || null,
+  });
+
+  if (error) return { error: error.message };
+  revalidatePath("/admin/birebir-egitim");
+  revalidatePath("/panel/birebir-egitim");
+  return {};
+}
+
+export async function oturumDurumDegistir(id: string, durum: "planlandi" | "tamamlandi" | "iptal") {
+  const supabase = await createClient();
+  const { error } = await supabase.from("egitim_oturumlari").update({ durum }).eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/birebir-egitim");
+  revalidatePath("/panel/birebir-egitim");
+  return {};
+}
+
+/**
+ * Seansın kişiye özel kaydı (Drive vb.). Boş gönderilirse bağlantı kaldırılır.
+ * Biçim doğrulaması panelde değil oynatma tarafında yapılıyor; buraya
+ * yapıştırılan her şey guvenliUrl ve videoGomme süzgecinden geçiyor.
+ */
+export async function oturumKayitLinki(id: string, link: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("egitim_oturumlari")
+    .update({ kayit_link: link.trim() || null })
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+  revalidatePath("/admin/birebir-egitim");
+  revalidatePath("/panel/birebir-egitim");
+  return {};
+}
+
+export async function oturumSil(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("egitim_oturumlari").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/birebir-egitim");
+  revalidatePath("/panel/birebir-egitim");
+  return {};
+}

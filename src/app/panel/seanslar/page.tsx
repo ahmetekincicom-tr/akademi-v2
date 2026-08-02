@@ -4,16 +4,14 @@ import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
 import { guvenliUrl } from "@/lib/guvenli-url";
-import { oynatmaCoz } from "@/lib/oynatma";
 import { Icon } from "@/components/Icon";
-import { SeansKaydi } from "@/components/panel/SeansKaydi";
 
 export default async function SeanslarPage() {
   const supabase = await createClient();
   // RLS limits this to the signed-in student's own sessions.
   const { data } = await supabase
     .from("seanslar")
-    .select("id, baslangic, sure_dk, konu, toplanti_link, kayit_link, durum, courses(baslik)")
+    .select("id, baslangic, sure_dk, konu, toplanti_link, durum, courses(baslik)")
     .order("baslangic", { ascending: true });
 
   const seanslar = (data ?? []).map((s) => ({
@@ -22,7 +20,6 @@ export default async function SeanslarPage() {
     sureDk: s.sure_dk,
     konu: s.konu ?? "",
     toplantiLink: s.toplanti_link ?? "",
-    kayitLink: s.kayit_link ?? "",
     durum: s.durum as "planlandi" | "tamamlandi" | "iptal",
     program: (s.courses as unknown as { baslik: string } | null)?.baslik ?? "Genel",
   }));
@@ -33,10 +30,6 @@ export default async function SeanslarPage() {
     const etiket = seansDurumEtiket[s.durum];
     const st = durumStil(etiket);
     const toplanti = guvenliUrl(s.toplantiLink);
-    // Kayıt yalnızca bitmiş seansta anlamlı. RLS satırı zaten sahibine
-    // kısıtlıyor, burada ayrıca kimlik kontrolü gerekmiyor.
-    const kayitKaynak = s.durum === "tamamlandi" ? guvenliUrl(s.kayitLink) : null;
-    const kayit = kayitKaynak ? oynatmaCoz(s.kayitLink) : null;
     return (
       <div
         key={s.id}
@@ -68,9 +61,6 @@ export default async function SeanslarPage() {
             <Icon name="external" size={14} />
             Toplantıya katıl
           </a>
-        )}
-        {kayit && kayitKaynak && (
-          <SeansKaydi video={kayit} kaynak={kayitKaynak} baslik={s.konu || "Seans kaydı"} />
         )}
       </div>
     );

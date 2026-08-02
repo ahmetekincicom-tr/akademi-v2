@@ -76,23 +76,6 @@ export const entegrasyonGruplari: AyarGrubu[] = [
     ],
   },
   {
-    anahtar: "banka",
-    baslik: "Banka bilgileri",
-    aciklama:
-      "Havale/EFT ile ödeme yapacak öğrenciler bu bilgileri kendi panelinde, Ödemelerim sayfasında görür. Boş bırakılan alan gösterilmez.",
-    alanlar: [
-      { ad: "unvan", etiket: "Hesap sahibi", yerTutucu: "Ahmet Ekinci Akademi" },
-      { ad: "banka", etiket: "Banka", yerTutucu: "Ziraat Bankası" },
-      { ad: "iban", etiket: "IBAN", yerTutucu: "TR00 0000 0000 0000 0000 0000 00", genis: true },
-      {
-        ad: "aciklama",
-        etiket: "Açıklama notu",
-        ipucu: "Öğrenciye açıklama alanına ne yazacağını söyler.",
-        genis: true,
-      },
-    ],
-  },
-  {
     anahtar: "odeme",
     baslik: "Ödeme sağlayıcı",
     aciklama: "Online tahsilata geçtiğinde kullanılacak sağlayıcı bilgileri. Şu an ödemeler panele elle kaydediliyor.",
@@ -104,6 +87,29 @@ export const entegrasyonGruplari: AyarGrubu[] = [
     ],
   },
 ];
+
+/**
+ * Havale bilgileri Entegrasyonlar'da değil Ödemeler sayfasında duruyor:
+ * Entegrasyonlar üçüncü taraf servislerin tanımlayıcıları için, havale ise
+ * ödemenin kendisi. Yönetici bunu ödemeleri işlerken arıyor.
+ */
+export const bankaGrubu: AyarGrubu = {
+  anahtar: "banka",
+  baslik: "Havale bilgileri",
+  aciklama:
+    "Öğrenci bu bilgileri kendi panelinde, Ödemelerim sayfasında görür ve ödemesini buraya yapar. Boş bıraktığın alan gösterilmez; hiçbiri doldurulmazsa kutu hiç çıkmaz.",
+  alanlar: [
+    { ad: "unvan", etiket: "Hesap sahibi", yerTutucu: "Ahmet Ekinci Akademi" },
+    { ad: "banka", etiket: "Banka", yerTutucu: "Ziraat Bankası" },
+    { ad: "iban", etiket: "IBAN", yerTutucu: "TR00 0000 0000 0000 0000 0000 00", genis: true },
+    {
+      ad: "aciklama",
+      etiket: "Açıklama notu",
+      ipucu: "Öğrenciye açıklama alanına ne yazacağını söyler.",
+      genis: true,
+    },
+  ],
+};
 
 export async function getAyarlar(): Promise<Record<string, Record<string, string>>> {
   const supabase = await createClient();

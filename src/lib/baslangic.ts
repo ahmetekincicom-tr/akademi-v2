@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getOdemelerim, paraBicimi } from "@/lib/odeme";
+import { egitimPlanlandiMi } from "@/lib/egitim-oturumu";
 import type { Uyari } from "@/components/panel/PanelUyari";
 
 export type Adim = {
@@ -18,8 +19,12 @@ export type Baslangic = { adimlar: Adim[]; tamamlandi: boolean; uyari: Uyari | n
 
 /**
  * Karşılama adımları ayrı bir "onboarding" tablosundan değil, sürecin zaten
- * yazıldığı tablolardan okunuyor: ödeme payments'ta, planlama seanslar'da.
- * Böylece ikinci bir doğruluk kaynağı ve onu güncel tutma derdi çıkmıyor.
+ * yazıldığı tablolardan okunuyor: ödeme payments'ta, eğitim takvimi
+ * egitim_oturumlari'nda. Böylece ikinci bir doğruluk kaynağı ve onu güncel
+ * tutma derdi çıkmıyor.
+ *
+ * Planlama adımı bilerek seanslar tablosuna BAKMIYOR: seanslar eğitim
+ * bittikten sonra kullanılan görüşme hakları, eğitimin takvimi değil.
  *
  * Tek istisna ön değerlendirme: cevaplar Tally'de kaldığı için panelin
  * elinde yalnızca profiles.on_degerlendirme_tarihi damgası var.
@@ -33,9 +38,10 @@ export async function getBaslangic(): Promise<Baslangic> {
   if (!user) return { adimlar: [], tamamlandi: true, uyari: null };
 
   // RLS hepsini kullanıcının kendi satırlarıyla sınırlıyor.
-  const [{ data: profil }, odemeler] = await Promise.all([
+  const [{ data: profil }, odemeler, planlandi] = await Promise.all([
     supabase.from("profiles").select("on_degerlendirme_tarihi").eq("id", user.id).maybeSingle(),
     getOdemelerim(),
+    egitimPlanlandiMi(),
   ]);
 
   const odendi = odemeler.satirlar.some((s) => s.durum === "odendi");
@@ -74,12 +80,22 @@ export async function getBaslangic(): Promise<Baslangic> {
       eylem: testTamam || !odendi ? null : "Testi doldur",
       bekliyor: !odendi && !testTamam ? "Ödeme onaylandıktan sonra açılır." : null,
     },
+    {
+      anahtar: "planlama",
+      baslik: "Eğitim tarihlerini planla",
+      aciklama: "Birebir eğitim oturumlarının takvimi belirlendi.",
+      tamam: planlandi,
+      // Kaynak egitim_oturumlari; seanslar DEĞİL. Seanslar eğitim bittikten
+      // sonra kullanılan görüşme hakları, eğitimin takvimi değil.
+      yol: planlandi ? null : testTamam ? "/panel/birebir-egitim" : null,
+      eylem: planlandi ? null : testTamam ? "Eğitimlerim" : null,
+      bekliyor: !planlandi
+        ? testTamam
+          ? "Ön değerlendirmeni inceleyip tarihler için sana döneceğiz."
+          : "Ön değerlendirmeden sonra açılır."
+        : null,
+    },
   ];
-  // NOT: "Tarih ve saati planla" adımı bilerek yok. Önceki sürümde seanslar
-  // tablosundan okunuyordu ve yanlıştı: seanslar birebir EĞİTİMİN takvimi
-  // değil, eğitim bittikten sonra kullanılan görüşme hakları. Eğitim tarihi
-  // planlamasının veritabanında bir karşılığı henüz belirlenmedi; kaynağı
-  // netleşince adım geri eklenecek.
 
   // Panele girer girmez görülecek tek iş. Öğrencinin yapabileceği iş, bizi
   // bekleyen işin önüne geçiyor: bekleyen ödemede öğrenciye düşen bir şey yok
