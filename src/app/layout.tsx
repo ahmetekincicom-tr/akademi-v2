@@ -50,7 +50,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0a0d18",
+  // Panelin durum çubuğu şeridiyle aynı marka mavisi.
+  themeColor: "#1c56f3",
   // Panel ana ekrandan açıldığında telefonun çentik/alt çubuk alanına kadar
   // uzansın; aksi halde standalone modda kenarlarda boş şeritler kalıyor.
   viewportFit: "cover",

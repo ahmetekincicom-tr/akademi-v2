@@ -18,7 +18,8 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     orientation: "portrait",
     background_color: "#ffffff",
-    theme_color: "#0a0d18",
+    // Durum çubuğu şeridiyle aynı marka mavisi; PWA'da da tutarlı görünsün.
+    theme_color: "#1c56f3",
     lang: "tr",
     dir: "ltr",
     categories: ["education"],

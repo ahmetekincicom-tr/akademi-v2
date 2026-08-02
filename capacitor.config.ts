@@ -43,8 +43,12 @@ const config: CapacitorConfig = {
       showSpinner: false,
     },
     StatusBar: {
+      // Capacitor'da DARK = koyu zemin, BEYAZ yazı. Şerit marka mavisi olduğu
+      // için yazının beyaz kalması gerekiyor.
       style: "DARK",
-      backgroundColor: "#0a0d18",
+      // Yalnızca Android'de etkili; iOS'ta şeridin rengini PanelShell'deki
+      // güvenli alan bloğu veriyor.
+      backgroundColor: "#1c56f3",
     },
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],

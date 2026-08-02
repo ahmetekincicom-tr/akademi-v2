@@ -75,6 +75,20 @@ export function PanelShell({
 
   return (
     <div className="flex min-h-screen bg-paper">
+      {/*
+        Durum çubuğu şeridi. Uygulama tam ekran çalıştığı için saat ve piller
+        sayfanın üstüne biniyor; arkası beyaz kalınca beyaz yazı okunmuyordu.
+        Marka mavisi zemin veriyoruz, sistem yazısı beyaz kalıyor.
+
+        Yan menünün de üstünde (z-60) çünkü menü açıkken de durum çubuğu
+        görünür durumda. Tarayıcıda env() sıfır döndüğü için yüksekliği sıfır,
+        yani webde hiç görünmüyor.
+      */}
+      <div
+        aria-hidden
+        className="fixed inset-x-0 top-0 z-[60] h-[env(safe-area-inset-top)] bg-brand"
+      />
+
       {menuAcik && (
         <button
           type="button"
