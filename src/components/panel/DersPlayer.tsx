@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { dersDurumDegistir } from "@/app/panel/actions";
 import type { PanelCourse } from "@/lib/panel";
@@ -28,6 +27,22 @@ export function DersPlayer({
       ),
   );
   const [kaydediliyor, startTransition] = useTransition();
+  const listeRef = useRef<HTMLDivElement>(null);
+  const aktifSatirRef = useRef<HTMLButtonElement>(null);
+
+  // 24 derslik bir eğitimde açılan ders listenin ortasındaysa kendini
+  // göstermiyordu. Yalnızca listenin kendi kaydırmasına dokunuluyor: kutu
+  // kaymıyorsa (telefon) hiçbir şey yapılmıyor, sayfa asla zıplamıyor.
+  useEffect(() => {
+    const satir = aktifSatirRef.current;
+    const kap = listeRef.current;
+    if (!satir || !kap || kap.scrollHeight <= kap.clientHeight) return;
+
+    const s = satir.getBoundingClientRect();
+    const k = kap.getBoundingClientRect();
+    if (s.top >= k.top && s.bottom <= k.bottom) return;
+    kap.scrollTop += s.top - k.top - (k.height - s.height) / 2;
+  }, [aktifDersId, kursSlug]);
 
   const kurs = courses.find((c) => c.slug === kursSlug) ?? courses[0];
   const tumDersler = kurs.modules.flatMap((m) => m.dersler.map((d) => ({ ...d, modulBaslik: m.baslik })));
@@ -80,26 +95,17 @@ export function DersPlayer({
 
   return (
     <main className="p-4 pt-4 pb-14 sm:p-[34px] sm:pt-[26px]">
-      {/* Mobilde "← Panel" düğmesi yoktu sayılır: shell'in üst çubuğunda zaten
-          tıklanabilir bir "Panel" kırıntısı var. İki kez göstermek başlığın
-          yerini yiyordu. */}
-      <div className="mb-4 flex min-w-0 items-start gap-4 sm:mb-5">
-        <Link
-          href="/panel"
-          className="hidden h-[38px] flex-none items-center gap-[7px] rounded-[9px] border border-ink/13 bg-white pr-[15px] pl-[12px] text-[13.5px] font-semibold text-ink transition hover:border-brand hover:text-brand sm:inline-flex"
-        >
-          <Icon name="arrowLeft" size={15} />
-          Panel
-        </Link>
-        <div className="min-w-0">
-          <div className="truncate font-mono text-[10px] tracking-[0.1em] text-[#656B7A] uppercase sm:text-[10.5px]">
-            <span className="hidden sm:inline">{kurs.baslik} · </span>
-            {aktifDers?.modulBaslik ?? kurs.baslik}
-          </div>
-          <h1 className="mt-[5px] font-heading text-[18px] leading-[1.22] font-semibold tracking-[-0.03em] sm:mt-[6px] sm:text-[26px]">
-            {aktifDers?.ad ?? "Bu eğitimde henüz ders yok"}
-          </h1>
+      {/* Panele dönüş düğmesi yok: shell'in üst çubuğunda zaten tıklanabilir
+          bir "Panel" kırıntısı var, ikincisi hem gereksizdi hem başlığı içeri
+          itiyordu. */}
+      <div className="mb-4 min-w-0 sm:mb-5">
+        <div className="truncate font-mono text-[10px] tracking-[0.1em] text-[#656B7A] uppercase sm:text-[10.5px]">
+          <span className="hidden sm:inline">{kurs.baslik} · </span>
+          {aktifDers?.modulBaslik ?? kurs.baslik}
         </div>
+        <h1 className="mt-[5px] font-heading text-[18px] leading-[1.22] font-semibold tracking-[-0.03em] sm:mt-[6px] sm:text-[26px]">
+          {aktifDers?.ad ?? "Bu eğitimde henüz ders yok"}
+        </h1>
       </div>
 
       {courses.length > 1 && (
@@ -181,7 +187,7 @@ export function DersPlayer({
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white xl:col-start-2 xl:row-start-1">
+        <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white xl:sticky xl:top-[94px] xl:col-start-2 xl:row-start-1">
           <div className="border-b border-ink/8 px-5 py-[18px]">
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">Eğitim içeriği</h2>
@@ -195,7 +201,11 @@ export function DersPlayer({
             </div>
           </div>
 
-          <div className="max-h-[560px] overflow-auto">
+          {/* Kendi içinde kaydırma yalnızca geniş ekranda: telefonda liste zaten
+              sayfayla birlikte akıyor, iç kaydırma orada yalnızca sinir bozucu.
+              Yükseklik pencereye bağlı, böylece son satır kartın kenarında
+              yarım kalmıyor. */}
+          <div ref={listeRef} className="xl:max-h-[calc(100vh-268px)] xl:overflow-auto">
             {kurs.modules.map((m, mi) => (
               <div key={m.id} className="border-b border-ink/8 last:border-b-0">
                 <div className="bg-mist px-5 py-[11px]">
@@ -212,6 +222,7 @@ export function DersPlayer({
                   return (
                     <button
                       key={d.id}
+                      ref={aktifMi ? aktifSatirRef : undefined}
                       type="button"
                       onClick={() => setAktifDersId(d.id)}
                       className="flex w-full items-center gap-[11px] border-t border-ink/6 px-5 py-[11px] text-left hover:bg-mist/60"
