@@ -32,8 +32,18 @@ const config: CapacitorConfig = {
     // Oturum çerezi WKWebView'da kalıcı olsun; aksi halde öğrenci uygulamayı
     // her açtığında yeniden giriş yapar.
     limitsNavigationsToAppBoundDomains: false,
-    contentInset: "always",
-    backgroundColor: "#ffffff",
+
+    // "never" olmalı. "always" iken WKWebView içeriği güvenli alanın altına
+    // KENDİSİ itiyordu; CSS'teki env(safe-area-inset-top) boşluğu da üstüne
+    // binince aynı boşluk iki kez sayılıyor, üstte beyaz + altında mavi olmak
+    // üzere iki bant çıkıyordu. Artık içerik en tepeden başlıyor ve boşluğu
+    // tek yerden, CSS veriyor.
+    contentInset: "never",
+
+    // Kaydırma sınırın dışına taşarsa arkada bu renk görünür. Üstteki şeritle
+    // aynı marka mavisi olduğu için beyaz boşluk yerine sürekli bir renk çıkıyor.
+    backgroundColor: "#1c56f3",
+    scrollEnabled: true,
   },
 
   plugins: {

@@ -230,7 +230,8 @@ export function PanelShell({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      {/* Alt güvenli alan: içerik ana ekran çubuğunun altında kalmasın. */}
+      <div className="flex min-w-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]">
         {/*
           Güvenli alan boşluğu: uygulama tam ekran çalıştığı için (viewportFit
           cover) içerik y=0'dan başlıyor ve başlık çentiğin/durum çubuğunun
