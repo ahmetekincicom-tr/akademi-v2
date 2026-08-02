@@ -1,4 +1,5 @@
-import { getOdemelerim, paraBicimi } from "@/lib/odeme";
+import { getOdemelerim, getBanka, paraBicimi } from "@/lib/odeme";
+import { BankaKutusu } from "@/components/panel/BankaKutusu";
 import { durumStil } from "@/lib/admin/shared";
 import { odemeDurumEtiket } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
@@ -6,7 +7,10 @@ import { Icon } from "@/components/Icon";
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" });
 
 export default async function OdemelerimPage() {
-  const { satirlar, bekleyenTutar, bekleyenAdet } = await getOdemelerim();
+  const [{ satirlar, bekleyenTutar, bekleyenAdet }, banka] = await Promise.all([
+    getOdemelerim(),
+    getBanka(),
+  ]);
 
   return (
     <main className="p-4 pb-14 sm:p-[34px]">
@@ -32,6 +36,10 @@ export default async function OdemelerimPage() {
           </div>
         </div>
       )}
+
+      {/* Panelde tanımlıysa her zaman görünür: öğrenci taksit, eksik ödeme ya
+          da yeni bir eğitim için IBAN'a bekleyen kaydı olmadan da bakabilir. */}
+      {banka && <BankaKutusu banka={banka} />}
 
       {satirlar.length === 0 ? (
         <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">

@@ -33,18 +33,13 @@ export async function getBaslangic(): Promise<Baslangic> {
   if (!user) return { adimlar: [], tamamlandi: true, uyari: null };
 
   // RLS hepsini kullanıcının kendi satırlarıyla sınırlıyor.
-  const [{ data: profil }, odemeler, { count: seansSayisi }] = await Promise.all([
+  const [{ data: profil }, odemeler] = await Promise.all([
     supabase.from("profiles").select("on_degerlendirme_tarihi").eq("id", user.id).maybeSingle(),
     getOdemelerim(),
-    supabase
-      .from("seanslar")
-      .select("id", { count: "exact", head: true })
-      .in("durum", ["planlandi", "tamamlandi"]),
   ]);
 
   const odendi = odemeler.satirlar.some((s) => s.durum === "odendi");
   const testTamam = Boolean(profil?.on_degerlendirme_tarihi);
-  const planlandi = (seansSayisi ?? 0) > 0;
 
   const adimlar: Adim[] = [
     {
@@ -79,16 +74,12 @@ export async function getBaslangic(): Promise<Baslangic> {
       eylem: testTamam || !odendi ? null : "Testi doldur",
       bekliyor: !odendi && !testTamam ? "Ödeme onaylandıktan sonra açılır." : null,
     },
-    {
-      anahtar: "planlama",
-      baslik: "Tarih ve saati planla",
-      aciklama: "Birebir seanslarının takvimini birlikte belirliyoruz.",
-      tamam: planlandi,
-      yol: planlandi || !testTamam ? null : "/iletisim",
-      eylem: planlandi || !testTamam ? null : "Planlamaya geç",
-      bekliyor: !testTamam && !planlandi ? "Ön değerlendirmeden sonra açılır." : null,
-    },
   ];
+  // NOT: "Tarih ve saati planla" adımı bilerek yok. Önceki sürümde seanslar
+  // tablosundan okunuyordu ve yanlıştı: seanslar birebir EĞİTİMİN takvimi
+  // değil, eğitim bittikten sonra kullanılan görüşme hakları. Eğitim tarihi
+  // planlamasının veritabanında bir karşılığı henüz belirlenmedi; kaynağı
+  // netleşince adım geri eklenecek.
 
   // Panele girer girmez görülecek tek iş. Öğrencinin yapabileceği iş, bizi
   // bekleyen işin önüne geçiyor: bekleyen ödemede öğrenciye düşen bir şey yok

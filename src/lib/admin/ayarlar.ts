@@ -76,6 +76,23 @@ export const entegrasyonGruplari: AyarGrubu[] = [
     ],
   },
   {
+    anahtar: "banka",
+    baslik: "Banka bilgileri",
+    aciklama:
+      "Havale/EFT ile ödeme yapacak öğrenciler bu bilgileri kendi panelinde, Ödemelerim sayfasında görür. Boş bırakılan alan gösterilmez.",
+    alanlar: [
+      { ad: "unvan", etiket: "Hesap sahibi", yerTutucu: "Ahmet Ekinci Akademi" },
+      { ad: "banka", etiket: "Banka", yerTutucu: "Ziraat Bankası" },
+      { ad: "iban", etiket: "IBAN", yerTutucu: "TR00 0000 0000 0000 0000 0000 00", genis: true },
+      {
+        ad: "aciklama",
+        etiket: "Açıklama notu",
+        ipucu: "Öğrenciye açıklama alanına ne yazacağını söyler.",
+        genis: true,
+      },
+    ],
+  },
+  {
     anahtar: "odeme",
     baslik: "Ödeme sağlayıcı",
     aciklama: "Online tahsilata geçtiğinde kullanılacak sağlayıcı bilgileri. Şu an ödemeler panele elle kaydediliyor.",

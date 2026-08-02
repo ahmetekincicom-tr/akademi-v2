@@ -22,23 +22,44 @@ export const getOnDegerlendirmeFormu = cache(async (): Promise<string | null> =>
 });
 
 /**
+ * Panele "https://tally.so/r/xxxx" yapıştırılıyor ama /r/ formun kendi
+ * sayfası: kendi başlığı, kendi kaydırması ve sabit yüksekliği var. Gömmek
+ * için doğru olan /embed/ — sayfa süsü olmadan, dış yüksekliğe uyum sağlayan
+ * sürüm. Bunu çevirmezsek iframe içinde ikinci bir kaydırma çubuğu çıkıyor.
+ */
+function gommeAdresi(url: URL): URL {
+  if (url.hostname.endsWith("tally.so")) {
+    url.pathname = url.pathname.replace(/^\/r\//, "/embed/");
+  }
+  return url;
+}
+
+/**
  * Tally gizli alanları URL parametresiyle doldurulabiliyor. Katılımcının kim
  * olduğunu forma geçirince cevap Tally'ye kimliğiyle düşüyor; "adınız soyadınız"
  * sorup elle eşleştirmeye gerek kalmıyor.
  *
- * Tally tarafında bu adlarla gizli alan tanımlı olmalı: eposta, ad, kullanici.
+ * ÖNEMLİ: parametre adları Tally formundaki gizli alan adlarıyla birebir aynı
+ * olmalı. Tally tanımsız bir parametreyi sessizce yok sayar — form yine açılır
+ * ama alanlar boş kalır. Beklenen adlar: eposta, ad, kullanici.
  */
 export function formUrlKimlikle(
   temel: string,
   kisi: { email: string | null; isim: string | null; id: string },
 ): string {
   try {
-    const url = new URL(temel);
+    const url = gommeAdresi(new URL(temel));
     if (kisi.email) url.searchParams.set("eposta", kisi.email);
     if (kisi.isim) url.searchParams.set("ad", kisi.isim);
     url.searchParams.set("kullanici", kisi.id);
-    // Tally gömme görünümü: başlık ve kenar boşlukları iframe'de fazlalık.
+
+    // Gömme görünümü: form sayfasının kendi başlığı ve ortalaması iframe'de
+    // fazlalık. dynamicHeight, embed.js ile birlikte iframe'i içeriğe göre
+    // büyütüyor — içeride ayrı bir kaydırma kalmıyor.
     url.searchParams.set("transparentBackground", "1");
+    url.searchParams.set("hideTitle", "1");
+    url.searchParams.set("alignLeft", "1");
+    url.searchParams.set("dynamicHeight", "1");
     return url.toString();
   } catch {
     return temel;

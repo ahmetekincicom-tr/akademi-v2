@@ -1,4 +1,31 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
+
+export type Banka = {
+  unvan: string | null;
+  banka: string | null;
+  iban: string | null;
+  aciklama: string | null;
+};
+
+/**
+ * Havale bilgileri admin panelinden giriliyor (Entegrasyonlar → Banka
+ * bilgileri) ve banka_ayarlari view'ı üzerinden okunuyor. settings tablosu
+ * öğrenciye kapalı; view bilerek yalnızca bu dört alanı yayınlıyor.
+ */
+export const getBanka = cache(async (): Promise<Banka | null> => {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("banka_ayarlari")
+    .select("unvan, banka, iban, aciklama")
+    .maybeSingle();
+
+  if (error || !data) return null;
+  // Hiçbir alan doldurulmadıysa boş bir kutu göstermenin anlamı yok.
+  if (!data.unvan && !data.banka && !data.iban) return null;
+  return data;
+});
 
 export type OdemeSatiri = {
   id: string;

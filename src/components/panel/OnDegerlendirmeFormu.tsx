@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import { onDegerlendirmeIsaretle } from "@/app/panel/on-degerlendirme/actions";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
@@ -63,14 +64,23 @@ export function OnDegerlendirmeFormu({ src, tamamMi }: { src: string; tamamMi: b
         </div>
       )}
 
-      <div className="overflow-hidden rounded-[16px] border border-ink/10 bg-white">
+      {/*
+        data-tally-src + embed.js: betik iframe'i içeriğin boyuna göre
+        büyütüyor, böylece form sayfaya gömülü tek bir blok gibi duruyor.
+        Sabit yükseklikli iframe'de soruları görmek için içeride ayrı bir
+        kaydırma gerekiyordu.
+      */}
+      <div className="rounded-[16px] border border-ink/10 bg-white p-4 sm:p-6">
         <iframe
-          src={src}
+          data-tally-src={src}
           title="Ön değerlendirme formu"
-          className="h-[720px] w-full border-0"
           loading="lazy"
+          width="100%"
+          height={200}
+          className="w-full border-0"
         />
       </div>
+      <Script src="https://tally.so/widgets/embed.js" strategy="afterInteractive" />
 
       {!tamamMi && !gonderildi && (
         <div className="mt-4 flex flex-wrap items-center gap-3">
