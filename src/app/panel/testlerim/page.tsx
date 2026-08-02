@@ -52,8 +52,9 @@ export default async function TestlerimPage() {
             <Icon name={tamamTarih ? "check" : "file"} size={20} strokeWidth={tamamTarih ? 2.6 : 2} />
           </span>
 
-          {/* basis ile sarmalıyor: dar ekranda başlık ezilmesin, düğme alta insin. */}
-          <div className="min-w-0 grow basis-[240px]">
+          {/* basis yalnızca sm'den itibaren: kapsayıcı mobilde flex-col olduğu
+              için orada basis genişliği değil YÜKSEKLİĞİ belirler. */}
+          <div className="min-w-0 sm:grow sm:basis-[240px]">
             <div className="text-[15.5px] font-semibold text-ink">Ön değerlendirme</div>
             <div className="mt-[3px] text-[13.5px] leading-[1.55] text-[#5C6273]">
               {tamamTarih

@@ -90,19 +90,15 @@ export async function getBaslangic(): Promise<Baslangic> {
     },
   ];
 
-  // Panele girer girmez görülecek tek iş. Sıra önemli: ödeme beklerken test
-  // uyarısı göstermek yanlış olur, test o aşamada zaten kilitli.
+  // Panele girer girmez görülecek tek iş. Öğrencinin yapabileceği iş, bizi
+  // bekleyen işin önüne geçiyor: bekleyen ödemede öğrenciye düşen bir şey yok
+  // ("ödemen ulaştığında işaretliyoruz"), test ise onun elinde.
+  //
+  // Bu sıralama yüzünden tek bir aralıkta bekleyen ödeme uyarısı görünmüyor:
+  // ilk ödeme onaylanmış ama test henüz doldurulmamışken. O aralıkta kayıt
+  // /panel/odemelerim'de duruyor ve test biter bitmez uyarı geri geliyor.
   let uyari: Uyari | null = null;
-  if (odemeler.bekleyenAdet > 0) {
-    uyari = {
-      tip: "bekleyen",
-      baslik: "Bekleyen ödemen var",
-      metin: `${paraBicimi.format(odemeler.bekleyenTutar)} tutarında ${odemeler.bekleyenAdet} ödeme onay bekliyor. Ödemen bize ulaştığında işaretliyoruz.`,
-      yol: "/panel/odemelerim",
-      eylem: "Ödemelerim",
-      ikon: "card",
-    };
-  } else if (odendi && !testTamam) {
+  if (odendi && !testTamam) {
     uyari = {
       tip: "eylem",
       baslik: "Ön değerlendirme testini tamamla",
@@ -110,6 +106,15 @@ export async function getBaslangic(): Promise<Baslangic> {
       yol: "/panel/testlerim",
       eylem: "Testi doldur",
       ikon: "file",
+    };
+  } else if (odemeler.bekleyenAdet > 0) {
+    uyari = {
+      tip: "bekleyen",
+      baslik: "Bekleyen ödemen var",
+      metin: `${paraBicimi.format(odemeler.bekleyenTutar)} tutarında ${odemeler.bekleyenAdet} ödeme onay bekliyor. Ödemen bize ulaştığında işaretliyoruz.`,
+      yol: "/panel/odemelerim",
+      eylem: "Ödemelerim",
+      ikon: "card",
     };
   }
 

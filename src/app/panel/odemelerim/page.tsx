@@ -1,12 +1,7 @@
 import { getOdemelerim, paraBicimi } from "@/lib/odeme";
 import { durumStil } from "@/lib/admin/shared";
+import { odemeDurumEtiket } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
-
-const durumEtiket: Record<string, string> = {
-  odendi: "Ödendi",
-  bekliyor: "Bekliyor",
-  iade: "İade",
-};
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" });
 
@@ -50,15 +45,19 @@ export default async function OdemelerimPage() {
       ) : (
         <div className="mt-[26px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
           {satirlar.map((s) => {
-            const etiket = durumEtiket[s.durum] ?? s.durum;
+            // Etiket admin tarafıyla ortak: durumStil renkleri bu metinlere göre
+            // seçiyor, kendi sözlüğümü yazarsam rozetler griye düşüyordu.
+            const etiket = odemeDurumEtiket[s.durum] ?? s.durum;
             const st = durumStil(etiket);
             return (
               <div
                 key={s.id}
                 className="flex flex-col gap-3 border-b border-ink/7 px-5 py-4 last:border-b-0 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:px-6 sm:py-[16px]"
               >
-                {/* basis ile sarmalıyor: dar ekranda tutar ve durum ezilmesin. */}
-                <div className="min-w-0 grow basis-[220px]">
+                {/* basis yalnızca sm'den itibaren: kapsayıcı mobilde flex-col
+                    olduğu için orada basis genişliği değil YÜKSEKLİĞİ belirler
+                    ve satırın ortasında boş bir blok bırakır. */}
+                <div className="min-w-0 sm:grow sm:basis-[220px]">
                   <div className="text-[15px] leading-[1.3] font-semibold text-ink">
                     {paraBicimi.format(s.tutar)}
                   </div>
