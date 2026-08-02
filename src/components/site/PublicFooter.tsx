@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { Icon } from "@/components/Icon";
+import { CerezTercihleriDugmesi } from "@/components/site/CerezTercihleriDugmesi";
+import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import {
   SOSYAL,
   WHATSAPP_NUMARALAR,
@@ -70,7 +72,11 @@ const YASAL_LINKLER = [
   { label: "KVKK", href: "/kisisel-verilerin-islenmesi" },
 ];
 
-export function PublicFooter() {
+export async function PublicFooter() {
+  // Bant yalnızca ölçümleme tanımlıyken basılıyor. Tercih bağlantısını her
+  // koşulda göstermek, tıklanınca hiçbir şey yapmayan bir buton bırakırdı.
+  const olcumlemeVar = olcumlemeAcik(await getOlcumleme());
+
   return (
     <footer className="border-t border-white/10 bg-ink text-white/60">
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-12 px-5 sm:px-8 py-16 pb-7 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
@@ -153,6 +159,7 @@ export function PublicFooter() {
               {l.label}
             </Link>
           ))}
+          {olcumlemeVar && <CerezTercihleriDugmesi className="text-white/55 hover:text-white" />}
         </div>
       </div>
     </footer>

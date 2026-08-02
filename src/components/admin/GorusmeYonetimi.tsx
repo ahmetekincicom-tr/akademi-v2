@@ -137,7 +137,7 @@ export function GorusmeYonetimi({
             return (
               <div key={g.id} className="border-b border-ink/7 last:border-b-0">
                 <div className="flex flex-wrap items-center gap-4 px-[22px] py-[14px] hover:bg-[#F7F9FF]">
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 grow basis-[240px]">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="truncate text-sm font-semibold">{g.kisiAd}</span>
                       <span

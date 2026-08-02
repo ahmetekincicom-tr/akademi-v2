@@ -140,14 +140,26 @@ export function DokumanYonetimi({
               ))}
             </select>
           </label>
-          <label className="flex flex-col gap-2">
+          {/* Yerleşik dosya seçici "Choose File / No file chosen" diye İngilizce
+              görünüyordu. Input gizlenip etiket Türkçe yazılıyor — MarkaYonetimi
+              ile aynı desen. */}
+          <div className="flex flex-col gap-2">
             <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Dosya</span>
-            <input
-              type="file"
-              onChange={(e) => setDosya(e.target.files?.[0] ?? null)}
-              className="h-[46px] rounded-[10px] border border-ink/13 bg-white px-[13px] pt-[11px] text-[13px] text-ink outline-none file:mr-3 file:rounded-[6px] file:border-0 file:bg-mist file:px-3 file:py-1 file:text-[12px] file:font-semibold focus:border-brand"
-            />
-          </label>
+            <div className="flex min-w-0 items-center gap-3">
+              <label className="inline-flex h-[46px] flex-none cursor-pointer items-center gap-2 rounded-[10px] border border-ink/13 bg-white px-[15px] text-[13px] font-semibold text-ink transition hover:border-ink">
+                <Icon name="upload" size={14} />
+                {dosya ? "Değiştir" : "Dosya seç"}
+                <input
+                  type="file"
+                  onChange={(e) => setDosya(e.target.files?.[0] ?? null)}
+                  className="hidden"
+                />
+              </label>
+              <span className="min-w-0 truncate text-[13px] text-[#656B7A]">
+                {dosya ? dosya.name : "Henüz dosya seçilmedi"}
+              </span>
+            </div>
+          </div>
         </div>
 
         {hata && <div className="mt-4 text-sm text-danger-ink">{hata}</div>}

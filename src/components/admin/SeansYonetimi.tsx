@@ -2,7 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { seansEkle, seansDurumDegistir, seansSil } from "@/app/admin/(protected)/seanslar/actions";
+import {
+  seansEkle,
+  seansDurumDegistir,
+  seansSil,
+  seansKayitLinki,
+} from "@/app/admin/(protected)/seanslar/actions";
 import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
@@ -18,6 +23,7 @@ export type SeansSatir = {
   sureDk: number;
   konu: string;
   toplantiLink: string;
+  kayitLink: string;
   durum: "planlandi" | "tamamlandi" | "iptal";
 };
 
@@ -73,6 +79,23 @@ export function SeansYonetimi({
     });
   };
 
+  // Kayıt bağlantısı satır içinde düzenleniyor: seans bittikten sonra Drive
+  // linkini yapıştırmak tek işlem, ayrı bir form açtırmaya değmiyor.
+  const [kayitDuzenlenen, setKayitDuzenlenen] = useState<string | null>(null);
+  const [kayitTaslak, setKayitTaslak] = useState("");
+
+  const kayitKaydet = (id: string) => {
+    startTransition(async () => {
+      const r = await seansKayitLinki(id, kayitTaslak);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili(kayitTaslak.trim() ? "Kayıt bağlantısı kaydedildi." : "Kayıt bağlantısı kaldırıldı.");
+        setKayitDuzenlenen(null);
+        router.refresh();
+      }
+    });
+  };
+
   const sil = (id: string) => {
     startTransition(async () => {
       const r = await seansSil(id);
@@ -89,9 +112,9 @@ export function SeansYonetimi({
     const st = durumStil(etiket);
     const toplanti = guvenliUrl(s.toplantiLink);
     return (
+      <div key={s.id} className="border-b border-ink/7 last:border-b-0">
       <div
-        key={s.id}
-        className="flex flex-col gap-3 border-b border-ink/7 px-4 py-4 last:border-b-0 hover:bg-[#F7F9FF] sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:px-[22px] sm:py-[14px]"
+        className="flex flex-col gap-3 px-4 py-4 hover:bg-[#F7F9FF] sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:px-[22px] sm:py-[14px]"
       >
         <div className="order-2 font-mono text-[11.5px] text-[#3A3F4F] sm:order-none sm:w-[150px] sm:flex-none">
           {saatBicimi.format(new Date(s.baslangic))}
@@ -129,12 +152,59 @@ export function SeansYonetimi({
         <button
           type="button"
           disabled={islemde}
+          onClick={() => {
+            setKayitTaslak(s.kayitLink);
+            setKayitDuzenlenen(kayitDuzenlenen === s.id ? null : s.id);
+          }}
+          className={`order-4 inline-flex h-8 w-fit flex-none items-center gap-[5px] rounded-[7px] border px-3 text-[12.5px] font-semibold transition sm:order-none ${
+            s.kayitLink
+              ? "border-brand/35 bg-brand/8 text-brand hover:border-brand"
+              : "border-ink/13 bg-white text-[#656B7A] hover:border-ink hover:text-ink"
+          }`}
+        >
+          <Icon name="playCircle" size={13} />
+          {s.kayitLink ? "Kayıt var" : "Kayıt ekle"}
+        </button>
+        <button
+          type="button"
+          disabled={islemde}
           onClick={() => sil(s.id)}
           aria-label="Seansı sil"
           className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#656B7A] transition hover:border-danger/45 hover:text-danger disabled:opacity-50"
         >
           <Icon name="x" size={14} />
         </button>
+      </div>
+
+      {kayitDuzenlenen === s.id && (
+        <div className="flex flex-wrap items-center gap-2 bg-mist px-4 pt-1 pb-4 sm:px-[22px]">
+          <input
+            value={kayitTaslak}
+            onChange={(e) => setKayitTaslak(e.target.value)}
+            placeholder="https://drive.google.com/file/d/…/view"
+            aria-label="Kayıt bağlantısı"
+            className="h-9 min-w-0 grow basis-[260px] rounded-[8px] border border-ink/13 bg-white px-3 text-[13px] text-ink outline-none focus:border-brand"
+          />
+          <button
+            type="button"
+            disabled={islemde}
+            onClick={() => kayitKaydet(s.id)}
+            className="h-9 flex-none rounded-[8px] bg-brand px-4 text-[12.5px] font-semibold text-white transition hover:bg-ink disabled:opacity-50"
+          >
+            Kaydet
+          </button>
+          <button
+            type="button"
+            onClick={() => setKayitDuzenlenen(null)}
+            className="h-9 flex-none rounded-[8px] border border-ink/13 bg-white px-4 text-[12.5px] font-semibold text-ink transition hover:border-ink"
+          >
+            Vazgeç
+          </button>
+          <span className="basis-full font-mono text-[10.5px] text-[#656B7A]">
+            Drive, YouTube, Vimeo veya doğrudan dosya bağlantısı. Yalnızca bu seansın katılımcısı görür.
+          </span>
+        </div>
+      )}
       </div>
     );
   };

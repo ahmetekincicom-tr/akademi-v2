@@ -17,6 +17,7 @@ const groups: MenuGroup[] = [
     items: [
       { href: "/panel", label: "Genel bakış", icon: "grid" },
       { href: "/panel/dersler", label: "Derslerim", icon: "playCircle" },
+      { href: "/panel/testlerim", label: "Testlerim", icon: "check" },
       { href: "/panel/dokumanlar", label: "Doküman kütüphanesi", icon: "file" },
     ],
   },
@@ -31,6 +32,7 @@ const groups: MenuGroup[] = [
   {
     title: "Hesap",
     items: [
+      { href: "/panel/odemelerim", label: "Ödemelerim", icon: "card" },
       { href: "/panel/yeni-egitimler", label: "Yeni eğitimler", icon: "sparkle" },
       { href: "/panel/hesabim", label: "Hesabım", icon: "user" },
     ],
@@ -40,6 +42,9 @@ const groups: MenuGroup[] = [
 const pageTitles: Record<string, string> = {
   "/panel": "Genel bakış",
   "/panel/dersler": "Ders izleme",
+  "/panel/testlerim": "Testlerim",
+  "/panel/on-degerlendirme": "Ön değerlendirme",
+  "/panel/odemelerim": "Ödemelerim",
   "/panel/dokumanlar": "Doküman kütüphanesi",
   "/panel/seanslar": "Birebir seanslar",
   "/panel/gorusmeler": "Danışmanlık görüşmeleri",

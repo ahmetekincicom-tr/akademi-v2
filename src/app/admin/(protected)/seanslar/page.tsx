@@ -7,7 +7,9 @@ export default async function AdminSeanslarPage() {
   const [{ data: seanslarData }, { data: profiles }, { data: courses }] = await Promise.all([
     supabase
       .from("seanslar")
-      .select("id, baslangic, sure_dk, konu, toplanti_link, durum, profiles(ad, soyad, email), courses(baslik)")
+      .select(
+        "id, baslangic, sure_dk, konu, toplanti_link, kayit_link, durum, profiles(ad, soyad, email), courses(baslik)",
+      )
       .order("baslangic", { ascending: true }),
     supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
     supabase.from("courses").select("id, baslik").order("created_at"),
@@ -23,6 +25,7 @@ export default async function AdminSeanslarPage() {
       sureDk: s.sure_dk,
       konu: s.konu ?? "",
       toplantiLink: s.toplanti_link ?? "",
+      kayitLink: s.kayit_link ?? "",
       durum: s.durum,
     };
   });

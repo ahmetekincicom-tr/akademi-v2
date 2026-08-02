@@ -61,6 +61,21 @@ export const entegrasyonGruplari: AyarGrubu[] = [
     ],
   },
   {
+    anahtar: "formlar",
+    baslik: "Formlar",
+    aciklama:
+      "Panelde gömülü gösterilen dış formlar. Cevaplar formun kendi servisinde kalır; panel yalnızca doldurulduğunu işaretler.",
+    alanlar: [
+      {
+        ad: "onDegerlendirme",
+        etiket: "Ön değerlendirme formu",
+        yerTutucu: "https://tally.so/r/xxxxxx",
+        ipucu: "Tally form bağlantısı. Boş bırakılırsa adım öğrenciye gösterilmez.",
+        genis: true,
+      },
+    ],
+  },
+  {
     anahtar: "odeme",
     baslik: "Ödeme sağlayıcı",
     aciklama: "Online tahsilata geçtiğinde kullanılacak sağlayıcı bilgileri. Şu an ödemeler panele elle kaydediliyor.",
