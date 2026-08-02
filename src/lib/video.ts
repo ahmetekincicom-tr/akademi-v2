@@ -5,7 +5,7 @@ import { guvenliUrl } from "@/lib/guvenli-url";
  * can drop it straight into an iframe. Anything else is returned untouched and
  * played as a direct file.
  */
-export function videoGomme(url: string): { tip: "iframe" | "dosya"; src: string } | null {
+export function videoGomme(url: string): { tip: "iframe" | "dosya" | "klasor"; src: string } | null {
   const temiz = url.trim();
   if (!temiz) return null;
 
@@ -16,6 +16,14 @@ export function videoGomme(url: string): { tip: "iframe" | "dosya"; src: string 
 
   const vimeo = temiz.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vimeo) return { tip: "iframe", src: `https://player.vimeo.com/video/${vimeo[1]}` };
+
+  // Drive KLASÖRÜ: tek bir video değil, içinde birden çok dosya olan bir
+  // liste. Klasörün kendi sayfası da çerçevelenmeyi reddediyor; gömülebilir
+  // olan embeddedfolderview.
+  const klasor = temiz.match(/drive\.google\.com\/drive\/(?:u\/\d+\/)?folders\/([\w-]{10,})/);
+  if (klasor) {
+    return { tip: "klasor", src: `https://drive.google.com/embeddedfolderview?id=${klasor[1]}#grid` };
+  }
 
   // Drive'ın /view sayfası iframe'e girmeyi reddediyor; gömülebilir olan
   // /preview. Dosya kimliği hem /file/d/<id> hem de ?id=<id> biçiminde gelebilir.

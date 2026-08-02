@@ -15,6 +15,8 @@ import type { Oynatma } from "@/lib/oynatma";
  */
 export function SeansKaydi({ video, kaynak, baslik }: { video: Oynatma; kaynak: string; baslik: string }) {
   const [acik, setAcik] = useState(false);
+  // Klasör tek bir video değil, dosya listesi: etiketler ve yükseklik farklı.
+  const klasorMu = video.tip === "klasor";
 
   return (
     <div className="order-5 basis-full sm:order-none">
@@ -25,8 +27,14 @@ export function SeansKaydi({ video, kaynak, baslik }: { video: Oynatma; kaynak: 
           aria-expanded={acik}
           className="inline-flex h-9 w-fit items-center gap-[6px] rounded-[9px] border border-ink/13 bg-white px-[15px] text-[13.5px] font-semibold text-ink transition hover:border-brand hover:text-brand"
         >
-          <Icon name={acik ? "x" : "play"} size={14} />
-          {acik ? "Kaydı kapat" : "Kaydı izle"}
+          <Icon name={acik ? "x" : klasorMu ? "folder" : "play"} size={14} />
+          {acik
+            ? klasorMu
+              ? "Kayıtları kapat"
+              : "Kaydı kapat"
+            : klasorMu
+              ? "Kayıtları aç"
+              : "Kaydı izle"}
         </button>
         <a
           href={kaynak}
@@ -40,8 +48,16 @@ export function SeansKaydi({ video, kaynak, baslik }: { video: Oynatma; kaynak: 
       </div>
 
       {acik && (
-        <div className="mt-3 overflow-hidden rounded-[14px] bg-ink ring-1 ring-ink/12">
-          {video.tip === "iframe" ? (
+        <div
+          className={`mt-3 overflow-hidden rounded-[14px] ring-1 ring-ink/12 ${
+            klasorMu ? "bg-white" : "bg-ink"
+          }`}
+        >
+          {klasorMu ? (
+            // Klasör listesi: en boy oranı yerine sabit yükseklik, çünkü
+            // içerik video değil dosya listesi.
+            <iframe src={video.src} title={baslik} className="h-[420px] w-full border-0" />
+          ) : video.tip === "iframe" ? (
             <iframe
               src={video.src}
               title={baslik}

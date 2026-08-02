@@ -2,7 +2,7 @@ import "server-only";
 import { bunnyVideoId, bunnyEmbedUrl } from "@/lib/bunny";
 import { videoGomme } from "@/lib/video";
 
-export type Oynatma = { tip: "iframe" | "dosya"; src: string };
+export type Oynatma = { tip: "iframe" | "dosya" | "klasor"; src: string };
 
 /**
  * Resolves a lesson's stored video reference into something the player can

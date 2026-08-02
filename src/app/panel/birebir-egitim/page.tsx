@@ -19,7 +19,11 @@ export default async function PanelBirebirEgitimPage() {
     const etiket = seansDurumEtiket[o.durum];
     const st = durumStil(etiket);
     const toplanti = guvenliUrl(o.toplantiLink);
-    const kayitKaynak = o.durum === "tamamlandi" ? guvenliUrl(o.kayitLink) : null;
+    // Bağlantı varsa gösteriliyor; durum şartı yok. Kaydı ne zaman
+    // paylaşacağına bağlantıyı ekleyerek eğitmen karar veriyor — önceden
+    // "yalnızca tamamlandı" şartı vardı ve planlı bir oturuma eklenen
+    // klasörü gizliyordu.
+    const kayitKaynak = guvenliUrl(o.kayitLink);
     const kayit = kayitKaynak ? oynatmaCoz(o.kayitLink) : null;
 
     return (
