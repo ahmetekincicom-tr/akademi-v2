@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 import { Icon } from "@/components/Icon";
+import { EgitimlerimKarti } from "@/components/panel/EgitimlerimKarti";
 
 export default async function PanelOverviewPage() {
   const [profil, courses] = await Promise.all([getPanelProfile(), getPanelCourses()]);
@@ -73,46 +74,17 @@ export default async function PanelOverviewPage() {
           </div>
 
           <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[1fr_360px]">
-            <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
-              <div className="border-b border-ink/8 px-6 py-5">
-                <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Eğitimlerim</h2>
-              </div>
-              {courses.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex flex-wrap items-center gap-4 border-b border-ink/8 px-6 py-5 last:border-b-0"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-[15px] font-semibold text-ink">{c.baslik}</div>
-                    <div className="mt-1 font-mono text-[11.5px] text-[#656B7A]">
-                      {c.modules.length} modül · {c.dersSayisi} ders{c.sure ? ` · ${c.sure}` : ""}
-                    </div>
-                    <div className="mt-[10px] h-[6px] w-full overflow-hidden rounded-full bg-mist">
-                      <div className="h-full rounded-full bg-brand" style={{ width: `${c.yuzde}%` }} />
-                    </div>
-                  </div>
-                  <div className="flex flex-none items-center gap-4">
-                    <span className="font-mono text-[13px] font-medium text-brand">{c.yuzde}%</span>
-                    <Link
-                      href={`/panel/dersler?kurs=${c.slug}`}
-                      className="inline-flex h-9 items-center rounded-[9px] border border-ink/13 bg-white px-[15px] text-[13.5px] font-semibold text-ink hover:border-brand hover:text-brand"
-                    >
-                      {c.yuzde === 100 ? "Tekrar izle" : "Devam et"}
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <EgitimlerimKarti courses={courses} />
 
             {aktifKurs && aktifKurs.modules.length > 0 && (
               <div className="rounded-2xl border border-ink/10 bg-white p-6">
                 <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Modül ilerlemesi</h2>
-                <p className="mt-1 truncate text-[13px] text-[#656B7A]">{aktifKurs.baslik}</p>
+                <p className="mt-1 text-[13px] leading-[1.45] text-[#656B7A]">{aktifKurs.baslik}</p>
                 <div className="mt-5 flex flex-col gap-[14px]">
                   {aktifKurs.modules.map((m, i) => (
                     <div key={m.id}>
                       <div className="flex items-center justify-between gap-3">
-                        <span className="min-w-0 truncate text-[13.5px] text-ink">
+                        <span className="min-w-0 text-[13.5px] leading-[1.4] text-ink">
                           {i + 1}. {m.baslik}
                         </span>
                         <span className="flex-none font-mono text-[11.5px] text-[#656B7A]">{m.yuzde}%</span>

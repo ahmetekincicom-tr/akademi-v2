@@ -227,7 +227,7 @@ export function DersPlayer({
                         {dersBitti && <Icon name="check" size={11} strokeWidth={2.6} />}
                       </span>
                       <span
-                        className="min-w-0 flex-1 truncate text-[13.5px]"
+                        className="min-w-0 flex-1 text-[13.5px] leading-[1.4]"
                         style={{ color: aktifMi ? "#1C56F3" : "#3A3F4F", fontWeight: aktifMi ? 600 : 400 }}
                       >
                         {d.ad}

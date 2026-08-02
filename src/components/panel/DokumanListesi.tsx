@@ -59,14 +59,15 @@ export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] })
           {dokumanlar.map((d) => (
             <div
               key={d.id}
-              className="flex flex-wrap items-center gap-4 border-b border-ink/7 px-6 py-[16px] last:border-b-0 hover:bg-[#F7F9FF]"
+              className="flex items-start gap-3 border-b border-ink/7 px-5 py-[16px] last:border-b-0 hover:bg-[#F7F9FF] sm:gap-4 sm:px-6"
             >
               <span className="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] bg-mist font-mono text-[10px] font-semibold text-[#5C6273]">
                 {d.dosyaTipi.slice(0, 4) || "DOC"}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[15px] font-semibold text-ink">{d.baslik}</div>
-                <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">
+                {/* Doküman adı da sarıyor: kesilince iki dosya ayırt edilemiyor. */}
+                <div className="text-[15px] leading-[1.35] font-semibold text-ink">{d.baslik}</div>
+                <div className="mt-[5px] font-mono text-[10.5px] leading-[1.5] text-[#656B7A]">
                   {d.program} · {baytBoyut(d.boyut)} · {tarihBicimi.format(new Date(d.tarih))}
                 </div>
               </div>
@@ -74,7 +75,7 @@ export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] })
                 type="button"
                 disabled={islemde}
                 onClick={() => indir(d.dosyaYolu)}
-                className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] border border-ink/13 bg-white px-[15px] text-[13.5px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
+                className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold whitespace-nowrap text-ink transition hover:border-brand hover:text-brand disabled:opacity-50 sm:px-[15px] sm:text-[13.5px]"
               >
                 <Icon name="download" size={14} />
                 İndir
