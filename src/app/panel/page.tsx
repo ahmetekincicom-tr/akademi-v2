@@ -61,7 +61,7 @@ export default async function PanelOverviewPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
             {kpiler.map((k) => (
               <div key={k.etiket} className="rounded-2xl border border-ink/10 bg-white p-5">
                 <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">{k.etiket}</div>

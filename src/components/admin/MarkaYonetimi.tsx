@@ -132,7 +132,7 @@ function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
   return (
     <div className="rounded-2xl border border-ink/10 bg-white p-6">
       <div className="flex flex-wrap items-start gap-6">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 grow basis-[240px]">
           <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">{kart.baslik}</h2>
           <p className="mt-1 max-w-[440px] text-[13.5px] leading-[1.6] text-[#5C6273]">{kart.aciklama}</p>
           <p className="mt-2 font-mono text-[11px] text-[#656B7A]">{kart.oneri}</p>

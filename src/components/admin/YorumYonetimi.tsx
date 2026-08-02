@@ -130,7 +130,9 @@ export function YorumYonetimi({
                 <span className="flex h-7 w-7 flex-none items-center justify-center rounded-[8px] bg-mist font-mono text-[11px] text-[#5C6273]">
                   {y.sira}
                 </span>
-                <div className="min-w-0 flex-1">
+                {/* basis, dar ekranda satır kaydırmayı tetikler: min-w-0 tek başına
+                    kaldığında metin alt satıra inmek yerine sıfıra doğru eziliyordu. */}
+                <div className="min-w-0 grow basis-[240px]">
                   <p className="text-[14.5px] leading-[1.55] text-[#2B303D]">“{y.metin}”</p>
                   <div className="mt-2 font-mono text-[10.5px] text-[#656B7A]">
                     {y.isim}

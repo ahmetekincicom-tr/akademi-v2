@@ -279,8 +279,10 @@ function Bolum({ baslik, satirlar }: { baslik: string; satirlar: Satir[] }) {
             >
               <Icon name={r.ikon} size={11} strokeWidth={2.6} />
             </span>
-            <span className="w-[240px] flex-none font-mono text-[12px] text-ink">{s.ad}</span>
-            <span className="min-w-0 flex-1">
+            {/* Etiket dar ekranda kendi satırını doldurur, değer alt satıra iner.
+                Sabit 240px + flex-1 ikilisinde değer sütunu 22px'e çöküyordu. */}
+            <span className="grow basis-[240px] font-mono text-[12px] text-ink sm:grow-0">{s.ad}</span>
+            <span className="min-w-0 grow basis-[240px]">
               <span className="block text-[13.5px] break-words" style={{ color: r.fg }}>
                 {s.deger}
               </span>

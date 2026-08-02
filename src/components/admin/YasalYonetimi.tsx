@@ -83,7 +83,8 @@ function YasalKarti({
   return (
     <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
       <div className="flex flex-wrap items-center gap-4 px-6 py-[16px]">
-        <div className="min-w-0 flex-1">
+        {/* basis olmadan başlık ve slug dar ekranda kelime kelime kırılıyordu. */}
+        <div className="min-w-0 grow basis-[240px]">
           <div className="text-[15.5px] font-semibold">{sayfa.baslik}</div>
           <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">
             /{sayfa.slug} · {karakterSayisi > 0 ? `${karakterSayisi.toLocaleString("tr-TR")} karakter` : "metin boş"}
