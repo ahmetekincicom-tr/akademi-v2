@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getOnDegerlendirmeFormu, formUrlKimlikle } from "@/lib/form-ayarlari";
+import { getOdemelerim } from "@/lib/odeme";
 import { OnDegerlendirmeFormu } from "@/components/panel/OnDegerlendirmeFormu";
 import { Icon } from "@/components/Icon";
 
@@ -11,7 +13,8 @@ export default async function OnDegerlendirmePage() {
       data: { user },
     },
     formUrl,
-  ] = await Promise.all([supabase.auth.getUser(), getOnDegerlendirmeFormu()]);
+    odemeler,
+  ] = await Promise.all([supabase.auth.getUser(), getOnDegerlendirmeFormu(), getOdemelerim()]);
 
   const { data: profil } = await supabase
     .from("profiles")
@@ -21,6 +24,13 @@ export default async function OnDegerlendirmePage() {
 
   const isim = [profil?.ad, profil?.soyad].filter(Boolean).join(" ") || null;
   const tamamMi = Boolean(profil?.on_degerlendirme_tarihi);
+
+  // Tamamlanan test yeniden doldurulamaz ve düzenlenemez: ikinci bir gönderim
+  // Tally'de çelişkili iki cevap bırakır. Ödeme onaylanmadan da açılmaz.
+  // Kontrol sunucuda, çünkü adres elle yazılarak da gelinebilir.
+  if (tamamMi || !odemeler.satirlar.some((s) => s.durum === "odendi")) {
+    redirect("/panel/testlerim");
+  }
 
   return (
     <main className="p-4 pb-14 sm:p-[34px]">

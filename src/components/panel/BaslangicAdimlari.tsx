@@ -14,7 +14,7 @@ export function BaslangicAdimlari({ adimlar }: { adimlar: Adim[] }) {
   const kalan = adimlar.filter((a) => !a.tamam).length;
 
   return (
-    <div className="mb-6 overflow-hidden rounded-2xl border border-ink/10 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
       <div className="border-b border-ink/7 px-5 py-4 sm:px-6">
         <h2 className="font-heading text-[17px] font-semibold tracking-[-0.02em]">Başlangıç adımların</h2>
         <p className="mt-1 text-[13.5px] text-[#5C6273]">
