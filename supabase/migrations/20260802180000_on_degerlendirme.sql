@@ -11,3 +11,8 @@ alter table profiles
 
 comment on column profiles.on_degerlendirme_tarihi is
   'Tally ön değerlendirme formunun doldurulduğu an. Cevaplar Tally tarafında kalır.';
+
+-- profiles'ta UPDATE yetkisi kolon kolon veriliyor (ad, soyad, telefon,
+-- sirket). Yeni kolon o listeye eklenmezse öğrencinin kendi işaretlemesi
+-- sessizce reddedilir — RLS geçse bile yetki katmanı önde duruyor.
+grant update (on_degerlendirme_tarihi) on public.profiles to authenticated;
