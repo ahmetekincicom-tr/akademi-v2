@@ -41,6 +41,24 @@ export async function seansDurumDegistir(id: string, durum: "planlandi" | "tamam
   return {};
 }
 
+/**
+ * Seansın kişiye özel kaydı (Drive vb.). Boş gönderilirse bağlantı kaldırılır.
+ * Biçim doğrulaması panelde değil oynatma tarafında yapılıyor; buraya
+ * yapıştırılan her şey guvenliUrl ve videoGomme süzgecinden geçiyor.
+ */
+export async function seansKayitLinki(id: string, link: string) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("seanslar")
+    .update({ kayit_link: link.trim() || null })
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+  revalidatePath("/admin/seanslar");
+  revalidatePath("/panel/seanslar");
+  return {};
+}
+
 export async function seansSil(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("seanslar").delete().eq("id", id);

@@ -17,6 +17,13 @@ export function videoGomme(url: string): { tip: "iframe" | "dosya"; src: string 
   const vimeo = temiz.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vimeo) return { tip: "iframe", src: `https://player.vimeo.com/video/${vimeo[1]}` };
 
+  // Drive'ın /view sayfası iframe'e girmeyi reddediyor; gömülebilir olan
+  // /preview. Dosya kimliği hem /file/d/<id> hem de ?id=<id> biçiminde gelebilir.
+  const drive =
+    temiz.match(/drive\.google\.com\/file\/d\/([\w-]{10,})/) ??
+    temiz.match(/drive\.google\.com\/[^\s]*[?&]id=([\w-]{10,})/);
+  if (drive) return { tip: "iframe", src: `https://drive.google.com/file/d/${drive[1]}/preview` };
+
   // Taninmayan bir deger dogrudan iframe'e/videoya gidiyordu; sadece http(s)
   // kabul et ki "javascript:" veya "data:" tarayicida calisamasin.
   const guvenli = guvenliUrl(temiz);
