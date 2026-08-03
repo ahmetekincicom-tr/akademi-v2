@@ -133,6 +133,22 @@ export function OgrenciIceAktarma() {
     router.refresh();
   };
 
+  const sablonIndir = () => {
+    // Noktalı virgül ve BOM: Excel Türkçe yerel ayarda dosyayı böyle bekliyor,
+    // aksi halde her satır tek hücreye giriyor ve harfler bozuluyor.
+    const icerik = [
+      "Ad;Soyad;E-posta;Telefon",
+      "Ayşe;Gündoğdu;ayse@ornek.com;0532 123 45 67",
+      "Mehmet;Şahin;mehmet@ornek.com;+90 545 000 11 22",
+    ].join("\n");
+    const bag = URL.createObjectURL(new Blob(["\ufeff" + icerik], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = bag;
+    a.download = "ogrenci-sablonu.csv";
+    a.click();
+    URL.revokeObjectURL(bag);
+  };
+
   const raporIndir = () => {
     if (!rapor) return;
     const satirlarCsv = [
@@ -188,6 +204,20 @@ export function OgrenciIceAktarma() {
             onChange={(e) => void dosyaSec(e.target.files?.[0])}
           />
         </label>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[13px] leading-[1.6] text-[#5C6273]">
+            E-posta zorunlu — giriş kimliği o. Ad, soyad ve telefon boş kalabilir.
+          </p>
+          <button
+            type="button"
+            onClick={sablonIndir}
+            className="inline-flex h-9 flex-none items-center gap-2 rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand"
+          >
+            <Icon name="download" size={14} />
+            Örnek şablonu indir
+          </button>
+        </div>
       </div>
 
       {basliklar.length > 0 && (
