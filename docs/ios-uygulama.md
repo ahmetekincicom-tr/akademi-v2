@@ -98,6 +98,8 @@ Production, Preview ve Development için ekle:
 | `APNS_TEAM_ID` | Developer hesabının Team ID'si |
 | `APNS_BUNDLE_ID` | `com.ahmetekinci.akademi` |
 | `APNS_KEY_P8` | `AuthKey_XXXX.p8` dosyasının TAM içeriği, `-----BEGIN` ve `-----END` satırları dahil |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API → `service_role` anahtarı (otomatik bildirim görevi için) |
+| `GOREV_ANAHTARI` | Zamanlayıcının kimliğini doğrulayan rastgele dize; Supabase'deki cron işiyle AYNI olmalı |
 
 `.p8` dosyası **depoya girmez** — `.gitignore` içinde engelli. Apple onu bir kez
 indirtiyor, kaybedersen yeni anahtar üretmen gerekiyor.
@@ -120,3 +122,90 @@ kullanıcıları aynı anda bildirim alıyor.
    işaretleniyor, sonraki gönderimlerde atlanıyor
 
 Gönderim `src/lib/apns.ts` içinde: ES256 JWT + HTTP/2, hazır paket yok.
+
+
+## Otomatik eğitim bildirimi
+
+Birebir eğitim oturumunun başlangıç saati geldiğinde ilgili öğrenciye —
+yalnızca ona — bildirim gidiyor. Bildirime dokununca katılma ekranı açılıyor.
+
+### Zincir
+
+```
+pg_cron (5 dakikada bir)
+  → pg_net.http_post  →  /api/gorevler/egitim-hatirlatma
+      → APNs  →  öğrencinin telefonu
+          → dokunma  →  /panel/birebir-egitim
+```
+
+Zamanlayıcı Vercel'de değil, **Supabase'de**. Vercel'in cron'u ücretsiz planda
+günde yalnızca bir kez çalışıyor; "18:00'de bildirim at" işi dakika hassasiyeti
+istiyor. pg_cron her planda çalışıyor.
+
+### Kurulum
+
+`GOREV_ANAHTARI` iki yerde aynı olmalı: Vercel ortam değişkeni ve Supabase'deki
+cron işi. Anahtarı üret:
+
+```
+openssl rand -base64 32 | tr -d '=+/' | cut -c1-43
+```
+
+Vercel'e `GOREV_ANAHTARI` olarak ekle, sonra Supabase SQL Editor'de:
+
+```sql
+select cron.unschedule('egitim-hatirlatma');
+select cron.schedule('egitim-hatirlatma', '*/5 * * * *', $$
+  select net.http_post(
+    url := 'https://akademi-v2.vercel.app/api/gorevler/egitim-hatirlatma',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'x-gorev-anahtari', 'BURAYA_ANAHTAR'
+    ),
+    body := '{}'::jsonb,
+    timeout_milliseconds := 20000
+  );
+$$);
+```
+
+### Çalışıyor mu?
+
+Son çağrıların sonucu:
+
+```sql
+select status_code, left(content, 200), created
+from net._http_response order by created desc limit 5;
+```
+
+`200` ve `{"oturum":0,"gonderilen":0}` = zincir sağlam, sırada oturum yok.
+`401` = anahtarlar tutmuyor. `500` = `SUPABASE_SERVICE_ROLE_KEY` eksik.
+
+### Zamanlama
+
+`*/5 * * * *` beş dakikada bir demek, yani bildirim 0–4 dakika gecikebilir.
+Dakika hassasiyeti istersen `* * * * *` yap — maliyeti Vercel çağrı sayısı
+(ayda ~43.000), ücretsiz planın sınırına yaklaşır.
+
+Aynı oturum iki kez bildirim göndermesin diye `bildirim_gonderildi_tarihi`
+damgalanıyor. Damga gönderimden SONRA atılıyor: görev ortada çökerse bir
+sonraki tur tekrar dener.
+
+## Uygulamada olmayanlar
+
+Apple'ın 3.1.3 maddesi uygulama içinden dışarıdaki bir ödeme yöntemine
+yönlendirmeyi yasaklıyor. Kapsam "öde" düğmesinden geniş: IBAN göstermek,
+ücret sayfasına bağlantı vermek, "web'den satın al" demek de aynı sayılıyor.
+
+Native uygulamada kapalı olanlar:
+
+| Yüzey | Nerede |
+| --- | --- |
+| Ödemelerim (menü + sayfa) | `PanelShell`, `odemelerim/page.tsx` |
+| Yeni eğitimler (menü + sayfa) | `PanelShell`, `yeni-egitimler/page.tsx` |
+| Havale / IBAN kutusu | `BankaKutusu` |
+| Bekleyen ödeme uyarısı | `PanelUyari` |
+| Başlangıç adımlarındaki ödeme adımı | `BaslangicAdimlari` |
+| Danışmanlıkta ücret ve ödeme talimatı | `GorusmeGorunumu` |
+
+Hepsi `useNativeUygulama()` ile ayrılıyor; **web tarafı hiç değişmiyor.**
+Öğrenci ödemesini web'den yapıyor, uygulama satın alınmış eğitime erişim yeri.
