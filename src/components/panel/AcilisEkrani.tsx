@@ -5,9 +5,10 @@ import { useNativeUygulama } from "@/lib/native";
 
 type Asama = "bekliyor" | "gorunur" | "kayboluyor" | "bitti";
 
-// Çubuk bir tur atsın; hemen kaybolan yükleme göstergesi tedirgin edici.
-const GORUNME_SURESI = 750;
-const SOLMA_SURESI = 320;
+// Katman sadece devir teslimi kapatıyor, gösterilecek bir şeyi yok: native
+// görsel zaten sayfa yüklenene kadar bekledi. Kısa tutuluyor.
+const GORUNME_SURESI = 260;
+const SOLMA_SURESI = 260;
 
 /**
  * Uygulamanın animasyonlu açılış katmanı.
@@ -20,7 +21,11 @@ const SOLMA_SURESI = 320;
  * DEVIR TESLİM: native görsel, biz hazır olana kadar ekranda kalıyor
  * (launchAutoHide bir güvenlik tavanı). Logomuz boyanır boyanmaz native
  * görseli gizliyoruz — altında zaten birebir aynısı duruyor, o yüzden geçiş
- * görünmüyor. Sonra çubuk döner, katman solar, panel ortaya çıkar.
+ * görünmüyor. Sonra katman solar ve panel ortaya çıkar.
+ *
+ * Animasyon YOK, bilerek: açılış görseli sabit duruyor, tek hareket sondaki
+ * solma. Katman olmasaydı native görsel ile panel arasında boş bir kare
+ * kalırdı; tek işi o boşluğu kapatmak.
  *
  * Ölçüler vh cinsinden, tesadüfen değil: iOS kare açılış görselini ekranı
  * kaplayacak şekilde ölçeklerken dikey kenarı taban alıyor. Kare yüksekliğinin
@@ -90,10 +95,6 @@ export function AcilisEkrani() {
         onError={hazir}
         className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{ top: "50%", height: "25.6vh", width: "25.6vh" }}
-      />
-      <div
-        className="acilis-cubuk absolute left-1/2 -translate-x-1/2"
-        style={{ top: "76.9vh", width: "22.7vh", height: "0.42vh", minHeight: 3 }}
       />
     </div>
   );
