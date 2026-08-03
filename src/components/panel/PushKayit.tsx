@@ -5,7 +5,7 @@ import { cihazKaydet } from "@/app/panel/push-actions";
 import { useNativeUygulama } from "@/lib/native";
 import { Icon } from "@/components/Icon";
 
-type Durum = "bilinmiyor" | "sorulacak" | "acik" | "kapali";
+type Durum = "bilinmiyor" | "sorulacak" | "acik" | "kapali" | "hata";
 
 /**
  * Push bildirim izni ve cihaz kaydı.
@@ -20,6 +20,7 @@ type Durum = "bilinmiyor" | "sorulacak" | "acik" | "kapali";
 export function PushKayit() {
   const native = useNativeUygulama();
   const [durum, setDurum] = useState<Durum>("bilinmiyor");
+  const [hataMetni, setHataMetni] = useState("");
   const [gizlendi, setGizlendi] = useState(false);
 
   const kaydet = useCallback(async () => {
@@ -29,7 +30,18 @@ export function PushKayit() {
     // ÖNCE bağlamak gerekiyor, yoksa hızlı yanıtta olay kaçıyor.
     await PushNotifications.addListener("registration", (t) => {
       void cihazKaydet(t.value, "ios");
+      setDurum("acik");
     });
+
+    // Bu dinleyici olmadan kayıt hatası hiçbir yere düşmüyordu: iOS izin
+    // penceresi göründüğü için her şey yolunda sanılıyor ama APNs kaydı
+    // arka planda başarısız oluyor ve cihaz hiç kaydolmuyor. En sık sebebi
+    // derlemede aps-environment entitlement'ının olmaması.
+    await PushNotifications.addListener("registrationError", (e) => {
+      setHataMetni(String(e.error ?? "Bilinmeyen hata"));
+      setDurum("hata");
+    });
+
     await PushNotifications.register();
   }, []);
 
@@ -73,6 +85,22 @@ export function PushKayit() {
       setDurum("kapali");
     }
   };
+
+  // Kayıt başarısızsa sessiz kalma: izin verildiği halde bildirim gelmemesinin
+  // sebebi ekranda görünsün, yoksa "izin verdim ama gelmiyor" olarak kalıyor.
+  if (native && durum === "hata") {
+    return (
+      <div className="rounded-2xl border border-danger/35 bg-[#FDF2F2] p-5">
+        <div className="text-[15px] font-semibold text-ink">Bildirim kaydı tamamlanamadı</div>
+        <div className="mt-1 text-[13.5px] leading-[1.55] text-[#5C6273]">
+          İzin verildi ama cihaz Apple&apos;a kaydedilemedi, bu yüzden bildirim gelmeyecek.
+        </div>
+        <div className="mt-2 rounded-[8px] bg-white/70 p-2 font-mono text-[11.5px] break-words text-[#5C6273]">
+          {hataMetni}
+        </div>
+      </div>
+    );
+  }
 
   if (!native || durum !== "sorulacak" || gizlendi) return null;
 

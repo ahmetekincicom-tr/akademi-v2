@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/admin/logout-action";
@@ -117,8 +117,28 @@ export function AdminShell({
   const pathname = usePathname();
   const [menuAcik, setMenuAcik] = useState(false);
 
+  // Menü açıkken gövdeyi kilitle: menü kendi içinde kayarken arkadaki sayfa
+  // da kayıyordu. Kural globals.css'te yalnızca native için tanımlı.
+  useEffect(() => {
+    if (menuAcik) document.body.dataset.menuAcik = "1";
+    else delete document.body.dataset.menuAcik;
+    return () => {
+      delete document.body.dataset.menuAcik;
+    };
+  }, [menuAcik]);
+
   return (
     <div className="flex min-h-screen bg-paper">
+      {/*
+        Durum çubuğu şeridi — öğrenci panelindekiyle aynı. Uygulama tam ekran
+        çalıştığı için saat ve piller sayfanın üstüne biniyor; arkası açık
+        kalınca başlık ile sistem yazısı üst üste geliyordu.
+
+        z-45: başlığın (z-40) üstünde, yan menünün (z-50) ALTINDA. Tarayıcıda
+        env() sıfır döndüğü için yüksekliği sıfır — web değişmiyor.
+      */}
+      <div aria-hidden className="fixed inset-x-0 top-0 z-[45] h-[env(safe-area-inset-top)] bg-brand" />
+
       {menuAcik && (
         <button
           type="button"
@@ -129,11 +149,11 @@ export function AdminShell({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[250px] flex-none flex-col bg-ink text-white/64 transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[250px] flex-none flex-col bg-ink text-white/64 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between border-b border-white/9 px-5 pt-5 pb-[18px]">
+        <div className="flex items-center justify-between border-b border-white/9 px-5 pt-[calc(20px+env(safe-area-inset-top))] pb-[18px]">
           <Link href="/admin" className="flex items-center gap-[11px] text-white">
             <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">
               AE
@@ -187,7 +207,7 @@ export function AdminShell({
           ))}
         </nav>
 
-        <div className="mt-auto border-t border-white/9 px-[18px] py-4">
+        <div className="mt-auto border-t border-white/9 px-[18px] pt-4 pb-[calc(16px+env(safe-area-inset-bottom))]">
           <div className="flex items-center gap-[10px]">
             <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full bg-brand/25 font-mono text-[10px] font-semibold text-[#A9C0FF]">
               {initials(isim)}
@@ -218,8 +238,9 @@ export function AdminShell({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/92 backdrop-blur-[14px]">
+      <div className="flex min-w-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]">
+        {/* Güvenli alan boşluğu: başlık çentiğin/durum çubuğunun altında kalmasın. */}
+        <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/92 pt-[env(safe-area-inset-top)] backdrop-blur-[14px]">
           <div className="flex h-[66px] items-center justify-between gap-3 px-4 sm:gap-5 sm:px-7">
             <div className="flex min-w-0 items-center gap-3">
               <button
