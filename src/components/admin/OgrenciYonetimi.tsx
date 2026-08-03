@@ -15,6 +15,8 @@ export type AdminOgrenci = {
   eposta: string;
   admin: boolean;
   kayitTarihi: string;
+  /** Öğrenci uygulamadan hesap silme talebi açtıysa dolu (App Store 5.1.1v). */
+  silmeTalebi: string | null;
   kayitlar: {
     courseId: string;
     baslik: string;
@@ -149,6 +151,14 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                     <span className="min-w-0">
                       <span className="flex items-center gap-2">
                         <span className="truncate text-sm font-semibold">{o.isim}</span>
+                        {o.silmeTalebi && (
+                          <span
+                            title={`Hesap silme talebi: ${new Date(o.silmeTalebi).toLocaleDateString("tr-TR")}`}
+                            className="flex-none rounded-full bg-danger/12 px-[8px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-danger-ink uppercase"
+                          >
+                            Silme talebi
+                          </span>
+                        )}
                         {o.admin && (
                           <span className="flex-none rounded-full bg-ink px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-white uppercase">
                             admin

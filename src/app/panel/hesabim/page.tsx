@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 import { HesapFormu } from "@/components/panel/HesapFormu";
+import { HesapSilme } from "@/components/panel/HesapSilme";
 import { createClient } from "@/lib/supabase/server";
 import { getOturumlar, konumEtiketi, cihazEtiketi } from "@/lib/oturum";
 import { Icon } from "@/components/Icon";
@@ -20,6 +21,12 @@ export default async function HesabimPage() {
 
   // RLS bu listeyi kullanıcının kendi kayıtlarıyla sınırlar.
   const oturumlar = await getOturumlar(supabase, { limit: 20 });
+
+  const { data: silmeSatiri } = await supabase
+    .from("profiles")
+    .select("silme_talebi_tarihi")
+    .eq("id", profil.id)
+    .maybeSingle();
 
   return (
     <main className="p-4 pb-14 sm:p-[34px]">
@@ -96,6 +103,8 @@ export default async function HesabimPage() {
           ))
         )}
       </div>
+    
+      <HesapSilme talepTarihi={silmeSatiri?.silme_talebi_tarihi ?? null} />
     </main>
   );
 }

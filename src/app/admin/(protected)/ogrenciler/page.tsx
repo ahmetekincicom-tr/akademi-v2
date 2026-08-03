@@ -7,7 +7,7 @@ export default async function OgrencilerPage() {
 
   const [{ data: profiles }, { data: enrollments }, { data: courses }, { data: progress }, oturumlar] =
     await Promise.all([
-      supabase.from("profiles").select("id, ad, soyad, email, role, created_at").order("created_at"),
+      supabase.from("profiles").select("id, ad, soyad, email, role, created_at, silme_talebi_tarihi").order("created_at"),
       supabase.from("enrollments").select("user_id, course_id, atanma_tarihi"),
       supabase.from("courses").select("id, slug, baslik, modules(lessons(id))").order("created_at"),
       supabase.from("lesson_progress").select("user_id, lesson_id").eq("tamamlandi", true),
@@ -61,6 +61,7 @@ export default async function OgrencilerPage() {
       eposta: p.email ?? "",
       admin: p.role === "admin",
       kayitTarihi: p.created_at,
+      silmeTalebi: p.silme_talebi_tarihi ?? null,
       oturumlar: kendiOturumlari,
       sinyal: paylasimSinyali(kendiOturumlari),
       kayitlar: kendiKayitlari.map((e) => {
