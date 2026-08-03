@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import { konumEtiketi, cihazEtiketi, type OturumKaydi, type PaylasimSinyali } from "@/lib/oturum";
 import { useBildirim } from "@/components/Bildirim";
 import { TR_ZAMAN } from "@/lib/zaman";
+import Link from "next/link";
 
 export type AdminKurs = { id: string; slug: string; baslik: string };
 
@@ -110,6 +111,13 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
             {ogrenciler.length} kayıt · eğitim ataması ve ilerleme buradan yönetilir.
           </p>
         </div>
+        <Link
+          href="/admin/ogrenciler/ice-aktar"
+          className="inline-flex h-[42px] flex-none items-center gap-2 rounded-[10px] border border-ink/13 bg-white px-4 text-[13.5px] font-semibold text-ink transition hover:border-brand hover:text-brand"
+        >
+          <Icon name="upload" size={15} />
+          Excel/CSV içe aktar
+        </Link>
       </div>
 
       <div className="mt-[22px] flex h-[42px] max-w-[380px] items-center gap-[9px] rounded-[10px] border border-ink/12 bg-white px-[14px]">

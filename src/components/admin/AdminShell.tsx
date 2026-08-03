@@ -61,6 +61,7 @@ const groups: MenuGroup[] = [
 const pageTitles: Record<string, string> = {
   "/admin": "Genel bakış",
   "/admin/ogrenciler": "Öğrenciler",
+  "/admin/ogrenciler/ice-aktar": "Öğrenci içe aktarma",
   "/admin/egitimler": "Eğitimler",
   "/admin/odemeler": "Ödemeler",
   "/admin/bildirimler": "Push bildirimler",
