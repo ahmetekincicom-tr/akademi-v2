@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/panel/actions";
 import { Icon, type IconName } from "@/components/Icon";
 import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
+import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
 
 type MenuItem = { href: string; label: string; icon: IconName };
@@ -40,6 +41,9 @@ const groups: MenuGroup[] = [
   },
 ];
 
+// Yalnızca web'de görünen yollar; gerekçe bileşenin içinde.
+const webeAit = new Set(["/panel/odemelerim", "/panel/yeni-egitimler"]);
+
 const pageTitles: Record<string, string> = {
   "/panel": "Genel bakış",
   "/panel/dersler": "Ders izleme",
@@ -69,6 +73,16 @@ export function PanelShell({
   const pathname = usePathname();
   const pageTitle = pageTitles[pathname] ?? "Panel";
   const [menuAcik, setMenuAcik] = useState(false);
+  const native = useNativeUygulama();
+
+  // Native uygulamada ödeme ve satış yüzeyleri menüde yok. Apple'ın 3.1.3
+  // maddesi uygulama içinden dışarıdaki ödemeye yönlendirmeyi yasaklıyor;
+  // "Ödemelerim" IBAN'a, "Yeni eğitimler" satış sayfasına çıkıyor.
+  const gorunenGruplar = native
+    ? groups
+        .map((g) => ({ ...g, items: g.items.filter((m) => !webeAit.has(m.href)) }))
+        .filter((g) => g.items.length > 0)
+    : groups;
 
   // Menü açıkken gövdeyi kilitle: menü kendi içinde kayarken arkadaki panel
   // de kayıyordu, iki katman aynı anda oynuyordu. İşaret body'ye konuyor,
@@ -169,7 +183,7 @@ export function PanelShell({
         </div>
 
         <nav className="flex flex-col gap-[14px] overflow-auto px-[14px] pt-[14px] pb-2">
-          {groups.map((g) => (
+          {gorunenGruplar.map((g) => (
             <div key={g.title} className="flex flex-col gap-[2px]">
               <div className="px-[13px] pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/55 uppercase">
                 {g.title}

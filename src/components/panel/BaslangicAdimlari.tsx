@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useNativeUygulama } from "@/lib/native";
 import { Icon } from "@/components/Icon";
 import type { Adim } from "@/lib/baslangic";
 
@@ -11,7 +14,17 @@ import type { Adim } from "@/lib/baslangic";
  * bir şey vermek yerine neyi beklediğini yazıyoruz; işlemeyen düğme koymuyoruz.
  */
 export function BaslangicAdimlari({ adimlar }: { adimlar: Adim[] }) {
-  const kalan = adimlar.filter((a) => !a.tamam).length;
+  const native = useNativeUygulama();
+
+  // Ödeme adımı uygulamada listelenmiyor; "Ödemelerim" düğmesi IBAN'a çıkıyor
+  // ve bu 3.1.3'ün yasakladığı yönlendirme sayılıyor.
+  const gorunen = native ? adimlar.filter((a) => a.anahtar !== "odeme") : adimlar;
+  const kalan = gorunen.filter((a) => !a.tamam).length;
+
+  // Çağıran sayfa "hepsi tamam" durumunda bu kartı hiç basmıyor. Native'de
+  // ödeme adımı çıkarıldığı için geriye tamamlanmış adımlar kalabiliyor;
+  // o durumda kart yine görünmesin.
+  if (kalan === 0) return null;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
@@ -23,8 +36,8 @@ export function BaslangicAdimlari({ adimlar }: { adimlar: Adim[] }) {
       </div>
 
       <ol className="divide-y divide-ink/7">
-        {adimlar.map((a, i) => {
-          const sirada = !a.tamam && adimlar.slice(0, i).every((o) => o.tamam);
+        {gorunen.map((a, i) => {
+          const sirada = !a.tamam && gorunen.slice(0, i).every((o) => o.tamam);
           return (
             <li
               key={a.anahtar}

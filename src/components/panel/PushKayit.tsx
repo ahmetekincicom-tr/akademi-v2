@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { cihazKaydet } from "@/app/panel/push-actions";
 import { useNativeUygulama } from "@/lib/native";
 import { Icon } from "@/components/Icon";
@@ -19,6 +20,7 @@ type Durum = "bilinmiyor" | "sorulacak" | "acik" | "kapali" | "hata";
  */
 export function PushKayit() {
   const native = useNativeUygulama();
+  const router = useRouter();
   const [durum, setDurum] = useState<Durum>("bilinmiyor");
   const [hataMetni, setHataMetni] = useState("");
   const [gizlendi, setGizlendi] = useState(false);
@@ -42,8 +44,20 @@ export function PushKayit() {
       setDurum("hata");
     });
 
+    // Bildirime dokunulduğunda ilgili ekrana git. Yol bildirimin verisinde
+    // taşınıyor; "eğitimin başlıyor" bildirimi katılma ekranına düşürüyor.
+    //
+    // Yalnızca uygulama içi yollar kabul ediliyor: dışarıdan gelen bir
+    // bildirimin uygulamayı istediği adrese açtırması istenmez.
+    await PushNotifications.addListener("pushNotificationActionPerformed", (olay) => {
+      const yol = olay.notification.data?.yol;
+      if (typeof yol === "string" && yol.startsWith("/") && !yol.startsWith("//")) {
+        router.push(yol);
+      }
+    });
+
     await PushNotifications.register();
-  }, []);
+  }, [router]);
 
   // Mevcut izin durumunu oku; zaten verilmişse sessizce kaydol.
   useEffect(() => {

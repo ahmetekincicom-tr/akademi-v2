@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useNativeUygulama } from "@/lib/native";
 import { Icon } from "@/components/Icon";
 import type { IconName } from "@/components/Icon";
 
@@ -18,6 +21,12 @@ export type Uyari = {
  */
 export function PanelUyari({ uyari }: { uyari: Uyari }) {
   const bekleyen = uyari.tip === "bekleyen";
+  const native = useNativeUygulama();
+
+  // Ödemeye çıkan uyarı uygulamada gösterilmiyor: Apple'ın 3.1.3 maddesi
+  // uygulama içinden dışarıdaki ödemeye yönlendirmeyi yasaklıyor. Kural
+  // burada, çağıran sayfada değil — uyarı nereden basılırsa basılsın geçerli.
+  if (native && uyari.yol === "/panel/odemelerim") return null;
 
   return (
     <div
