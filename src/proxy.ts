@@ -1,6 +1,27 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+/**
+ * Arama motorlarına açık alan adları. Virgülle ayrılır.
+ *
+ * Liste boşsa hiçbir alan adı indekslenmiyor — panel alt alan adında yayına
+ * girerken doğru varsayılan bu: içerik ana sitedekiyle aynı ve ikiz içerik
+ * olarak sayılır. Kademeli geçişte ana alan adı buraya eklenince o alan adı
+ * indekslenmeye başlıyor, panel kapalı kalıyor.
+ *
+ * Vercel'in *.vercel.app adresi de bilerek listede değil.
+ */
+function indekslenebilirMi(request: NextRequest): boolean {
+  const izinli = (process.env.INDEKSLENEBILIR_ALAN_ADLARI ?? "")
+    .split(",")
+    .map((a) => a.trim().toLowerCase())
+    .filter(Boolean);
+  if (izinli.length === 0) return false;
+
+  const host = (request.headers.get("host") ?? "").toLowerCase().split(":")[0];
+  return izinli.includes(host);
+}
+
 /** İstek native uygulamanın içinden mi geliyor? */
 function uygulamadanMi(request: NextRequest): boolean {
   return request.headers.get("user-agent")?.includes("AEAkademiApp") ?? false;
@@ -80,6 +101,16 @@ export async function proxy(request: NextRequest) {
     const loginUrl = new URL(isAdminRoute ? "/admin/giris" : "/giris", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Arama motoruna kapalı alan adlarında noindex.
+  //
+  // Bunu yalnızca robots.txt ile yapmak yetmiyor: robots.txt taramayı
+  // engelliyor, indekslemeyi değil. Başka bir siteden bağlantı verilen adres
+  // taranmadan da sonuçlarda çıkabiliyor. Asıl direktif bu başlık — ve
+  // görülebilmesi için sayfanın taranabilir kalması gerekiyor.
+  if (!indekslenebilirMi(request)) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
 
   // Not: burada Vary: User-Agent EKLENMİYOR. Next kendi Vary başlığını
