@@ -17,7 +17,7 @@ export default async function AdminGirisPage({
         : null;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-ink px-6">
+    <div className="flex min-h-screen items-center justify-center bg-ink px-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
       <div className="w-full max-w-[380px]">
         <div className="mb-8 flex items-center gap-[11px] text-white">
           <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">

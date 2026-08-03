@@ -20,7 +20,15 @@ export function AuthShell({
 }) {
   return (
     <div className="flex min-h-screen bg-paper">
-      <aside className="relative hidden w-[46%] max-w-[640px] flex-none flex-col justify-between overflow-hidden bg-ink p-11 px-11 pt-[38px] pb-10 text-white lg:flex">
+      {/*
+        Durum çubuğu şeridi — panel ve yönetim ekranlarındakiyle aynı. Uygulama
+        tam ekran çalıştığı için saat ve piller sayfanın üstüne biniyor; arkası
+        açık kalınca beyaz sistem yazısı okunmuyordu.
+
+        Tarayıcıda env() sıfır döndüğü için yüksekliği sıfır — web değişmiyor.
+      */}
+      <div aria-hidden className="fixed inset-x-0 top-0 z-[45] h-[env(safe-area-inset-top)] bg-brand" />
+      <aside className="relative hidden w-[46%] max-w-[640px] flex-none flex-col justify-between overflow-hidden bg-ink p-11 px-11 pt-[calc(38px+env(safe-area-inset-top))] pb-[calc(40px+env(safe-area-inset-bottom))] text-white lg:flex">
         <div
           className="bg-grid-dark absolute inset-0"
           style={{
@@ -66,8 +74,8 @@ export function AuthShell({
         </div>
       </aside>
 
-      <main className="flex min-w-0 flex-1 flex-col">
-        <div className="flex items-center justify-end gap-4 px-6 pt-6 sm:px-10">
+      <main className="flex min-w-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-center justify-end gap-4 px-6 pt-[calc(24px+env(safe-area-inset-top))] sm:px-10">
           <span className="text-sm text-[#5C6273]">{topText}</span>
           <Link
             href={topLinkHref}
