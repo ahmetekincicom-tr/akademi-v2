@@ -52,11 +52,15 @@ Ayarlar → Genel → VPN ve Cihaz Yönetimi → sertifikana güven.
 ## İncelemeden geçmek için bilmen gerekenler
 
 **4.2 Minimum Functionality.** Apple, siteyi olduğu gibi saran uygulamaları
-reddediyor. Şu an projede splash screen, status bar ve push bildirim plugin'leri
-kurulu ama **push henüz uçtan uca bağlı değil**. İncelemeye göndermeden önce
-push'un çalışır olması güçlü tavsiye — en somut native işlev bu ve senin iş
-akışına da uyuyor: "yarın 19:00 dersin var", "ödemen onaylandı", "yeni kayıt
-yüklendi".
+reddediyor. Push bildirim uçtan uca bağlı: öğrenci panelde izin veriyor, cihaz
+token'ı `push_cihazlar` tablosuna düşüyor, `/admin/bildirimler` ekranından
+bildirim gönderiliyor. İncelemeye göndermeden önce kendi telefonuna bir test
+bildirimi at — çalıştığını görmeden başvurma.
+
+**5.1.1(v) hesap silme.** Hesabı olan uygulamalarda silmenin uygulama içinden
+başlatılabilmesi şart. `/panel/hesabim` altında, yalnızca native uygulamada
+görünen iki adımlı bir akış var; talep `profiles.silme_talebi_tarihi` alanına
+düşüyor ve `/admin/ogrenciler` listesinde rozet olarak görünüyor.
 
 **3.1.3 ödeme.** Uygulamada satın alma akışı yok, olmamalı da. Havale bilgileri
 native uygulamada bilerek gizleniyor (`BankaKutusu` içinde `useNativeUygulama`
@@ -72,3 +76,45 @@ e-posta ve şifresini yaz.
 `capacitor.config.ts` — uygulama kimliği, yüklenecek adres, splash ve status bar
 ayarları. Adres değişirse (özel alan adı alırsan) burayı güncelleyip
 `npx cap sync ios` çalıştırman yeterli.
+
+
+## Push bildirim kurulumu
+
+### 1. Xcode'da capability
+
+Xcode → **App** hedefi → **Signing & Capabilities** → **+ Capability** →
+**Push Notifications**. Bu adım şart: entitlements dosyası depoda hazır ama
+Apple Developer portalındaki App ID'de push'un açılması ancak buradan oluyor.
+Otomatik imzalama açıksa Xcode profili kendisi güncelliyor.
+
+### 2. Vercel ortam değişkenleri
+
+Vercel → proje → **Settings** → **Environment Variables**. Dördü de
+Production, Preview ve Development için ekle:
+
+| Ad | Değer |
+| --- | --- |
+| `APNS_KEY_ID` | Apple'ın verdiği Key ID |
+| `APNS_TEAM_ID` | Developer hesabının Team ID'si |
+| `APNS_BUNDLE_ID` | `com.ahmetekinci.akademi` |
+| `APNS_KEY_P8` | `AuthKey_XXXX.p8` dosyasının TAM içeriği, `-----BEGIN` ve `-----END` satırları dahil |
+| `APNS_ORTAM` | Xcode'dan telefona atılan test derlemeleri için `sandbox`, App Store / TestFlight için boş bırak |
+
+`.p8` dosyası **depoya girmez** — `.gitignore` içinde engelli. Apple onu bir kez
+indirtiyor, kaybedersen yeni anahtar üretmen gerekiyor.
+
+`APNS_ORTAM` en sık yapılan hata: Xcode'dan doğrudan telefona attığın derlemenin
+token'ı yalnızca sandbox'ta geçerli. Yanlış ortamda `BadDeviceToken` dönüyor ve
+bildirim sessizce düşüyor. TestFlight ve App Store derlemeleri production'da.
+
+### 3. Akış
+
+1. Öğrenci uygulamayı açıyor, panelin üstünde "Bildirimleri aç" kartı çıkıyor
+2. "Aç" denince iOS'un izin penceresi geliyor (kart olmadan doğrudan sormuyoruz:
+   iOS izni bir kez soruyor, reddedilirse tek çıkış sistem ayarları)
+3. İzin verilince cihaz token'ı `push_cihazlar` tablosuna yazılıyor
+4. `/admin/bildirimler` ekranından tek öğrenciye ya da herkese gönderiliyor
+5. APNs "410 Unregistered" derse (uygulama silinmiş) token geçersiz
+   işaretleniyor, sonraki gönderimlerde atlanıyor
+
+Gönderim `src/lib/apns.ts` içinde: ES256 JWT + HTTP/2, hazır paket yok.

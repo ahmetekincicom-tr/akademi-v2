@@ -5,6 +5,7 @@ import { EgitimlerimKarti } from "@/components/panel/EgitimlerimKarti";
 import { BaslangicAdimlari } from "@/components/panel/BaslangicAdimlari";
 import { PanelUyari } from "@/components/panel/PanelUyari";
 import { UygulamaKurulum } from "@/components/panel/UygulamaKurulum";
+import { PushKayit } from "@/components/panel/PushKayit";
 import { getBaslangic } from "@/lib/baslangic";
 
 export default async function PanelOverviewPage() {
@@ -30,6 +31,7 @@ export default async function PanelOverviewPage() {
   return (
     <main className="flex flex-col gap-[26px] p-[34px] pb-14">
       <UygulamaKurulum />
+      <PushKayit />
       {baslangic.uyari && <PanelUyari uyari={baslangic.uyari} />}
       {!baslangic.tamamlandi && <BaslangicAdimlari adimlar={baslangic.adimlar} />}
       <div className="flex flex-wrap items-end justify-between gap-6">

@@ -50,6 +50,7 @@ const groups: MenuGroup[] = [
     title: "Finans & sistem",
     items: [
       { href: "/admin/odemeler", label: "Ödemeler", icon: "card", sayac: "odeme" },
+      { href: "/admin/bildirimler", label: "Push bildirimler", icon: "bell" },
       { href: "/admin/entegrasyonlar", label: "Entegrasyonlar", icon: "plug" },
       { href: "/admin/ayarlar", label: "Ayarlar", icon: "sliders" },
       { href: "/admin/tani", label: "Sistem tanılama", icon: "shield" },
@@ -62,6 +63,7 @@ const pageTitles: Record<string, string> = {
   "/admin/ogrenciler": "Öğrenciler",
   "/admin/egitimler": "Eğitimler",
   "/admin/odemeler": "Ödemeler",
+  "/admin/bildirimler": "Push bildirimler",
   "/admin/destek": "Destek talepleri",
   "/admin/mesajlar": "Gelen mesajlar",
   "/admin/dokumanlar": "Dokümanlar",

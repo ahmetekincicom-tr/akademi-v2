@@ -48,3 +48,6 @@ ios/App/*.xcworkspace/xcuserdata/
 ios/App/*.xcodeproj/xcuserdata/
 ios/DerivedData/
 *.xcuserstate
+
+# APNs imzalama anahtarı asla depoya girmemeli.
+*.p8
