@@ -6,6 +6,7 @@ import { kayitEkle, kayitKaldir } from "@/app/admin/(protected)/ogrenciler/actio
 import { Icon } from "@/components/Icon";
 import { konumEtiketi, cihazEtiketi, type OturumKaydi, type PaylasimSinyali } from "@/lib/oturum";
 import { useBildirim } from "@/components/Bildirim";
+import { TR_ZAMAN } from "@/lib/zaman";
 
 export type AdminKurs = { id: string; slug: string; baslik: string };
 
@@ -29,8 +30,10 @@ export type AdminOgrenci = {
   sinyal: PaylasimSinyali;
 };
 
-const tarihBicimi = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", year: "numeric" });
+const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN, day: "numeric", month: "short", year: "numeric" });
 const anBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
   day: "numeric",
   month: "short",
   hour: "2-digit",

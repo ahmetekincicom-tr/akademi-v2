@@ -9,6 +9,7 @@ import {
   gorusmeAyarKaydet,
 } from "@/app/admin/(protected)/gorusmeler/actions";
 import { Icon } from "@/components/Icon";
+import { utcyiTrInputYap } from "@/lib/zaman";
 import { guvenliUrl } from "@/lib/guvenli-url";
 import { para, saatBicimi, tarihBicimi } from "@/lib/admin/format";
 import { GORUSME_DURUM_ETIKET, type Gorusme, type GorusmeDurum, type GorusmeAyarlari } from "@/lib/gorusme";
@@ -26,13 +27,13 @@ const ALAN =
   "h-[42px] rounded-[9px] border border-ink/13 bg-white px-[12px] text-[13.5px] text-ink outline-none focus:border-brand";
 const ETIKET = "font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase";
 
-/** datetime-local yerel saati ister; ISO'nun Z'li hali kutuya girmez. */
-function yerelInput(iso: string | null) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
-}
+/**
+ * datetime-local yerel saati ister; ISO'nun Z'li hali kutuya girmez.
+ *
+ * Cihazın saat dilimi değil, Türkiye saati kullanılıyor: yurt dışından giren
+ * bir yönetici kutuda kendi saatini görüp kaydedince takvim kayıyordu.
+ */
+const yerelInput = utcyiTrInputYap;
 
 export function GorusmeYonetimi({
   gorusmeler,

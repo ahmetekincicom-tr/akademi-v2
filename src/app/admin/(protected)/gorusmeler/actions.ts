@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { trSaatiniUtcYap } from "@/lib/zaman";
 import type { GorusmeDurum } from "@/lib/gorusme";
 
 const GECERLI_DURUMLAR: GorusmeDurum[] = ["talep", "odeme_bekliyor", "planlandi", "tamamlandi", "iptal"];
@@ -37,8 +38,13 @@ export async function gorusmePlanla(input: {
 }) {
   if (!input.baslangic) return { error: "Tarih ve saat gir." };
 
+  // Formdaki saat Türkiye saati. Sunucu UTC çalıştığı için new Date() ile
+  // çevirmek saati olduğu gibi UTC sanıyor ve kayıt 3 saat ileri kalıyordu.
+  const baslangicUtc = trSaatiniUtcYap(input.baslangic);
+  if (!baslangicUtc) return { error: "Tarih ve saat okunamadı." };
+
   return guncelle(input.id, {
-    baslangic: new Date(input.baslangic).toISOString(),
+    baslangic: baslangicUtc,
     sure_dk: Number(input.sureDk) || 45,
     toplanti_link: input.toplantiLink.trim() || null,
     admin_notu: input.adminNotu.trim() || null,

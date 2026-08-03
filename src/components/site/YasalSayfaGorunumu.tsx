@@ -6,8 +6,10 @@ import { YasalIcerik } from "@/components/site/YasalIcerik";
 import { siteNav } from "@/components/site/siteNav";
 import { EPOSTA } from "@/lib/iletisim";
 import type { YasalSayfa } from "@/lib/yasal";
+import { TR_ZAMAN } from "@/lib/zaman";
 
-const tarihBicimi = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN, day: "numeric", month: "long", year: "numeric" });
 
 export function YasalSayfaGorunumu({ sayfa, digerleri }: { sayfa: YasalSayfa; digerleri: YasalSayfa[] }) {
   const bosMu = !sayfa.icerik.trim();

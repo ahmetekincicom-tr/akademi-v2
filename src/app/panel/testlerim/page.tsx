@@ -3,8 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getOnDegerlendirmeFormu } from "@/lib/form-ayarlari";
 import { getOdemelerim } from "@/lib/odeme";
 import { Icon } from "@/components/Icon";
+import { TR_ZAMAN } from "@/lib/zaman";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
   day: "numeric",
   month: "long",
   year: "numeric",

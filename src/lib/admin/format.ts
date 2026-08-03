@@ -1,3 +1,5 @@
+import { TR_ZAMAN } from "@/lib/zaman";
+
 export const paraBicimi = new Intl.NumberFormat("tr-TR", {
   style: "currency",
   currency: "TRY",
@@ -5,17 +7,20 @@ export const paraBicimi = new Intl.NumberFormat("tr-TR", {
 });
 
 export const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
   day: "numeric",
   month: "long",
   year: "numeric",
 });
 
 export const kisaTarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
   day: "numeric",
   month: "short",
 });
 
 export const saatBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
   day: "numeric",
   month: "short",
   hour: "2-digit",

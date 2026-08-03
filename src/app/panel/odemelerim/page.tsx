@@ -4,8 +4,10 @@ import { BankaKutusu } from "@/components/panel/BankaKutusu";
 import { durumStil } from "@/lib/admin/shared";
 import { odemeDurumEtiket } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
+import { TR_ZAMAN } from "@/lib/zaman";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
   day: "numeric",
   month: "long",
   year: "numeric",

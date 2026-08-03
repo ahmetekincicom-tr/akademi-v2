@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { bildirimGonder } from "@/app/admin/(protected)/bildirimler/actions";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
+import { TR_ZAMAN } from "@/lib/zaman";
 
 export type PushAlici = { id: string; isim: string; eposta: string; cihaz: number };
 export type PushGecmis = {
@@ -19,6 +20,7 @@ export type PushGecmis = {
 };
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
   day: "numeric",
   month: "long",
   hour: "2-digit",

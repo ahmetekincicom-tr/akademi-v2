@@ -6,8 +6,10 @@ import { silmeTalebiOlustur, silmeTalebiGeriAl } from "@/app/panel/hesabim/silme
 import { useNativeUygulama } from "@/lib/native";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
+import { TR_ZAMAN } from "@/lib/zaman";
 
-const tarihBicimi = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN, day: "numeric", month: "long", year: "numeric" });
 
 /**
  * Hesap silme. Apple App Store 5.1.1(v) hesabın uygulama içinden silinmeye

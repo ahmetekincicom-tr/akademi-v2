@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { trSaatiniUtcYap } from "@/lib/zaman";
 
 export async function oturumEkle(input: {
   userId: string;
@@ -14,13 +15,18 @@ export async function oturumEkle(input: {
   if (!input.userId) return { error: "Öğrenci seçmelisin." };
   if (!input.baslangic) return { error: "Tarih ve saat gir." };
 
+  // Formdaki saat Türkiye saati. Sunucu UTC çalıştığı için new Date() ile
+  // çevirmek saati olduğu gibi UTC sanıyor ve kayıt 3 saat ileri kalıyordu.
+  const baslangicUtc = trSaatiniUtcYap(input.baslangic);
+  if (!baslangicUtc) return { error: "Tarih ve saat okunamadı." };
+
   const sure = Number(input.sureDk) || 60;
 
   const supabase = await createClient();
   const { error } = await supabase.from("egitim_oturumlari").insert({
     user_id: input.userId,
     course_id: input.courseId || null,
-    baslangic: new Date(input.baslangic).toISOString(),
+    baslangic: baslangicUtc,
     sure_dk: sure,
     konu: input.konu.trim() || null,
     toplanti_link: input.toplantiLink.trim() || null,

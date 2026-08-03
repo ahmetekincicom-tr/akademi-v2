@@ -5,9 +5,12 @@ import { HesapSilme } from "@/components/panel/HesapSilme";
 import { createClient } from "@/lib/supabase/server";
 import { getOturumlar, konumEtiketi, cihazEtiketi } from "@/lib/oturum";
 import { Icon } from "@/components/Icon";
+import { TR_ZAMAN } from "@/lib/zaman";
 
-const tarihBicimi = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN, day: "numeric", month: "long", year: "numeric" });
 const anBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
   day: "numeric",
   month: "long",
   hour: "2-digit",
