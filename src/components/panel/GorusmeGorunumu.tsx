@@ -6,11 +6,7 @@ import { gorusmeTalepEt, gorusmeIptalEt } from "@/app/panel/gorusmeler/actions";
 import { Icon } from "@/components/Icon";
 import { guvenliUrl } from "@/lib/guvenli-url";
 import { para, saatBicimi } from "@/lib/admin/format";
-import {
-  GORUSME_DURUM_ETIKET,
-  type Gorusme,
-  type GorusmeAyarlari,
-} from "@/lib/gorusme";
+import { GORUSME_DURUM_ETIKET, type Gorusme, type GorusmeAyarlari } from "@/lib/gorusme";
 import { useBildirim } from "@/components/Bildirim";
 import { useNativeUygulama } from "@/lib/native";
 
@@ -24,9 +20,7 @@ const DURUM_RENK: Record<string, { bg: string; fg: string }> = {
 
 /** Hareketi azalt tercihi açıkken yumuşak kaydırma yapılmaz. */
 function kaydirma(): ScrollBehavior {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ? "auto"
-    : "smooth";
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
 
 export function GorusmeGorunumu({
@@ -36,12 +30,7 @@ export function GorusmeGorunumu({
 }: {
   gorusmeler: Gorusme[];
   ayarlar: GorusmeAyarlari;
-  hak: {
-    kullanilan: number;
-    kalan: number;
-    bekleyen: boolean;
-    sonrakiUcretli: boolean;
-  };
+  hak: { kullanilan: number; kalan: number; bekleyen: boolean; sonrakiUcretli: boolean };
 }) {
   // Ödeme yüzeyleri uygulamada kapalı: Apple'ın 3.1.3 maddesi uygulama
   // içinden dışarıdaki ödemeye yönlendirmeyi yasaklıyor ve ödeme açıklaması
@@ -77,9 +66,7 @@ export function GorusmeGorunumu({
         setHata(r.error);
         bildir.hata(r.error);
       } else {
-        bildir.basarili(
-          "Görüşme talebin alındı. En kısa sürede planlayıp buraya ekleyeceğiz.",
-        );
+        bildir.basarili("Görüşme talebin alındı. En kısa sürede planlayıp buraya ekleyeceğiz.");
         setKonu("");
         setAciklama("");
         setTercih("");
@@ -87,10 +74,7 @@ export function GorusmeGorunumu({
         router.refresh();
         // Form kapanınca ekranda hiçbir şey değişmemiş gibi duruyordu: yeni
         // talep listede, mobilde çok aşağıda.
-        listeRef.current?.scrollIntoView({
-          behavior: kaydirma(),
-          block: "start",
-        });
+        listeRef.current?.scrollIntoView({ behavior: kaydirma(), block: "start" });
       }
     });
   };
@@ -120,8 +104,7 @@ export function GorusmeGorunumu({
             Danışmanlık görüşmeleri
           </h1>
           <p className="mt-2 max-w-[620px] text-[15px] text-[#5C6273]">
-            Eğitimin bittikten sonra da takıldığın yerlerde birebir
-            görüşebilirsin.
+            Eğitimin bittikten sonra da takıldığın yerlerde birebir görüşebilirsin.
           </p>
         </div>
         {ayarlar.aktif && !hak.bekleyen && (
@@ -148,14 +131,8 @@ export function GorusmeGorunumu({
           kutusunun altında açılıyordu; telefonda düğmeye basan kişi ekranda
           hiçbir şey değişmemiş sanıyordu. */}
       {formAcik && (
-        <div
-          id="gorusme-talep-formu"
-          ref={formRef}
-          className="mt-5 rounded-2xl border border-brand/30 bg-white p-5 sm:p-6"
-        >
-          <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">
-            Yeni görüşme talebi
-          </h2>
+        <div id="gorusme-talep-formu" ref={formRef} className="mt-5 rounded-2xl border border-brand/30 bg-white p-5 sm:p-6">
+          <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Yeni görüşme talebi</h2>
           <p className="mt-1 text-[13.5px] leading-[1.6] text-[#5C6273]">
             {hak.sonrakiUcretli
               ? native
@@ -166,9 +143,7 @@ export function GorusmeGorunumu({
 
           <div className="mt-5 flex flex-col gap-4">
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
-                Konu
-              </span>
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Konu</span>
               <input
                 ref={konuRef}
                 type="text"
@@ -217,44 +192,28 @@ export function GorusmeGorunumu({
       {/* Hak özeti */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-ink/10 bg-white p-5">
-          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">
-            Kalan ücretsiz hak
-          </div>
+          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Kalan ücretsiz hak</div>
           <div className="mt-[10px] font-heading text-[30px] leading-none font-semibold tracking-[-0.03em]">
             {hak.kalan}
           </div>
-          <div className="mt-2 text-[13px] text-[#656B7A]">
-            {ayarlar.ucretsizHak} hakkın var
-          </div>
+          <div className="mt-2 text-[13px] text-[#656B7A]">{ayarlar.ucretsizHak} hakkın var</div>
         </div>
         <div className="rounded-2xl border border-ink/10 bg-white p-5">
-          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">
-            Kullanılan
-          </div>
+          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Kullanılan</div>
           <div className="mt-[10px] font-heading text-[30px] leading-none font-semibold tracking-[-0.03em]">
             {hak.kullanilan}
           </div>
-          <div className="mt-2 text-[13px] text-[#656B7A]">
-            iptal edilenler sayılmaz
-          </div>
+          <div className="mt-2 text-[13px] text-[#656B7A]">iptal edilenler sayılmaz</div>
         </div>
         <div className="rounded-2xl border border-ink/10 bg-white p-5">
-          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">
-            Sonraki görüşme
-          </div>
+          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Sonraki görüşme</div>
           <div className="mt-[10px] font-heading text-[30px] leading-none font-semibold tracking-[-0.03em]">
-            {hak.sonrakiUcretli
-              ? ayarlar.ucret > 0
-                ? para(ayarlar.ucret)
-                : "Ücretli"
-              : "Ücretsiz"}
+            {hak.sonrakiUcretli ? (ayarlar.ucret > 0 ? para(ayarlar.ucret) : "Ücretli") : "Ücretsiz"}
           </div>
           <div className="mt-2 text-[13px] text-[#656B7A]">
             {ayarlar.sureDk} dakika · birebir
             {!native && !hak.sonrakiUcretli && ayarlar.ucret > 0 && (
-              <span className="mt-[3px] block">
-                Hakların bitince {para(ayarlar.ucret)}
-              </span>
+              <span className="mt-[3px] block">Hakların bitince {para(ayarlar.ucret)}</span>
             )}
           </div>
         </div>
@@ -264,28 +223,24 @@ export function GorusmeGorunumu({
           doğunca ortaya çıkarsa öğrenci ne ödeyeceğini önceden bilemez.
           Uygulamada bu kartın tamamı kapalı. */}
       {!native && (
-        <div className="mt-4 rounded-2xl border border-ink/10 bg-white p-5">
-          <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">
-            Ücretlendirme ve ödeme
-          </div>
-          <p className="mt-[10px] text-[14px] leading-[1.7] text-[#5C6273]">
-            Her katılımcının {ayarlar.ucretsizHak} ücretsiz birebir görüşme
-            hakkı var. Hakların bittikten sonra her görüşme{" "}
-            {ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} olarak
-            planlanır ve {ayarlar.sureDk} dakika sürer. İptal ettiğin talepler
-            hakkından düşmez.
-          </p>
-          {ayarlar.odemeAciklamasi && (
-            <div className="mt-4 rounded-[11px] bg-mist px-4 py-[14px]">
-              <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">
-                Ödeme bilgileri
-              </div>
-              <p className="mt-2 text-[13.5px] leading-[1.7] whitespace-pre-line text-[#3A3F4F]">
-                {ayarlar.odemeAciklamasi}
-              </p>
-            </div>
-          )}
+      <div className="mt-4 rounded-2xl border border-ink/10 bg-white p-5">
+        <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">
+          Ücretlendirme ve ödeme
         </div>
+        <p className="mt-[10px] text-[14px] leading-[1.7] text-[#5C6273]">
+          Her katılımcının {ayarlar.ucretsizHak} ücretsiz birebir görüşme hakkı var. Hakların bittikten sonra her
+          görüşme {ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} olarak planlanır ve {ayarlar.sureDk} dakika
+          sürer. İptal ettiğin talepler hakkından düşmez.
+        </p>
+        {ayarlar.odemeAciklamasi && (
+          <div className="mt-4 rounded-[11px] bg-mist px-4 py-[14px]">
+            <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Ödeme bilgileri</div>
+            <p className="mt-2 text-[13.5px] leading-[1.7] whitespace-pre-line text-[#3A3F4F]">
+              {ayarlar.odemeAciklamasi}
+            </p>
+          </div>
+        )}
+      </div>
       )}
 
       {!ayarlar.aktif && (
@@ -301,14 +256,9 @@ export function GorusmeGorunumu({
       )}
 
       {/* Liste */}
-      <div
-        ref={listeRef}
-        className="mt-6 scroll-mt-4 overflow-hidden rounded-2xl border border-ink/10 bg-white"
-      >
+      <div ref={listeRef} className="mt-6 scroll-mt-4 overflow-hidden rounded-2xl border border-ink/10 bg-white">
         <div className="border-b border-ink/8 px-6 py-[15px]">
-          <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">
-            Görüşmelerim
-          </h2>
+          <h2 className="font-heading text-base font-semibold tracking-[-0.02em]">Görüşmelerim</h2>
         </div>
 
         {gorusmeler.length === 0 ? (
@@ -317,8 +267,7 @@ export function GorusmeGorunumu({
               <Icon name="clock" size={22} />
             </div>
             <p className="mx-auto mt-4 max-w-[420px] text-[14.5px] leading-[1.6] text-[#5C6273]">
-              Henüz bir görüşme talebin yok. {ayarlar.ucretsizHak} ücretsiz
-              hakkın seni bekliyor.
+              Henüz bir görüşme talebin yok. {ayarlar.ucretsizHak} ücretsiz hakkın seni bekliyor.
             </p>
           </div>
         ) : (
@@ -326,16 +275,11 @@ export function GorusmeGorunumu({
             const renk = DURUM_RENK[g.durum];
             const link = guvenliUrl(g.toplantiLink);
             return (
-              <div
-                key={g.id}
-                className="border-b border-ink/7 px-6 py-5 last:border-b-0"
-              >
+              <div key={g.id} className="border-b border-ink/7 px-6 py-5 last:border-b-0">
                 <div className="flex flex-wrap items-start gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[15.5px] font-semibold text-ink">
-                        {g.konu}
-                      </span>
+                      <span className="text-[15.5px] font-semibold text-ink">{g.konu}</span>
                       <span
                         className="rounded-full px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] uppercase"
                         style={{ background: renk.bg, color: renk.fg }}
@@ -343,18 +287,13 @@ export function GorusmeGorunumu({
                         {GORUSME_DURUM_ETIKET[g.durum]}
                       </span>
                       <span className="rounded-full bg-mist px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] text-[#5C6273] uppercase">
-                        {g.ucretsiz
-                          ? "ücretsiz hak"
-                          : g.ucret
-                            ? para(g.ucret)
-                            : "ücretli"}
+                        {g.ucretsiz ? "ücretsiz hak" : g.ucret ? para(g.ucret) : "ücretli"}
                       </span>
                     </div>
 
                     {g.baslangic ? (
                       <div className="mt-2 font-mono text-[11.5px] text-[#3A3F4F]">
-                        {saatBicimi.format(new Date(g.baslangic))} · {g.sureDk}{" "}
-                        dk
+                        {saatBicimi.format(new Date(g.baslangic))} · {g.sureDk} dk
                       </div>
                     ) : (
                       g.tercihZaman && (
@@ -365,9 +304,7 @@ export function GorusmeGorunumu({
                     )}
 
                     {g.aciklama && (
-                      <p className="mt-2 text-[14px] leading-[1.6] whitespace-pre-line text-[#5C6273]">
-                        {g.aciklama}
-                      </p>
+                      <p className="mt-2 text-[14px] leading-[1.6] whitespace-pre-line text-[#5C6273]">{g.aciklama}</p>
                     )}
                   </div>
 
@@ -407,8 +344,7 @@ export function GorusmeGorunumu({
                         "Ödeme bilgileri için bizimle iletişime geçebilirsin. Ödemen görüldüğünde görüşme saatini planlayıp buraya ekleyeceğiz."}
                     </p>
                     <p className="mt-2 text-[12.5px] text-[#656B7A]">
-                      Ödemen onaylandığında bu talep otomatik olarak planlamaya
-                      geçer.
+                      Ödemen onaylandığında bu talep otomatik olarak planlamaya geçer.
                     </p>
                   </div>
                 )}

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { PanelShell } from "@/components/panel/PanelShell";
+import { AcilisEkrani } from "@/components/panel/AcilisEkrani";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
@@ -7,12 +8,15 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   if (!profil) redirect("/giris");
 
   return (
-    <PanelShell
-      profil={profil}
-      aktifProgram={courses[0] ? { baslik: courses[0].baslik, slug: courses[0].slug } : null}
-      programSayisi={courses.length}
-    >
-      {children}
-    </PanelShell>
+    <>
+      <AcilisEkrani />
+      <PanelShell
+        profil={profil}
+        aktifProgram={courses[0] ? { baslik: courses[0].baslik, slug: courses[0].slug } : null}
+        programSayisi={courses.length}
+      >
+        {children}
+      </PanelShell>
+    </>
   );
 }

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Ahmet Ekinci Akademi">
+  <defs>
+    <linearGradient id="aGrad" x1="200" y1="128" x2="200" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4B7BFF"/>
+      <stop offset="1" stop-color="#1C56F3"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Arka plandaki kılavuz: tasarımdaki ızgara ve daire. Çok soluk;
+       logoyu yerleştirme hissi versin ama okunurluğu bozmasın. -->
+  <g stroke="#EDF0F7" stroke-width="1.6" fill="none">
+    <path d="M128 18V382M272 18V382M18 118H382M18 300H382"/>
+  </g>
+  <circle cx="200" cy="214" r="147" fill="none" stroke="#E9EDF6" stroke-width="1.8"/>
+
+  <!-- Bezier yayı ve tutamaçları -->
+  <g fill="none" stroke="#2C63F5" stroke-width="4" stroke-linecap="round">
+    <path d="M128 118C128 62 272 62 272 118"/>
+    <path d="M128 118V100M272 118V100"/>
+  </g>
+  <g fill="#2C63F5">
+    <rect x="192" y="68" width="16" height="16" rx="2.5"/>
+    <rect x="144" y="80" width="13" height="13" rx="2"/>
+    <rect x="243" y="80" width="13" height="13" rx="2"/>
+    <rect x="121.5" y="93.5" width="13" height="13" rx="2"/>
+    <rect x="265.5" y="93.5" width="13" height="13" rx="2"/>
+  </g>
+  <g fill="#FFFFFF" stroke="#2C63F5" stroke-width="4">
+    <circle cx="128" cy="118" r="6.5"/>
+    <circle cx="272" cy="118" r="6.5"/>
+  </g>
+
+  <!-- "A" harfi. Köşeler ayrı ayrı yuvarlatılmak yerine aynı renkte
+       yuvarlak birleşimli bir konturla yumuşatılıyor. -->
+  <path
+    d="M190 130 L66 298 L128 298 L172 238 L228 238 L272 298 L334 298 L210 130 Z"
+    fill="url(#aGrad)" stroke="url(#aGrad)" stroke-width="16" stroke-linejoin="round"/>
+
+  <!-- Mezuniyet kepi -->
+  <g fill="none" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M200 182 L232 194 L200 206 L168 194 Z"/>
+    <path d="M180 199v11c0 9 40 9 40 0v-11"/>
+    <path d="M232 194v20"/>
+  </g>
+</svg>

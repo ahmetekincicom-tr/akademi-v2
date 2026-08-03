@@ -14,10 +14,7 @@ const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
 });
 
 export default async function OdemelerimPage() {
-  const [{ satirlar, bekleyenTutar, bekleyenAdet }, banka] = await Promise.all([
-    getOdemelerim(),
-    getBanka(),
-  ]);
+  const [{ satirlar, bekleyenTutar, bekleyenAdet }, banka] = await Promise.all([getOdemelerim(), getBanka()]);
 
   return (
     <UygulamadaYok>
@@ -26,8 +23,7 @@ export default async function OdemelerimPage() {
           Ödemelerim
         </h1>
         <p className="mt-2 max-w-[620px] text-[15px] text-[#5C6273]">
-          Eğitim ücretlerinin kaydı. Ödemen bize ulaştığında durumu
-          &quot;Ödendi&quot; olarak işaretliyoruz.
+          Eğitim ücretlerinin kaydı. Ödemen bize ulaştığında durumu &quot;Ödendi&quot; olarak işaretliyoruz.
         </p>
 
         {bekleyenAdet > 0 && (
@@ -39,9 +35,7 @@ export default async function OdemelerimPage() {
               <div className="text-[15.5px] font-semibold">
                 Bekleyen tutar · {paraBicimi.format(bekleyenTutar)}
               </div>
-              <div className="mt-[2px] text-[13.5px] text-[#5C6273]">
-                {bekleyenAdet} kayıt onay bekliyor.
-              </div>
+              <div className="mt-[2px] text-[13.5px] text-[#5C6273]">{bekleyenAdet} kayıt onay bekliyor.</div>
             </div>
           </div>
         )}
@@ -56,8 +50,7 @@ export default async function OdemelerimPage() {
               <Icon name="card" size={22} />
             </div>
             <p className="mx-auto mt-4 max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
-              Henüz bir ödeme kaydın yok. Eğitim ücreti tanımlandığında burada
-              görünecek.
+              Henüz bir ödeme kaydın yok. Eğitim ücreti tanımlandığında burada görünecek.
             </p>
           </div>
         ) : (
@@ -80,15 +73,10 @@ export default async function OdemelerimPage() {
                       {paraBicimi.format(s.tutar)}
                     </div>
                     <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">
-                      {s.kurs ?? "Genel"} ·{" "}
-                      {tarihBicimi.format(new Date(s.tarih))}
+                      {s.kurs ?? "Genel"} · {tarihBicimi.format(new Date(s.tarih))}
                       {s.yontem ? ` · ${s.yontem}` : ""}
                     </div>
-                    {s.not && (
-                      <div className="mt-[6px] text-[13px] text-[#5C6273]">
-                        {s.not}
-                      </div>
-                    )}
+                    {s.not && <div className="mt-[6px] text-[13px] text-[#5C6273]">{s.not}</div>}
                   </div>
 
                   {s.faturaNo && (

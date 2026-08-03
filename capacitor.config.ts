@@ -48,8 +48,14 @@ const config: CapacitorConfig = {
 
   plugins: {
     SplashScreen: {
-      launchShowDuration: 1200,
-      backgroundColor: "#0a0d18",
+      // Süre bir GÜVENLİK TAVANI, hedef değil: açılış görselini normalde
+      // AcilisEkrani gizliyor (kendi kopyası ekrana gelir gelmez). Sayfa hiç
+      // yüklenmezse ekran sonsuza kadar açılış görselinde kalmasın diye
+      // otomatik gizleme açık bırakılıyor.
+      launchShowDuration: 4000,
+      launchAutoHide: true,
+      // Tasarımın zemini; görselin kenarları ile arasında renk farkı olmasın.
+      backgroundColor: "#fbfbfd",
       showSpinner: false,
     },
     StatusBar: {

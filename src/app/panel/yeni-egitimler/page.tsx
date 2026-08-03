@@ -12,8 +12,8 @@ export default async function YeniEgitimlerPage() {
           Yeni eğitimler
         </h1>
         <p className="mt-2 max-w-[620px] text-[15px] text-[#5C6273]">
-          Henüz kayıtlı olmadığın programlar. Kapsam ön görüşmede sana göre
-          kurulur; buradan doğrudan başvurabilirsin.
+          Henüz kayıtlı olmadığın programlar. Kapsam ön görüşmede sana göre kurulur; buradan doğrudan
+          başvurabilirsin.
         </p>
 
         {urunler.length === 0 ? (
@@ -22,8 +22,7 @@ export default async function YeniEgitimlerPage() {
               Şu an başvurabileceğin yeni program yok
             </h2>
             <p className="mx-auto mt-[10px] max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
-              Yayındaki tüm eğitimlere zaten kayıtlısın. Yeni bir program
-              açıldığında burada görünecek.
+              Yayındaki tüm eğitimlere zaten kayıtlısın. Yeni bir program açıldığında burada görünecek.
             </p>
           </div>
         ) : (
@@ -41,9 +40,7 @@ export default async function YeniEgitimlerPage() {
                   <div className="mt-[9px] font-heading text-[19px] leading-[1.22] font-semibold tracking-[-0.02em]">
                     {u.baslik}
                   </div>
-                  <p className="mt-2 mb-[18px] text-[14.5px] leading-[1.55] text-[#5C6273]">
-                    {u.aciklama}
-                  </p>
+                  <p className="mt-2 mb-[18px] text-[14.5px] leading-[1.55] text-[#5C6273]">{u.aciklama}</p>
                   <Link
                     href={`/egitimler/${u.slug}`}
                     className="mt-auto inline-flex h-[42px] w-fit items-center rounded-[9px] bg-brand px-[18px] text-[14.5px] font-semibold text-white hover:bg-ink"
