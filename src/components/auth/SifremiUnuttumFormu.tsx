@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { SadeceWeb, SadeceUygulama } from "@/components/panel/SadeceWeb";
 
 export function SifremiUnuttumFormu() {
   const router = useRouter();
@@ -53,7 +54,13 @@ export function SifremiUnuttumFormu() {
           {yukleniyor ? "Gönderiliyor…" : "Sıfırlama bağlantısı gönder"}
         </button>
         <p className="mt-[22px] text-sm leading-[1.6] text-[#656B7A]">
-          E-postana erişimin yoksa <Link href="/iletisim">destek ekibine yaz</Link>; kimliğini doğrulayıp adresi güncelleyelim.
+          <SadeceWeb>
+            E-postana erişimin yoksa <Link href="/iletisim">destek ekibine yaz</Link>; kimliğini doğrulayıp
+            adresi güncelleyelim.
+          </SadeceWeb>
+          <SadeceUygulama>
+            E-postana erişimin yoksa eğitmeninle iletişime geç; kimliğini doğrulayıp adresi güncelleyelim.
+          </SadeceUygulama>
         </p>
       </div>
     </>

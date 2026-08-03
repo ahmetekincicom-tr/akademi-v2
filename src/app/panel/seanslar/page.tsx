@@ -5,6 +5,7 @@ import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
 import { guvenliUrl } from "@/lib/guvenli-url";
 import { Icon } from "@/components/Icon";
+import { SadeceWeb, SadeceUygulama } from "@/components/panel/SadeceWeb";
 
 export default async function SeanslarPage() {
   const supabase = await createClient();
@@ -83,12 +84,24 @@ export default async function SeanslarPage() {
           <p className="mx-auto mt-4 max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
             Planlanmış bir seansın görünmüyor. Randevu oluşturmak için eğitmenle iletişime geçebilirsin.
           </p>
-          <Link
-            href="/iletisim"
-            className="mt-6 inline-flex h-11 items-center rounded-[10px] bg-brand px-5 text-sm font-semibold text-white hover:bg-ink"
-          >
-            İletişime geç
-          </Link>
+          {/* Uygulamada site iletişim sayfasına çıkmıyor; panel içindeki
+              destek kanalına yönlendiriliyor. */}
+          <SadeceWeb>
+            <Link
+              href="/iletisim"
+              className="mt-6 inline-flex h-11 items-center rounded-[10px] bg-brand px-5 text-sm font-semibold text-white hover:bg-ink"
+            >
+              İletişime geç
+            </Link>
+          </SadeceWeb>
+          <SadeceUygulama>
+            <Link
+              href="/panel/soru-cevap"
+              className="mt-6 inline-flex h-11 items-center rounded-[10px] bg-brand px-5 text-sm font-semibold text-white hover:bg-ink"
+            >
+              Destek talebi oluştur
+            </Link>
+          </SadeceUygulama>
         </div>
       ) : (
         <>

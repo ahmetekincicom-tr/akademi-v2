@@ -40,3 +40,34 @@ export function UygulamadaYok({ children }: { children: React.ReactNode }) {
     </main>
   );
 }
+
+/** Yalnızca uygulamada görünür — web'de basılmaz. SadeceWeb'in karşılığı. */
+export function SadeceUygulama({ children }: { children: React.ReactNode }) {
+  const native = useNativeUygulama();
+  if (!native) return null;
+  return <>{children}</>;
+}
+
+/**
+ * İçindeki bağlantıları uygulamada tıklanamaz yapar.
+ *
+ * Logo gibi görünmesi gereken ama uygulamada bir yere gitmemesi gereken
+ * öğeler için: bağlantıyı kaldırmak yerine tıklamayı yutuyoruz, böylece
+ * sunucuda hazırlanan işaretleme aynı kalıyor ve sayfa statik üretilmeye
+ * devam ediyor.
+ */
+export function UygulamadaPasif({ children }: { children: React.ReactNode }) {
+  const native = useNativeUygulama();
+  if (!native) return <>{children}</>;
+
+  return (
+    <div
+      onClickCapture={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      {children}
+    </div>
+  );
+}

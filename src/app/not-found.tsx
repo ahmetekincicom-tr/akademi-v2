@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
+import { SadeceWeb } from "@/components/panel/SadeceWeb";
 import { siteNav } from "@/components/site/siteNav";
 
 export const metadata: Metadata = {
@@ -11,7 +12,11 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+      {/* 404 her sayfanın yanında taşınıyor; uygulamada site menüsü
+          göstermesin. */}
+      <SadeceWeb>
+        <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+      </SadeceWeb>
 
       <main className="mx-auto flex w-full max-w-[1240px] flex-1 flex-col justify-center px-5 sm:px-8 py-24">
         <span className="font-mono text-[11px] tracking-[0.16em] text-brand uppercase">404</span>
@@ -44,7 +49,9 @@ export default function NotFound() {
         </div>
       </main>
 
-      <PublicFooter />
+      <SadeceWeb>
+        <PublicFooter />
+      </SadeceWeb>
     </div>
   );
 }

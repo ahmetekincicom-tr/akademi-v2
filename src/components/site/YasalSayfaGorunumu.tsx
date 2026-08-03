@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PublicHeader } from "@/components/site/PublicHeader";
+import { nativeIstekMi } from "@/lib/native-sunucu";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { YasalIcerik } from "@/components/site/YasalIcerik";
@@ -9,14 +10,30 @@ import type { YasalSayfa } from "@/lib/yasal";
 import { TR_ZAMAN } from "@/lib/zaman";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
-  timeZone: TR_ZAMAN, day: "numeric", month: "long", year: "numeric" });
+  timeZone: TR_ZAMAN,
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
 
-export function YasalSayfaGorunumu({ sayfa, digerleri }: { sayfa: YasalSayfa; digerleri: YasalSayfa[] }) {
+export async function YasalSayfaGorunumu({
+  sayfa,
+  digerleri,
+}: {
+  sayfa: YasalSayfa;
+  digerleri: YasalSayfa[];
+}) {
   const bosMu = !sayfa.icerik.trim();
+  // Sunucuda okunuyor: istemci tarafı kontrolü hidrasyona kadar site menüsünü
+  // bir an gösterirdi. Bu sayfalar zaten force-dynamic, ek maliyeti yok.
+  const native = await nativeIstekMi();
 
   return (
     <div className="bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+      {/* Yasal metinler uygulamada açılabiliyor (App Store şartı) ama site
+          menüsü ve alt bilgi orada gizli: ikisi de pazarlama sayfalarına
+          gezinme veriyor. */}
+      {!native && <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />}
 
       <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-10">
         <SectionKicker>Yasal</SectionKicker>
@@ -89,7 +106,7 @@ export function YasalSayfaGorunumu({ sayfa, digerleri }: { sayfa: YasalSayfa; di
         </div>
       </section>
 
-      <PublicFooter />
+      {!native && <PublicFooter />}
     </div>
   );
 }

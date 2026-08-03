@@ -28,6 +28,12 @@ const config: CapacitorConfig = {
     allowNavigation: ["akademi-v2.vercel.app"],
   },
 
+  // Uygulamadan gelen istekler sunucuda tanınsın diye tarayıcı kimliğine bir
+  // işaret ekleniyor. src/proxy.ts bunu okuyup uygulamaya kapalı sayfalara
+  // gidilmesini engelliyor — kaçak bir bağlantı kalsa bile pazarlama sitesi
+  // uygulamanın içinde açılamıyor.
+  appendUserAgent: "AEAkademiApp",
+
   ios: {
     // Oturum çerezi WKWebView'da kalıcı olsun; aksi halde öğrenci uygulamayı
     // her açtığında yeniden giriş yapar.

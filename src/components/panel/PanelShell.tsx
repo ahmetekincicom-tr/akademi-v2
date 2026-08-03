@@ -134,7 +134,11 @@ export function PanelShell({
       >
         {/* Yan menü de tam ekran yüksekliğinde: üstü çentiğe girmesin. */}
         <div className="flex items-center justify-between border-b border-white/10 px-[22px] pt-[calc(22px+env(safe-area-inset-top))] pb-5">
-          <Link href="/" className="flex items-center gap-[11px] text-white">
+          <Link
+            href={native ? "/panel" : "/"}
+            className="flex items-center gap-[11px] text-white"
+            onClick={() => setMenuAcik(false)}
+          >
             <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">
               AE
             </span>

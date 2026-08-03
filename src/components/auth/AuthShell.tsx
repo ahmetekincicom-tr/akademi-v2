@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/site/Logo";
+import { UygulamadaPasif } from "@/components/panel/SadeceWeb";
 
 const solStats = [
   { n: "400+", t: "katılımcı" },
@@ -39,7 +40,10 @@ export function AuthShell({
         />
         <div className="absolute -bottom-50 -left-30 h-[560px] w-[560px] rounded-full bg-brand opacity-20 blur-[120px]" />
 
-        <Logo href="/" variant="light" subline="Öğrenci paneli" />
+        {/* Uygulamada logo tıklanmıyor: pazarlama sitesine açılan kapı olurdu. */}
+        <UygulamadaPasif>
+          <Logo href="/" variant="light" subline="Öğrenci paneli" />
+        </UygulamadaPasif>
 
         <div className="relative max-w-[460px]">
           <h2 className="font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[38px]">

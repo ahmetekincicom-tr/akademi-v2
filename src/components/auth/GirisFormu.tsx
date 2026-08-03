@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CheckToggle } from "@/components/auth/CheckToggle";
 import { createClient } from "@/lib/supabase/client";
 import { oturumKaydet } from "@/app/oturum-actions";
+import { SadeceWeb } from "@/components/panel/SadeceWeb";
 
 /**
  * `hedef` is resolved on the server from the query string. Reading it here
@@ -122,9 +123,13 @@ export function GirisFormu({ hedef }: { hedef: string }) {
           {yukleniyor ? "Giriş yapılıyor…" : "Giriş yap"}
         </button>
 
+        {/* Uygulamada iletişim bağlantısı yok: pazarlama sitesine açılıyor ve
+            oradan tüm site gezilebiliyordu. Cümle bağlantısız kalıyor. */}
         <p className="mt-[26px] text-sm leading-[1.6] text-[#656B7A]">
-          Panel erişimi yalnızca eğitime katılan kişiler içindir. Sorun yaşarsan{" "}
-          <Link href="/iletisim">WhatsApp&apos;tan yaz</Link>.
+          Panel erişimi yalnızca eğitime katılan kişiler içindir.{" "}
+          <SadeceWeb>
+            Sorun yaşarsan <Link href="/iletisim">WhatsApp&apos;tan yaz</Link>.
+          </SadeceWeb>
         </p>
     </div>
   );
