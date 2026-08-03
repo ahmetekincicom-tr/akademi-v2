@@ -98,14 +98,16 @@ Production, Preview ve Development için ekle:
 | `APNS_TEAM_ID` | Developer hesabının Team ID'si |
 | `APNS_BUNDLE_ID` | `com.ahmetekinci.akademi` |
 | `APNS_KEY_P8` | `AuthKey_XXXX.p8` dosyasının TAM içeriği, `-----BEGIN` ve `-----END` satırları dahil |
-| `APNS_ORTAM` | Xcode'dan telefona atılan test derlemeleri için `sandbox`, App Store / TestFlight için boş bırak |
 
 `.p8` dosyası **depoya girmez** — `.gitignore` içinde engelli. Apple onu bir kez
 indirtiyor, kaybedersen yeni anahtar üretmen gerekiyor.
 
-`APNS_ORTAM` en sık yapılan hata: Xcode'dan doğrudan telefona attığın derlemenin
-token'ı yalnızca sandbox'ta geçerli. Yanlış ortamda `BadDeviceToken` dönüyor ve
-bildirim sessizce düşüyor. TestFlight ve App Store derlemeleri production'da.
+Ortam (sandbox / production) ayarlanmıyor: Xcode'dan doğrudan telefona attığın
+derlemenin token'ı yalnızca sandbox'ta, TestFlight ve App Store sürümlerininki
+yalnızca production'da geçerli, ve token'a bakıp hangisi olduğunu anlamak mümkün
+değil. `src/lib/apns.ts` önce production deniyor, `BadDeviceToken` dönen
+token'ları sandbox'ta tekrar deniyor. Yani hem test telefonun hem App Store
+kullanıcıları aynı anda bildirim alıyor.
 
 ### 3. Akış
 

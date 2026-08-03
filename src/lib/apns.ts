@@ -21,8 +21,10 @@ type Ayar = {
   teamId: string;
   bundleId: string;
   anahtar: string;
-  host: string;
 };
+
+const PRODUCTION = "api.push.apple.com";
+const SANDBOX = "api.sandbox.push.apple.com";
 
 export type PushSonuc = {
   gonderilen: number;
@@ -40,13 +42,7 @@ function ayarlariOku(): Ayar | null {
 
   if (!keyId || !teamId || !bundleId || !anahtar) return null;
 
-  // Geliştirme derlemeleri (Xcode'dan telefona atılan) sandbox'a, App Store ve
-  // TestFlight sürümleri production'a düşer. Aynı token iki ortamda geçerli
-  // değildir; yanlış host "BadDeviceToken" döndürür.
-  const host =
-    process.env.APNS_ORTAM === "sandbox" ? "api.sandbox.push.apple.com" : "api.push.apple.com";
-
-  return { keyId, teamId, bundleId, anahtar, host };
+  return { keyId, teamId, bundleId, anahtar };
 }
 
 /** Ayar eksikse arayüz "yapılandırılmadı" diyebilsin. */
@@ -80,7 +76,7 @@ function jetonUret(ayar: Ayar): string {
   return jeton;
 }
 
-type TekSonuc = { tamam: boolean; gecersiz: boolean; hata?: string };
+type TekSonuc = { tamam: boolean; gecersiz: boolean; yanlisOrtam: boolean; hata?: string };
 
 function tekGonder(
   oturum: ClientHttp2Session,
@@ -112,9 +108,11 @@ function tekGonder(
     istek.on("data", (parca) => {
       yanit += parca;
     });
-    istek.on("error", (e) => cozumle({ tamam: false, gecersiz: false, hata: e.message }));
+    istek.on("error", (e) =>
+      cozumle({ tamam: false, gecersiz: false, yanlisOrtam: false, hata: e.message }),
+    );
     istek.on("end", () => {
-      if (durum === 200) return cozumle({ tamam: true, gecersiz: false });
+      if (durum === 200) return cozumle({ tamam: true, gecersiz: false, yanlisOrtam: false });
 
       let sebep = yanit;
       try {
@@ -122,10 +120,12 @@ function tekGonder(
       } catch {
         // Gövde JSON değilse ham metni kullan.
       }
-      // 410 = token artık geçersiz (uygulama silindi). 400 + BadDeviceToken da
-      // aynı kapıya çıkıyor: o satırı bir daha denemeye değmez.
-      const gecersiz = durum === 410 || sebep === "BadDeviceToken" || sebep === "Unregistered";
-      cozumle({ tamam: false, gecersiz, hata: `${durum} ${sebep}` });
+      // 410 Unregistered = uygulama cihazdan silinmiş, token ölü.
+      const gecersiz = durum === 410 || sebep === "Unregistered";
+      // BadDeviceToken çoğu zaman token'ın ölü olduğu değil, YANLIŞ ORTAMDA
+      // denendiği anlamına geliyor; diğer host'ta tekrar denenecek.
+      const yanlisOrtam = sebep === "BadDeviceToken";
+      cozumle({ tamam: false, gecersiz, yanlisOrtam, hata: `${durum} ${sebep}` });
     });
 
     istek.end(govde);
@@ -135,10 +135,44 @@ function tekGonder(
 }
 
 /**
+ * Bir host'a, tek HTTP/2 oturumu üzerinden toplu gönderim.
+ *
+ * Hepsi paralel gidiyor — APNs bunun için tasarlanmış, cihaz başına bağlantı
+ * açmak hem yavaş hem gereksiz.
+ */
+async function hostaGonder(
+  host: string,
+  ayar: Ayar,
+  jeton: string,
+  tokenlar: string[],
+  govde: string,
+): Promise<TekSonuc[] | string> {
+  const oturum = connect(`https://${host}`);
+  const baglantiHatasi = new Promise<string>((cozumle) => {
+    oturum.once("error", (e) => cozumle(e.message));
+  });
+
+  try {
+    return await Promise.race([
+      Promise.all(tokenlar.map((t) => tekGonder(oturum, ayar, jeton, t, govde))),
+      baglantiHatasi,
+    ]);
+  } finally {
+    oturum.close();
+  }
+}
+
+/**
  * Verilen cihaz token'larına aynı bildirimi gönderir.
  *
- * Tek HTTP/2 oturumu üzerinden hepsi paralel gidiyor — APNs bunun için
- * tasarlanmış, cihaz başına bağlantı açmak hem yavaş hem gereksiz.
+ * İki ortam var: Xcode'dan telefona atılan geliştirme derlemelerinin token'ı
+ * yalnızca sandbox'ta, TestFlight ve App Store sürümlerininki yalnızca
+ * production'da geçerli. Hangisinin hangisi olduğunu sunucu bilemez — token
+ * ikisinde de aynı görünüyor.
+ *
+ * Bunu bir ortam değişkenine bağlamak sessiz bir tuzak olurdu: yanlış ayarda
+ * bildirim hata vermeden düşer. Onun yerine önce production deneniyor,
+ * "BadDeviceToken" dönen token'lar sandbox'ta tekrar deneniyor.
  */
 export async function pushGonder(
   tokenlar: string[],
@@ -166,27 +200,27 @@ export async function pushGonder(
     ...veri,
   });
 
-  const oturum = connect(`https://${ayar.host}`);
-  const baglantiHatasi = new Promise<string>((cozumle) => {
-    oturum.once("error", (e) => cozumle(e.message));
-  });
-
-  try {
-    const sonuclar = await Promise.race([
-      Promise.all(tokenlar.map((t) => tekGonder(oturum, ayar, jeton, t, govde))),
-      baglantiHatasi.then((h) => h),
-    ]);
-
-    if (typeof sonuclar === "string") {
-      return { gonderilen: 0, gecersizTokenlar: [], hata: `APNs bağlantısı kurulamadı: ${sonuclar}` };
-    }
-
-    const gecersizTokenlar = tokenlar.filter((_, i) => sonuclar[i].gecersiz);
-    const gonderilen = sonuclar.filter((s) => s.tamam).length;
-    const ilkHata = sonuclar.find((s) => !s.tamam && !s.gecersiz)?.hata;
-
-    return { gonderilen, gecersizTokenlar, hata: gonderilen === 0 ? ilkHata : undefined };
-  } finally {
-    oturum.close();
+  const sonuclar = await hostaGonder(PRODUCTION, ayar, jeton, tokenlar, govde);
+  if (typeof sonuclar === "string") {
+    return { gonderilen: 0, gecersizTokenlar: [], hata: `APNs bağlantısı kurulamadı: ${sonuclar}` };
   }
+
+  // Yanlış ortamda denendiği anlaşılanları sandbox'ta tekrar dene.
+  const tekrarIndeksleri = sonuclar.flatMap((s, i) => (s.yanlisOrtam ? [i] : []));
+  if (tekrarIndeksleri.length > 0) {
+    const tekrarTokenlar = tekrarIndeksleri.map((i) => tokenlar[i]);
+    const ikinci = await hostaGonder(SANDBOX, ayar, jeton, tekrarTokenlar, govde);
+    if (typeof ikinci !== "string") {
+      tekrarIndeksleri.forEach((hedef, sira) => {
+        sonuclar[hedef] = ikinci[sira];
+      });
+    }
+  }
+
+  // İki ortamda da BadDeviceToken alan token gerçekten ölüdür.
+  const gecersizTokenlar = tokenlar.filter((_, i) => sonuclar[i].gecersiz || sonuclar[i].yanlisOrtam);
+  const gonderilen = sonuclar.filter((s) => s.tamam).length;
+  const ilkHata = sonuclar.find((s) => !s.tamam)?.hata;
+
+  return { gonderilen, gecersizTokenlar, hata: gonderilen === 0 ? ilkHata : undefined };
 }
