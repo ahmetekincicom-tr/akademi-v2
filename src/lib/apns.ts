@@ -32,17 +32,40 @@ export type PushSonuc = {
   hata?: string;
 };
 
+/**
+ * Ortam değişkenleri KIRPILARAK okunuyor.
+ *
+ * Panele yapıştırırken sona kaçan bir boşluk ya da satır sonu gözle
+ * görülmüyor ama bundle kimliği HTTP/2 başlığına gittiği için bağlantıyı
+ * bozuyor: APNs tüm oturumu PROTOCOL_ERROR ile kapatıyor ve ortaya çıkan
+ * "Session closed with error code 1" mesajı sebebi hiç anlatmıyor.
+ */
 function ayarlariOku(): Ayar | null {
-  const keyId = process.env.APNS_KEY_ID;
-  const teamId = process.env.APNS_TEAM_ID;
-  const bundleId = process.env.APNS_BUNDLE_ID;
+  const keyId = process.env.APNS_KEY_ID?.trim();
+  const teamId = process.env.APNS_TEAM_ID?.trim();
+  const bundleId = process.env.APNS_BUNDLE_ID?.trim();
   // Vercel'in ortam değişkeni alanı çok satırlı değeri koruyor ama panele
   // yapıştırırken satır sonları "\n" metnine dönebiliyor; ikisini de kabul et.
-  const anahtar = process.env.APNS_KEY_P8?.replace(/\\n/g, "\n");
+  const anahtar = process.env.APNS_KEY_P8?.replace(/\\n/g, "\n").trim();
 
   if (!keyId || !teamId || !bundleId || !anahtar) return null;
 
   return { keyId, teamId, bundleId, anahtar };
+}
+
+/**
+ * Başlığa gidecek değerlerde boşluk ya da kontrol karakteri kaldıysa isteği
+ * hiç göndermiyoruz: sebebi anlaşılır bir mesaj, sunucudan dönen ham protokol
+ * hatasından çok daha faydalı.
+ */
+function ayarSorunu(ayar: Ayar): string | null {
+  if (/\s/.test(ayar.bundleId)) return "APNS_BUNDLE_ID boşluk içeriyor.";
+  if (/\s/.test(ayar.keyId)) return "APNS_KEY_ID boşluk içeriyor.";
+  if (/\s/.test(ayar.teamId)) return "APNS_TEAM_ID boşluk içeriyor.";
+  if (!ayar.anahtar.includes("BEGIN PRIVATE KEY")) {
+    return "APNS_KEY_P8 geçerli bir .p8 anahtarı gibi görünmüyor.";
+  }
+  return null;
 }
 
 /** Ayar eksikse arayüz "yapılandırılmadı" diyebilsin. */
@@ -148,15 +171,28 @@ async function hostaGonder(
   govde: string,
 ): Promise<TekSonuc[] | string> {
   const oturum = connect(`https://${host}`);
+
+  // Oturum düzeyindeki hatalar isteklere "Session closed with error code 1"
+  // diye yansıyor ve sebebi hiç anlatmıyor. GOAWAY çerçevesi kodu ve çoğu
+  // zaman açıklama metnini taşıyor; asıl bilgi orada.
+  let goaway = "";
+  oturum.once("goAway", (kod, _sonAkis, veri) => {
+    const aciklama = veri?.length ? ` — ${veri.toString("utf8").slice(0, 200)}` : "";
+    goaway = `sunucu bağlantıyı kapattı (kod ${kod}${aciklama})`;
+  });
+
   const baglantiHatasi = new Promise<string>((cozumle) => {
-    oturum.once("error", (e) => cozumle(e.message));
+    oturum.once("error", (e) => cozumle(goaway || e.message));
   });
 
   try {
-    return await Promise.race([
+    const sonuc = await Promise.race([
       Promise.all(tokenlar.map((t) => tekGonder(oturum, ayar, jeton, t, govde))),
       baglantiHatasi,
     ]);
+    // İstekler "bitti" görünse bile oturum GOAWAY yediyse gerçek sebep o.
+    if (typeof sonuc !== "string" && goaway && sonuc.every((r) => !r.tamam)) return goaway;
+    return sonuc;
   } finally {
     oturum.close();
   }
@@ -182,6 +218,24 @@ export async function pushGonder(
 ): Promise<PushSonuc> {
   const ayar = ayarlariOku();
   if (!ayar) return { gonderilen: 0, gecersizTokenlar: [], hata: "APNs ortam değişkenleri eksik." };
+
+  const sorun = ayarSorunu(ayar);
+  if (sorun) return { gonderilen: 0, gecersizTokenlar: [], hata: sorun };
+
+  // Bozuk bir token adres satırına giriyor ve tüm oturumu düşürüyor; tek
+  // satır yüzünden gönderimin tamamı kaybolmasın diye önden ayıklanıyor.
+  const bozuk = tokenlar.filter((t) => !/^[0-9a-fA-F]{64}$/.test(t));
+  const temizTokenlar = tokenlar.filter((t) => /^[0-9a-fA-F]{64}$/.test(t));
+
+  if (temizTokenlar.length === 0) {
+    return {
+      gonderilen: 0,
+      gecersizTokenlar: bozuk,
+      hata: tokenlar.length ? "Kayıtlı cihaz kimlikleri geçersiz biçimde." : undefined,
+    };
+  }
+  tokenlar = temizTokenlar;
+
   if (tokenlar.length === 0) return { gonderilen: 0, gecersizTokenlar: [] };
 
   let jeton: string;
@@ -202,7 +256,7 @@ export async function pushGonder(
 
   const sonuclar = await hostaGonder(PRODUCTION, ayar, jeton, tokenlar, govde);
   if (typeof sonuclar === "string") {
-    return { gonderilen: 0, gecersizTokenlar: [], hata: `APNs bağlantısı kurulamadı: ${sonuclar}` };
+    return { gonderilen: 0, gecersizTokenlar: bozuk, hata: `APNs (${PRODUCTION}): ${sonuclar}` };
   }
 
   // Yanlış ortamda denendiği anlaşılanları sandbox'ta tekrar dene.
@@ -218,7 +272,10 @@ export async function pushGonder(
   }
 
   // İki ortamda da BadDeviceToken alan token gerçekten ölüdür.
-  const gecersizTokenlar = tokenlar.filter((_, i) => sonuclar[i].gecersiz || sonuclar[i].yanlisOrtam);
+  const gecersizTokenlar = [
+    ...bozuk,
+    ...tokenlar.filter((_, i) => sonuclar[i].gecersiz || sonuclar[i].yanlisOrtam),
+  ];
   const gonderilen = sonuclar.filter((s) => s.tamam).length;
   const ilkHata = sonuclar.find((s) => !s.tamam)?.hata;
 
