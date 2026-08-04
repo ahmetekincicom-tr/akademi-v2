@@ -5,10 +5,19 @@ import { SectionKicker } from "@/components/site/SectionKicker";
 import { siteNav } from "@/components/site/siteNav";
 import { EgitimlerFiltre } from "@/components/site/EgitimlerFiltre";
 import { getCourses } from "@/lib/courses";
+import type { Metadata } from "next";
+import { sayfaMeta } from "@/lib/seo";
 
 // Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
 // build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = sayfaMeta({
+  baslik: "Eğitim Programları",
+  aciklama:
+    "Meta Ads reklam yönetimi, sosyal medya yönetimi ve yapay zekâ araçları eğitimleri. Kapsam ön görüşmede sana göre kurulur.",
+  yol: "/egitimler",
+});
 
 export default async function EgitimlerPage() {
   const courses = await getCourses();

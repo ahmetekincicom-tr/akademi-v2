@@ -6,10 +6,19 @@ import { siteNav } from "@/components/site/siteNav";
 import { YorumlarFiltre } from "@/components/site/YorumlarFiltre";
 import { getCourses } from "@/lib/courses";
 import { getYorumlar } from "@/lib/icerik";
+import type { Metadata } from "next";
+import { sayfaMeta } from "@/lib/seo";
 
 // Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
 // build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = sayfaMeta({
+  baslik: "Katılımcı Yorumları",
+  aciklama:
+    "Eğitime katılanların deneyimleri: ne öğrendiler, işlerinde ne değişti.",
+  yol: "/yorumlar",
+});
 
 export default async function YorumlarPage() {
   const [courses, yorumlar] = await Promise.all([getCourses(), getYorumlar()]);

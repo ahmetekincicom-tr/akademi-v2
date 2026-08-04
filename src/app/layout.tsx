@@ -9,6 +9,7 @@ import { NativeIsaretci } from "@/components/site/NativeIsaretci";
 import { getMarka } from "@/lib/marka";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import "./globals.css";
+import { SITE_URL, SITE_ADI, VARSAYILAN_ACIKLAMA, OG_GORSEL, kurumSemasi, siteSemasi } from "@/lib/seo";
 
 const heading = Space_Grotesk({
   variable: "--font-heading",
@@ -34,9 +35,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const marka = await getMarka();
 
   return {
-    title: "Ahmet Ekinci Akademi",
-    description:
-      "Ankara merkezli, birebir dijital pazarlama eğitimi — Meta Ads, sosyal medya yönetimi ve yapay zekâ araçları.",
+    // metadataBase olmadan göreli adresler (paylaşım görseli, kanonik)
+    // localhost'a çözülüyor ve paylaşımlarda bozuk çıkıyor.
+    metadataBase: new URL(SITE_URL),
+    // Alt sayfalar yalnızca kendi başlığını yazıyor, marka adı buradan
+    // ekleniyor — her sayfada elle yazmak er geç tutarsızlaşıyor.
+    title: { default: SITE_ADI, template: `%s — ${SITE_ADI}` },
+    description: VARSAYILAN_ACIKLAMA,
+    openGraph: {
+      type: "website",
+      siteName: SITE_ADI,
+      locale: "tr_TR",
+      url: SITE_URL,
+      images: [{ url: OG_GORSEL }],
+    },
+    twitter: { card: "summary_large_image", images: [OG_GORSEL] },
     ...(marka.favicon
       ? { icons: { icon: marka.favicon, shortcut: marka.favicon, apple: marka.favicon } }
       : { icons: { apple: "/apple-touch-icon.png" } }),
@@ -75,6 +88,14 @@ export default async function RootLayout({
           o yüzden next/script değil düz inline script — gerekçesi Olcumleme.tsx'te.
         */}
         {olcumlemeVar && <script dangerouslySetInnerHTML={{ __html: ONYUKLEME }} />}
+        {/*
+          Yapısal veri: arama motoruna sayfanın ne olduğunu söylüyor. İçerik
+          bizim ürettiğimiz sabit bir nesne, dışarıdan gelen veri yok.
+        */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify([kurumSemasi(), siteSemasi()]) }}
+        />
       </head>
       <body className="antialiased font-body text-ink bg-white">
         <Olcumleme />

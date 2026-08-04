@@ -1,5 +1,7 @@
 import { AuthShell } from "@/components/auth/AuthShell";
 import { GirisFormu } from "@/components/auth/GirisFormu";
+import type { Metadata } from "next";
+import { sayfaMeta } from "@/lib/seo";
 
 /**
  * The shell stays on the server because it renders <Logo>, which is an async
@@ -7,6 +9,14 @@ import { GirisFormu } from "@/components/auth/GirisFormu";
  * can never hydrate, and the page freezes — or, behind a null Suspense
  * fallback, goes completely blank.
  */
+export const metadata: Metadata = sayfaMeta({
+  baslik: "Giriş",
+  aciklama: "Katılımcı paneline giriş.",
+  yol: "/giris",
+  // Oturum sayfalarının arama sonucunda işi yok.
+  indeksleme: false,
+});
+
 export default async function GirisPage({
   searchParams,
 }: {

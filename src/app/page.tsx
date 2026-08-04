@@ -7,6 +7,8 @@ import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
+import type { Metadata } from "next";
+import { sayfaMeta } from "@/lib/seo";
 
 const nav = [
   { label: "Eğitimler", href: "#egitimler" },
@@ -147,6 +149,13 @@ function SectionKicker({ children }: { children: React.ReactNode }) {
 // Eğitim kartları veritabanından geliyor; sayfa build anında dondurulursa
 // admin panelinde yayınlanan program burada görünmez.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = sayfaMeta({
+  baslik: "Ankara Birebir Dijital Pazarlama Eğitimi",
+  aciklama:
+    "Meta Ads, sosyal medya yönetimi ve yapay zekâ araçlarını birebir öğren. Ankara merkezli, kuruma ve kişiye özel program; eğitim sonrası destek dahil.",
+  yol: "/",
+});
 
 export default async function HomePage() {
   const [courses, logos, siteYorumlari] = await Promise.all([getCourses(), getReferanslar(), getYorumlar()]);

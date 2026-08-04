@@ -9,6 +9,7 @@ import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
 import { HeroHizliBilgi } from "@/components/site/HeroHizliBilgi";
 import { getCourseBySlug, kutuNot } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
+import { sayfaMeta, egitimSemasi, kirintiSemasi } from "@/lib/seo";
 
 // Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
 // build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
@@ -17,7 +18,15 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
-  return { title: course ? `${course.baslik} — Ahmet Ekinci Akademi` : "Eğitim bulunamadı" };
+  if (!course) return { title: "Eğitim bulunamadı", robots: { index: false, follow: true } };
+
+  return sayfaMeta({
+    baslik: course.baslik,
+    // Açıklama arama sonucunda tıklanma kararını veren metin; kartlardaki
+    // kısa özet yerine kapsamı anlatan hero metnini tercih ediyoruz.
+    aciklama: (course.heroAciklama || course.aciklama).slice(0, 300),
+    yol: `/egitimler/${course.slug}`,
+  });
 }
 
 const nav = [
@@ -34,7 +43,29 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
   const icerik = await getSiteIcerik();
 
+  // Yapısal veri: eğitimi "Course" olarak işaretliyor ve arama sonucunda
+  // kırıntı yolunu veriyor. İçerik bizim ürettiğimiz nesne.
+  const semalar = [
+    egitimSemasi({
+      slug: course.slug,
+      baslik: course.baslik,
+      aciklama: course.heroAciklama || course.aciklama,
+      sure: course.sure,
+      kapak: course.kapak,
+    }),
+    kirintiSemasi([
+      { ad: "Ana sayfa", yol: "/" },
+      { ad: "Eğitimler", yol: "/egitimler" },
+      { ad: course.baslik, yol: `/egitimler/${course.slug}` },
+    ]),
+  ];
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(semalar) }}
+      />
     <div className="bg-white">
       <PublicHeader nav={nav} ctaLabel="Hemen katıl" ctaHref="#katil" />
 
@@ -260,5 +291,6 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
       <PublicFooter />
     </div>
+    </>
   );
 }
