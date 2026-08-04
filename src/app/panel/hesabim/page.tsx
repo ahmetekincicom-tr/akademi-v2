@@ -3,18 +3,15 @@ import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 import { HesapFormu } from "@/components/panel/HesapFormu";
 import { HesapSilme } from "@/components/panel/HesapSilme";
 import { createClient } from "@/lib/supabase/server";
-import { getOturumlar, konumEtiketi, cihazEtiketi } from "@/lib/oturum";
-import { Icon } from "@/components/Icon";
+import { getOturumlar } from "@/lib/oturum";
 import { TR_ZAMAN } from "@/lib/zaman";
+import { GirisHareketleri } from "@/components/panel/GirisHareketleri";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
-  timeZone: TR_ZAMAN, day: "numeric", month: "long", year: "numeric" });
-const anBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
   day: "numeric",
   month: "long",
-  hour: "2-digit",
-  minute: "2-digit",
+  year: "numeric",
 });
 
 export default async function HesabimPage() {
@@ -65,48 +62,8 @@ export default async function HesabimPage() {
         )}
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-ink/10 bg-white">
-        <div className="border-b border-ink/8 px-[26px] py-[18px]">
-          <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Giriş hareketleri</h2>
-          <p className="mt-1 text-[13.5px] leading-[1.6] text-[#5C6273]">
-            Hesabına yapılan son girişler. Tanımadığın bir konum veya cihaz görürsen şifreni değiştir ve bize haber
-            ver. Kayıtlar 90 gün saklanır, sonra silinir.
-          </p>
-        </div>
+      <GirisHareketleri oturumlar={oturumlar} />
 
-        {oturumlar.length === 0 ? (
-          <div className="px-[26px] py-8 text-[14.5px] text-[#656B7A]">
-            Henüz kayıtlı bir giriş yok. Bir sonraki girişinden itibaren burada listelenecek.
-          </div>
-        ) : (
-          oturumlar.map((o, i) => (
-            <div
-              key={o.id}
-              className="flex flex-wrap items-center gap-4 border-b border-ink/7 px-[26px] py-[15px] last:border-b-0"
-            >
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-[10px] bg-mist text-[#5C6273]">
-                <Icon name="pin" size={16} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="text-[14.5px] font-semibold">{konumEtiketi(o)}</div>
-                <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#656B7A]">
-                  {cihazEtiketi(o)}
-                  {o.ip && ` · ${o.ip}`}
-                </div>
-              </div>
-              <div className="flex-none text-right">
-                <div className="font-mono text-[11.5px] text-[#3A3F4F]">{anBicimi.format(new Date(o.tarih))}</div>
-                {i === 0 && (
-                  <div className="mt-[3px] font-mono text-[9.5px] tracking-[0.1em] text-brand uppercase">
-                    en son
-                  </div>
-                )}
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    
       <HesapSilme talepTarihi={silmeSatiri?.silme_talebi_tarihi ?? null} />
     </main>
   );

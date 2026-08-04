@@ -32,7 +32,12 @@ export default async function YeniEgitimlerPage() {
                 key={u.slug}
                 className="flex gap-[18px] rounded-2xl border border-ink/10 bg-white p-6 transition hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(10,13,24,0.1)]"
               >
-                <div className="placeholder-block aspect-[4/3] w-[120px] flex-none rounded-[11px]" />
+                <div
+                  className={`aspect-[4/3] w-[120px] flex-none rounded-[11px] ${
+                    u.kapak ? "bg-cover bg-center" : "placeholder-block"
+                  }`}
+                  style={u.kapak ? { backgroundImage: `url(${u.kapak})` } : undefined}
+                />
                 <div className="flex min-w-0 flex-1 flex-col">
                   <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#656B7A]">
                     {[u.sure, u.etiket].filter(Boolean).join(" · ")}

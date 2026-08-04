@@ -88,10 +88,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               <p className="mt-6 max-w-[560px] text-[19px] leading-[1.62] text-white/68">{course.heroAciklama}</p>
               <HeroHizliBilgi bilgiler={course.hizli} />
             </div>
-            <div className="placeholder-block-dark relative flex aspect-[4/3] items-end overflow-hidden rounded-2xl p-5">
-              <span className="rounded-[7px] bg-ink/72 px-[11px] py-[7px] font-mono text-[11px] tracking-[0.08em] text-white/60">
-                program kapak görseli 4:3
-              </span>
+            <div
+              className={`relative flex aspect-[4/3] items-end overflow-hidden rounded-2xl p-5 ${
+                course.kapak ? "bg-cover bg-center" : "placeholder-block-dark"
+              }`}
+              style={course.kapak ? { backgroundImage: `url(${course.kapak})` } : undefined}
+            >
+              {!course.kapak && (
+                <span className="rounded-[7px] bg-ink/72 px-[11px] py-[7px] font-mono text-[11px] tracking-[0.08em] text-white/60">
+                  program kapak görseli 4:3
+                </span>
+              )}
             </div>
           </div>
         </div>

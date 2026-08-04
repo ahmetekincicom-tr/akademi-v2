@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { oynatmaCoz, type Oynatma } from "@/lib/oynatma";
+import { kapakUrl } from "@/lib/kapak";
 
 export type PanelLesson = {
   id: string;
@@ -196,7 +197,7 @@ export async function getOnerilenCourses() {
 
   const { data: courses } = await supabase
     .from("courses")
-    .select("slug, baslik, aciklama, sure, content")
+    .select("slug, baslik, aciklama, sure, kapak_gorsel, content")
     .eq("durum", "yayinda")
     .eq("sitede_gorunur", true)
     .eq("satisa_acik", true)
@@ -222,6 +223,7 @@ export async function getOnerilenCourses() {
     .filter((c) => !sahipOlunan.has(c.slug))
     .map((c) => ({
       slug: c.slug,
+      kapak: kapakUrl(c.kapak_gorsel),
       baslik: c.baslik,
       aciklama: c.aciklama ?? "",
       sure: c.sure ?? "",
