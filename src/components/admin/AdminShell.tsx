@@ -243,7 +243,7 @@ export function AdminShell({
 
       <div className="flex min-w-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]">
         {/* Güvenli alan boşluğu: başlık çentiğin/durum çubuğunun altında kalmasın. */}
-        <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/92 pt-[env(safe-area-inset-top)] backdrop-blur-[14px]">
+        <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/92 pt-[env(safe-area-inset-top)] yapiskan-baslik">
           <div className="flex h-[66px] items-center justify-between gap-3 px-4 sm:gap-5 sm:px-7">
             <div className="flex min-w-0 items-center gap-3">
               <button

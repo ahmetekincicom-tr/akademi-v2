@@ -257,7 +257,7 @@ export function PanelShell({
           cover) içerik y=0'dan başlıyor ve başlık çentiğin/durum çubuğunun
           altında kalıyordu. env() tarayıcıda 0 döndüğü için web etkilenmiyor.
         */}
-        <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/90 pt-[env(safe-area-inset-top)] backdrop-blur-[14px]">
+        <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/90 pt-[env(safe-area-inset-top)] yapiskan-baslik">
           <div className="flex h-[70px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-[34px]">
             <div className="flex min-w-0 items-center gap-3">
               <button

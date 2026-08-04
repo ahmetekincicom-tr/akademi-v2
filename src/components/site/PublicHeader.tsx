@@ -22,7 +22,7 @@ export function PublicHeader({
   logoHref?: string;
 }) {
   return (
-    <header className="sticky top-0 z-60 border-b border-ink/9 bg-white/90 backdrop-blur-[14px]">
+    <header className="sticky top-0 z-60 border-b border-ink/9 bg-white/90 yapiskan-baslik">
       <div className="mx-auto flex h-[74px] max-w-[1240px] items-center justify-between gap-8 px-5 sm:px-8">
         <Logo href={logoHref} />
 

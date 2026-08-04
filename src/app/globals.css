@@ -25,6 +25,18 @@
     padding: 0;
   }
 
+  html {
+    /* Sayfa içi bağlantılar (#egitimler gibi) sıçrayarak değil kayarak
+       gitsin. Azaltılmış hareket açıksa aşağıdaki medya sorgusu bunu
+       kapatıyor — kayma bazı kişilerde baş dönmesi yapıyor. */
+    scroll-behavior: smooth;
+
+    /* Yapışkan başlık 74px; hedef bölüm onun altında kalmasın diye kaydırma
+       o kadar erken duruyor. Bu olmadan çapaya tıklayınca başlığın altına
+       giriliyor ve bölümün başlığı görünmüyor. */
+    scroll-padding-top: 88px;
+  }
+
   body {
     -webkit-font-smoothing: antialiased;
     color: var(--color-ink);
@@ -445,4 +457,25 @@
    kayıyor; gövdenin de birlikte kayması iki katmanı aynı anda oynatıyordu. */
 [data-native="1"] body[data-menu-acik="1"] {
   overflow: hidden;
+}
+
+/* Yapışkan başlıkların bulanıklığı.
+   Tailwind yardımcı sınıfı yerine burada tanımlı, bilerek: aşağıdaki medya
+   sorgusunda onu geçersiz kılmaya çalışınca küçültücü, gereksiz saydığı
+   standart satırı atıp yalnızca -webkit- olanı bırakıyordu — kural Android
+   Chrome'da hiç çalışmıyordu. Tek yerde tanımlayınca çakışma da kalmıyor. */
+.yapiskan-baslik {
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+/* Dokunmatik cihazlarda kapalı. backdrop-filter, arkasındaki içerik her
+   kaydırma karesinde değiştiği için kare başına yeniden hesaplanıyor;
+   masaüstünde bedeli görünmüyor ama telefonda ve uygulamada kaydırmayı
+   takılmalı hale getiriyor. Zemin zaten %90 opak, görsel fark neredeyse yok. */
+@media (hover: none) {
+  .yapiskan-baslik {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
