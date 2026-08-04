@@ -1,19 +1,51 @@
 import { createClient } from "@/lib/supabase/server";
-import { OgrenciYonetimi, type AdminOgrenci, type AdminKurs } from "@/components/admin/OgrenciYonetimi";
+import {
+  OgrenciYonetimi,
+  type AdminOgrenci,
+  type AdminKurs,
+  type AdminEgitimOturumu,
+} from "@/components/admin/OgrenciYonetimi";
 import { getOturumlar, paylasimSinyali, type OturumKaydi } from "@/lib/oturum";
 
 export default async function OgrencilerPage() {
   const supabase = await createClient();
 
-  const [{ data: profiles }, { data: enrollments }, { data: courses }, { data: progress }, oturumlar] =
-    await Promise.all([
-      supabase.from("profiles").select("id, ad, soyad, email, role, created_at, silme_talebi_tarihi").order("created_at"),
-      supabase.from("enrollments").select("user_id, course_id, atanma_tarihi"),
-      supabase.from("courses").select("id, slug, baslik, modules(lessons(id))").order("created_at"),
-      supabase.from("lesson_progress").select("user_id, lesson_id").eq("tamamlandi", true),
-      // Yönetici RLS politikası tüm kullanıcıların kayıtlarını görmesine izin verir.
-      getOturumlar(supabase),
-    ]);
+  const [
+    { data: profiles },
+    { data: enrollments },
+    { data: courses },
+    { data: progress },
+    { data: egitimOturumlari },
+    oturumlar,
+  ] = await Promise.all([
+    supabase.from("profiles").select("id, ad, soyad, email, role, created_at, silme_talebi_tarihi").order("created_at"),
+    supabase.from("enrollments").select("user_id, course_id, atanma_tarihi"),
+    supabase.from("courses").select("id, slug, baslik, modules(lessons(id))").order("created_at"),
+    supabase.from("lesson_progress").select("user_id, lesson_id").eq("tamamlandi", true),
+    // Birebir eğitim takvimi artık öğrenci detayından yönetiliyor.
+    supabase
+      .from("egitim_oturumlari")
+      .select("id, user_id, baslangic, sure_dk, konu, toplanti_link, kayit_link, durum")
+      .order("baslangic", { ascending: false }),
+    // Yönetici RLS politikası tüm kullanıcıların kayıtlarını görmesine izin verir.
+    getOturumlar(supabase),
+  ]);
+
+  const kisiEgitimleri = new Map<string, AdminEgitimOturumu[]>();
+  for (const o of egitimOturumlari ?? []) {
+    const kayit: AdminEgitimOturumu = {
+      id: o.id,
+      baslangic: o.baslangic,
+      sureDk: o.sure_dk,
+      konu: o.konu ?? "",
+      toplantiLink: o.toplanti_link ?? "",
+      kayitLink: o.kayit_link ?? "",
+      durum: o.durum as AdminEgitimOturumu["durum"],
+    };
+    const mevcut = kisiEgitimleri.get(o.user_id);
+    if (mevcut) mevcut.push(kayit);
+    else kisiEgitimleri.set(o.user_id, [kayit]);
+  }
 
   // Kişi başına grupla; liste zaten tarihe göre azalan sırada.
   const kisiOturumlari = new Map<string, OturumKaydi[]>();
@@ -62,6 +94,7 @@ export default async function OgrencilerPage() {
       admin: p.role === "admin",
       kayitTarihi: p.created_at,
       silmeTalebi: p.silme_talebi_tarihi ?? null,
+      egitimler: kisiEgitimleri.get(p.id) ?? [],
       oturumlar: kendiOturumlari,
       sinyal: paylasimSinyali(kendiOturumlari),
       kayitlar: kendiKayitlari.map((e) => {

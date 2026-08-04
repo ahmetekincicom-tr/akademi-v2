@@ -1,15 +1,23 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { kayitEkle, kayitKaldir } from "@/app/admin/(protected)/ogrenciler/actions";
-import { Icon } from "@/components/Icon";
-import { konumEtiketi, cihazEtiketi, type OturumKaydi, type PaylasimSinyali } from "@/lib/oturum";
-import { useBildirim } from "@/components/Bildirim";
-import { TR_ZAMAN } from "@/lib/zaman";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Icon } from "@/components/Icon";
+import { OgrenciDetay } from "@/components/admin/OgrenciDetay";
+import type { OturumKaydi, PaylasimSinyali } from "@/lib/oturum";
+import { TR_ZAMAN } from "@/lib/zaman";
 
 export type AdminKurs = { id: string; slug: string; baslik: string };
+
+export type AdminEgitimOturumu = {
+  id: string;
+  baslangic: string;
+  sureDk: number;
+  konu: string;
+  toplantiLink: string;
+  kayitLink: string;
+  durum: "planlandi" | "tamamlandi" | "iptal";
+};
 
 export type AdminOgrenci = {
   id: string;
@@ -27,18 +35,21 @@ export type AdminOgrenci = {
     tamamlanan: number;
     yuzde: number;
   }[];
+  /** Birebir eğitim takvimi; detayda buradan yönetiliyor. */
+  egitimler: AdminEgitimOturumu[];
   oturumlar: OturumKaydi[];
   sinyal: PaylasimSinyali;
 };
 
+// 300 kayıtta tek sayfa hem uzun hem yavaş; 25 ekrana sığan ve aramayla
+// birlikte çalışan bir boy.
+const SAYFA_BOYU = 25;
+
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
-  timeZone: TR_ZAMAN, day: "numeric", month: "short", year: "numeric" });
-const anBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
   day: "numeric",
   month: "short",
-  hour: "2-digit",
-  minute: "2-digit",
+  year: "numeric",
 });
 
 function basHarfler(isim: string) {
@@ -51,53 +62,42 @@ function basHarfler(isim: string) {
     .toUpperCase();
 }
 
-export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgrenci[]; kurslar: AdminKurs[] }) {
-  const router = useRouter();
-  const bildir = useBildirim();
+export function OgrenciYonetimi({
+  ogrenciler,
+  kurslar,
+}: {
+  ogrenciler: AdminOgrenci[];
+  kurslar: AdminKurs[];
+}) {
   const [arama, setArama] = useState("");
+  const [sayfa, setSayfa] = useState(0);
   const [seciliId, setSeciliId] = useState<string | null>(null);
-  const [eklenecekKurs, setEklenecekKurs] = useState("");
-  const [hata, setHata] = useState<string | null>(null);
-  const [islemde, startTransition] = useTransition();
 
   const listelenen = useMemo(() => {
-    const q = arama.trim().toLowerCase();
+    const q = arama.trim().toLocaleLowerCase("tr-TR");
     if (!q) return ogrenciler;
-    return ogrenciler.filter((o) => o.isim.toLowerCase().includes(q) || o.eposta.toLowerCase().includes(q));
+    return ogrenciler.filter(
+      (o) =>
+        o.isim.toLocaleLowerCase("tr-TR").includes(q) || o.eposta.toLocaleLowerCase("tr-TR").includes(q),
+    );
   }, [arama, ogrenciler]);
 
-  const secili = ogrenciler.find((o) => o.id === seciliId) ?? null;
-  const atanabilir = kurslar.filter((k) => !secili?.kayitlar.some((r) => r.courseId === k.id));
+  const sayfaSayisi = Math.max(1, Math.ceil(listelenen.length / SAYFA_BOYU));
+  // Arama daraldığında elde olmayan bir sayfada kalınabiliyor; sınıra çekiyoruz.
+  const gecerliSayfa = Math.min(sayfa, sayfaSayisi - 1);
+  const basla = gecerliSayfa * SAYFA_BOYU;
+  const sayfadakiler = listelenen.slice(basla, basla + SAYFA_BOYU);
 
-  const ata = () => {
-    if (!secili || !eklenecekKurs) return;
-    setHata(null);
-    startTransition(async () => {
-      const r = await kayitEkle(secili.id, eklenecekKurs);
-      if (r?.error) {
-        setHata(r.error);
-        bildir.hata(r.error);
-      } else {
-        setEklenecekKurs("");
-        bildir.basarili(`${secili.isim} eğitime atandı.`);
-        router.refresh();
-      }
-    });
+  const aramaDegisti = (deger: string) => {
+    setArama(deger);
+    setSayfa(0);
+    setSeciliId(null);
   };
 
-  const kaldir = (courseId: string) => {
-    if (!secili) return;
-    setHata(null);
-    startTransition(async () => {
-      const r = await kayitKaldir(secili.id, courseId);
-      if (r?.error) {
-        setHata(r.error);
-        bildir.hata(r.error);
-      } else {
-        bildir.basarili("Eğitim kaydı kaldırıldı.");
-        router.refresh();
-      }
-    });
+  const sayfaDegistir = (yon: -1 | 1) => {
+    setSayfa(Math.min(Math.max(gecerliSayfa + yon, 0), sayfaSayisi - 1));
+    // Açık detay başka sayfada kalırsa kafa karıştırıcı olurdu.
+    setSeciliId(null);
   };
 
   return (
@@ -108,7 +108,7 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
             Öğrenciler
           </h1>
           <p className="mt-[7px] text-[14.5px] text-[#5C6273]">
-            {ogrenciler.length} kayıt · eğitim ataması ve ilerleme buradan yönetilir.
+            {ogrenciler.length} kayıt · eğitim ataması, birebir eğitim takvimi ve ilerleme buradan yönetilir.
           </p>
         </div>
         <Link
@@ -126,45 +126,54 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
           type="text"
           placeholder="İsim veya e-posta ara"
           value={arama}
-          onChange={(e) => setArama(e.target.value)}
+          onChange={(e) => aramaDegisti(e.target.value)}
           className="w-full border-0 bg-transparent text-sm text-ink outline-none"
         />
       </div>
 
       <div className="mt-[18px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
-        <div className="overflow-x-auto">
-          <div className="grid grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] min-w-[820px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
-            <span>Öğrenci</span>
-            <span>Eğitimler</span>
-            <span>İlerleme</span>
-            <span>Kayıt</span>
-            <span />
-          </div>
+        {/* Başlık satırı yalnızca sütunların yan yana durduğu genişlikte. */}
+        <div className="hidden grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase lg:grid">
+          <span>Öğrenci</span>
+          <span>Eğitimler</span>
+          <span>İlerleme</span>
+          <span>Kayıt</span>
+          <span />
+        </div>
 
-          {listelenen.length === 0 ? (
-            <div className="px-[22px] py-10 text-center text-sm text-[#656B7A]">
-              {ogrenciler.length === 0 ? "Henüz kayıtlı kullanıcı yok." : "Aramanla eşleşen öğrenci bulunamadı."}
-            </div>
-          ) : (
-            listelenen.map((o) => {
-              const toplamDers = o.kayitlar.reduce((n, r) => n + r.dersSayisi, 0);
-              const toplamBitti = o.kayitlar.reduce((n, r) => n + r.tamamlanan, 0);
-              const yuzde = toplamDers ? Math.round((toplamBitti / toplamDers) * 100) : 0;
-              return (
+        {sayfadakiler.length === 0 ? (
+          <div className="px-[22px] py-10 text-center text-sm text-[#656B7A]">
+            {ogrenciler.length === 0 ? "Henüz kayıtlı kullanıcı yok." : "Aramanla eşleşen öğrenci bulunamadı."}
+          </div>
+        ) : (
+          sayfadakiler.map((o) => {
+            const toplamDers = o.kayitlar.reduce((n, r) => n + r.dersSayisi, 0);
+            const toplamBitti = o.kayitlar.reduce((n, r) => n + r.tamamlanan, 0);
+            const yuzde = toplamDers ? Math.round((toplamBitti / toplamDers) * 100) : 0;
+            const acik = o.id === seciliId;
+
+            return (
+              <div key={o.id} className="border-b border-ink/7 last:border-b-0">
+                {/*
+                  Dar ekranda satır alt alta yığılıyor, lg'den itibaren sütunlara
+                  geçiyor. Eskiden sabit 820px genişlikte bir ızgaraydı ve tablo
+                  yatay kayıyordu; telefonda ve uygulamada kullanılamıyordu.
+                */}
                 <div
-                  key={o.id}
-                  className="grid grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] min-w-[820px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] transition last:border-b-0 hover:bg-[#F7F9FF]"
+                  className={`flex flex-col gap-3 px-4 py-[14px] transition sm:px-[22px] lg:grid lg:grid-cols-[2fr_1.8fr_1.2fr_1fr_90px] lg:items-center lg:gap-4 ${
+                    acik ? "bg-[#F4F7FF]" : "hover:bg-[#F7F9FF]"
+                  }`}
                 >
                   <div className="flex min-w-0 items-center gap-[11px]">
                     <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-[#F2F4FA] font-mono text-[11px] font-medium text-[#5C6273]">
                       {basHarfler(o.isim)}
                     </span>
                     <span className="min-w-0">
-                      <span className="flex items-center gap-2">
+                      <span className="flex flex-wrap items-center gap-2">
                         <span className="truncate text-sm font-semibold">{o.isim}</span>
                         {o.silmeTalebi && (
                           <span
-                            title={`Hesap silme talebi: ${new Date(o.silmeTalebi).toLocaleDateString("tr-TR")}`}
+                            title={`Hesap silme talebi: ${tarihBicimi.format(new Date(o.silmeTalebi))}`}
                             className="flex-none rounded-full bg-danger/12 px-[8px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-danger-ink uppercase"
                           >
                             Silme talebi
@@ -187,10 +196,12 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                       <span className="block truncate font-mono text-[10px] text-[#656B7A]">{o.eposta}</span>
                     </span>
                   </div>
+
                   <div className="min-w-0 text-[13.5px] text-[#3A3F4F]">
                     {o.kayitlar.length ? o.kayitlar.map((r) => r.baslik).join(", ") : "—"}
                   </div>
-                  <div>
+
+                  <div className="max-w-[220px] lg:max-w-none">
                     <div className="h-[5px] overflow-hidden rounded-full bg-ink/8">
                       <div className="h-full rounded-full bg-brand" style={{ width: `${yuzde}%` }} />
                     </div>
@@ -198,156 +209,67 @@ export function OgrenciYonetimi({ ogrenciler, kurslar }: { ogrenciler: AdminOgre
                       {o.kayitlar.length ? `${yuzde}% · ${toplamBitti}/${toplamDers}` : "kayıt yok"}
                     </div>
                   </div>
+
                   <div className="font-mono text-[11px] text-[#5C6273]">
                     {tarihBicimi.format(new Date(o.kayitTarihi))}
+                    {o.egitimler.length > 0 && (
+                      <span className="ml-2 lg:ml-0 lg:block lg:mt-[3px]">
+                        {o.egitimler.length} birebir
+                      </span>
+                    )}
                   </div>
+
                   <button
                     type="button"
-                    onClick={() => {
-                      setSeciliId(o.id === seciliId ? null : o.id);
-                      setHata(null);
-                      setEklenecekKurs("");
-                    }}
-                    className="h-8 rounded-[8px] border border-ink/13 bg-white text-[12.5px] font-semibold text-ink hover:border-ink hover:bg-ink hover:text-white"
+                    onClick={() => setSeciliId(acik ? null : o.id)}
+                    className="h-8 w-fit rounded-[8px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink hover:border-ink hover:bg-ink hover:text-white lg:w-full lg:px-0"
                   >
-                    {o.id === seciliId ? "Kapat" : "Detay"}
+                    {acik ? "Kapat" : "Detay"}
                   </button>
                 </div>
-              );
-            })
-          )}
-        </div>
+
+                {/*
+                  Detay tıklanan satırın hemen altında açılıyor. Eskiden listenin
+                  tamamının altındaydı; 300 kayıtta beşinci satırın detayı
+                  ekranın çok aşağısında açılıyor ve kaybolmuş gibi duruyordu.
+                */}
+                {acik && (
+                  <OgrenciDetay ogrenci={o} kurslar={kurslar} kapat={() => setSeciliId(null)} />
+                )}
+              </div>
+            );
+          })
+        )}
       </div>
 
-      {secili && (
-        <div className="mt-5 overflow-hidden rounded-2xl border border-brand/30 bg-white shadow-[0_20px_44px_rgba(10,13,24,0.09)]">
-          <div className="flex flex-wrap items-center gap-[14px] border-b border-ink/8 px-6 py-5">
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[#F2F4FA] font-mono text-[13px] font-medium text-[#5C6273]">
-              {basHarfler(secili.isim)}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="font-heading text-[19px] font-semibold tracking-[-0.02em]">{secili.isim}</div>
-              <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#656B7A]">{secili.eposta}</div>
-            </div>
+      {listelenen.length > SAYFA_BOYU && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="font-mono text-[11.5px] text-[#656B7A]">
+            {basla + 1}–{Math.min(basla + SAYFA_BOYU, listelenen.length)} / {listelenen.length}
+            {arama && ` (${ogrenciler.length} kayıt içinde)`}
+          </div>
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setSeciliId(null)}
-              aria-label="Kapat"
-              className="flex h-[38px] w-[38px] items-center justify-center rounded-[9px] border border-ink/13 bg-white text-[#5C6273] transition hover:border-ink hover:text-ink"
+              disabled={gecerliSayfa === 0}
+              onClick={() => sayfaDegistir(-1)}
+              className="flex h-9 items-center gap-1.5 rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-40 disabled:hover:border-ink/13 disabled:hover:text-ink"
             >
-              <Icon name="x" size={16} />
+              <Icon name="arrowLeft" size={14} />
+              Önceki
             </button>
-          </div>
-
-          {hata && (
-            <div className="border-b border-ink/8 bg-danger/6 px-6 py-3 text-sm text-danger-ink">{hata}</div>
-          )}
-
-          <div className="px-6 py-5">
-            <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">Kayıtlı eğitimler</div>
-            <div className="mt-3 flex flex-col gap-[10px]">
-              {secili.kayitlar.length === 0 && (
-                <div className="rounded-[11px] border border-dashed border-ink/16 px-[15px] py-[18px] text-center text-[13.5px] text-[#656B7A]">
-                  Bu öğrenciye henüz eğitim atanmamış.
-                </div>
-              )}
-              {secili.kayitlar.map((r) => (
-                <div key={r.courseId} className="flex flex-wrap items-center gap-3 rounded-[11px] border border-ink/11 px-[15px] py-[13px]">
-                  <span className="min-w-0 flex-1 truncate text-sm font-semibold">{r.baslik}</span>
-                  <span className="font-mono text-[10.5px] text-[#5C6273]">
-                    {r.yuzde}% · {r.tamamlanan}/{r.dersSayisi} ders
-                  </span>
-                  <span className="font-mono text-[10.5px] text-[#656B7A]">
-                    {tarihBicimi.format(new Date(r.atanmaTarihi))}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={islemde}
-                    onClick={() => kaldir(r.courseId)}
-                    className="h-[30px] rounded-[8px] border border-ink/13 bg-white px-[11px] text-xs font-semibold text-[#5C6273] hover:border-danger/40 hover:text-danger disabled:opacity-50"
-                  >
-                    Çıkar
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {atanabilir.length > 0 && (
-              <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-ink/8 pt-5">
-                <select
-                  aria-label="Atanacak eğitim"
-                  value={eklenecekKurs}
-                  onChange={(e) => setEklenecekKurs(e.target.value)}
-                  className="h-[42px] min-w-[260px] rounded-[10px] border border-ink/13 bg-white px-[13px] text-sm text-ink outline-none focus:border-brand"
-                >
-                  <option value="">Eğitim seç…</option>
-                  {atanabilir.map((k) => (
-                    <option key={k.id} value={k.id}>
-                      {k.baslik}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  disabled={!eklenecekKurs || islemde}
-                  onClick={ata}
-                  className="h-[42px] rounded-[10px] bg-brand px-[18px] text-sm font-semibold text-white hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {islemde ? "Atanıyor…" : "Eğitimi ata"}
-                </button>
-              </div>
-            )}
-
-            <div className="mt-6 border-t border-ink/8 pt-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
-                  Giriş hareketleri
-                </div>
-                <div className="font-mono text-[10.5px] text-[#656B7A]">
-                  son 30 gün · {secili.sinyal.girisSayisi} giriş · {secili.sinyal.ipSayisi} IP ·{" "}
-                  {secili.sinyal.sehirSayisi} şehir
-                </div>
-              </div>
-
-              <div
-                className="mt-3 rounded-[11px] px-4 py-3 text-[13px] leading-[1.6]"
-                style={
-                  secili.sinyal.supheli
-                    ? { background: "rgba(201,138,27,0.09)", color: "#A5711A" }
-                    : { background: "#F2F4FA", color: "#5C6273" }
-                }
-              >
-                {secili.sinyal.gerekce}
-                {secili.sinyal.supheli && (
-                  <span className="mt-1 block text-[12.5px] opacity-80">
-                    Bu bir kanıt değil, bir işaret. Mobil operatörler IP değiştirir, insanlar seyahat eder — karar
-                    vermeden önce kişiyle konuş.
-                  </span>
-                )}
-              </div>
-
-              <div className="mt-3 flex flex-col gap-[7px]">
-                {secili.oturumlar.length === 0 ? (
-                  <div className="rounded-[11px] border border-dashed border-ink/16 px-[15px] py-[18px] text-center text-[13.5px] text-[#656B7A]">
-                    Bu kullanıcı için kayıtlı giriş yok.
-                  </div>
-                ) : (
-                  secili.oturumlar.slice(0, 15).map((k) => (
-                    <div
-                      key={k.id}
-                      className="flex flex-wrap items-center gap-3 rounded-[10px] border border-ink/10 px-[13px] py-[10px]"
-                    >
-                      <span className="min-w-0 flex-1 truncate text-[13.5px] font-semibold">{konumEtiketi(k)}</span>
-                      <span className="truncate font-mono text-[10.5px] text-[#656B7A]">{cihazEtiketi(k)}</span>
-                      <span className="font-mono text-[10.5px] text-[#5C6273]">{k.ip || "—"}</span>
-                      <span className="font-mono text-[10.5px] text-[#656B7A]">
-                        {anBicimi.format(new Date(k.tarih))}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            <span className="font-mono text-[12px] text-[#5C6273]">
+              {gecerliSayfa + 1} / {sayfaSayisi}
+            </span>
+            <button
+              type="button"
+              disabled={gecerliSayfa >= sayfaSayisi - 1}
+              onClick={() => sayfaDegistir(1)}
+              className="flex h-9 items-center gap-1.5 rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-40 disabled:hover:border-ink/13 disabled:hover:text-ink"
+            >
+              Sonraki
+              <Icon name="arrowRight" size={14} />
+            </button>
           </div>
         </div>
       )}

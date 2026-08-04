@@ -34,6 +34,7 @@ export async function oturumEkle(input: {
 
   if (error) return { error: error.message };
   revalidatePath("/admin/birebir-egitim");
+  revalidatePath("/admin/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
   return {};
 }
@@ -43,6 +44,7 @@ export async function oturumDurumDegistir(id: string, durum: "planlandi" | "tama
   const { error } = await supabase.from("egitim_oturumlari").update({ durum }).eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/admin/birebir-egitim");
+  revalidatePath("/admin/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
   return {};
 }
@@ -61,6 +63,7 @@ export async function oturumKayitLinki(id: string, link: string) {
 
   if (error) return { error: error.message };
   revalidatePath("/admin/birebir-egitim");
+  revalidatePath("/admin/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
   return {};
 }
@@ -70,6 +73,7 @@ export async function oturumSil(id: string) {
   const { error } = await supabase.from("egitim_oturumlari").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/admin/birebir-egitim");
+  revalidatePath("/admin/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
   return {};
 }

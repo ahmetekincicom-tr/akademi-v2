@@ -51,3 +51,6 @@ ios/DerivedData/
 
 # APNs imzalama anahtarı asla depoya girmemeli.
 *.p8
+
+# Yerel doğrulama sunucusunun günlüğü.
+server.log
