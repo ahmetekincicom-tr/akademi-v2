@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -185,4 +186,34 @@ export async function arsivleCourse(slug: string): Promise<{ error?: string }> {
   }
 
   redirect("/admin/egitimler");
+}
+
+/**
+ * Eğitimin kapak görselini bağlar ya da kaldırır.
+ *
+ * Görsel istemciden doğrudan depoya yükleniyor (marka ve logolarda olduğu
+ * gibi); burada yalnızca yol kaydediliyor. Eski dosya siliniyor, yoksa her
+ * değişiklikte kovada bir kopya birikir.
+ */
+export async function kursKapakGuncelle(slug: string, yol: string | null): Promise<{ error?: string }> {
+  const supabase = await createClient();
+
+  const { data: mevcut } = await supabase
+    .from("courses")
+    .select("kapak_gorsel")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  const { error } = await supabase.from("courses").update({ kapak_gorsel: yol }).eq("slug", slug);
+  if (error) return { error: error.message };
+
+  const eski = mevcut?.kapak_gorsel as string | null | undefined;
+  if (eski && eski !== yol) {
+    await supabase.storage.from("kapaklar").remove([eski]);
+  }
+
+  revalidatePath("/admin/egitimler");
+  revalidatePath("/egitimler");
+  revalidatePath(`/egitimler/${slug}`);
+  return {};
 }

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createPublicClient } from "@/lib/supabase/public";
+import { kapakUrl } from "@/lib/kapak";
 
 export type CurriculumModule = {
   baslik: string;
@@ -13,6 +14,8 @@ export type Testimonial = { metin: string; isim: string; rol: string };
 export type Course = {
   id: string;
   slug: string;
+  /** Kapak görselinin tam adresi; yüklenmemişse null. */
+  kapak: string | null;
   etiket: string;
   sure: string;
   modul: string;
@@ -48,11 +51,12 @@ export const kutuNot = [
 ];
 
 const COURSE_SELECT =
-  "id, slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, content, modules(sira, baslik, meta, lessons(sira, baslik, sure))";
+  "id, slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, kapak_gorsel, content, modules(sira, baslik, meta, lessons(sira, baslik, sure))";
 
 type CourseRow = {
   id: string;
   slug: string;
+  kapak_gorsel: string | null;
   baslik: string;
   baslik_vurgu: string;
   aciklama: string | null;
@@ -96,6 +100,7 @@ function mapCourse(row: CourseRow): Course {
   return {
     id: row.id,
     slug: row.slug,
+    kapak: kapakUrl(row.kapak_gorsel),
     etiket: row.content.etiket,
     sure: row.sure ?? "",
     modul: row.content.modul,

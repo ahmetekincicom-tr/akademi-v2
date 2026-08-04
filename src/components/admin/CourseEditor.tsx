@@ -6,6 +6,7 @@ import { Toggle } from "./Toggle";
 import { saveCourse, arsivleCourse } from "@/app/admin/(protected)/egitimler/actions";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
+import { KapakGorseli } from "@/components/admin/KapakGorseli";
 
 // Rows loaded from the database carry their id so saving updates them in place
 // instead of recreating them (which would wipe student progress). Rows added in
@@ -24,6 +25,8 @@ export type CourseEditorInitial = {
   siteGorunur: boolean;
   satisaAcik: boolean;
   fiyatGorunur: boolean;
+  /** Depodaki kapak dosyasının yolu; yeni programda boş. */
+  kapakGorsel?: string | null;
 };
 
 const BOS_INITIAL: CourseEditorInitial = {
@@ -351,10 +354,7 @@ export function CourseEditor({
 
           <div className="rounded-2xl border border-ink/10 bg-white p-[22px] px-[22px] pt-5 pb-[22px]">
             <div className="font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">Kapak görseli</div>
-            <div className="mt-[14px] flex aspect-[16/10] flex-col items-center justify-center gap-2 rounded-[11px] border border-dashed border-ink/20 bg-mist">
-              <Icon name="upload" size={20} className="text-[#656B7A]" />
-              <span className="text-[13px] text-[#656B7A]">Sürükle veya seç · 1600×1000</span>
-            </div>
+            <KapakGorseli slug={originalSlug ?? null} mevcut={initial.kapakGorsel ?? null} />
           </div>
 
           {mode === "duzenle" && (

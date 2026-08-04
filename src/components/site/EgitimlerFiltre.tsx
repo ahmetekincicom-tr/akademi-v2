@@ -45,10 +45,17 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
               key={p.slug}
               className="flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
             >
-              <div className="placeholder-block relative flex aspect-video items-end border-b border-ink/8 p-[14px]">
-                <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
-                  program görseli 16:9
-                </span>
+              <div
+                className={`relative flex aspect-video items-end border-b border-ink/8 p-[14px] ${
+                  p.kapak ? "bg-cover bg-center" : "placeholder-block"
+                }`}
+                style={p.kapak ? { backgroundImage: `url(${p.kapak})` } : undefined}
+              >
+                {!p.kapak && (
+                  <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
+                    program görseli 16:9
+                  </span>
+                )}
                 <span className="absolute top-[14px] left-[14px] rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
                   {p.etiket}
                 </span>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/lib/admin/shared";
+import { kapakUrl } from "@/lib/kapak";
 
 const DURUM_ETIKET: Record<string, string> = {
   taslak: "Taslak",
@@ -12,7 +13,7 @@ export default async function EgitimlerListePage() {
   const supabase = await createClient();
   const { data: courses } = await supabase
     .from("courses")
-    .select("slug, baslik, sure, durum, sitede_gorunur, satisa_acik, fiyat_gorunur, modules(lessons(id))")
+    .select("slug, baslik, sure, durum, kapak_gorsel, sitede_gorunur, satisa_acik, fiyat_gorunur, modules(lessons(id))")
     .order("created_at", { ascending: true });
 
   return (
@@ -44,7 +45,17 @@ export default async function EgitimlerListePage() {
               className="flex flex-col gap-4 rounded-[15px] border border-ink/10 bg-white p-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-[18px] sm:p-5"
             >
               <div className="flex min-w-0 items-center gap-4 sm:flex-1">
-                <div className="placeholder-block aspect-[16/10] w-[78px] flex-none rounded-[10px] sm:w-[112px]" />
+                {kapakUrl(e.kapak_gorsel) ? (
+                  /* eslint-disable-next-line @next/next/no-img-element -- Supabase
+                     Storage konağı next/image için remotePatterns'a eklenmeli. */
+                  <img
+                    src={kapakUrl(e.kapak_gorsel)!}
+                    alt=""
+                    className="aspect-[16/10] w-[78px] flex-none rounded-[10px] object-cover sm:w-[112px]"
+                  />
+                ) : (
+                  <div className="placeholder-block aspect-[16/10] w-[78px] flex-none rounded-[10px] sm:w-[112px]" />
+                )}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-[10px]">
                     <span className="text-[15.5px] leading-[1.25] font-semibold tracking-[-0.015em] sm:text-[16.5px]">

@@ -11,6 +11,9 @@ export async function oturumEkle(input: {
   sureDk: string;
   konu: string;
   toplantiLink: string;
+  /** Eğitim sonrası Drive klasörü ya da video. Baştan verilebiliyor: kayıt
+   *  elde hazırken önce oturumu kaydedip sonra geri dönmek gereksiz adım. */
+  kayitLink?: string;
 }) {
   if (!input.userId) return { error: "Öğrenci seçmelisin." };
   if (!input.baslangic) return { error: "Tarih ve saat gir." };
@@ -30,6 +33,7 @@ export async function oturumEkle(input: {
     sure_dk: sure,
     konu: input.konu.trim() || null,
     toplanti_link: input.toplantiLink.trim() || null,
+    kayit_link: input.kayitLink?.trim() || null,
   });
 
   if (error) return { error: error.message };
