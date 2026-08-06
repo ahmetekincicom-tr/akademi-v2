@@ -151,7 +151,7 @@ function SectionKicker({ children }: { children: React.ReactNode }) {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = sayfaMeta({
-  baslik: "Ankara Birebir Dijital Pazarlama Eğitimi",
+  baslik: "Birebir Dijital Pazarlama Eğitimleri",
   aciklama:
     "Meta Ads, sosyal medya yönetimi ve yapay zekâ araçlarını birebir öğren. Ankara merkezli, kuruma ve kişiye özel program; eğitim sonrası destek dahil.",
   yol: "/",

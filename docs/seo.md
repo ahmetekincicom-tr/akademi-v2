@@ -49,7 +49,7 @@ ikisi de düşer.
 
 | Sayfa | Birincil kelime | Destekleyici kelimeler | Niyet |
 | --- | --- | --- | --- |
-| `/` | birebir dijital pazarlama eğitimi | dijital pazarlama eğitimi ankara, kişiye özel pazarlama eğitimi | ticari |
+| `/` | birebir dijital pazarlama eğitimi | dijital pazarlama eğitimleri, dijital pazarlama eğitimi ankara, kişiye özel pazarlama eğitimi | ticari |
 | `/egitimler` | dijital pazarlama eğitim programları | online pazarlama kursu, reklam eğitimi | ticari |
 | `/egitimler/meta-ads-egitimi` | meta ads eğitimi | facebook reklam eğitimi, instagram reklam verme, meta business suite eğitimi | ticari — **en yüksek değerli sayfa** |
 | `/hakkimizda` | ahmet ekinci dijital pazarlama | ahmet ekinci eğitmen | marka |
