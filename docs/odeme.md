@@ -206,3 +206,38 @@ geri almamalı.
 Sunucusuz ortamda her istekte SMTP bağlantısı kurup kapatmak hem yavaş hem de
 bazı bölgelerde 25/587 portları kapalı. Resend tek bir JSON POST; SDK'sı da
 tip tanımından fazlasını eklemediği için bağımlılık kurulmadı.
+
+## Diğer yönetici bildirimleri
+
+Aynı altyapı ve şablon beş olayda kullanılıyor:
+
+| Olay | Nerede tetikleniyor | Konu satırı |
+| --- | --- | --- |
+| Kartla ödeme geçti | `denemeyiCoz()` | Ödeme alındı · tutar · isim |
+| İletişim/teklif formu | `mesaj-actions.ts` | Yeni iletişim mesajı · isim |
+| Danışmanlık talebi | `panel/gorusmeler/actions.ts` | Danışmanlık talebi · isim |
+| Destek talebi açıldı | `destek-actions.ts` → `talepAc` | Yeni destek talebi · isim |
+| Destek talebine öğrenci yazdı | `destek-actions.ts` → `mesajGonder` | Destek yanıtı · isim |
+| Hesap silme talebi | `panel/hesabim/silme-actions.ts` | Hesap silme talebi · isim |
+
+Hepsi kayıt yazıldıktan SONRA gönderiliyor ve `yoneticiBildirimi()` hata
+fırlatmıyor — postanın gitmemesi mesajı, talebi ya da tahsilatı kaybetmemeli.
+
+**Destek yazışmasında yalnızca öğrenci yazdığında** bildirim gidiyor. Yönetici
+kendi cevabının mailini alsaydı her yazışma iki kat gürültü üretir ve
+bildirimler okunmaz hale gelirdi.
+
+### Şablon
+
+`src/lib/eposta-sablon.ts`. Tasarım siteyle aynı dilde (ink başlık şeridi,
+brand mavisi vurgu, mono üst etiket) ama e-posta HTML'i web HTML'i değil:
+
+- Yerleşim **tabloyla** — Outlook (Word motoru) flex ve grid tanımıyor.
+- Stiller **satır içi** — Gmail `<style>` bloğunu kısmen uyguluyor.
+- Sistem yazı tipi yığını — e-postada `@font-face` güvenilir değil.
+- Arka planlar açıkça veriliyor — karanlık moddaki istemciler renk verilmeyen
+  alanları koyulaştırıp metni okunmaz hale getiriyor.
+
+Maildeki düğmenin adresi `headers()`'tan okunuyor; zamanlanmış görev gibi istek
+bağlamı olmayan çağrılarda `PANEL_URL` (yoksa `NEXT_PUBLIC_SITE_URL`) yedeğine
+düşülüyor. Hiçbiri yoksa düğme basılmıyor — kırık bağlantı koymaktansa koymamak.

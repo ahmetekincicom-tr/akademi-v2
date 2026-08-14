@@ -2,7 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { basariliMi, odemeSorgula, type IyzicoAyar, type SorgulamaCevabi } from "@/lib/iyzico";
-import { epostaGonder } from "@/lib/eposta";
+import { yoneticiBildirimi } from "@/lib/eposta";
 
 /**
  * Bir ödeme denemesinin sonucunu iyzico'ya sorup kaydeder.
@@ -161,26 +161,34 @@ async function odemeBildirimi(
   const tutar = Number(odeme?.tutar ?? cevap.price ?? 0);
 
   const satirlar = [
-    `${isim} ${paraBicimi.format(tutar)} ödedi.`,
-    "",
-    `Eğitim: ${kurs}`,
-    `E-posta: ${kisi?.email ?? "—"}`,
-    `Telefon: ${kisi?.telefon ?? "—"}`,
-    // Taksitli ödemede tahsil edilen tutar sepet tutarından yüksek: vade farkı
-    // öğrenciye ait ve mutabakatta bunu görmek gerekiyor.
-    cevap.paidPrice && Number(cevap.paidPrice) !== tutar
-      ? `Karttan çekilen: ${paraBicimi.format(Number(cevap.paidPrice))}${
-          cevap.installment && cevap.installment > 1 ? ` (${cevap.installment} taksit)` : ""
-        }`
-      : "",
-    cevap.lastFourDigits ? `Kart: ${cevap.cardFamily ?? ""} ****${cevap.lastFourDigits}`.trim() : "",
-    `iyzico ödeme no: ${cevap.paymentId ?? "—"}`,
-    "",
-    "Faturayı kesmeyi unutma.",
-  ].filter((s) => s !== "");
+    { etiket: "Tutar", deger: paraBicimi.format(tutar) },
+    { etiket: "Eğitim", deger: kurs },
+    { etiket: "E-posta", deger: kisi?.email ?? "—" },
+    { etiket: "Telefon", deger: kisi?.telefon ?? "—" },
+  ];
 
-  await epostaGonder({
+  // Taksitli ödemede tahsil edilen tutar sepet tutarından yüksek: vade farkı
+  // öğrenciye ait ve mutabakatta bunu görmek gerekiyor.
+  if (cevap.paidPrice && Number(cevap.paidPrice) !== tutar) {
+    satirlar.push({
+      etiket: "Karttan çekilen",
+      deger: `${paraBicimi.format(Number(cevap.paidPrice))}${
+        cevap.installment && cevap.installment > 1 ? ` · ${cevap.installment} taksit` : ""
+      }`,
+    });
+  }
+  if (cevap.lastFourDigits) {
+    satirlar.push({ etiket: "Kart", deger: `${cevap.cardFamily ?? ""} ****${cevap.lastFourDigits}`.trim() });
+  }
+  satirlar.push({ etiket: "iyzico ödeme no", deger: cevap.paymentId ?? "—" });
+
+  await yoneticiBildirimi({
     konu: `Ödeme alındı · ${paraBicimi.format(tutar)} · ${isim}`,
-    metin: satirlar.join("\n"),
+    ustEtiket: "Ödeme alındı",
+    baslik: `${isim} ${paraBicimi.format(tutar)} ödedi`,
+    ozet: "Faturayı kesmeyi unutma.",
+    satirlar,
+    yol: "/admin/odemeler",
+    eylemEtiketi: "Ödemeleri aç",
   });
 }

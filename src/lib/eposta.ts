@@ -1,5 +1,7 @@
 import "server-only";
 
+import { bildirimSablonu, type BildirimSatiri } from "@/lib/eposta-sablon";
+
 /**
  * E-posta gönderimi (Resend).
  *
@@ -72,6 +74,63 @@ export async function epostaGonder(girdi: {
   } catch (e) {
     return { gonderildi: false, hata: e instanceof Error ? e.message : "Bilinmeyen hata" };
   }
+}
+
+/**
+ * Panelin adresi — maildeki düğmenin gideceği yer.
+ *
+ * headers() istek bağlamında çalışıyor ve doğru alan adını veriyor; zamanlanmış
+ * görev gibi bağlam dışı çağrılarda hata fırlattığı için ortam değişkenine
+ * düşülüyor. Hiçbiri yoksa düğme basılmıyor — kırık bir bağlantı koymaktansa
+ * koymamak iyi.
+ */
+async function panelKoku(): Promise<string | null> {
+  try {
+    const { headers } = await import("next/headers");
+    const h = await headers();
+    const host = h.get("x-forwarded-host") ?? h.get("host");
+    if (host) {
+      const sema = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+      return `${sema}://${host}`;
+    }
+  } catch {
+    // İstek bağlamı yok; aşağıdaki yedeğe düşülüyor.
+  }
+  const yedek = process.env.PANEL_URL ?? process.env.NEXT_PUBLIC_SITE_URL;
+  return yedek ? yedek.replace(/\/$/, "") : null;
+}
+
+/**
+ * Yöneticiye biçimli bildirim gönderir.
+ *
+ * Çağıranların hepsi kullanıcıya ait bir işi yeni bitirmiş oluyor (mesaj
+ * kaydedildi, talep açıldı). Bu yüzden burada da hata fırlatılmıyor ve dönüşe
+ * bakılmıyor: postanın gitmemesi o işi geçersiz kılmaz.
+ */
+export async function yoneticiBildirimi(girdi: {
+  konu: string;
+  ustEtiket: string;
+  baslik: string;
+  ozet?: string;
+  satirlar?: BildirimSatiri[];
+  alinti?: string;
+  /** Panel içi yol: "/admin/mesajlar" gibi. Kök adres otomatik ekleniyor. */
+  yol?: string;
+  eylemEtiketi?: string;
+}): Promise<void> {
+  if (!epostaYapilandirildiMi()) return;
+
+  const kok = girdi.yol ? await panelKoku() : null;
+  const { html, metin } = bildirimSablonu({
+    ustEtiket: girdi.ustEtiket,
+    baslik: girdi.baslik,
+    ozet: girdi.ozet,
+    satirlar: girdi.satirlar,
+    alinti: girdi.alinti,
+    eylem: kok && girdi.yol ? { etiket: girdi.eylemEtiketi ?? "Panelde aç", adres: `${kok}${girdi.yol}` } : undefined,
+  });
+
+  await epostaGonder({ konu: girdi.konu, metin, html });
 }
 
 /** Bazı posta istemcileri düz metni göstermiyor; iskelet HTML her zaman gidiyor. */

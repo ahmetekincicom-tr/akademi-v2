@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { yoneticiBildirimi } from "@/lib/eposta";
 
 export type MesajInput = {
   tur: "iletisim" | "teklif";
@@ -49,6 +50,26 @@ export async function mesajGonder(input: MesajInput): Promise<{ error?: string }
   });
 
   if (error) return { error: "Mesaj gönderilemedi. Lütfen tekrar dener misin?" };
+
+  // Bildirim mesaj KAYDEDİLDİKTEN sonra: postanın gitmemesi mesajı kaybetmesin.
+  await yoneticiBildirimi({
+    konu:
+      input.tur === "teklif"
+        ? `Teklif talebi · ${ad}`
+        : `Yeni iletişim mesajı · ${ad}`,
+    ustEtiket: input.tur === "teklif" ? "Teklif talebi" : "İletişim formu",
+    baslik: `${ad} yazdı`,
+    ozet: input.konu?.trim() || undefined,
+    satirlar: [
+      { etiket: "E-posta", deger: email },
+      ...(input.telefon?.trim() ? [{ etiket: "Telefon", deger: input.telefon.trim() }] : []),
+      ...(input.sirket?.trim() ? [{ etiket: "Şirket", deger: input.sirket.trim() }] : []),
+      ...(input.courseSlug ? [{ etiket: "Eğitim", deger: input.courseSlug }] : []),
+    ],
+    alinti: mesaj,
+    yol: "/admin/mesajlar",
+    eylemEtiketi: "Mesajı panelde aç",
+  });
 
   revalidatePath("/admin/mesajlar");
   revalidatePath("/admin");

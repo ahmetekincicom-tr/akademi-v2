@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { yoneticiBildirimi } from "@/lib/eposta";
 
 /**
  * Hesap silme talebi. Apple App Store 5.1.1(v) hesabın uygulama içinden
@@ -25,6 +26,28 @@ export async function silmeTalebiOlustur() {
     .eq("id", user.id);
 
   if (error) return { error: error.message };
+
+  // Bu talebin bir kuyrukta beklemesi Apple açısından yeterli değil; işlenmesi
+  // gerekiyor. Panele bakmadan haberdar olmanın tek yolu bu bildirim.
+  const { data: profil } = await supabase
+    .from("profiles")
+    .select("ad, soyad, email, telefon")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isim = [profil?.ad, profil?.soyad].filter(Boolean).join(" ") || profil?.email || "Bir katılımcı";
+
+  await yoneticiBildirimi({
+    konu: `Hesap silme talebi · ${isim}`,
+    ustEtiket: "Hesap silme talebi",
+    baslik: `${isim} hesabının silinmesini istedi`,
+    ozet: "Talebi işlemeden önce ödeme ve fatura kayıtlarının yasal saklama süresini kontrol et.",
+    satirlar: [
+      { etiket: "E-posta", deger: profil?.email ?? "—" },
+      { etiket: "Telefon", deger: profil?.telefon ?? "—" },
+    ],
+    yol: "/admin/ogrenciler",
+    eylemEtiketi: "Öğrenciyi panelde aç",
+  });
 
   revalidatePath("/panel/hesabim");
   return {};
