@@ -11,6 +11,8 @@ export type OdemeInput = {
   durum: "odendi" | "bekliyor" | "iade";
   odemeTarihi: string;
   faturaNo: string;
+  /** Öğrenci bu kaydı panelden kartla ödeyebilsin mi? */
+  onlineOdeme: boolean;
 };
 
 export async function odemeEkle(input: OdemeInput) {
@@ -27,11 +29,26 @@ export async function odemeEkle(input: OdemeInput) {
     durum: input.durum,
     odeme_tarihi: input.odemeTarihi ? new Date(input.odemeTarihi).toISOString() : new Date().toISOString(),
     fatura_no: input.faturaNo.trim() || null,
+    online_odeme: input.onlineOdeme,
   });
 
   if (error) return { error: error.message };
   revalidatePath("/admin/odemeler");
   revalidatePath("/admin");
+  return {};
+}
+
+/**
+ * Kartla ödemeyi kayıt bazında açıp kapatır.
+ *
+ * Havaleyle anlaşılmış bir kayıt için gereklidir: öğrenci aynı borcu bir de
+ * karttan ödeyip iki kez tahsilat oluşturmasın.
+ */
+export async function odemeOnlineDegistir(id: string, acik: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("payments").update({ online_odeme: acik }).eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/odemeler");
   return {};
 }
 

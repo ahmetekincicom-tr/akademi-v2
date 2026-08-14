@@ -77,13 +77,23 @@ export const entegrasyonGruplari: AyarGrubu[] = [
   },
   {
     anahtar: "odeme",
-    baslik: "Ödeme sağlayıcı",
-    aciklama: "Online tahsilata geçtiğinde kullanılacak sağlayıcı bilgileri. Şu an ödemeler panele elle kaydediliyor.",
+    baslik: "Kartla ödeme (iyzico)",
+    aciklama:
+      "Öğrencinin panelden kartla ödediği tutarlar iyzico üzerinden geçiyor. API anahtarları bilerek burada değil, sunucu ortam değişkenlerinde tutuluyor (IYZICO_API_KEY, IYZICO_SECRET_KEY, IYZICO_ORTAM) — panele erişen herkesin canlı tahsilat anahtarını görmesi doğru olmaz.",
     alanlar: [
-      { ad: "saglayici", etiket: "Sağlayıcı", yerTutucu: "iyzico / PayTR" },
-      { ad: "magazaNo", etiket: "Mağaza / merchant no" },
-      { ad: "apiAnahtari", etiket: "API anahtarı", gizli: true },
-      { ad: "taksit", etiket: "Taksit seçenekleri", yerTutucu: "1 / 3 / 6 / 9" },
+      {
+        ad: "taksit",
+        etiket: "Taksit seçenekleri",
+        yerTutucu: "1 / 3 / 6 / 9",
+        ipucu: "Boş bırakılırsa yalnızca tek çekim açık olur. Bankanın izin vermediği taksit zaten görünmez.",
+      },
+      {
+        ad: "sehir",
+        etiket: "Fatura şehri",
+        yerTutucu: "Ankara",
+        ipucu: "iyzico her işlemde fatura adresi istiyor; öğrenciden adres toplamadığımız için kurum adresi gönderiliyor.",
+      },
+      { ad: "adres", etiket: "Fatura adresi", yerTutucu: "Çankaya, Ankara", genis: true },
     ],
   },
 ];

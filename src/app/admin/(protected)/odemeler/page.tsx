@@ -9,7 +9,9 @@ export default async function OdemelerPage() {
   const [{ data: payments }, { data: profiles }, { data: courses }, ayarlar] = await Promise.all([
     supabase
       .from("payments")
-      .select("id, tutar, yontem, durum, odeme_tarihi, fatura_no, profiles(ad, soyad, email), courses(baslik)")
+      .select(
+        "id, tutar, yontem, durum, odeme_tarihi, fatura_no, online_odeme, profiles(ad, soyad, email), courses(baslik)",
+      )
       .order("odeme_tarihi", { ascending: false }),
     supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
     supabase.from("courses").select("id, baslik").order("created_at"),
@@ -28,6 +30,7 @@ export default async function OdemelerPage() {
       durum: p.durum,
       odemeTarihi: p.odeme_tarihi,
       faturaNo: p.fatura_no ?? "",
+      onlineOdeme: p.online_odeme !== false,
     };
   });
 

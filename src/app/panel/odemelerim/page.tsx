@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getOdemelerim, getBanka, paraBicimi } from "@/lib/odeme";
 import { UygulamadaYok } from "@/components/panel/SadeceWeb";
 import { BankaKutusu } from "@/components/panel/BankaKutusu";
@@ -5,6 +6,7 @@ import { durumStil } from "@/lib/admin/shared";
 import { odemeDurumEtiket } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
 import { TR_ZAMAN } from "@/lib/zaman";
+import { iyzicoAyari } from "@/lib/iyzico";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
@@ -13,8 +15,45 @@ const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
   year: "numeric",
 });
 
-export default async function OdemelerimPage() {
-  const [{ satirlar, bekleyenTutar, bekleyenAdet }, banka] = await Promise.all([getOdemelerim(), getBanka()]);
+/** Ödeme dönüşünde adrese eklenen sonuç. Metinler öğrenciye ne yapacağını söylüyor. */
+const SONUC_METNI: Record<string, { baslik: string; metin: string; iyi: boolean }> = {
+  basarili: {
+    baslik: "Ödemen alındı",
+    metin: "Kaydın “Ödendi” olarak işaretlendi. Dekontun e-postana iyzico tarafından gönderilir.",
+    iyi: true,
+  },
+  basarisiz: {
+    baslik: "Ödeme tamamlanmadı",
+    metin: "Kartından tahsilat yapılmadı. Farklı bir kartla yeniden deneyebilirsin.",
+    iyi: false,
+  },
+  belirsiz: {
+    baslik: "Ödemenin sonucunu doğrulayamadık",
+    metin: "Kartından tahsilat yapılmış olabilir. Tekrar denemeden önce bize yaz, kontrol edelim.",
+    iyi: false,
+  },
+  hata: {
+    baslik: "Ödeme sırasında bir sorun çıktı",
+    metin: "İşlem tamamlanamadı. Sorun sürerse bize yaz.",
+    iyi: false,
+  },
+};
+
+export default async function OdemelerimPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ sonuc?: string }>;
+}) {
+  const [{ satirlar, bekleyenTutar, bekleyenAdet }, banka, { sonuc }] = await Promise.all([
+    getOdemelerim(),
+    getBanka(),
+    searchParams,
+  ]);
+
+  // Anahtarlar tanımlı değilken "Kartla öde" göstermek, öğrenciyi hata veren
+  // bir sayfaya götürmek olurdu.
+  const kartAcik = iyzicoAyari() !== null;
+  const sonucKutusu = sonuc ? SONUC_METNI[sonuc] : undefined;
 
   return (
     <UygulamadaYok>
@@ -25,6 +64,32 @@ export default async function OdemelerimPage() {
         <p className="mt-2 max-w-[620px] text-[15px] text-[#5C6273]">
           Eğitim ücretlerinin kaydı. Ödemen bize ulaştığında durumu &quot;Ödendi&quot; olarak işaretliyoruz.
         </p>
+
+        {sonucKutusu && (
+          <div
+            className="mt-[22px] flex items-start gap-[13px] rounded-2xl border px-5 py-4 sm:px-6"
+            style={{
+              borderColor: sonucKutusu.iyi ? "rgba(24,140,90,0.35)" : "rgba(229,72,77,0.32)",
+              background: sonucKutusu.iyi ? "#EFF9F3" : "#FDF0F0",
+            }}
+          >
+            <span
+              className="mt-[1px] flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full"
+              style={{
+                background: sonucKutusu.iyi ? "rgba(24,140,90,0.16)" : "rgba(229,72,77,0.14)",
+                color: sonucKutusu.iyi ? "#127048" : "#B4232A",
+              }}
+            >
+              <Icon name={sonucKutusu.iyi ? "check" : "x"} size={13} strokeWidth={2.6} />
+            </span>
+            <div className="min-w-0">
+              <div className="text-[15px] font-semibold" style={{ color: sonucKutusu.iyi ? "#0F5B3B" : "#8E2226" }}>
+                {sonucKutusu.baslik}
+              </div>
+              <div className="mt-[3px] text-[13.5px] leading-[1.55] text-[#4A5060]">{sonucKutusu.metin}</div>
+            </div>
+          </div>
+        )}
 
         {bekleyenAdet > 0 && (
           <div className="mt-[22px] flex flex-wrap items-center gap-4 rounded-2xl border border-[#E0A21C]/35 bg-[#FDF6E7] px-5 py-4 sm:px-6">
@@ -91,6 +156,16 @@ export default async function OdemelerimPage() {
                   >
                     {etiket}
                   </span>
+
+                  {kartAcik && s.durum === "bekliyor" && s.onlineOdeme && (
+                    <Link
+                      href={`/panel/odemelerim/ode/${s.id}`}
+                      className="flex h-9 w-full flex-none items-center justify-center gap-[7px] rounded-[10px] bg-ink px-4 text-[13.5px] font-semibold text-white transition hover:bg-brand sm:w-auto"
+                    >
+                      <Icon name="card" size={15} />
+                      Kartla öde
+                    </Link>
+                  )}
                 </div>
               );
             })}

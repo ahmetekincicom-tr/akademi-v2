@@ -36,6 +36,8 @@ export type OdemeSatiri = {
   faturaNo: string | null;
   kurs: string | null;
   not: string | null;
+  /** Panelden kartla ödenebilir mi? Yönetici kayıt bazında kapatabiliyor. */
+  onlineOdeme: boolean;
 };
 
 export type Odemelerim = {
@@ -58,7 +60,7 @@ export async function getOdemelerim(): Promise<Odemelerim> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("payments")
-    .select("id, tutar, durum, yontem, odeme_tarihi, fatura_no, admin_notu, courses(baslik)")
+    .select("id, tutar, durum, yontem, odeme_tarihi, fatura_no, admin_notu, online_odeme, courses(baslik)")
     .order("odeme_tarihi", { ascending: false });
 
   const satirlar: OdemeSatiri[] = (data ?? []).map((p) => ({
@@ -70,6 +72,7 @@ export async function getOdemelerim(): Promise<Odemelerim> {
     faturaNo: p.fatura_no ?? null,
     kurs: (p.courses as unknown as { baslik: string } | null)?.baslik ?? null,
     not: p.admin_notu ?? null,
+    onlineOdeme: p.online_odeme !== false,
   }));
 
   const bekleyen = satirlar.filter((s) => s.durum === "bekliyor");
@@ -78,5 +81,40 @@ export async function getOdemelerim(): Promise<Odemelerim> {
     satirlar,
     bekleyenTutar: bekleyen.reduce((t, s) => t + s.tutar, 0),
     bekleyenAdet: bekleyen.length,
+  };
+}
+
+export type OdenecekKayit = {
+  id: string;
+  tutar: number;
+  kurs: string | null;
+  not: string | null;
+  tarih: string;
+};
+
+/**
+ * Ödeme onay sayfasının okuduğu tek kayıt.
+ *
+ * Süzgeç bilerek "bekliyor" ile sınırlı: ödenmiş ya da iade edilmiş bir kaydın
+ * ödeme adresi elle yazılarak açılamasın. RLS zaten satırı sahibiyle
+ * sınırlıyor, buradaki kontrol kaydın DURUMUNU koruyor.
+ */
+export async function getOdenecekKayit(id: string): Promise<OdenecekKayit | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("payments")
+    .select("id, tutar, odeme_tarihi, admin_notu, online_odeme, courses(baslik)")
+    .eq("id", id)
+    .eq("durum", "bekliyor")
+    .maybeSingle();
+
+  if (!data || data.online_odeme === false) return null;
+
+  return {
+    id: data.id,
+    tutar: Number(data.tutar),
+    kurs: (data.courses as unknown as { baslik: string } | null)?.baslik ?? null,
+    not: data.admin_notu ?? null,
+    tarih: data.odeme_tarihi,
   };
 }

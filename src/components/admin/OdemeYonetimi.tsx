@@ -2,7 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { odemeEkle, odemeDurumDegistir, odemeSil } from "@/app/admin/(protected)/odemeler/actions";
+import {
+  odemeEkle,
+  odemeDurumDegistir,
+  odemeSil,
+  odemeOnlineDegistir,
+} from "@/app/admin/(protected)/odemeler/actions";
 import { durumStil } from "@/lib/admin/shared";
 import { para, odemeDurumEtiket, tarihBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
@@ -17,6 +22,7 @@ export type OdemeSatir = {
   durum: "odendi" | "bekliyor" | "iade";
   odemeTarihi: string;
   faturaNo: string;
+  onlineOdeme: boolean;
 };
 
 export type SecimOgesi = { id: string; ad: string };
@@ -53,6 +59,7 @@ export function OdemeYonetimi({
     durum: "odendi" as "odendi" | "bekliyor" | "iade",
     odemeTarihi: bugun,
     faturaNo: "",
+    onlineOdeme: true,
   });
 
   const listelenen = useMemo(
@@ -84,6 +91,17 @@ export function OdemeYonetimi({
       if (r?.error) bildir.hata(r.error);
       else {
         bildir.basarili("Ödeme durumu güncellendi.");
+        router.refresh();
+      }
+    });
+  };
+
+  const onlineDegistir = (id: string, acik: boolean) => {
+    startTransition(async () => {
+      const r = await odemeOnlineDegistir(id, acik);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili(acik ? "Kartla ödemeye açıldı." : "Kartla ödemeye kapatıldı.");
         router.refresh();
       }
     });
@@ -212,6 +230,23 @@ export function OdemeYonetimi({
             </label>
           </div>
 
+          {form.durum === "bekliyor" && (
+            <label className="mt-4 flex cursor-pointer items-start gap-[10px] rounded-[10px] border border-ink/12 bg-mist px-4 py-3">
+              <input
+                type="checkbox"
+                checked={form.onlineOdeme}
+                onChange={(e) => setForm({ ...form, onlineOdeme: e.target.checked })}
+                className="mt-[3px] h-[16px] w-[16px] flex-none accent-brand"
+              />
+              <span className="text-[13px] leading-[1.55] text-[#3A3F4F]">
+                Öğrenci bu tutarı panelden kartla ödeyebilsin.
+                <span className="mt-[2px] block text-[12.5px] text-[#656B7A]">
+                  Havaleyle anlaştıysan kapat; yoksa aynı borç iki kez tahsil edilebilir.
+                </span>
+              </span>
+            </label>
+          )}
+
           {hata && <div className="mt-4 text-sm text-danger-ink">{hata}</div>}
 
           <button
@@ -248,7 +283,7 @@ export function OdemeYonetimi({
 
       <div className="mt-[18px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_150px] min-w-[900px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
+          <div className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_190px] min-w-[940px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
             <span>Öğrenci</span>
             <span>Eğitim</span>
             <span>Tarih</span>
@@ -268,7 +303,7 @@ export function OdemeYonetimi({
               return (
                 <div
                   key={o.id}
-                  className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_150px] min-w-[900px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] last:border-b-0 hover:bg-[#F7F9FF]"
+                  className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_190px] min-w-[940px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] last:border-b-0 hover:bg-[#F7F9FF]"
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{o.isim}</div>
@@ -295,6 +330,27 @@ export function OdemeYonetimi({
                       <option value="bekliyor">Bekliyor</option>
                       <option value="iade">İade</option>
                     </select>
+                    {o.durum === "bekliyor" && (
+                      <button
+                        type="button"
+                        disabled={islemde}
+                        onClick={() => onlineDegistir(o.id, !o.onlineOdeme)}
+                        aria-pressed={o.onlineOdeme}
+                        title={
+                          o.onlineOdeme
+                            ? "Panelden kartla ödenebilir — kapatmak için tıkla"
+                            : "Kartla ödemeye kapalı — açmak için tıkla"
+                        }
+                        className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border transition disabled:opacity-50"
+                        style={{
+                          borderColor: o.onlineOdeme ? "rgba(28,86,243,0.4)" : "rgba(10,13,24,0.12)",
+                          background: o.onlineOdeme ? "rgba(28,86,243,0.1)" : "#FFFFFF",
+                          color: o.onlineOdeme ? "#1C56F3" : "#9AA0AE",
+                        }}
+                      >
+                        <Icon name="card" size={14} />
+                      </button>
+                    )}
                     <button
                       type="button"
                       disabled={islemde}
