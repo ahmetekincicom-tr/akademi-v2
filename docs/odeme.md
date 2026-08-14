@@ -35,6 +35,52 @@ demekti.
 Anahtarlar tanımlı değilken **"Kartla öde" düğmesi hiç görünmüyor** — öğrenci hata
 veren bir sayfaya gitmiyor.
 
+## Canlıya geçiş
+
+Kodda değişiklik yok — tek fark ortam değişkenleri. Sıra önemli:
+
+1. **iyzico başvurusu onaylanmış olmalı.** Canlı anahtarlar ancak vergi levhası,
+   imza sirküleri vb. onaylandıktan sonra üretiliyor.
+2. **Yasal metinler dolu olmalı.** `/satis-sozlesmesi` ve `/iptal-iade-politikasi`
+   ödeme onay ekranında bağlantı veriliyor; boş sayfaya para almak mevzuata aykırı.
+   `/admin/yasal` üzerinden kontrol et.
+3. **Vercel → Environment Variables** (Production):
+   ```
+   IYZICO_API_KEY    = <canlı anahtar, "sandbox-" öneki YOK>
+   IYZICO_SECRET_KEY = <canlı gizli anahtar>
+   IYZICO_ORTAM      = canli
+   ```
+4. **Yeniden deploy et.** Ortam değişkeni mevcut derlemeye geçmiyor.
+5. **`/admin/tani` → Kartla ödeme (iyzico):**
+   - `IYZICO_ORTAM` → `canli — GERÇEK PARA` (sarı, beklenen)
+   - `iyzico bağlantısı ve imza` → **yeşil olmalı.** Kırmızıysa canlı anahtar
+     yanlış; ödeme başlatılamaz.
+6. **1 ₺'lik gerçek test.** Kendi kartınla öde, sonra iyzico panelinden iade et.
+   Sandbox'ta çalışan bir kurulumun canlıda takıldığı tek yer genelde hesabın
+   kendi ayarları (taksit, para birimi, işyeri durumu).
+7. **Sandbox test kayıtlarını temizle** (aşağıdaki SQL).
+
+### Sandbox artıklarını silme
+
+```sql
+-- Önce ne silineceğini gör
+select p.id, p.tutar, p.durum, p.odeme_tarihi, pr.email
+from payments p join profiles pr on pr.id = p.user_id
+where p.yontem = 'Kart (iyzico)';
+
+-- Doğruladıktan sonra sil (denemeler cascade ile gider)
+delete from payments where id in (...);
+```
+
+### Canlıda ilk kez patlarsa nereye bakılır
+
+| Belirti | Sebep |
+| --- | --- |
+| `/admin/tani` imza satırı kırmızı | Canlı anahtar yanlış ya da sandbox anahtarı canlı ortama verilmiş |
+| Ödeme başlatılamıyor, deneme `basarisiz` | `ham_yanit` içindeki iyzico hata mesajı; genelde alan doğrulaması |
+| Deneme `baslatildi` + "iyzico geri DÖNMEDİ" | Dönüş isteği ulaşmıyor; 15 dakikalık mutabakat görevi yine de çözer |
+| Deneme `baslatildi` + "iyzico geri döndü" | Dönüş geldi ama eşleşmedi; `ham_yanit`a bak |
+
 ## iyzico panelinde yapılacaklar
 
 - **Ayarlar → Callback / bildirim adresi** diye ayrı bir alan doldurmaya gerek yok;
