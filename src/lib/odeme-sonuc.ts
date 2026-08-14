@@ -1,7 +1,8 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { basariliMi, odemeSorgula, type IyzicoAyar } from "@/lib/iyzico";
+import { basariliMi, odemeSorgula, type IyzicoAyar, type SorgulamaCevabi } from "@/lib/iyzico";
+import { epostaGonder } from "@/lib/eposta";
 
 /**
  * Bir ödeme denemesinin sonucunu iyzico'ya sorup kaydeder.
@@ -120,5 +121,66 @@ export async function denemeyiCoz(
     .eq("id", deneme.payment_id)
     .eq("durum", "bekliyor");
 
+  await odemeBildirimi(servis, deneme.payment_id, cevap);
+
   return "basarili";
+}
+
+const paraBicimi = new Intl.NumberFormat("tr-TR", {
+  style: "currency",
+  currency: "TRY",
+  maximumFractionDigits: 2,
+});
+
+/**
+ * Ödeme geçtiğinde yöneticiye e-posta.
+ *
+ * Ödemenin kendisi ÇOKTAN kaydedilmiş oluyor; buradaki hiçbir hata onu geri
+ * almamalı. Bu yüzden epostaGonder hata fırlatmıyor ve dönüşüne de bakmıyoruz:
+ * postanın gitmemesi tahsilatı geçersiz kılmaz.
+ */
+async function odemeBildirimi(
+  servis: SupabaseClient,
+  paymentId: string,
+  cevap: SorgulamaCevabi,
+): Promise<void> {
+  const { data: odeme } = await servis
+    .from("payments")
+    .select("tutar, odeme_tarihi, profiles(ad, soyad, email, telefon), courses(baslik)")
+    .eq("id", paymentId)
+    .maybeSingle();
+
+  const kisi = odeme?.profiles as unknown as {
+    ad: string | null;
+    soyad: string | null;
+    email: string | null;
+    telefon: string | null;
+  } | null;
+  const kurs = (odeme?.courses as unknown as { baslik: string } | null)?.baslik ?? "Belirtilmedi";
+  const isim = [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—";
+  const tutar = Number(odeme?.tutar ?? cevap.price ?? 0);
+
+  const satirlar = [
+    `${isim} ${paraBicimi.format(tutar)} ödedi.`,
+    "",
+    `Eğitim: ${kurs}`,
+    `E-posta: ${kisi?.email ?? "—"}`,
+    `Telefon: ${kisi?.telefon ?? "—"}`,
+    // Taksitli ödemede tahsil edilen tutar sepet tutarından yüksek: vade farkı
+    // öğrenciye ait ve mutabakatta bunu görmek gerekiyor.
+    cevap.paidPrice && Number(cevap.paidPrice) !== tutar
+      ? `Karttan çekilen: ${paraBicimi.format(Number(cevap.paidPrice))}${
+          cevap.installment && cevap.installment > 1 ? ` (${cevap.installment} taksit)` : ""
+        }`
+      : "",
+    cevap.lastFourDigits ? `Kart: ${cevap.cardFamily ?? ""} ****${cevap.lastFourDigits}`.trim() : "",
+    `iyzico ödeme no: ${cevap.paymentId ?? "—"}`,
+    "",
+    "Faturayı kesmeyi unutma.",
+  ].filter((s) => s !== "");
+
+  await epostaGonder({
+    konu: `Ödeme alındı · ${paraBicimi.format(tutar)} · ${isim}`,
+    metin: satirlar.join("\n"),
+  });
 }

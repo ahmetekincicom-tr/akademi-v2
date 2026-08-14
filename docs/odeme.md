@@ -140,13 +140,69 @@ sayfasına bağlantı vermek de aynı kapıya çıkıyor.
 
 ## Bilinen açık uçlar
 
-- **Ağ hatası sonrası "belirsiz" durum.** Callback'te iyzico'ya soramazsak kayıt
-  `bekliyor` kalıyor ve öğrenciye "sonucu doğrulayamadık" deniyor. Para çekilmiş
-  olabilir; yönetici iyzico panelinden görüp elle "Ödendi" işaretlemeli. Otomatik
-  mutabakat (kalan `baslatildi` denemeleri periyodik sorgulamak) henüz yok.
 - **`fraudStatus` işlenmiyor.** iyzico 0 döndürdüğünde ödeme incelemede demek; şu an
   `paymentStatus = SUCCESS` ise ödendi sayıyoruz. Ham cevap `ham_yanit` içinde duruyor.
 - **İade iyzico'ya gitmiyor.** Admin panelindeki "İade" yalnızca kaydın durumunu
   değiştiriyor; parayı iyzico panelinden iade etmek gerekiyor.
-- **Test edilmedi.** Kod canlı bir iyzico hesabına karşı hiç çalıştırılmadı; imza ve
-  alan doğrulaması ilk sandbox denemesinde teyit edilmeli.
+- **Fatura kesilmiyor.** iyzico tahsilatı yapıyor, e-arşiv faturası elle kesiliyor;
+  `fatura_no` alanı bunun için.
+
+## Askıda kalan ödemeler
+
+Dönüş isteği kaybolabiliyor: tarayıcı kapanır, ağ kopar, yönlendirme engellenir.
+O anda para çekilmiş ama kayıt `bekliyor` kalır. Üç katman koruyor:
+
+1. **`callback_at` damgası** — token elimize geçer geçmez, hiçbir doğrulama
+   beklemeden atılıyor. Bu damga `baslatildi` durumunun iki anlamını ayırıyor:
+   damga yoksa öğrenci vazgeçmiş, varsa dönüş gelmiş ama işlenememiş.
+2. **`/admin/odemeler` → "Sonucu belli olmayan ödemeler"** — her satırda
+   "iyzico'ya sor" düğmesi. Tek doğru kaynağa danışıp kaydı kesinleştiriyor.
+3. **`odeme-mutabakat` görevi** — 15 dakikada bir, 5 dakikadan eski ve 3 günden
+   yeni askıdaki denemeleri iyzico'ya soruyor. Alt sınır hâlâ 3D Secure
+   ekranındaki kişiyi "başarısız" diye kapatmamak için; üst sınır token ömrü
+   dolduktan sonra aynı kayıtları sonsuza dek sormamak için.
+
+Üçü de `denemeyiCoz()` çağırıyor. Aynı mantığın üç kopyası olsaydı biri mutlaka
+diğerlerinden farklı davranırdı — ve fark edildiği yer para tutmayan bir kayıt
+olurdu.
+
+## Doğrulama durumu
+
+Sandbox ve canlı ortamda uçtan uca test edildi (canlıda 1 ₺). İmza, dönüş
+işleme, tutar doğrulaması ve kaydın "Ödendi"ye geçmesi teyitli.
+
+## Ödeme bildirimi (e-posta)
+
+Kartla ödeme geçtiğinde yöneticiye mail gidiyor: kim, ne kadar, hangi eğitim,
+kartın son dört hanesi, taksitliyse karttan çekilen gerçek tutar ve iyzico
+ödeme numarası.
+
+Gönderim `denemeyiCoz()` içinde, ödeme kaydedildikten SONRA. `epostaGonder()`
+bilerek hata fırlatmıyor ve dönüşüne bakılmıyor: postanın gitmemesi tahsilatı
+geri almamalı.
+
+### Kurulum
+
+1. [resend.com](https://resend.com) hesabı aç.
+2. **Domains** → alan adını ekle, verdiği DNS kayıtlarını (SPF/DKIM) alan adı
+   yönetimine gir, doğrulanmasını bekle. Doğrulanmamış alan adından gönderim
+   reddediliyor.
+3. **API Keys** → yeni anahtar.
+4. Vercel → Environment Variables:
+   ```
+   RESEND_API_KEY    = re_...
+   BILDIRIM_GONDEREN = Akademi <bildirim@ahmetekinciakademi.com>
+   BILDIRIM_EPOSTA   = iletisim@ahmetekinci.com.tr
+   ```
+   `BILDIRIM_EPOSTA` virgülle birden çok adres alabiliyor.
+5. Yeniden deploy et.
+6. `/admin/tani` → **E-posta bildirimleri** → **Test e-postası gönder**.
+
+Üçü de tanımlı değilse bildirim sessizce kapalı kalıyor; ödemeler normal
+çalışmaya devam ediyor.
+
+### Neden Resend / neden SMTP değil
+
+Sunucusuz ortamda her istekte SMTP bağlantısı kurup kapatmak hem yavaş hem de
+bazı bölgelerde 25/587 portları kapalı. Resend tek bir JSON POST; SDK'sı da
+tip tanımından fazlasını eklemediği için bağımlılık kurulmadı.

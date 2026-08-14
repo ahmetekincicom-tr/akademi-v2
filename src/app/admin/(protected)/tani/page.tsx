@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { Icon } from "@/components/Icon";
 import { iyzicoAyari, odemeSorgula } from "@/lib/iyzico";
+import { epostaYapilandirildiMi } from "@/lib/eposta";
+import { EpostaTesti } from "@/components/admin/EpostaTesti";
 
 export const dynamic = "force-dynamic";
 
@@ -329,6 +331,35 @@ export default async function TaniPage() {
     iyzico.push({ ad: "Ödeme denemeleri", durum: "uyari", deger: "henüz hiç deneme yok" });
   }
 
+  // --- E-posta bildirimleri ---
+  const posta: Satir[] = [
+    {
+      ad: "RESEND_API_KEY",
+      durum: process.env.RESEND_API_KEY ? "ok" : "hata",
+      deger: process.env.RESEND_API_KEY ? "tanımlı" : "tanımsız",
+    },
+    {
+      ad: "BILDIRIM_GONDEREN",
+      durum: process.env.BILDIRIM_GONDEREN ? "ok" : "hata",
+      deger: process.env.BILDIRIM_GONDEREN ?? "tanımsız",
+      not: "Resend'de doğrulanmış alan adından bir adres olmalı.",
+    },
+    {
+      ad: "BILDIRIM_EPOSTA",
+      durum: process.env.BILDIRIM_EPOSTA ? "ok" : "hata",
+      deger: process.env.BILDIRIM_EPOSTA ?? "tanımsız",
+      not: "Ödeme bildirimlerinin gideceği adres(ler). Virgülle birden çok yazılabilir.",
+    },
+    {
+      ad: "Ödeme bildirimi",
+      durum: epostaYapilandirildiMi() ? "ok" : "uyari",
+      deger: epostaYapilandirildiMi() ? "açık" : "kapalı",
+      not: epostaYapilandirildiMi()
+        ? "Kartla ödeme geçtiğinde mail gidiyor. Ödemenin kendisi bundan etkilenmiyor."
+        : "Ödemeler normal çalışır, yalnızca bildirim gitmez.",
+    },
+  ];
+
   const env: Satir[] = [
     {
       ad: "NEXT_PUBLIC_SUPABASE_URL",
@@ -358,13 +389,23 @@ export default async function TaniPage() {
       <Bolum baslik="Eğitim verisi" satirlar={kurs} />
       <Bolum baslik="Görüşme ayarları (öğrenci panelinin okuduğu satır)" satirlar={gorusmeTani} />
       <Bolum baslik="Kartla ödeme (iyzico)" satirlar={iyzico} />
+      <Bolum baslik="E-posta bildirimleri" satirlar={posta} alt={<EpostaTesti />} />
       <Bolum baslik="Tablolar (hangi migration uygulanmış)" satirlar={tabloDurumu} />
       <Bolum baslik="Ortam değişkenleri" satirlar={env} />
     </main>
   );
 }
 
-function Bolum({ baslik, satirlar }: { baslik: string; satirlar: Satir[] }) {
+function Bolum({
+  baslik,
+  satirlar,
+  alt,
+}: {
+  baslik: string;
+  satirlar: Satir[];
+  /** Bölümün altına eklenen eylem alanı (ör. test düğmesi). */
+  alt?: React.ReactNode;
+}) {
   const renk = {
     ok: { bg: "rgba(28,86,243,0.1)", fg: "#1C56F3", ikon: "check" as const },
     uyari: { bg: "rgba(201,138,27,0.14)", fg: "#A5711A", ikon: "x" as const },
@@ -398,6 +439,7 @@ function Bolum({ baslik, satirlar }: { baslik: string; satirlar: Satir[] }) {
           </div>
         );
       })}
+      {alt}
     </section>
   );
 }
