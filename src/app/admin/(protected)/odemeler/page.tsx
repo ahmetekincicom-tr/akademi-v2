@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { OdemeYonetimi, type OdemeSatir, type SecimOgesi } from "@/components/admin/OdemeYonetimi";
 import { AyarFormu } from "@/components/admin/AyarFormu";
+import { AskidakiDenemeler, type AskidaDeneme } from "@/components/admin/AskidakiDenemeler";
 import { getAyarlar, bankaGrubu } from "@/lib/admin/ayarlar";
 
 export default async function OdemelerPage() {
@@ -41,9 +42,33 @@ export default async function OdemelerPage() {
 
   const kurslar: SecimOgesi[] = (courses ?? []).map((c) => ({ id: c.id, ad: c.baslik }));
 
+  // Sonucu belli olmamış denemeler. Tablo yoksa (migration çalıştırılmamışsa)
+  // sorgu hata verir; sayfanın tamamını düşürmemesi için sonuç boş sayılıyor.
+  const { data: askida } = await supabase
+    .from("odeme_denemeleri")
+    .select("id, tutar, created_at, callback_at, token, profiles(ad, soyad, email)")
+    .eq("durum", "baslatildi")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  const askidakiler: AskidaDeneme[] = (askida ?? []).map((d) => {
+    const kisi = d.profiles as unknown as { ad: string | null; soyad: string | null; email: string | null } | null;
+    return {
+      id: d.id,
+      isim: [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—",
+      tutar: Number(d.tutar),
+      tarih: d.created_at,
+      callbackGeldi: Boolean(d.callback_at),
+      tokenVar: Boolean(d.token),
+    };
+  });
+
   return (
     <>
       <OdemeYonetimi odemeler={odemeler} ogrenciler={ogrenciler} kurslar={kurslar} />
+      <div className="px-4 sm:px-7">
+        <AskidakiDenemeler denemeler={askidakiler} />
+      </div>
       <div className="px-4 pb-14 sm:px-7">
         <AyarFormu gruplar={[bankaGrubu]} degerler={ayarlar} />
       </div>

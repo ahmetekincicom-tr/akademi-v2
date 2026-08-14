@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { gorevIstemcisi } from "@/lib/supabase/gorev";
+import { iyzicoAyari } from "@/lib/iyzico";
+import { denemeyiCoz } from "@/lib/odeme-sonuc";
 
 export type OdemeInput = {
   userId: string;
@@ -68,4 +71,47 @@ export async function odemeSil(id: string) {
   revalidatePath("/admin/odemeler");
   revalidatePath("/admin");
   return {};
+}
+
+/**
+ * Askıda kalmış bir denemenin sonucunu iyzico'ya sorar.
+ *
+ * Dönüş isteği kaybolduğunda (ağ, kapatılan sekme, engellenen yönlendirme)
+ * para çekilmiş ama kayıt "bekliyor" kalmış olabiliyor. Tek doğru kaynak
+ * iyzico; burada ona soruluyor.
+ */
+export async function denemeSorgula(denemeId: string) {
+  const supabase = await createClient();
+  // Servis anahtarı RLS'i atlıyor: yöneticiliği burada elle doğrulamazsak
+  // eylem, oturumu olan herkes için çalışır.
+  const { data: yonetici } = await supabase.rpc("is_admin");
+  if (yonetici !== true) return { error: "Yetkin yok." };
+
+  const ayar = iyzicoAyari();
+  if (!ayar) return { error: "iyzico anahtarları tanımlı değil." };
+
+  const servis = gorevIstemcisi();
+  if (!servis) return { error: "Servis anahtarı tanımlı değil." };
+
+  const { data: deneme } = await servis
+    .from("odeme_denemeleri")
+    .select("token")
+    .eq("id", denemeId)
+    .maybeSingle();
+
+  if (!deneme?.token) {
+    return { error: "Bu denemenin token'ı yok — iyzico sayfası hiç açılmamış." };
+  }
+
+  const sonuc = await denemeyiCoz(servis, ayar, deneme.token);
+  revalidatePath("/admin/odemeler");
+  revalidatePath("/admin/tani");
+
+  const mesaj: Record<string, string> = {
+    basarili: "iyzico ödemeyi onayladı; kayıt “Ödendi” yapıldı.",
+    basarisiz: "iyzico ödemenin tamamlanmadığını söyledi.",
+    eslesmedi: "iyzico bu token'a karşılık bir ödeme bulamadı.",
+    belirsiz: "iyzico'ya ulaşılamadı, kayıt değiştirilmedi.",
+  };
+  return { sonuc, mesaj: mesaj[sonuc] };
 }

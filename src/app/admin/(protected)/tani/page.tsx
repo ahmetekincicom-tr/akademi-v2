@@ -298,18 +298,30 @@ export default async function TaniPage() {
   // Son denemeler: gerçek bir test ödemesinden sonra ne olduğunu burası söylüyor.
   const { data: sonDenemeler } = await admin
     .from("odeme_denemeleri")
-    .select("durum, tutar, taksit, kart_son4, hata_kodu, hata_mesaji, created_at")
+    .select("durum, tutar, taksit, kart_son4, hata_kodu, hata_mesaji, created_at, callback_at")
     .order("created_at", { ascending: false })
     .limit(5);
 
   for (const d of sonDenemeler ?? []) {
+    // callback_at, "baslatildi"nın iki anlamını ayırıyor: öğrenci vazgeçtiyse
+    // iyzico bize hiç dönmez; ödeme geçip dönüş kaybolduysa damga vardır.
+    const donus = d.callback_at
+      ? "iyzico geri döndü"
+      : d.durum === "baslatildi"
+        ? "iyzico geri DÖNMEDİ"
+        : "";
     iyzico.push({
       ad: new Date(d.created_at).toLocaleString("tr-TR"),
       durum: d.durum === "basarili" ? "ok" : d.durum === "basarisiz" ? "hata" : "uyari",
       deger: `${d.durum} · ${d.tutar} ₺${d.kart_son4 ? ` · ****${d.kart_son4}` : ""}${
         d.taksit && d.taksit > 1 ? ` · ${d.taksit} taksit` : ""
-      }`,
-      not: d.hata_mesaji ? `${d.hata_kodu ?? ""} ${d.hata_mesaji}`.trim() : undefined,
+      }${donus ? ` · ${donus}` : ""}`,
+      not:
+        d.hata_mesaji
+          ? `${d.hata_kodu ?? ""} ${d.hata_mesaji}`.trim()
+          : d.durum === "baslatildi"
+            ? "Ödemeler sayfasındaki “iyzico'ya sor” düğmesi sonucu kesinleştirir."
+            : undefined,
     });
   }
 
