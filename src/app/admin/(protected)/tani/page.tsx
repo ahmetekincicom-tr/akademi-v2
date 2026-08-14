@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
 import { Icon } from "@/components/Icon";
+import { iyzicoAyari, odemeSorgula } from "@/lib/iyzico";
 
 export const dynamic = "force-dynamic";
 
@@ -223,6 +224,99 @@ export default async function TaniPage() {
     });
   }
 
+  // --- iyzico ---
+  //
+  // Sadece "anahtar tanımlı mı" demek yetmiyor: yanlış anahtar da tanımlıdır.
+  // Bu yüzden gerçekten iyzico'ya sorulan bir istek atılıyor. Uydurma bir token
+  // gönderiyoruz; para hareketi olmuyor ama imzamızın kabul edilip edilmediğini
+  // iyzico'nun cevabı söylüyor.
+  const iyzicoAyar = iyzicoAyari();
+  const iyzico: Satir[] = [
+    {
+      ad: "IYZICO_API_KEY / SECRET_KEY",
+      durum: iyzicoAyar ? "ok" : "hata",
+      deger: iyzicoAyar ? "tanımlı" : "tanımsız",
+      not: iyzicoAyar ? undefined : "Öğrenci panelinde “Kartla öde” düğmesi hiç görünmez.",
+    },
+    {
+      ad: "IYZICO_ORTAM",
+      durum: iyzicoAyar?.canli ? "uyari" : "ok",
+      deger: iyzicoAyar?.canli ? "canli — GERÇEK PARA" : "sandbox (test)",
+      not: iyzicoAyar?.canli
+        ? "Bu ortamda yapılan her ödeme gerçek kartlardan tahsil edilir."
+        : "Test kartlarıyla çalışır, gerçek tahsilat yapılmaz.",
+    },
+  ];
+
+  if (iyzicoAyar) {
+    try {
+      const deneme = await odemeSorgula(iyzicoAyar, "tani-amacli-gecersiz-token");
+      const mesaj = `${deneme.errorCode ?? "-"} · ${deneme.errorMessage ?? deneme.status}`;
+      // İmza reddi ile "böyle bir ödeme yok" cevabını ayırmamız gerekiyor:
+      // ikincisi bizim için BAŞARI — istek imzalanıp kabul edilmiş demek.
+      const imzaSorunu = /imza|signature|api ?key|yetki|authoriz|unauthorized/i.test(
+        `${deneme.errorCode ?? ""} ${deneme.errorMessage ?? ""}`,
+      );
+      iyzico.push({
+        ad: "iyzico bağlantısı ve imza",
+        durum: imzaSorunu ? "hata" : "ok",
+        deger: imzaSorunu ? `REDDEDİLDİ: ${mesaj}` : `çalışıyor (iyzico cevabı: ${mesaj})`,
+        not: imzaSorunu
+          ? "Anahtarlar yanlış ya da sandbox anahtarı canlı ortama verilmiş. Ödeme başlatılamaz."
+          : "Uydurma token'a “bulunamadı” cevabı geldi — istek imzalanıp kabul ediliyor demek.",
+      });
+    } catch (e) {
+      iyzico.push({
+        ad: "iyzico bağlantısı ve imza",
+        durum: "hata",
+        deger: e instanceof Error ? e.message : "bilinmeyen hata",
+        not: "iyzico'ya hiç ulaşılamadı; ağ ya da adres sorunu.",
+      });
+    }
+  }
+
+  const { error: denemeTabloHatasi } = await admin
+    .from("odeme_denemeleri")
+    .select("*", { count: "exact", head: true });
+  iyzico.push({
+    ad: "odeme_denemeleri tablosu",
+    durum: denemeTabloHatasi ? "hata" : "ok",
+    deger: denemeTabloHatasi ? "YOK" : "var",
+    not: denemeTabloHatasi ? "iyzico migration'ı çalıştırılmamış." : undefined,
+  });
+
+  const { error: onlineSutunHatasi } = await admin
+    .from("payments")
+    .select("online_odeme", { count: "exact", head: true });
+  iyzico.push({
+    ad: "payments.online_odeme sütunu",
+    durum: onlineSutunHatasi ? "hata" : "ok",
+    deger: onlineSutunHatasi ? `HATA: ${onlineSutunHatasi.message}` : "var",
+    not: onlineSutunHatasi ? "Öğrencinin “Ödemelerim” sayfası bu yüzden hata verir." : undefined,
+  });
+
+  // Son denemeler: gerçek bir test ödemesinden sonra ne olduğunu burası söylüyor.
+  const { data: sonDenemeler } = await admin
+    .from("odeme_denemeleri")
+    .select("durum, tutar, taksit, kart_son4, hata_kodu, hata_mesaji, created_at")
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  for (const d of sonDenemeler ?? []) {
+    iyzico.push({
+      ad: new Date(d.created_at).toLocaleString("tr-TR"),
+      durum: d.durum === "basarili" ? "ok" : d.durum === "basarisiz" ? "hata" : "uyari",
+      deger: `${d.durum} · ${d.tutar} ₺${d.kart_son4 ? ` · ****${d.kart_son4}` : ""}${
+        d.taksit && d.taksit > 1 ? ` · ${d.taksit} taksit` : ""
+      }`,
+      not: d.hata_mesaji ? `${d.hata_kodu ?? ""} ${d.hata_mesaji}`.trim() : undefined,
+    });
+  }
+
+  if ((sonDenemeler?.length ?? 0) === 0 && !denemeTabloHatasi) {
+    iyzico.push({ ad: "Ödeme denemeleri", durum: "uyari", deger: "henüz hiç deneme yok" });
+  }
+
   const env: Satir[] = [
     {
       ad: "NEXT_PUBLIC_SUPABASE_URL",
@@ -251,6 +345,7 @@ export default async function TaniPage() {
       <Bolum baslik="Kimlik ve yetki" satirlar={[...satirlar, yazmaDurum]} />
       <Bolum baslik="Eğitim verisi" satirlar={kurs} />
       <Bolum baslik="Görüşme ayarları (öğrenci panelinin okuduğu satır)" satirlar={gorusmeTani} />
+      <Bolum baslik="Kartla ödeme (iyzico)" satirlar={iyzico} />
       <Bolum baslik="Tablolar (hangi migration uygulanmış)" satirlar={tabloDurumu} />
       <Bolum baslik="Ortam değişkenleri" satirlar={env} />
     </main>
