@@ -54,3 +54,4 @@ ios/DerivedData/
 
 # Yerel doğrulama sunucusunun günlüğü.
 server.log
+.sablon-derleme/

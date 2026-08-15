@@ -45,9 +45,16 @@ export async function epostaGonder(girdi: {
   metin: string;
   /** Verilmezse metin satır sonlarından basit bir HTML üretilir. */
   html?: string;
+  /**
+   * Alıcı. Verilmezse BILDIRIM_EPOSTA'ya, yani yöneticiye gider.
+   * Öğrenciye giden mailler (hoş geldin gibi) burayı doldurur.
+   */
+  alici?: string;
 }): Promise<{ gonderildi: boolean; hata?: string }> {
   const ayar = ayarlariOku();
   if (!ayar) return { gonderildi: false, hata: "E-posta yapılandırılmadı." };
+
+  const alicilar = girdi.alici ? [girdi.alici] : ayar.alici;
 
   try {
     const cevap = await fetch(UC_NOKTA, {
@@ -58,7 +65,7 @@ export async function epostaGonder(girdi: {
       },
       body: JSON.stringify({
         from: ayar.gonderen,
-        to: ayar.alici,
+        to: alicilar,
         subject: girdi.konu,
         text: girdi.metin,
         html: girdi.html ?? basitHtml(girdi.metin),

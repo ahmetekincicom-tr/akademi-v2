@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { istemciBilgisi } from "@/lib/istemci";
+import { hosgeldinGonder } from "@/lib/hosgeldin";
 
 /**
  * Records a sign-in. Called right after a successful login, from the server so
@@ -36,4 +37,8 @@ export async function oturumKaydet() {
   } catch (e) {
     console.error("[oturum] kayıt sırasında beklenmeyen hata:", e);
   }
+
+  // Girişten sonra, kişiye bir kez. Kendi içinde damgaya bakıyor; buraya
+  // koşul koymak aynı kontrolü iki yerde tutmak olurdu.
+  await hosgeldinGonder();
 }
