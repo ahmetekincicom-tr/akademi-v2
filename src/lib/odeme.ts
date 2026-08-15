@@ -1,6 +1,5 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { createPublicClient } from "@/lib/supabase/public";
 
 export type Banka = {
   unvan: string | null;
@@ -13,9 +12,14 @@ export type Banka = {
  * Havale bilgileri admin panelinden giriliyor (Entegrasyonlar → Banka
  * bilgileri) ve banka_ayarlari view'ı üzerinden okunuyor. settings tablosu
  * öğrenciye kapalı; view bilerek yalnızca bu dört alanı yayınlıyor.
+ *
+ * Oturumlu istemciyle okunuyor, anonim anahtarla değil: IBAN gizli bilgi
+ * olmasa da herkesin toplayabileceği bir yerde durmamalı. Sahte bir ödeme
+ * sayfası kuran biri için gerçek unvan ve IBAN hazır malzeme. Bu bilgiye
+ * ihtiyacı olan tek yer panelin ödeme ekranı ve orada zaten oturum var.
  */
 export const getBanka = cache(async (): Promise<Banka | null> => {
-  const supabase = createPublicClient();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("banka_ayarlari")
     .select("unvan, banka, iban, aciklama")
