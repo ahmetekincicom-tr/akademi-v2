@@ -58,12 +58,9 @@ export function AuthShell({
             <p className="mt-3 text-[15.5px] leading-[1.65] text-white/85">
               Eğitim sonrasında da her zaman destek vereceğini garanti etmesi insanı güvende hissettiriyor.
             </p>
-            <div className="mt-[18px] flex items-center gap-3">
-              <span className="avatar-block-dark h-[34px] w-[34px] flex-none rounded-full" />
-              <span>
-                <span className="block text-sm font-semibold">Seren Aker</span>
-                <span className="block font-mono text-[10.5px] text-white/45">Lojistik</span>
-              </span>
+            <div className="mt-[18px]">
+              <span className="block text-sm font-semibold">Seren Aker</span>
+              <span className="mt-[3px] block font-mono text-[10.5px] text-white/45">Lojistik</span>
             </div>
           </div>
         </div>

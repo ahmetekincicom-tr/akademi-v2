@@ -42,12 +42,6 @@ execFileSync(
 const { bildirimSablonu } = await import(`../${GECICI}/eposta-sablon.js`);
 
 /*
-  Supabase değişkenleri şablona olduğu gibi geçiyor.
-
-  bildirimSablonu içindeki kaçırma yalnızca & < > " karakterlerini değiştiriyor;
-  {{ .ConfirmationURL }} bunların hiçbirini içermediği için bozulmadan çıkıyor.
-*/
-/*
   Bağlantı {{ .ConfirmationURL }} DEĞİL.
 
   Varsayılan değişken kullanıcıyı önce supabase.co'ya götürüp oradan siteye
