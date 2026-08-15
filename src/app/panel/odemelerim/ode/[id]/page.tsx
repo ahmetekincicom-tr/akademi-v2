@@ -1,14 +1,19 @@
 import { notFound } from "next/navigation";
-import { getOdenecekKayit } from "@/lib/odeme";
+import { getOdenecekKayit, getBanka } from "@/lib/odeme";
 import { UygulamadaYok } from "@/components/panel/SadeceWeb";
-import { OdemeOnayi } from "@/components/panel/OdemeOnayi";
+import { OdemeSihirbazi } from "@/components/panel/OdemeSihirbazi";
+import { iyzicoAyari } from "@/lib/iyzico";
 
 export const dynamic = "force-dynamic";
 
 export default async function OdemeSayfasi({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const kayit = await getOdenecekKayit(id);
+  const [kayit, banka] = await Promise.all([getOdenecekKayit(id), getBanka()]);
   if (!kayit) notFound();
+
+  // Anahtarlar tanımlı değilken kart seçeneği hiç gösterilmiyor; öğrenci
+  // seçtikten sonra hata veren bir ekrana düşmesin.
+  const kartAcik = iyzicoAyari() !== null;
 
   return (
     <UygulamadaYok>
@@ -17,10 +22,17 @@ export default async function OdemeSayfasi({ params }: { params: Promise<{ id: s
           Ödeme
         </h1>
         <p className="mt-2 max-w-[560px] text-[15px] text-[#5C6273]">
-          Tutarı ve kapsamı kontrol et, sözleşmeyi onayladıktan sonra güvenli ödeme sayfasına geçiyorsun.
+          Tutarı kontrol et, sana uyan ödeme yöntemini seç.
         </p>
 
-        <OdemeOnayi id={kayit.id} tutar={kayit.tutar} kurs={kayit.kurs} not={kayit.not} />
+        <OdemeSihirbazi
+          id={kayit.id}
+          tutar={kayit.tutar}
+          kurs={kayit.kurs}
+          not={kayit.not}
+          banka={banka}
+          kartAcik={kartAcik}
+        />
       </main>
     </UygulamadaYok>
   );

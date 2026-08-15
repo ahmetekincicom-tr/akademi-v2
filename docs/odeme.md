@@ -5,7 +5,11 @@
 1. Yönetici `/admin/odemeler` → **Ödeme kaydet**: öğrenci, tutar, durum **"Onay bekliyor"**.
 2. Öğrenci panele girer, `/panel/odemelerim` sayfasında bekleyen kaydı ve **Kartla öde**
    düğmesini görür.
-3. Onay sayfası (`/panel/odemelerim/ode/[id]`): tutar, mesafeli satış sözleşmesi onayı.
+3. Ödeme sayfası (`/panel/odemelerim/ode/[id]`) iki adım:
+   - **1. adım — yöntem:** kart veya havale/EFT. Tek seçenek varsa bu adım
+     atlanıyor; sormanın anlamı yok.
+   - **2. adım — kart:** tutar özeti + mesafeli satış sözleşmesi onayı.
+   - **2. adım — havale:** IBAN bilgileri + "Ödemeyi yaptım, bildir".
 4. `odemeyeGec()` iyzico'ya Checkout Form başlatır, öğrenci iyzico'nun sayfasına gider.
 5. 3D Secure tamamlanınca iyzico `/api/odeme/iyzico/sonuc` adresine POST atar.
 6. Sunucu sonucu **iyzico'ya tekrar sorar**, doğruysa `payments.durum = 'odendi'` yapar
@@ -206,6 +210,23 @@ geri almamalı.
 Sunucusuz ortamda her istekte SMTP bağlantısı kurup kapatmak hem yavaş hem de
 bazı bölgelerde 25/587 portları kapalı. Resend tek bir JSON POST; SDK'sı da
 tip tanımından fazlasını eklemediği için bağımlılık kurulmadı.
+
+## Havale yolu
+
+Kart dışındaki yol kendi başına bir akış: öğrenci IBAN'ı görüyor, parayı
+gönderiyor ve **"Ödemeyi yaptım, bildir"** diyor.
+
+Bu düğme ödemeyi ÖDENDİ yapmıyor — öğrencinin beyanı tahsilatın kanıtı değil.
+Yaptığı iki şey var: `payments.havale_bildirimi_tarihi` damgası ve yöneticiye
+e-posta. Asıl doğrulama hesap ekstresinden, kayıt yine elle işaretleniyor.
+
+Damgayı servis anahtarı yazıyor: `payments` üzerinde yazma yetkisi yalnızca
+yöneticide ve öyle kalmalı. Sahiplik, damgadan önceki RLS'li okumada
+doğrulanıyor.
+
+Bildirim geldiğinde `/admin/odemeler` satırında **"Havale bildirildi"** rozeti,
+öğrenci tarafında da **"Bildirildi"** rozeti çıkıyor — iki taraf da aynı şeyi
+görüyor.
 
 ## Diğer yönetici bildirimleri
 

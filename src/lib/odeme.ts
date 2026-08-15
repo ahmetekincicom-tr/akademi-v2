@@ -38,6 +38,8 @@ export type OdemeSatiri = {
   not: string | null;
   /** Panelden kartla ödenebilir mi? Yönetici kayıt bazında kapatabiliyor. */
   onlineOdeme: boolean;
+  /** Öğrenci "havaleyi yaptım" dediyse o an. Tahsilatın kanıtı değil. */
+  havaleBildirimi: string | null;
 };
 
 export type Odemelerim = {
@@ -60,7 +62,9 @@ export async function getOdemelerim(): Promise<Odemelerim> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("payments")
-    .select("id, tutar, durum, yontem, odeme_tarihi, fatura_no, admin_notu, online_odeme, courses(baslik)")
+    .select(
+      "id, tutar, durum, yontem, odeme_tarihi, fatura_no, admin_notu, online_odeme, havale_bildirimi_tarihi, courses(baslik)",
+    )
     .order("odeme_tarihi", { ascending: false });
 
   const satirlar: OdemeSatiri[] = (data ?? []).map((p) => ({
@@ -73,6 +77,7 @@ export async function getOdemelerim(): Promise<Odemelerim> {
     kurs: (p.courses as unknown as { baslik: string } | null)?.baslik ?? null,
     not: p.admin_notu ?? null,
     onlineOdeme: p.online_odeme !== false,
+    havaleBildirimi: p.havale_bildirimi_tarihi ?? null,
   }));
 
   const bekleyen = satirlar.filter((s) => s.durum === "bekliyor");

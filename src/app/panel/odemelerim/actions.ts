@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { nativeIstekMi } from "@/lib/native-sunucu";
 import { iyzicoAyari, odemeBaslat as iyzicoBaslat, taksitleriCoz } from "@/lib/iyzico";
+import { yoneticiBildirimi } from "@/lib/eposta";
+import { paraBicimi } from "@/lib/odeme";
 
 /**
  * Ödeme başlatma.
@@ -149,4 +151,67 @@ export async function odemeyeGec(paymentId: string): Promise<{ adres?: string; h
     .eq("conversation_id", konusmaId);
 
   return { adres: cevap.paymentPageUrl };
+}
+
+/**
+ * "Havaleyi yaptım" bildirimi.
+ *
+ * Ödemeyi ÖDENDİ yapmıyor — öğrencinin beyanı tahsilatın kanıtı değil.
+ * Yaptığı tek şey yöneticiye haber vermek ve kayda bir damga düşmek; asıl
+ * doğrulama hesap ekstresinden yapılıyor.
+ */
+export async function havaleBildir(paymentId: string): Promise<{ tamam?: true; hata?: string }> {
+  if (await nativeIstekMi()) return { hata: "Bu işlem uygulamada yapılamıyor." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { hata: "Oturumun kapanmış görünüyor, tekrar giriş yap." };
+
+  // RLS satırı kullanıcının kendisiyle sınırlıyor; durum süzgeci ödenmiş bir
+  // kayda bildirim düşmesini engelliyor.
+  const { data: kayit } = await supabase
+    .from("payments")
+    .select("id, tutar, courses(baslik)")
+    .eq("id", paymentId)
+    .eq("durum", "bekliyor")
+    .maybeSingle();
+  if (!kayit) return { hata: "Ödenecek kayıt bulunamadı." };
+
+  const servis = gorevIstemcisi();
+  if (!servis) return { hata: "Sunucu yapılandırması eksik." };
+
+  // payments'ta yazma yetkisi yalnızca yöneticide; damgayı servis anahtarı
+  // atıyor. Sahiplik yukarıdaki RLS'li okumada zaten doğrulandı.
+  await servis
+    .from("payments")
+    .update({ havale_bildirimi_tarihi: new Date().toISOString() })
+    .eq("id", kayit.id)
+    .eq("durum", "bekliyor");
+
+  const { data: profil } = await supabase
+    .from("profiles")
+    .select("ad, soyad, telefon")
+    .eq("id", user.id)
+    .maybeSingle();
+  const isim = [profil?.ad, profil?.soyad].filter(Boolean).join(" ") || user.email || "Bir katılımcı";
+  const tutar = Number(kayit.tutar);
+
+  await yoneticiBildirimi({
+    konu: `Havale bildirimi · ${paraBicimi.format(tutar)} · ${isim}`,
+    ustEtiket: "Havale bildirimi",
+    baslik: `${isim} havale yaptığını bildirdi`,
+    ozet: "Tutarın hesaba geçtiğini ekstreden doğrulayıp kaydı “Ödendi” olarak işaretle.",
+    satirlar: [
+      { etiket: "Tutar", deger: paraBicimi.format(tutar) },
+      { etiket: "Eğitim", deger: (kayit.courses as unknown as { baslik: string } | null)?.baslik ?? "Belirtilmedi" },
+      { etiket: "E-posta", deger: user.email ?? "—" },
+      { etiket: "Telefon", deger: profil?.telefon ?? "—" },
+    ],
+    yol: "/admin/odemeler",
+    eylemEtiketi: "Ödemeleri aç",
+  });
+
+  return { tamam: true };
 }

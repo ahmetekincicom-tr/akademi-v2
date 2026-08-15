@@ -11,7 +11,7 @@ export default async function OdemelerPage() {
     supabase
       .from("payments")
       .select(
-        "id, tutar, yontem, durum, odeme_tarihi, fatura_no, online_odeme, profiles(ad, soyad, email), courses(baslik)",
+        "id, tutar, yontem, durum, odeme_tarihi, fatura_no, online_odeme, havale_bildirimi_tarihi, profiles(ad, soyad, email), courses(baslik)",
       )
       .order("odeme_tarihi", { ascending: false }),
     supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
@@ -32,6 +32,7 @@ export default async function OdemelerPage() {
       odemeTarihi: p.odeme_tarihi,
       faturaNo: p.fatura_no ?? "",
       onlineOdeme: p.online_odeme !== false,
+      havaleBildirimi: p.havale_bildirimi_tarihi ?? null,
     };
   });
 

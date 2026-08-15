@@ -50,9 +50,9 @@ export default async function OdemelerimPage({
     searchParams,
   ]);
 
-  // Anahtarlar tanımlı değilken "Kartla öde" göstermek, öğrenciyi hata veren
-  // bir sayfaya götürmek olurdu.
-  const kartAcik = iyzicoAyari() !== null;
+  // Ödeme sayfası artık yöntem seçtiriyor; kart kapalı olsa bile havale
+  // bilgisi tanımlıysa gidilecek bir yer var.
+  const odemeAcik = iyzicoAyari() !== null || banka !== null;
   const sonucKutusu = sonuc ? SONUC_METNI[sonuc] : undefined;
 
   return (
@@ -105,9 +105,11 @@ export default async function OdemelerimPage({
           </div>
         )}
 
-        {/* Panelde tanımlıysa her zaman görünür: öğrenci taksit, eksik ödeme ya
-          da yeni bir eğitim için IBAN'a bekleyen kaydı olmadan da bakabilir. */}
-        {banka && <BankaKutusu banka={banka} />}
+        {/* Bekleyen kayıt varken IBAN ödeme sihirbazının içinde gösteriliyor;
+          burada tekrarlaması aynı bilgiyi iki yerde tutmak olurdu. Bekleyen
+          kayıt yokken kutu duruyor: öğrenci taksit ya da yeni bir eğitim için
+          IBAN'a kaydı olmadan da bakabilmeli. */}
+        {banka && bekleyenAdet === 0 && <BankaKutusu banka={banka} />}
 
         {satirlar.length === 0 ? (
           <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
@@ -157,13 +159,19 @@ export default async function OdemelerimPage({
                     {etiket}
                   </span>
 
-                  {kartAcik && s.durum === "bekliyor" && s.onlineOdeme && (
+                  {s.durum === "bekliyor" && s.havaleBildirimi && (
+                    <span className="w-fit flex-none rounded-full bg-[#EEF2FC] px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] text-[#4A5060] uppercase">
+                      Bildirildi
+                    </span>
+                  )}
+
+                  {odemeAcik && s.durum === "bekliyor" && s.onlineOdeme && (
                     <Link
                       href={`/panel/odemelerim/ode/${s.id}`}
                       className="flex h-9 w-full flex-none items-center justify-center gap-[7px] rounded-[10px] bg-ink px-4 text-[13.5px] font-semibold text-white transition hover:bg-brand sm:w-auto"
                     >
                       <Icon name="card" size={15} />
-                      Kartla öde
+                      Ödeme yap
                     </Link>
                   )}
                 </div>

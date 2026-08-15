@@ -23,6 +23,8 @@ export type OdemeSatir = {
   odemeTarihi: string;
   faturaNo: string;
   onlineOdeme: boolean;
+  /** Öğrencinin "havaleyi yaptım" bildirimi. Tahsilatın kanıtı değil. */
+  havaleBildirimi: string | null;
 };
 
 export type SecimOgesi = { id: string; ad: string };
@@ -309,6 +311,13 @@ export function OdemeYonetimi({
                     <div className="truncate text-sm font-semibold">{o.isim}</div>
                     {o.faturaNo && (
                       <div className="truncate font-mono text-[10px] text-[#656B7A]">{o.faturaNo}</div>
+                    )}
+                    {/* Öğrenci havaleyi yaptığını söyledi. Ekstreden doğrulanınca
+                        durum "Ödendi" yapılacak; bu yalnızca bir hatırlatma. */}
+                    {o.durum === "bekliyor" && o.havaleBildirimi && (
+                      <div className="mt-[3px] inline-flex items-center gap-[5px] rounded-full bg-[#FDF6E7] px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-[#8A6210] uppercase">
+                        Havale bildirildi
+                      </div>
                     )}
                   </div>
                   <div className="min-w-0 truncate text-[13.5px] text-[#3A3F4F]">{o.program}</div>
