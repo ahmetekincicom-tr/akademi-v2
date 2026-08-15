@@ -3,6 +3,7 @@ import { Icon } from "@/components/Icon";
 import { getCourses } from "@/lib/courses";
 import { getYorumlar, getReferanslar } from "@/lib/icerik";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
+import { HeroYorunge } from "@/components/site/HeroYorunge";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
@@ -165,12 +166,8 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="relative pb-10 lg:pb-24">
-            <div className="placeholder-block-dark relative flex aspect-[4/5] items-end overflow-hidden rounded-[18px] p-[22px]">
-              <span className="rounded-[7px] bg-ink/72 px-[11px] py-[7px] font-mono text-[11px] tracking-[0.08em] text-white/60">
-                ahmet ekinci — portre / dikey
-              </span>
-            </div>
-            {/* Mobilde portrenin altında akar; lg'de tasarımdaki gibi üzerine yüzer. */}
+            <HeroYorunge referanslar={logos} />
+            {/* Mobilde yörüngenin altında akar; lg'de üzerine yüzer. */}
             <div className="animate-float mt-4 rounded-[13px] bg-white px-[18px] py-4 text-ink shadow-[0_20px_44px_rgba(0,0,0,0.34)] lg:absolute lg:bottom-[130px] lg:-left-[34px] lg:mt-0">
               <div className="font-mono text-[10px] tracking-[0.14em] text-[#6B7080] uppercase">Ders formatı</div>
               <div className="mt-[6px] text-[15px] font-semibold">Canlı · 1 eğitmen · 1 katılımcı</div>
