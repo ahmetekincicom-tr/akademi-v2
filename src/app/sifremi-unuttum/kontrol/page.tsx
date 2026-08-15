@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AuthShell } from "@/components/auth/AuthShell";
+import { Icon } from "@/components/Icon";
 
 /**
  * Adres form tarafından sorgu parametresiyle taşınıyor.
@@ -18,8 +19,8 @@ export default async function EPostaKontrolPage({
   return (
     <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
       <div>
-        <span className="flex h-13 w-13 items-center justify-center rounded-2xl bg-brand/12 text-lg text-brand">
-          ✉
+        <span className="flex h-13 w-13 items-center justify-center rounded-2xl bg-brand/12 text-brand">
+          <Icon name="mail" size={22} />
         </span>
         <h1 className="mt-6 font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">
           E-postanı kontrol et

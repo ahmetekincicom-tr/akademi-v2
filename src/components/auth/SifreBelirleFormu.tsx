@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PasswordField } from "@/components/auth/PasswordField";
+import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
 
 export function SifreBelirleFormu() {
@@ -48,11 +49,8 @@ export function SifreBelirleFormu() {
           </label>
         </div>
         {hata && (
-          <div className="mt-4 flex items-start gap-[11px] rounded-[11px] border border-danger/35 bg-danger/7 px-[15px] py-[13px]">
-            <span className="flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-danger text-[11px] font-bold text-white">
-              !
-            </span>
-            <span className="text-sm leading-[1.5] text-danger-ink">{hata}</span>
+          <div className="mt-4">
+            <UyariKutusu mesaj={hata} />
           </div>
         )}
         <button

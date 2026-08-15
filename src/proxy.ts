@@ -41,6 +41,7 @@ const ACIK_KOKLER = [
   "/cevrimdisi",
   "/gizlilik-politikasi",
   "/kisisel-verilerin-islenmesi",
+  "/uyelik-sozlesmesi",
   "/satis-sozlesmesi",
   "/iptal-iade-politikasi",
 ];

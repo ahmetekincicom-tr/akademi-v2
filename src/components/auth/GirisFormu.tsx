@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { CheckToggle } from "@/components/auth/CheckToggle";
+import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
 import { oturumKaydet } from "@/app/oturum-actions";
 import { SadeceWeb } from "@/components/panel/SadeceWeb";
@@ -17,7 +17,6 @@ export function GirisFormu({ hedef }: { hedef: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
-  const [remember, setRemember] = useState(true);
   const [hata, setHata] = useState<string | null>(null);
   const [yukleniyor, setYukleniyor] = useState(false);
 
@@ -65,11 +64,8 @@ export function GirisFormu({ hedef }: { hedef: string }) {
         <p className="mt-[10px] text-[15px] text-[#5C6273]">Katılımcı hesabınla devam et.</p>
 
         {hata && (
-          <div className="mt-[22px] flex items-start gap-[11px] rounded-[11px] border border-danger/35 bg-danger/7 px-[15px] py-[13px]">
-            <span className="flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-danger text-[11px] font-bold text-white">
-              !
-            </span>
-            <span className="text-sm leading-[1.5] text-danger-ink">{hata}</span>
+          <div className="mt-[22px]">
+            <UyariKutusu mesaj={hata} />
           </div>
         )}
 
@@ -105,10 +101,10 @@ export function GirisFormu({ hedef }: { hedef: string }) {
           </label>
         </div>
 
-        <div className="mt-4 flex items-center justify-between gap-4">
-          <CheckToggle checked={remember} onToggle={() => setRemember((v) => !v)}>
-            Beni hatırla
-          </CheckToggle>
+        {/* "Beni hatırla" kutusu kaldırıldı: durumu hiçbir yerde okunmuyordu,
+            yani işaretlense de işaretlenmese de aynı şey oluyordu. Oturum
+            zaten kalıcı — çalışmayan bir denetim, olmayandan kötü. */}
+        <div className="mt-4 flex justify-end">
           <Link href="/sifremi-unuttum" className="text-sm font-semibold text-brand">
             Şifremi unuttum
           </Link>

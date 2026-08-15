@@ -21,6 +21,7 @@ export type IconName =
   | "plug"
   | "sliders"
   | "shield"
+  | "alert"
   | "arrowLeft"
   | "arrowRight"
   | "search"
@@ -127,6 +128,14 @@ const paths: Record<IconName, React.ReactNode> = {
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   x: <path d="M18 6 6 18M6 6l12 12" />,
   check: <path d="m20 6.5-11 11-5-5" />,
+  // Hata kutularında metin olarak "!" basılıyordu; yazı tipine göre hizası ve
+  // kalınlığı değişip bozuk görünüyordu.
+  alert: (
+    <>
+      <circle cx="12" cy="12" r="9.25" />
+      <path d="M12 7.25v6M12 16.4v.1" />
+    </>
+  ),
   download: (
     <>
       <path d="M21 15.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3.5" />

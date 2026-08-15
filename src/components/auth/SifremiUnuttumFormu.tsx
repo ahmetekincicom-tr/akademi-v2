@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { UyariKutusu } from "@/components/auth/UyariKutusu";
+import { Icon } from "@/components/Icon";
 import { createClient } from "@/lib/supabase/client";
 import { SadeceWeb, SadeceUygulama } from "@/components/panel/SadeceWeb";
 
@@ -41,8 +43,14 @@ export function SifremiUnuttumFormu({ uyari }: { uyari?: string }) {
   return (
     <>
       <div>
-        <Link href="/giris" className="text-[13.5px] font-semibold text-[#5C6273] hover:text-brand">
-          ← Girişe dön
+        {/* Ok, metin karakteri olarak yazılıyordu ("←"); yazı tipine göre
+            kalınlığı ve dikey hizası satırdaki metinle tutmuyordu. */}
+        <Link
+          href="/giris"
+          className="inline-flex items-center gap-[7px] text-[13.5px] font-semibold text-[#5C6273] hover:text-brand"
+        >
+          <Icon name="arrowLeft" size={15} />
+          Girişe dön
         </Link>
         <h1 className="mt-5 font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">
           Şifreni sıfırla
@@ -62,11 +70,8 @@ export function SifremiUnuttumFormu({ uyari }: { uyari?: string }) {
           />
         </label>
         {hata && (
-          <div className="mt-4 flex items-start gap-[11px] rounded-[11px] border border-danger/35 bg-danger/7 px-[15px] py-[13px]">
-            <span className="flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-danger text-[11px] font-bold text-white">
-              !
-            </span>
-            <span className="text-sm leading-[1.5] text-danger-ink">{hata}</span>
+          <div className="mt-4">
+            <UyariKutusu mesaj={hata} />
           </div>
         )}
         <button
