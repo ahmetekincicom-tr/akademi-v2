@@ -95,6 +95,41 @@
 
 
   /*
+    Kayan şerit. Liste iki kez basıldığı için %50 kaydırınca ikinci kopya
+    birincinin yerine oturuyor ve döngü dikişsiz oluyor.
+  */
+  .kayan-serit {
+    animation: aea-marquee 42s linear infinite;
+  }
+
+  .kayan-serit-ters {
+    animation: aea-marquee-ters 42s linear infinite;
+  }
+
+  .kayan-serit-yavas {
+    animation-duration: 62s;
+  }
+
+  @keyframes aea-marquee-ters {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  /* Şerit bilgi değil ritim taşıyor; hareket hassasiyeti olanlar için
+     durdurmak hiçbir içerik kaybettirmiyor. */
+  @media (prefers-reduced-motion: reduce) {
+    .kayan-serit,
+    .kayan-serit-ters {
+      animation: none;
+    }
+  }
+
+
+  /*
     Hero yörüngesi. Halka ileri, içindeki logo aynı sürede geri dönüyor —
     böylece logo dik kalıyor. Kaynak bileşende logolar halkanın çocuğu olduğu
     için onunla birlikte takla atıyor; yazı içeren marka logolarında bu bozuk
