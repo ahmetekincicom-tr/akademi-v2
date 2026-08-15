@@ -4,23 +4,8 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { egitmenStats } from "@/lib/courses";
 
 export const metadata: Metadata = { title: "Hakkımızda — Ahmet Ekinci Akademi" };
-
-const degerler = [
-  { no: "01", baslik: "Şeffaflık", metin: "Kapsam ve süre önceden netleşir; sürpriz ek ücret veya gizli koşul yoktur." },
-  { no: "02", baslik: "Uygulama odaklılık", metin: "Slayt anlatmıyoruz. Her ders katılımcının kendi hesabı üzerinde ilerler." },
-  { no: "03", baslik: "Uzun soluklu ilişki", metin: "İlişki dersle bitmiyor; soru-cevap kanalı ve birebir seanslarla sürüyor." },
-  { no: "04", baslik: "Güncel kalma", metin: "Meta, sosyal medya ve yapay zekâ araçları hızla değişiyor; müfredat her dönem güncellenir." },
-];
-
-const zaman = [
-  { yil: "2021", baslik: "Akademi kuruldu", metin: "Ankara merkezli, birebir dijital pazarlama eğitimi vermeye başladık." },
-  { yil: "2023", baslik: "100. katılımcı", metin: "Meta Ads eğitimlerinde 100. katılımcıya ulaştık, sosyal medya programı eklendi." },
-  { yil: "2025", baslik: "Öğrenci paneli", metin: "Ders kayıtları, dokümanlar ve destek kanalını tek panelde topladık." },
-  { yil: "2026", baslik: "Yapay zekâ müfredatı", metin: "Pazarlamada yapay zekâ eğitimini üçüncü program olarak müfredata kattık." },
-];
 
 export default function HakkimizdaPage() {
   return (
@@ -53,51 +38,6 @@ export default function HakkimizdaPage() {
               ahmet ekinci — portre
             </span>
           </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-          {[...egitmenStats, { n: "1:1", t: "her programda tek katılımcı" }].map((s) => (
-            <div key={s.t}>
-              <div className="font-heading text-[32px] font-semibold tracking-[-0.03em] text-brand">{s.n}</div>
-              <div className="mt-2 text-[13.5px] text-[#5C6273]">{s.t}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="border-y border-ink/8 bg-mist">
-        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
-          <SectionKicker>Değerlerimiz</SectionKicker>
-          <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
-            Nasıl çalıştığımızı belirleyen dört ilke
-          </h2>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {degerler.map((d) => (
-              <div key={d.no} className="rounded-[15px] border border-ink/11 bg-white p-6 px-6 pt-7 pb-[30px]">
-                <div className="font-heading text-[34px] font-semibold tracking-[-0.03em] text-brand">{d.no}</div>
-                <h3 className="mt-[22px] text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{d.baslik}</h3>
-                <p className="mt-[11px] text-[14.5px] leading-[1.65] text-[#5C6273]">{d.metin}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
-        <SectionKicker>Yolculuk</SectionKicker>
-        <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
-          2021&apos;den bugüne
-        </h2>
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
-          {zaman.map((z) => (
-            <div key={z.yil} className="bg-white p-[26px] px-[26px] pt-[26px] pb-[30px]">
-              <div className="font-heading text-2xl font-semibold tracking-[-0.02em] text-brand">{z.yil}</div>
-              <h3 className="mt-4 text-[17px] leading-[1.3] font-semibold tracking-[-0.02em]">{z.baslik}</h3>
-              <p className="mt-[10px] text-[14px] leading-[1.6] text-[#5C6273]">{z.metin}</p>
-            </div>
-          ))}
         </div>
       </section>
 

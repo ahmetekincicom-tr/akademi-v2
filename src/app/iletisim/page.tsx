@@ -8,7 +8,7 @@ import {
   EPOSTA,
   INSTAGRAM_KULLANICI,
   INSTAGRAM_URL,
-  SEHIR,
+  OFIS_ADRESI,
   whatsappLink,
 } from "@/lib/iletisim";
 
@@ -19,27 +19,20 @@ export const metadata: Metadata = {
 };
 
 // href olmayan kanallar tıklanabilir görünmesin diye link yerine kart olarak çizilir.
-const kanallar: { baslik: string; deger: string; not: string; href?: string }[] = [
+const kanallar: { baslik: string; deger: string; href?: string }[] = [
   {
     baslik: "WhatsApp",
     deger: WHATSAPP_NUMARALAR[0].gosterim,
-    not: "En hızlı yanıt genelde buradan gelir",
     href: whatsappLink(WHATSAPP_NUMARALAR[0].numara),
   },
   {
     baslik: "WhatsApp (2. hat)",
     deger: WHATSAPP_NUMARALAR[1].gosterim,
-    not: "Yoğun saatlerde alternatif hat",
     href: whatsappLink(WHATSAPP_NUMARALAR[1].numara),
   },
-  {
-    baslik: "Instagram",
-    deger: INSTAGRAM_KULLANICI,
-    not: "Program tanıtımları ve katılımcı içerikleri",
-    href: INSTAGRAM_URL,
-  },
-  { baslik: "E-posta", deger: EPOSTA, not: "Kurumsal talepler ve fatura yazışmaları", href: `mailto:${EPOSTA}` },
-  { baslik: "Ofis", deger: SEHIR, not: "Yüz yüze görüşme ve eğitimler için" },
+  { baslik: "Instagram", deger: INSTAGRAM_KULLANICI, href: INSTAGRAM_URL },
+  { baslik: "E-posta", deger: EPOSTA, href: `mailto:${EPOSTA}` },
+  { baslik: "Ofis", deger: OFIS_ADRESI },
 ];
 
 export default function IletisimPage() {
@@ -69,7 +62,6 @@ export default function IletisimPage() {
                 <>
                   <span className="font-mono text-[10px] tracking-[0.14em] text-brand uppercase">{k.baslik}</span>
                   <span className="text-[15.5px] font-semibold">{k.deger}</span>
-                  <span className="text-[13px] text-[#5C6273]">{k.not}</span>
                 </>
               );
 

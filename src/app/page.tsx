@@ -16,19 +16,6 @@ const heroStats = [
   { n: "1:1", t: "her programda tek katılımcı" },
 ];
 
-const platforms = [
-  "Meta Ads",
-  "Instagram",
-  "TikTok",
-  "LinkedIn",
-  "Google Analytics",
-  "Photoshop",
-  "After Effects",
-  "ChatGPT",
-  "Canva",
-  "Business Manager",
-];
-
 
 
 
@@ -147,13 +134,9 @@ export default async function HomePage() {
           }}
         />
         <div className="absolute -top-40 -right-30 h-[620px] w-[620px] rounded-full bg-brand opacity-20 blur-[120px]" />
-        <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 pt-24 pb-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div className="animate-rise">
-            <div className="inline-flex h-8 items-center gap-[10px] rounded-full border border-brand/55 bg-brand/14 px-[14px] font-mono text-[11px] tracking-[0.14em] text-[#A9C0FF] uppercase">
-              <span className="h-[6px] w-[6px] rounded-full bg-brand" />
-              2021&apos;den beri birebir eğitim
-            </div>
-            <h1 className="mt-[26px] font-heading text-[42px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[52px] lg:text-[66px] lg:leading-[1.02]">
+            <h1 className="font-heading text-[42px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[52px] lg:text-[66px] lg:leading-[1.02]">
               Dijital pazarlamayı
               <br />
               <span className="text-brand">birebir</span> öğrenin,
@@ -171,7 +154,6 @@ export default async function HomePage() {
               >
                 Eğitimleri incele <span>→</span>
               </Link>
-              <span className="font-mono text-xs tracking-[0.06em] text-white/50">Ücretsiz ön görüşmeyle başlar</span>
             </div>
             <div className="mt-14 flex flex-wrap gap-11">
               {heroStats.map((s) => (
@@ -197,31 +179,6 @@ export default async function HomePage() {
               {/* Marka mavisi üstünde AA eşiği white/85; altındaki tonlar kalıyor. */}
               <div className="font-mono text-[10px] tracking-[0.14em] text-white/90 uppercase">Ders sonrası</div>
               <div className="mt-[6px] text-[15px] font-semibold">Ömür boyu soru-cevap</div>
-            </div>
-          </div>
-        </div>
-        <div className="relative mt-[-40px] overflow-hidden border-t border-white/9">
-          <div className="mx-auto flex max-w-[1240px] flex-col gap-3 px-5 py-[22px] sm:flex-row sm:items-center sm:gap-8 sm:px-8">
-            <span className="font-mono text-[10.5px] tracking-[0.16em] whitespace-nowrap text-white/55 uppercase">
-              Çalıştığımız platformlar
-            </span>
-            <div
-              className="flex-1 overflow-hidden"
-              style={{
-                maskImage: "linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)",
-                WebkitMaskImage: "linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent)",
-              }}
-            >
-              <div className="animate-marquee flex w-max gap-[52px]">
-                {platforms.concat(platforms).map((p, i) => (
-                  <span
-                    key={p + i}
-                    className="font-heading text-[16px] font-medium tracking-[-0.01em] whitespace-nowrap text-white/52"
-                  >
-                    {p}
-                  </span>
-                ))}
-              </div>
             </div>
           </div>
         </div>

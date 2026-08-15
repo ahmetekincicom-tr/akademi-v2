@@ -11,7 +11,8 @@ export const EPOSTA = "iletisim@ahmetekinciakademi.com";
 export const INSTAGRAM_KULLANICI = "@ahmetekincicomtr";
 export const INSTAGRAM_URL = "https://instagram.com/ahmetekincicomtr";
 export const LINKEDIN_URL = "https://www.linkedin.com/in/ahmetekinci";
-export const SEHIR = "Çankaya, Ankara";
+export const SEHIR = "Ankara";
+export const OFIS_ADRESI = "Next Level Tower, Ankara";
 
 export function whatsappLink(numara: string, mesaj?: string) {
   const q = mesaj ? `?text=${encodeURIComponent(mesaj)}` : "";

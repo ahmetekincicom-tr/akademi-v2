@@ -2,8 +2,7 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { YorumlarFiltre } from "@/components/site/YorumlarFiltre";
-import { getCourses } from "@/lib/courses";
+import { YorumListesi } from "@/components/site/YorumListesi";
 import { getYorumlar } from "@/lib/icerik";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
@@ -20,7 +19,7 @@ export const metadata: Metadata = sayfaMeta({
 });
 
 export default async function YorumlarPage() {
-  const [courses, yorumlar] = await Promise.all([getCourses(), getYorumlar()]);
+  const yorumlar = await getYorumlar();
 
   return (
     <div className="bg-white">
@@ -32,11 +31,11 @@ export default async function YorumlarPage() {
           Eğitimden sonra ne değişti
         </h1>
         <p className="mt-6 max-w-[560px] text-[16.5px] leading-[1.62] text-[#5C6273]">
-          Programa göre filtreleyip katılımcıların kendi cümleleriyle ne değiştiğini okuyabilirsiniz.
+          Katılımcıların kendi cümleleriyle: eğitimden sonra işlerinde ne değişti.
         </p>
       </section>
 
-      <YorumlarFiltre yorumlar={yorumlar} kurslar={courses.map((c) => ({ id: c.id, etiket: c.baslikVurgu }))} />
+      <YorumListesi yorumlar={yorumlar} />
 
       <CorporateStrip text="Ekibinize özel, yerinde ya da uzaktan dijital pazarlama eğitimi." />
       <PublicFooter />
