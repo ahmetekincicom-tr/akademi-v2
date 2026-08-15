@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getOdemelerim, getBanka, paraBicimi } from "@/lib/odeme";
 import { UygulamadaYok } from "@/components/panel/SadeceWeb";
-import { BankaKutusu } from "@/components/panel/BankaKutusu";
 import { durumStil } from "@/lib/admin/shared";
 import { odemeDurumEtiket } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
@@ -104,12 +103,6 @@ export default async function OdemelerimPage({
             </div>
           </div>
         )}
-
-        {/* Bekleyen kayıt varken IBAN ödeme sihirbazının içinde gösteriliyor;
-          burada tekrarlaması aynı bilgiyi iki yerde tutmak olurdu. Bekleyen
-          kayıt yokken kutu duruyor: öğrenci taksit ya da yeni bir eğitim için
-          IBAN'a kaydı olmadan da bakabilmeli. */}
-        {banka && bekleyenAdet === 0 && <BankaKutusu banka={banka} />}
 
         {satirlar.length === 0 ? (
           <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">

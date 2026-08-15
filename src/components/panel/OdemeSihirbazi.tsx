@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { odemeyeGec, havaleBildir } from "@/app/panel/odemelerim/actions";
 import { BankaKutusu } from "@/components/panel/BankaKutusu";
+import { SihirbazAdimlari } from "@/components/panel/SihirbazAdimlari";
 import { Icon } from "@/components/Icon";
 import type { Banka } from "@/lib/odeme";
 
@@ -89,7 +90,7 @@ export function OdemeSihirbazi({
   return (
     <div className="mt-[26px] max-w-[620px]">
       {/* Adım göstergesi yalnızca gerçekten iki adım varken çıkıyor. */}
-      {!tekYontem && <Adimlar adim={adim} />}
+      {!tekYontem && <SihirbazAdimlari basliklar={["Ödeme yöntemi", "Ödeme"]} adim={adim} />}
 
       <div className="mt-5 rounded-2xl border border-ink/10 bg-white p-6">
         <div className="font-mono text-[9.5px] tracking-[0.18em] text-[#656B7A] uppercase">Ödenecek tutar</div>
@@ -211,39 +212,6 @@ export function OdemeSihirbazi({
         </Link>
       </div>
     </div>
-  );
-}
-
-function Adimlar({ adim }: { adim: number }) {
-  const basliklar = ["Ödeme yöntemi", "Ödeme"];
-  return (
-    <ol className="flex items-center gap-3">
-      {basliklar.map((b, i) => {
-        const no = i + 1;
-        const gecildi = adim > no;
-        const aktif = adim === no;
-        return (
-          <li key={b} className="flex flex-1 items-center gap-[10px]">
-            <span
-              className="flex h-7 w-7 flex-none items-center justify-center rounded-full text-[12.5px] font-semibold transition"
-              style={{
-                background: gecildi || aktif ? "#1C56F3" : "#EEF1F8",
-                color: gecildi || aktif ? "#FFFFFF" : "#8A90A0",
-              }}
-            >
-              {gecildi ? <Icon name="check" size={13} strokeWidth={3} /> : no}
-            </span>
-            <span
-              className="truncate text-[13.5px] font-medium"
-              style={{ color: aktif ? "#0A0D18" : "#8A90A0" }}
-            >
-              {b}
-            </span>
-            {i < basliklar.length - 1 && <span className="h-px flex-1 bg-ink/12" />}
-          </li>
-        );
-      })}
-    </ol>
   );
 }
 
