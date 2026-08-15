@@ -7,7 +7,7 @@ import {
   seansDurumDegistir,
   seansSil,
   seansKayitLinki,
-} from "@/app/admin/(protected)/seanslar/actions";
+} from "@/app/kontrol-9f4x2k/(protected)/seanslar/actions";
 import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";

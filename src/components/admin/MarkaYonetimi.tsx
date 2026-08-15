@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { markaGuncelle, type MarkaAlan } from "@/app/admin/(protected)/marka/actions";
+import { markaGuncelle, type MarkaAlan } from "@/app/kontrol-9f4x2k/(protected)/marka/actions";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { testEpostasiGonder } from "@/app/admin/(protected)/tani/actions";
+import { testEpostasiGonder } from "@/app/kontrol-9f4x2k/(protected)/tani/actions";
 import { Icon } from "@/components/Icon";
 
 /**

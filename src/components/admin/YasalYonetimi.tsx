@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { yasalKaydet } from "@/app/admin/(protected)/yasal/actions";
+import { yasalKaydet } from "@/app/kontrol-9f4x2k/(protected)/yasal/actions";
 import { Icon } from "@/components/Icon";
 import { Toggle } from "./Toggle";
 import type { YasalSayfa } from "@/lib/yasal";

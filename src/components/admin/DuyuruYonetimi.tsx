@@ -6,7 +6,7 @@ import {
   duyuruKaydet,
   duyuruSil,
   duyuruBildirimGonder,
-} from "@/app/admin/(protected)/duyurular/actions";
+} from "@/app/kontrol-9f4x2k/(protected)/duyurular/actions";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
 import {

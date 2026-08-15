@@ -27,11 +27,23 @@ function uygulamadanMi(request: NextRequest): boolean {
   return request.headers.get("user-agent")?.includes("AEAkademiApp") ?? false;
 }
 
+/**
+ * Yönetim panelinin kökü. Rota klasörünün adıyla aynı olmalı
+ * (src/app/kontrol-9f4x2k).
+ *
+ * Tahmin edilebilir bir adres değil: /admin açıkta durduğu sürece otomatik
+ * tarayıcılar günde binlerce kez giriş ekranını dövüyor. Bu, kimlik
+ * doğrulamanın yerine geçmiyor — asıl koruma hâlâ (protected)/layout.tsx
+ * içindeki oturum ve rol kontrolü — yalnızca gürültüyü ve deneme hacmini
+ * kesiyor.
+ */
+export const YONETIM_KOKU = "/kontrol-9f4x2k";
+
 // Uygulamada açılabilen adresler. Panel, oturum akışı ve yasal metinler;
 // yasal metinler App Store için şart, o yüzden listede.
 const ACIK_KOKLER = [
   "/panel",
-  "/admin",
+  YONETIM_KOKU,
   "/giris",
   "/kayit",
   "/sifremi-unuttum",
@@ -50,7 +62,18 @@ function uygulamayaAcik(pathname: string): boolean {
   return ACIK_KOKLER.some((k) => pathname === k || pathname.startsWith(k + "/"));
 }
 
+// Panel arayan otomatik taramaların denediği bilinen adresler. Cevap olarak
+// giriş ekranı değil, ana sayfa dönüyor: burada bir panel olduğu bilgisi bile
+// verilmiyor.
+const TUZAK_KOKLER = ["/admin", "/administrator", "/wp-admin", "/wp-login.php", "/yonetim"];
+
 export async function proxy(request: NextRequest) {
+  // Oturum tazelemesinden önce: bu adreslerde yapılacak başka iş yok.
+  const yol = request.nextUrl.pathname;
+  if (TUZAK_KOKLER.some((k) => yol === k || yol.startsWith(k + "/"))) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -95,11 +118,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/panel", request.url));
   }
 
-  const isAdminRoute = pathname.startsWith("/admin") && pathname !== "/admin/giris";
+  const isAdminRoute = pathname.startsWith(YONETIM_KOKU) && pathname !== `${YONETIM_KOKU}/giris`;
   const isPanelRoute = pathname.startsWith("/panel");
 
   if ((isAdminRoute || isPanelRoute) && !user) {
-    const loginUrl = new URL(isAdminRoute ? "/admin/giris" : "/giris", request.url);
+    const loginUrl = new URL(isAdminRoute ? `${YONETIM_KOKU}/giris` : "/giris", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }

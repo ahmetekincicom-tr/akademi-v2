@@ -2,7 +2,7 @@
 
 ## Akış
 
-1. Yönetici `/admin/odemeler` → **Ödeme kaydet**: öğrenci, tutar, durum **"Onay bekliyor"**.
+1. Yönetici `/<yönetim>/odemeler` → **Ödeme kaydet**: öğrenci, tutar, durum **"Onay bekliyor"**.
 2. Öğrenci panele girer, `/panel/odemelerim` sayfasında bekleyen kaydı ve **Kartla öde**
    düğmesini görür.
 3. Ödeme sayfası (`/panel/odemelerim/ode/[id]`) iki adım:
@@ -47,7 +47,7 @@ Kodda değişiklik yok — tek fark ortam değişkenleri. Sıra önemli:
    imza sirküleri vb. onaylandıktan sonra üretiliyor.
 2. **Yasal metinler dolu olmalı.** `/satis-sozlesmesi` ve `/iptal-iade-politikasi`
    ödeme onay ekranında bağlantı veriliyor; boş sayfaya para almak mevzuata aykırı.
-   `/admin/yasal` üzerinden kontrol et.
+   `/<yönetim>/yasal` üzerinden kontrol et.
 3. **Vercel → Environment Variables** (Production):
    ```
    IYZICO_API_KEY    = <canlı anahtar, "sandbox-" öneki YOK>
@@ -55,7 +55,7 @@ Kodda değişiklik yok — tek fark ortam değişkenleri. Sıra önemli:
    IYZICO_ORTAM      = canli
    ```
 4. **Yeniden deploy et.** Ortam değişkeni mevcut derlemeye geçmiyor.
-5. **`/admin/tani` → Kartla ödeme (iyzico):**
+5. **`/<yönetim>/tani` → Kartla ödeme (iyzico):**
    - `IYZICO_ORTAM` → `canli — GERÇEK PARA` (sarı, beklenen)
    - `iyzico bağlantısı ve imza` → **yeşil olmalı.** Kırmızıysa canlı anahtar
      yanlış; ödeme başlatılamaz.
@@ -80,7 +80,7 @@ delete from payments where id in (...);
 
 | Belirti | Sebep |
 | --- | --- |
-| `/admin/tani` imza satırı kırmızı | Canlı anahtar yanlış ya da sandbox anahtarı canlı ortama verilmiş |
+| `/<yönetim>/tani` imza satırı kırmızı | Canlı anahtar yanlış ya da sandbox anahtarı canlı ortama verilmiş |
 | Ödeme başlatılamıyor, deneme `basarisiz` | `ham_yanit` içindeki iyzico hata mesajı; genelde alan doğrulaması |
 | Deneme `baslatildi` + "iyzico geri DÖNMEDİ" | Dönüş isteği ulaşmıyor; 15 dakikalık mutabakat görevi yine de çözer |
 | Deneme `baslatildi` + "iyzico geri döndü" | Dönüş geldi ama eşleşmedi; `ham_yanit`a bak |
@@ -96,7 +96,7 @@ delete from payments where id in (...);
 
 ## Panel ayarları
 
-`/admin/entegrasyonlar` → **Kartla ödeme (iyzico)**:
+`/<yönetim>/entegrasyonlar` → **Kartla ödeme (iyzico)**:
 
 | Alan | Ne işe yarıyor |
 | --- | --- |
@@ -159,7 +159,7 @@ O anda para çekilmiş ama kayıt `bekliyor` kalır. Üç katman koruyor:
 1. **`callback_at` damgası** — token elimize geçer geçmez, hiçbir doğrulama
    beklemeden atılıyor. Bu damga `baslatildi` durumunun iki anlamını ayırıyor:
    damga yoksa öğrenci vazgeçmiş, varsa dönüş gelmiş ama işlenememiş.
-2. **`/admin/odemeler` → "Sonucu belli olmayan ödemeler"** — her satırda
+2. **`/<yönetim>/odemeler` → "Sonucu belli olmayan ödemeler"** — her satırda
    "iyzico'ya sor" düğmesi. Tek doğru kaynağa danışıp kaydı kesinleştiriyor.
 3. **`odeme-mutabakat` görevi** — 15 dakikada bir, 5 dakikadan eski ve 3 günden
    yeni askıdaki denemeleri iyzico'ya soruyor. Alt sınır hâlâ 3D Secure
@@ -200,7 +200,7 @@ geri almamalı.
    ```
    `BILDIRIM_EPOSTA` virgülle birden çok adres alabiliyor.
 5. Yeniden deploy et.
-6. `/admin/tani` → **E-posta bildirimleri** → **Test e-postası gönder**.
+6. `/<yönetim>/tani` → **E-posta bildirimleri** → **Test e-postası gönder**.
 
 Üçü de tanımlı değilse bildirim sessizce kapalı kalıyor; ödemeler normal
 çalışmaya devam ediyor.
@@ -224,7 +224,7 @@ Damgayı servis anahtarı yazıyor: `payments` üzerinde yazma yetkisi yalnızca
 yöneticide ve öyle kalmalı. Sahiplik, damgadan önceki RLS'li okumada
 doğrulanıyor.
 
-Bildirim geldiğinde `/admin/odemeler` satırında **"Havale bildirildi"** rozeti,
+Bildirim geldiğinde `/<yönetim>/odemeler` satırında **"Havale bildirildi"** rozeti,
 öğrenci tarafında da **"Bildirildi"** rozeti çıkıyor — iki taraf da aynı şeyi
 görüyor.
 

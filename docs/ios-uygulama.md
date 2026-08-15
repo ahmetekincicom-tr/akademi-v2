@@ -53,14 +53,14 @@ Ayarlar → Genel → VPN ve Cihaz Yönetimi → sertifikana güven.
 
 **4.2 Minimum Functionality.** Apple, siteyi olduğu gibi saran uygulamaları
 reddediyor. Push bildirim uçtan uca bağlı: öğrenci panelde izin veriyor, cihaz
-token'ı `push_cihazlar` tablosuna düşüyor, `/admin/bildirimler` ekranından
+token'ı `push_cihazlar` tablosuna düşüyor, `/<yönetim>/bildirimler` ekranından
 bildirim gönderiliyor. İncelemeye göndermeden önce kendi telefonuna bir test
 bildirimi at — çalıştığını görmeden başvurma.
 
 **5.1.1(v) hesap silme.** Hesabı olan uygulamalarda silmenin uygulama içinden
 başlatılabilmesi şart. `/panel/hesabim` altında, yalnızca native uygulamada
 görünen iki adımlı bir akış var; talep `profiles.silme_talebi_tarihi` alanına
-düşüyor ve `/admin/ogrenciler` listesinde rozet olarak görünüyor.
+düşüyor ve `/<yönetim>/ogrenciler` listesinde rozet olarak görünüyor.
 
 **3.1.3 ödeme.** Uygulamada satın alma akışı yok, olmamalı da. Havale bilgileri
 native uygulamada bilerek gizleniyor (`BankaKutusu` içinde `useNativeUygulama`
@@ -117,7 +117,7 @@ kullanıcıları aynı anda bildirim alıyor.
 2. "Aç" denince iOS'un izin penceresi geliyor (kart olmadan doğrudan sormuyoruz:
    iOS izni bir kez soruyor, reddedilirse tek çıkış sistem ayarları)
 3. İzin verilince cihaz token'ı `push_cihazlar` tablosuna yazılıyor
-4. `/admin/bildirimler` ekranından tek öğrenciye ya da herkese gönderiliyor
+4. `/<yönetim>/bildirimler` ekranından tek öğrenciye ya da herkese gönderiliyor
 5. APNs "410 Unregistered" derse (uygulama silinmiş) token geçersiz
    işaretleniyor, sonraki gönderimlerde atlanıyor
 

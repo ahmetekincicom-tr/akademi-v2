@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ogrencileriIceAktar } from "@/app/admin/(protected)/ogrenciler/ice-aktar-actions";
+import { ogrencileriIceAktar } from "@/app/kontrol-9f4x2k/(protected)/ogrenciler/ice-aktar-actions";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
 import { tabloOku, type TabloSatiri } from "@/lib/tablo-oku";
@@ -170,7 +170,7 @@ export function OgrenciIceAktarma() {
     <main className="flex flex-col gap-6 p-4 pb-14 sm:p-[34px]">
       <div>
         <Link
-          href="/admin/ogrenciler"
+          href="/kontrol-9f4x2k/ogrenciler"
           className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#5C6273] hover:text-brand"
         >
           <Icon name="arrowLeft" size={14} />

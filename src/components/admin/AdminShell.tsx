@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cikisYap } from "@/app/admin/logout-action";
+import { cikisYap } from "@/app/kontrol-9f4x2k/logout-action";
 import { initials } from "@/lib/admin/shared";
 import { Icon, type IconName } from "@/components/Icon";
 import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
@@ -21,86 +21,86 @@ type MenuItem = { href: string; label: string; icon: IconName; sayac?: keyof Adm
 type MenuGroup = { title: string; items: MenuItem[] };
 
 const groups: MenuGroup[] = [
-  { title: "Özet", items: [{ href: "/admin", label: "Genel bakış", icon: "grid" }] },
+  { title: "Özet", items: [{ href: "/kontrol-9f4x2k", label: "Genel bakış", icon: "grid" }] },
   {
     title: "Katılımcılar",
     items: [
-      { href: "/admin/ogrenciler", label: "Öğrenciler", icon: "users", sayac: "ogrenci" },
-      { href: "/admin/destek", label: "Destek talepleri", icon: "message", sayac: "talep" },
-      { href: "/admin/mesajlar", label: "Gelen mesajlar", icon: "external", sayac: "mesaj" },
-      { href: "/admin/birebir-egitim", label: "Birebir eğitim", icon: "book" },
-      { href: "/admin/seanslar", label: "Seans takvimi", icon: "calendar" },
-      { href: "/admin/gorusmeler", label: "Danışmanlık talepleri", icon: "clock", sayac: "gorusme" },
+      { href: "/kontrol-9f4x2k/ogrenciler", label: "Öğrenciler", icon: "users", sayac: "ogrenci" },
+      { href: "/kontrol-9f4x2k/destek", label: "Destek talepleri", icon: "message", sayac: "talep" },
+      { href: "/kontrol-9f4x2k/mesajlar", label: "Gelen mesajlar", icon: "external", sayac: "mesaj" },
+      { href: "/kontrol-9f4x2k/birebir-egitim", label: "Birebir eğitim", icon: "book" },
+      { href: "/kontrol-9f4x2k/seanslar", label: "Seans takvimi", icon: "calendar" },
+      { href: "/kontrol-9f4x2k/gorusmeler", label: "Danışmanlık talepleri", icon: "clock", sayac: "gorusme" },
     ],
   },
   {
     title: "İçerik",
     items: [
-      { href: "/admin/egitimler", label: "Eğitimler", icon: "book" },
-      { href: "/admin/video", label: "Video kütüphanesi", icon: "playCircle", sayac: "video" },
-      { href: "/admin/dokumanlar", label: "Dokümanlar", icon: "folder" },
-      { href: "/admin/duyurular", label: "Gündem panosu", icon: "bell" },
-      { href: "/admin/yorumlar", label: "Katılımcı yorumları", icon: "message" },
-      { href: "/admin/referanslar", label: "Referans logoları", icon: "sparkle" },
-      { href: "/admin/yasal", label: "Yasal metinler", icon: "file" },
-      { href: "/admin/marka", label: "Logo ve favicon", icon: "sparkle" },
-      { href: "/admin/site-icerik", label: "Duyuru ve eğitmen", icon: "user" },
-      { href: "/admin/hakkimizda", label: "Hakkımızda sayfası", icon: "file" },
+      { href: "/kontrol-9f4x2k/egitimler", label: "Eğitimler", icon: "book" },
+      { href: "/kontrol-9f4x2k/video", label: "Video kütüphanesi", icon: "playCircle", sayac: "video" },
+      { href: "/kontrol-9f4x2k/dokumanlar", label: "Dokümanlar", icon: "folder" },
+      { href: "/kontrol-9f4x2k/duyurular", label: "Gündem panosu", icon: "bell" },
+      { href: "/kontrol-9f4x2k/yorumlar", label: "Katılımcı yorumları", icon: "message" },
+      { href: "/kontrol-9f4x2k/referanslar", label: "Referans logoları", icon: "sparkle" },
+      { href: "/kontrol-9f4x2k/yasal", label: "Yasal metinler", icon: "file" },
+      { href: "/kontrol-9f4x2k/marka", label: "Logo ve favicon", icon: "sparkle" },
+      { href: "/kontrol-9f4x2k/site-icerik", label: "Duyuru ve eğitmen", icon: "user" },
+      { href: "/kontrol-9f4x2k/hakkimizda", label: "Hakkımızda sayfası", icon: "file" },
     ],
   },
   {
     title: "Finans & sistem",
     items: [
-      { href: "/admin/odemeler", label: "Ödemeler", icon: "card", sayac: "odeme" },
-      { href: "/admin/bildirimler", label: "Push bildirimler", icon: "bell" },
-      { href: "/admin/entegrasyonlar", label: "Entegrasyonlar", icon: "plug" },
-      { href: "/admin/ayarlar", label: "Ayarlar", icon: "sliders" },
-      { href: "/admin/tani", label: "Sistem tanılama", icon: "shield" },
+      { href: "/kontrol-9f4x2k/odemeler", label: "Ödemeler", icon: "card", sayac: "odeme" },
+      { href: "/kontrol-9f4x2k/bildirimler", label: "Push bildirimler", icon: "bell" },
+      { href: "/kontrol-9f4x2k/entegrasyonlar", label: "Entegrasyonlar", icon: "plug" },
+      { href: "/kontrol-9f4x2k/ayarlar", label: "Ayarlar", icon: "sliders" },
+      { href: "/kontrol-9f4x2k/tani", label: "Sistem tanılama", icon: "shield" },
     ],
   },
 ];
 
 const pageTitles: Record<string, string> = {
-  "/admin": "Genel bakış",
-  "/admin/ogrenciler": "Öğrenciler",
-  "/admin/ogrenciler/ice-aktar": "Öğrenci içe aktarma",
-  "/admin/egitimler": "Eğitimler",
-  "/admin/odemeler": "Ödemeler",
-  "/admin/bildirimler": "Push bildirimler",
-  "/admin/destek": "Destek talepleri",
-  "/admin/mesajlar": "Gelen mesajlar",
-  "/admin/dokumanlar": "Dokümanlar",
-  "/admin/duyurular": "Gündem panosu",
-  "/admin/yorumlar": "Katılımcı yorumları",
-  "/admin/referanslar": "Referans logoları",
-  "/admin/yasal": "Yasal metinler",
-  "/admin/marka": "Logo ve favicon",
-  "/admin/site-icerik": "Duyuru ve eğitmen",
-  "/admin/hakkimizda": "Hakkımızda sayfası",
-  "/admin/birebir-egitim": "Birebir eğitim",
-  "/admin/seanslar": "Seans takvimi",
-  "/admin/gorusmeler": "Danışmanlık talepleri",
-  "/admin/video": "Video kütüphanesi",
-  "/admin/entegrasyonlar": "Entegrasyonlar",
-  "/admin/ayarlar": "Ayarlar",
-  "/admin/tani": "Sistem tanılama",
+  "/kontrol-9f4x2k": "Genel bakış",
+  "/kontrol-9f4x2k/ogrenciler": "Öğrenciler",
+  "/kontrol-9f4x2k/ogrenciler/ice-aktar": "Öğrenci içe aktarma",
+  "/kontrol-9f4x2k/egitimler": "Eğitimler",
+  "/kontrol-9f4x2k/odemeler": "Ödemeler",
+  "/kontrol-9f4x2k/bildirimler": "Push bildirimler",
+  "/kontrol-9f4x2k/destek": "Destek talepleri",
+  "/kontrol-9f4x2k/mesajlar": "Gelen mesajlar",
+  "/kontrol-9f4x2k/dokumanlar": "Dokümanlar",
+  "/kontrol-9f4x2k/duyurular": "Gündem panosu",
+  "/kontrol-9f4x2k/yorumlar": "Katılımcı yorumları",
+  "/kontrol-9f4x2k/referanslar": "Referans logoları",
+  "/kontrol-9f4x2k/yasal": "Yasal metinler",
+  "/kontrol-9f4x2k/marka": "Logo ve favicon",
+  "/kontrol-9f4x2k/site-icerik": "Duyuru ve eğitmen",
+  "/kontrol-9f4x2k/hakkimizda": "Hakkımızda sayfası",
+  "/kontrol-9f4x2k/birebir-egitim": "Birebir eğitim",
+  "/kontrol-9f4x2k/seanslar": "Seans takvimi",
+  "/kontrol-9f4x2k/gorusmeler": "Danışmanlık talepleri",
+  "/kontrol-9f4x2k/video": "Video kütüphanesi",
+  "/kontrol-9f4x2k/entegrasyonlar": "Entegrasyonlar",
+  "/kontrol-9f4x2k/ayarlar": "Ayarlar",
+  "/kontrol-9f4x2k/tani": "Sistem tanılama",
 };
 
 function isActive(pathname: string, href: string) {
-  if (href === "/admin") return pathname === "/admin";
+  if (href === "/kontrol-9f4x2k") return pathname === "/kontrol-9f4x2k";
   return pathname === href || pathname.startsWith(href + "/");
 }
 
 function breadcrumbAdimlari(pathname: string): BreadcrumbAdim[] {
-  if (pathname === "/admin") return [{ label: "Yönetim" }];
+  if (pathname === "/kontrol-9f4x2k") return [{ label: "Yönetim" }];
 
-  const kok: BreadcrumbAdim = { label: "Yönetim", href: "/admin" };
+  const kok: BreadcrumbAdim = { label: "Yönetim", href: "/kontrol-9f4x2k" };
 
   // The course editor sits one level under the course list.
-  if (pathname.startsWith("/admin/egitimler/")) {
+  if (pathname.startsWith("/kontrol-9f4x2k/egitimler/")) {
     return [
       kok,
-      { label: "Eğitimler", href: "/admin/egitimler" },
+      { label: "Eğitimler", href: "/kontrol-9f4x2k/egitimler" },
       { label: pathname.endsWith("/yeni") ? "Yeni eğitim" : "Eğitim düzenle" },
     ];
   }
@@ -159,7 +159,7 @@ export function AdminShell({
         }`}
       >
         <div className="flex items-center justify-between border-b border-white/9 px-5 pt-[calc(20px+env(safe-area-inset-top))] pb-[18px]">
-          <Link href="/admin" className="flex items-center gap-[11px] text-white">
+          <Link href="/kontrol-9f4x2k" className="flex items-center gap-[11px] text-white">
             <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">
               AE
             </span>
@@ -259,7 +259,7 @@ export function AdminShell({
               <Breadcrumb adimlar={breadcrumbAdimlari(pathname)} />
             </div>
             <Link
-              href="/admin/egitimler/yeni"
+              href="/kontrol-9f4x2k/egitimler/yeni"
               aria-label="Yeni eğitim"
               className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-ink px-[11px] text-[13.5px] font-semibold text-white transition hover:bg-brand sm:px-[15px]"
             >

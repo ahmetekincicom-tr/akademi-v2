@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { dersVideoKaydet } from "@/app/admin/(protected)/video/actions";
+import { dersVideoKaydet } from "@/app/kontrol-9f4x2k/(protected)/video/actions";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
 

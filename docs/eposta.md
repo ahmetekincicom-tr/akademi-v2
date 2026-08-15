@@ -27,7 +27,7 @@ alabiliyor.
 Üçünden biri eksikse bildirimler sessizce kapalı kalıyor — ödemeler, mesajlar ve
 talepler normal çalışmaya devam ediyor.
 
-Doğrulama: `/admin/tani` → **E-posta bildirimleri** → **Test e-postası gönder**.
+Doğrulama: `/<yönetim>/tani` → **E-posta bildirimleri** → **Test e-postası gönder**.
 
 ## Auth şablonları
 

@@ -7,7 +7,7 @@ import {
   gorusmeOdemeOnayla,
   gorusmeDurumDegistir,
   gorusmeAyarKaydet,
-} from "@/app/admin/(protected)/gorusmeler/actions";
+} from "@/app/kontrol-9f4x2k/(protected)/gorusmeler/actions";
 import { Icon } from "@/components/Icon";
 import { utcyiTrInputYap } from "@/lib/zaman";
 import { guvenliUrl } from "@/lib/guvenli-url";

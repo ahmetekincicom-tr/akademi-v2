@@ -12,7 +12,7 @@ import { kapakUrl } from "@/lib/kapak";
 import { getReferanslar } from "@/lib/icerik";
 import { sayfaMeta } from "@/lib/seo";
 
-// Sayfa metinleri ve fotoğrafı /admin/hakkimizda'dan yönetiliyor.
+// Sayfa metinleri ve fotoğrafı yönetim panelindeki Hakkımızda sayfasından yönetiliyor.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = sayfaMeta({

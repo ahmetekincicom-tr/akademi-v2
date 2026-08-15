@@ -121,7 +121,7 @@ export async function yoneticiBildirimi(girdi: {
   ozet?: string;
   satirlar?: BildirimSatiri[];
   alinti?: string;
-  /** Panel içi yol: "/admin/mesajlar" gibi. Kök adres otomatik ekleniyor. */
+  /** Panel içi yol: "/kontrol-9f4x2k/mesajlar" gibi. Kök adres otomatik ekleniyor. */
   yol?: string;
   eylemEtiketi?: string;
 }): Promise<void> {

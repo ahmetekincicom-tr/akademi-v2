@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ayarKaydet } from "@/app/admin/(protected)/ayar-actions";
+import { ayarKaydet } from "@/app/kontrol-9f4x2k/(protected)/ayar-actions";
 import { useBildirim } from "@/components/Bildirim";
 
 export type AyarAlan = {

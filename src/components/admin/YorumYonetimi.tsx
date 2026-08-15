@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { yorumKaydet, yorumSil } from "@/app/admin/(protected)/icerik-actions";
+import { yorumKaydet, yorumSil } from "@/app/kontrol-9f4x2k/(protected)/icerik-actions";
 import { Icon } from "@/components/Icon";
 import { Toggle } from "./Toggle";
 import { useBildirim } from "@/components/Bildirim";

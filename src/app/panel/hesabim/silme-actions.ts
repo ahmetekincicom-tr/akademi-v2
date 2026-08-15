@@ -45,7 +45,7 @@ export async function silmeTalebiOlustur() {
       { etiket: "E-posta", deger: profil?.email ?? "—" },
       { etiket: "Telefon", deger: profil?.telefon ?? "—" },
     ],
-    yol: "/admin/ogrenciler",
+    yol: "/kontrol-9f4x2k/ogrenciler",
     eylemEtiketi: "Öğrenciyi panelde aç",
   });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { dokumanIndirmeLinki } from "@/app/admin/(protected)/dokumanlar/actions";
+import { dokumanIndirmeLinki } from "@/app/kontrol-9f4x2k/(protected)/dokumanlar/actions";
 import { baytBoyut, tarihBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";

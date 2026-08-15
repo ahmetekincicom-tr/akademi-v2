@@ -40,12 +40,12 @@ export async function gorusmeTalepEt(input: { konu: string; aciklama: string; te
       { etiket: "Telefon", deger: profil?.telefon ?? "—" },
     ],
     alinti: input.aciklama || undefined,
-    yol: "/admin/gorusmeler",
+    yol: "/kontrol-9f4x2k/gorusmeler",
     eylemEtiketi: "Talebi panelde aç",
   });
 
   revalidatePath("/panel/gorusmeler");
-  revalidatePath("/admin/gorusmeler");
+  revalidatePath("/kontrol-9f4x2k/gorusmeler");
   return {};
 }
 
@@ -55,6 +55,6 @@ export async function gorusmeIptalEt(id: string) {
   if (error) return { error: error.message };
 
   revalidatePath("/panel/gorusmeler");
-  revalidatePath("/admin/gorusmeler");
+  revalidatePath("/kontrol-9f4x2k/gorusmeler");
   return {};
 }

@@ -2,13 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { kayitEkle, kayitKaldir } from "@/app/admin/(protected)/ogrenciler/actions";
+import { kayitEkle, kayitKaldir } from "@/app/kontrol-9f4x2k/(protected)/ogrenciler/actions";
 import {
   oturumEkle,
   oturumSil,
   oturumKayitLinki,
   oturumDurumDegistir,
-} from "@/app/admin/(protected)/birebir-egitim/actions";
+} from "@/app/kontrol-9f4x2k/(protected)/birebir-egitim/actions";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
 import { durumStil } from "@/lib/admin/shared";

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { kursKapakGuncelle } from "@/app/admin/(protected)/egitimler/actions";
+import { kursKapakGuncelle } from "@/app/kontrol-9f4x2k/(protected)/egitimler/actions";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
 import { kapakUrl } from "@/lib/kapak";

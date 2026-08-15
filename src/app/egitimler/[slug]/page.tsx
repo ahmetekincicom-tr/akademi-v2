@@ -86,7 +86,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           <div className="mt-10 grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="animate-rise">
               {/* Kayıt duyurusu: beyaz kutu, çerçevesi yavaşça mavi yanıp söner.
-                  Metni ve görünürlüğü /admin/site-icerik'ten yönetilir. */}
+                  Metni ve görünürlüğü yönetim panelindeki Duyuru ve eğitmen ekranından yönetilir. */}
               {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
                 <div
                   className={

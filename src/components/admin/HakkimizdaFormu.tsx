@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   hakkimizdaKaydet,
   hakkimizdaGorselGuncelle,
-} from "@/app/admin/(protected)/hakkimizda/actions";
+} from "@/app/kontrol-9f4x2k/(protected)/hakkimizda/actions";
 import { createClient } from "@/lib/supabase/client";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";

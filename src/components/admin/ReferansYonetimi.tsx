@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { referansKaydet, referansSil } from "@/app/admin/(protected)/icerik-actions";
+import { referansKaydet, referansSil } from "@/app/kontrol-9f4x2k/(protected)/icerik-actions";
 import { Icon } from "@/components/Icon";
 import { Toggle } from "./Toggle";
 import { useBildirim } from "@/components/Bildirim";

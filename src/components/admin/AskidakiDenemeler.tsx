@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { denemeSorgula } from "@/app/admin/(protected)/odemeler/actions";
+import { denemeSorgula } from "@/app/kontrol-9f4x2k/(protected)/odemeler/actions";
 import { para, saatBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";

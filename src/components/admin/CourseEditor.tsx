@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Toggle } from "./Toggle";
-import { saveCourse, arsivleCourse } from "@/app/admin/(protected)/egitimler/actions";
+import { saveCourse, arsivleCourse } from "@/app/kontrol-9f4x2k/(protected)/egitimler/actions";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
 import { KapakGorseli } from "@/components/admin/KapakGorseli";
@@ -129,7 +129,7 @@ export function CourseEditor({
   return (
     <main className="p-4 pb-14 sm:p-7">
       <Link
-        href="/admin/egitimler"
+        href="/kontrol-9f4x2k/egitimler"
         className="inline-flex items-center gap-[6px] text-[13.5px] font-semibold text-[#5C6273] transition hover:text-brand"
       >
         <Icon name="arrowLeft" size={15} />

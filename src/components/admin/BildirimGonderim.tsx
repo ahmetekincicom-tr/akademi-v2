@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { bildirimGonder } from "@/app/admin/(protected)/bildirimler/actions";
+import { bildirimGonder } from "@/app/kontrol-9f4x2k/(protected)/bildirimler/actions";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
 import { TR_ZAMAN } from "@/lib/zaman";

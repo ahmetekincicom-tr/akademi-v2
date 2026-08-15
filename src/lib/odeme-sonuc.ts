@@ -188,7 +188,7 @@ async function odemeBildirimi(
     baslik: `${isim} ${paraBicimi.format(tutar)} ödedi`,
     ozet: "Faturayı kesmeyi unutma.",
     satirlar,
-    yol: "/admin/odemeler",
+    yol: "/kontrol-9f4x2k/odemeler",
     eylemEtiketi: "Ödemeleri aç",
   });
 }

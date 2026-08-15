@@ -42,12 +42,12 @@ export async function talepAc(baslik: string, ilkMesaj: string, courseId?: strin
     baslik: baslik.trim(),
     ozet: `${isim} yeni bir talep açtı.`,
     alinti: ilkMesaj.trim(),
-    yol: "/admin/destek",
+    yol: "/kontrol-9f4x2k/destek",
     eylemEtiketi: "Talebi panelde aç",
   });
 
   revalidatePath("/panel/soru-cevap");
-  revalidatePath("/admin/destek");
+  revalidatePath("/kontrol-9f4x2k/destek");
   return {};
 }
 
@@ -94,13 +94,13 @@ export async function mesajGonder(ticketId: string, metin: string) {
       baslik: talep?.baslik ?? "Destek talebi",
       ozet: `${isim} talebe yeni bir mesaj yazdı.`,
       alinti: metin.trim(),
-      yol: "/admin/destek",
+      yol: "/kontrol-9f4x2k/destek",
       eylemEtiketi: "Yazışmayı aç",
     });
   }
 
   revalidatePath("/panel/soru-cevap");
-  revalidatePath("/admin/destek");
+  revalidatePath("/kontrol-9f4x2k/destek");
   return {};
 }
 
@@ -113,6 +113,6 @@ export async function talepDurumDegistir(ticketId: string, durum: "acik" | "yani
   if (error) return { error: error.message };
 
   revalidatePath("/panel/soru-cevap");
-  revalidatePath("/admin/destek");
+  revalidatePath("/kontrol-9f4x2k/destek");
   return {};
 }

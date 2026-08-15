@@ -209,7 +209,7 @@ export async function havaleBildir(paymentId: string): Promise<{ tamam?: true; h
       { etiket: "E-posta", deger: user.email ?? "—" },
       { etiket: "Telefon", deger: profil?.telefon ?? "—" },
     ],
-    yol: "/admin/odemeler",
+    yol: "/kontrol-9f4x2k/odemeler",
     eylemEtiketi: "Ödemeleri aç",
   });
 

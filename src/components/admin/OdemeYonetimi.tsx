@@ -7,7 +7,7 @@ import {
   odemeDurumDegistir,
   odemeSil,
   odemeOnlineDegistir,
-} from "@/app/admin/(protected)/odemeler/actions";
+} from "@/app/kontrol-9f4x2k/(protected)/odemeler/actions";
 import { durumStil } from "@/lib/admin/shared";
 import { para, odemeDurumEtiket, tarihBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";

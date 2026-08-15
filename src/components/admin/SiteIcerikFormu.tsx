@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { siteIcerikKaydet } from "@/app/admin/(protected)/site-icerik/actions";
+import { siteIcerikKaydet } from "@/app/kontrol-9f4x2k/(protected)/site-icerik/actions";
 import { useBildirim } from "@/components/Bildirim";
 import type { SiteIcerik, DuyuruStili } from "@/lib/site-icerik";
 

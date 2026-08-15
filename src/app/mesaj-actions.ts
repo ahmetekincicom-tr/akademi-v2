@@ -67,12 +67,12 @@ export async function mesajGonder(input: MesajInput): Promise<{ error?: string }
       ...(input.courseSlug ? [{ etiket: "Eğitim", deger: input.courseSlug }] : []),
     ],
     alinti: mesaj,
-    yol: "/admin/mesajlar",
+    yol: "/kontrol-9f4x2k/mesajlar",
     eylemEtiketi: "Mesajı panelde aç",
   });
 
-  revalidatePath("/admin/mesajlar");
-  revalidatePath("/admin");
+  revalidatePath("/kontrol-9f4x2k/mesajlar");
+  revalidatePath("/kontrol-9f4x2k");
   return {};
 }
 
@@ -80,8 +80,8 @@ export async function mesajOkunduIsaretle(id: string, okundu: boolean) {
   const supabase = await createClient();
   const { error } = await supabase.from("iletisim_mesajlari").update({ okundu }).eq("id", id);
   if (error) return { error: error.message };
-  revalidatePath("/admin/mesajlar");
-  revalidatePath("/admin");
+  revalidatePath("/kontrol-9f4x2k/mesajlar");
+  revalidatePath("/kontrol-9f4x2k");
   return {};
 }
 
@@ -89,7 +89,7 @@ export async function mesajSil(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("iletisim_mesajlari").delete().eq("id", id);
   if (error) return { error: error.message };
-  revalidatePath("/admin/mesajlar");
-  revalidatePath("/admin");
+  revalidatePath("/kontrol-9f4x2k/mesajlar");
+  revalidatePath("/kontrol-9f4x2k");
   return {};
 }

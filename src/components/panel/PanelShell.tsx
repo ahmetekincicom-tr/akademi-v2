@@ -260,7 +260,7 @@ export function PanelShell({
         <div className="mt-auto px-[18px] pt-4 pb-[calc(22px+env(safe-area-inset-bottom))]">
           {profil.admin && (
             <Link
-              href="/admin"
+              href="/kontrol-9f4x2k"
               className="mb-4 flex h-10 items-center justify-center gap-2 rounded-[10px] border border-brand/45 bg-brand/12 text-[13.5px] font-semibold text-[#A9C0FF] transition hover:bg-brand hover:text-white"
             >
               <Icon name="shield" size={15} />
