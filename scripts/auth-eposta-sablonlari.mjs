@@ -87,6 +87,42 @@ const sablonlar = {
       eylem: { etiket: "Şifremi belirle", adres: BAGLANTI },
     },
   },
+  "sihirli-baglanti": {
+    baslik: "Magic Link / OTP",
+    icerik: {
+      ustEtiket: "Giriş bağlantısı",
+      baslik: "Tek kullanımlık giriş",
+      ozet:
+        "Şifre girmeden giriş yapmak için aşağıdaki düğmeyi kullan. Bağlantı bir kez çalışıyor " +
+        "ve kısa süre sonra geçersiz oluyor.",
+      eylem: { etiket: "Giriş yap", adres: BAGLANTI },
+      // Bağlantı bazı posta istemcilerinde tıklanamıyor (kurumsal filtreler
+      // düğmeleri sıyırıyor); kod ikinci yol olarak duruyor.
+      kod: "{{ .Token }}",
+      alinti: "Düğme çalışmazsa giriş ekranındaki kod alanına yukarıdaki kodu yazabilirsin.",
+    },
+  },
+  "yeniden-dogrulama": {
+    baslik: "Reauthentication",
+    icerik: {
+      ustEtiket: "Kimlik doğrulama",
+      baslik: "İşlemi onayla",
+      ozet: "Hassas bir işlem için kimliğini doğrulaman gerekiyor. Aşağıdaki kodu ekrana gir.",
+      kod: "{{ .Token }}",
+      alinti: "Böyle bir işlem başlatmadıysan bu maili yok say ve şifreni değiştir.",
+    },
+  },
+  "sifre-degisti": {
+    baslik: "Password changed (Güvenlik)",
+    icerik: {
+      ustEtiket: "Güvenlik",
+      baslik: "Şifren değiştirildi",
+      ozet: "Hesabının şifresi az önce değiştirildi. Bu işlemi sen yaptıysan yapman gereken bir şey yok.",
+      alinti:
+        "Bu değişikliği sen yapmadıysan hemen bize yaz: iletisim@ahmetekinci.com.tr. " +
+        "Hesabına erişimi durdurup şifreni birlikte sıfırlarız.",
+    },
+  },
   "eposta-degisikligi": {
     baslik: "Change email address",
     icerik: {

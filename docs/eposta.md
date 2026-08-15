@@ -40,6 +40,19 @@ karşılığı:
 | `sifre-sifirlama.html` | Reset password |
 | `davet.html` | Invite user |
 | `eposta-degisikligi.html` | Change email address |
+| `sihirli-baglanti.html` | Magic Link / OTP (Sihirli bağlantı veya OTP) |
+| `yeniden-dogrulama.html` | Reauthentication (Yeniden kimlik doğrulama) |
+| `sifre-degisti.html` | Password changed (Güvenlik → Şifre değiştirildi) |
+
+`sihirli-baglanti` ve `yeniden-dogrulama` `{{ .Token }}` kullanıyor —
+bağlantı değil, ekrana girilecek kod. Kod metin olarak basılıyor, görsel
+olarak değil: e-postada görsel engellenebiliyor ve kodu kopyalayamayan kişi
+giriş yapamaz.
+
+`sifre-degisti` şablonunun karşılığı olan bildirim Supabase'de **varsayılan
+olarak kapalı**. Şablonu yapıştırmak yetmiyor, "Şifre değiştirildi" anahtarını
+da açmak gerekiyor. Açılması önerilir: şifresi izinsiz değiştirilen kişinin
+durumu fark etmesinin tek yolu bu mail.
 
 Kurulum: dosyayı bir metin düzenleyicide aç, tamamını kopyala, Supabase'deki
 ilgili şablonun **Message body** alanına yapıştır, kaydet. Konu satırlarını da

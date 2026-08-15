@@ -33,6 +33,8 @@ export type BildirimIcerigi = {
   /** Kullanıcının yazdığı serbest metin; alıntı bloğunda gösteriliyor. */
   alinti?: string;
   eylem?: { etiket: string; adres: string };
+  /** Tek kullanımlık doğrulama kodu; büyük ve seçilebilir biçimde basılıyor. */
+  kod?: string;
   /**
    * Başlık şeridindeki ad. Yönetici bildirimleri "Akademi Yönetim" geçiyor;
    * öğrenciye giden mailler (auth, hoş geldin) varsayılanı kullanıyor —
@@ -61,6 +63,7 @@ function metin(i: BildirimIcerigi): string {
     parcalar.push("");
     for (const s of i.satirlar) parcalar.push(`${s.etiket}: ${s.deger}`);
   }
+  if (i.kod) parcalar.push("", `Kod: ${i.kod}`);
   if (i.alinti) parcalar.push("", "---", i.alinti, "---");
   if (i.eylem) parcalar.push("", `${i.eylem.etiket}: ${i.eylem.adres}`);
   return parcalar.join("\n");
@@ -95,6 +98,17 @@ function html(i: BildirimIcerigi): string {
   if (i.satirlar?.length) {
     govde.push(
       `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;border-collapse:collapse">${satirlarHtml(i.satirlar)}</table>`,
+    );
+  }
+
+  if (i.kod) {
+    /*
+      Kod metin olarak basılıyor, görsel olarak değil: e-postada görsel
+      engellenebiliyor ve kodu kopyalayamayan kişi giriş yapamaz. Harf aralığı
+      da bu yüzden karakter karakter okunacak kadar açık.
+    */
+    govde.push(
+      `<div style="margin-top:22px;padding:18px;background:${PAPER};border:1px solid ${KENAR};border-radius:12px;text-align:center;font:700 28px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.22em;color:${INK}">${kacir(i.kod)}</div>`,
     );
   }
 
