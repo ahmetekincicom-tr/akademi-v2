@@ -11,6 +11,18 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * olduğu gibi saran uygulamaları reddediyor. Geçmek için push bildirim gibi
  * gerçek native işlevler şart — plugin'ler o yüzden burada.
  */
+/**
+ * Uygulamanın yükleyeceği alan adı — tek yerde.
+ *
+ * Canlı alan adı olmalı, dağıtım adresi (*.vercel.app) değil. Sebebi kozmetik
+ * değil: oturum çerezi hangi alan adında verildiyse orada geçerli ve
+ * doğrulama/şifre sıfırlama e-postalarındaki bağlantılar NEXT_PUBLIC_SITE_URL
+ * üzerinden canlı alan adına çıkıyor. Uygulama başka bir alan adında dururken
+ * o bağlantılardan biri açıldığında kullanıcı izin verilmeyen bir adrese
+ * gidiyor ve oturumu kopuyor.
+ */
+const ALAN_ADI = "panel.ahmetekinciakademi.com";
+
 const config: CapacitorConfig = {
   appId: "com.ahmetekinci.akademi",
   appName: "AE Akademi",
@@ -19,13 +31,13 @@ const config: CapacitorConfig = {
   webDir: "public",
 
   server: {
-    url: "https://akademi-v2.vercel.app/panel",
+    url: `https://${ALAN_ADI}/panel`,
     // Sadece https; karışık içerik uygulamada sessizce bloklanır.
     androidScheme: "https",
     iosScheme: "https",
     // Panel dışına çıkan bağlantılar (yasal metinler, çıkış) uygulama içinde
     // açılsın; sistem tarayıcısına atmak oturumu koparıyor.
-    allowNavigation: ["akademi-v2.vercel.app"],
+    allowNavigation: [ALAN_ADI],
   },
 
   // Uygulamadan gelen istekler sunucuda tanınsın diye tarayıcı kimliğine bir

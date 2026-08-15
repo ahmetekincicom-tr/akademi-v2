@@ -11,7 +11,7 @@ sunucuda render ediliyor; oturum, yetki ve ödeme durumu istek anında çözül�
 Statik dışa aktarım mümkün değil, olsaydı bile kişiye özel veriyi paketin içine
 gömmek yanlış olurdu.
 
-Pratikte: uygulama açılınca `akademi-v2.vercel.app/panel` yükleniyor, adres
+Pratikte: uygulama açılınca `panel.ahmetekinciakademi.com/panel` yükleniyor, adres
 çubuğu olmadan, kendi ikonuyla. Siteye deploy ettiğin her değişiklik uygulamaya
 anında yansıyor — yeni sürüm yayınlaman gerekmiyor.
 
@@ -157,7 +157,7 @@ Vercel'e `GOREV_ANAHTARI` olarak ekle, sonra Supabase SQL Editor'de:
 select cron.unschedule('egitim-hatirlatma');
 select cron.schedule('egitim-hatirlatma', '*/5 * * * *', $$
   select net.http_post(
-    url := 'https://akademi-v2.vercel.app/api/gorevler/egitim-hatirlatma',
+    url := 'https://panel.ahmetekinciakademi.com/api/gorevler/egitim-hatirlatma',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
       'x-gorev-anahtari', 'BURAYA_ANAHTAR'
