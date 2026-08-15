@@ -11,10 +11,20 @@ export const metadata: Metadata = sayfaMeta({
   indeksleme: false,
 });
 
-export default function SifremiUnuttumPage() {
+export default async function SifremiUnuttumPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ hata?: string }>;
+}) {
+  const { hata } = await searchParams;
+
   return (
     <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
-      <SifremiUnuttumFormu />
+      {/* Süresi dolmuş ya da kullanılmış bağlantıyla gelenler buraya düşüyor;
+          hiçbir açıklama olmadan boş forma bakmak kafa karıştırıyordu. */}
+      <SifremiUnuttumFormu
+        uyari={hata === "baglanti" ? "Bağlantının süresi dolmuş ya da daha önce kullanılmış. Yenisini gönderelim." : undefined}
+      />
     </AuthShell>
   );
 }

@@ -69,9 +69,32 @@ Aynı `bildirimSablonu()` kullanıldığı için auth mailleri ile panel bildiri
 arasında tasarım ayrışması olmuyor. Ancak **üretilen HTML Supabase'e otomatik
 gitmiyor**; şablon değişikliğinden sonra dört dosyayı tekrar yapıştırmak gerekiyor.
 
-`{{ .ConfirmationURL }}` Supabase'in kendi değişkeni ve şablondan olduğu gibi
-geçiyor: `bildirimSablonu` içindeki kaçırma yalnızca `& < > "` karakterlerini
-değiştiriyor, bu değişken hiçbirini içermiyor.
+### supabase.co adresi neden görünmüyor
+
+Şablonlar `{{ .ConfirmationURL }}` KULLANMIYOR. O değişken şuna açılıyor:
+
+```
+https://<proje>.supabase.co/auth/v1/verify?token=...&redirect_to=...
+```
+
+Yani kullanıcı önce supabase.co'ya uğrayıp oradan siteye dönüyor ve adres
+çubuğunda bir an başka bir alan adı görüyor. Şifre sıfırlarken bu güven kırıyor.
+
+Onun yerine bağlantı doğrudan bizim adresimize gidiyor:
+
+```
+{{ .SiteURL }}/auth/onayla?token_hash={{ .TokenHash }}&type=recovery&next=/sifre-belirle
+```
+
+Doğrulamayı `src/app/auth/onayla/route.ts` yapıyor (`verifyOtp`). Kullanıcı
+yalnızca panelin alan adını görüyor. Supabase'in ücretli özel alan adı
+eklentisine gerek kalmıyor.
+
+Çalışması için Supabase → Authentication → **URL Configuration → Site URL**
+panelin adresine ayarlı olmalı; `{{ .SiteURL }}` oradan geliyor.
+
+`/auth/callback` (kod akışı) yerinde duruyor: şablonlar güncellenmemiş olsa
+bile eski bağlantılar çalışmaya devam ediyor.
 
 ## Hoş geldin maili
 
@@ -83,9 +106,14 @@ Kayıt anında değil, çünkü:
   o anda "hoş geldin" demek erken.
 - İçe aktarılan ~400 öğrenci kayıt akışından hiç geçmiyor.
 
-İlk giriş ikisini birden yakalayan tek an. İki yerden tetikleniyor —
-`oturumKaydet()` (normal giriş) ve `/auth/callback` (doğrulama bağlantısıyla
-gelen kişi giriş formundan geçmiyor).
+İlk giriş ikisini birden yakalayan tek an. Üç yerden tetikleniyor —
+`oturumKaydet()` (normal giriş), `/auth/callback` ve `/auth/onayla` (doğrulama
+bağlantısıyla gelen kişi giriş formundan geçmiyor).
+
+**Şifre sıfırlamada gönderilmiyor.** O akış da aynı adreslerden geçiyor ama
+şifresini sıfırlayan kişinin hesabı zaten var; sıfırlama mailinin hemen
+ardından gelen bir "hoş geldin" alakasız duruyor. `/auth/onayla` türe
+(`recovery`), `/auth/callback` hedef yola (`/sifre-belirle`) bakıp atlıyor.
 
 ### Damga neden mailden önce atılıyor
 

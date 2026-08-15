@@ -14,9 +14,12 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
       // Doğrulama bağlantısıyla gelen kişi giriş formundan geçmiyor, dolayısıyla
-      // oturumKaydet() de çalışmıyor. Hoş geldin maili burada da tetikleniyor;
-      // ikinci kez göndermesini damga engelliyor.
-      await hosgeldinGonder();
+      // oturumKaydet() de çalışmıyor. Hoş geldin maili burada tetikleniyor.
+      //
+      // ŞİFRE SIFIRLAMADA DEĞİL: o akış da buradan geçiyor ama şifresini
+      // sıfırlayan kişiye "hoş geldin" demek yanlış — hesabı zaten var ve
+      // maili bekleyen bir şeyle ilgisi yok.
+      if (!next.startsWith("/sifre-belirle")) await hosgeldinGonder();
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

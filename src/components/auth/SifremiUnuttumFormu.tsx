@@ -6,20 +6,36 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { SadeceWeb, SadeceUygulama } from "@/components/panel/SadeceWeb";
 
-export function SifremiUnuttumFormu() {
+export function SifremiUnuttumFormu({ uyari }: { uyari?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
+  const [hata, setHata] = useState<string | null>(uyari ?? null);
 
   const handleSubmit = async () => {
     if (!email) return;
     setYukleniyor(true);
     const supabase = createClient();
-    await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/callback?next=/sifre-belirle`,
     });
     setYukleniyor(false);
-    router.push("/sifremi-unuttum/kontrol");
+
+    /*
+      Adresin kayıtlı olup olmadığı BİLEREK belli edilmiyor: hata da olsa aynı
+      ekrana gidiliyor. Aksi halde bu form, hangi e-postaların sisteme kayıtlı
+      olduğunu sorgulamak için kullanılabilirdi.
+
+      Ama hız sınırı gibi gerçek hatalar da sessizce yutuluyordu; onlar artık
+      ekranda görünüyor — kullanıcı beklediği maili boşuna beklemesin.
+      Supabase bu iki durumu farklı kodlarla bildiriyor.
+    */
+    if (error?.status === 429) {
+      setHata("Çok sık denedin. Bir dakika bekleyip tekrar dene.");
+      return;
+    }
+
+    router.push(`/sifremi-unuttum/kontrol?email=${encodeURIComponent(email)}`);
   };
 
   return (
@@ -45,6 +61,14 @@ export function SifremiUnuttumFormu() {
             className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
           />
         </label>
+        {hata && (
+          <div className="mt-4 flex items-start gap-[11px] rounded-[11px] border border-danger/35 bg-danger/7 px-[15px] py-[13px]">
+            <span className="flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-danger text-[11px] font-bold text-white">
+              !
+            </span>
+            <span className="text-sm leading-[1.5] text-danger-ink">{hata}</span>
+          </div>
+        )}
         <button
           type="button"
           onClick={handleSubmit}

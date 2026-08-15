@@ -10,8 +10,7 @@ export default function SifreBelirleTamamPage() {
         </span>
         <h1 className="mt-6 font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">Hazırsın</h1>
         <p className="mt-3 text-[15.5px] leading-[1.65] text-[#5C6273]">
-          Şifren güncellendi. Panelde kaldığın yerden devam edebilirsin: Modül 5 · Teklif stratejileri ve bütçe
-          dağıtımı.
+          Şifren güncellendi. Panelde kaldığın yerden devam edebilirsin.
         </p>
         <Link
           href="/panel"

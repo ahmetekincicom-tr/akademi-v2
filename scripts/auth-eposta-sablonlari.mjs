@@ -47,7 +47,19 @@ const { bildirimSablonu } = await import(`../${GECICI}/eposta-sablon.js`);
   bildirimSablonu içindeki kaçırma yalnızca & < > " karakterlerini değiştiriyor;
   {{ .ConfirmationURL }} bunların hiçbirini içermediği için bozulmadan çıkıyor.
 */
-const BAGLANTI = "{{ .ConfirmationURL }}";
+/*
+  Bağlantı {{ .ConfirmationURL }} DEĞİL.
+
+  Varsayılan değişken kullanıcıyı önce supabase.co'ya götürüp oradan siteye
+  döndürüyor; adres çubuğunda bir an başka bir alan adı görünüyor ve şifre
+  sıfırlarken bu güven kırıyor. Bunun yerine token_hash'i kendi adresimize
+  taşıyoruz, doğrulamayı /auth/onayla yapıyor.
+
+  {{ .SiteURL }} Supabase panelindeki URL Configuration → Site URL değeri;
+  panelin adresine ayarlı olmalı.
+*/
+const onayAdresi = (tur, next) =>
+  `{{ .SiteURL }}/auth/onayla?token_hash={{ .TokenHash }}&type=${tur}&next=${next}`;
 
 const sablonlar = {
   "hesap-dogrulama": {
@@ -58,7 +70,7 @@ const sablonlar = {
       ozet:
         "Ahmet Ekinci Akademi üye alanı için hesap oluşturdun. Aşağıdaki düğmeye basınca hesabın " +
         "açılıyor ve panele girebiliyorsun.",
-      eylem: { etiket: "Hesabımı doğrula", adres: BAGLANTI },
+      eylem: { etiket: "Hesabımı doğrula", adres: onayAdresi("signup", "/panel") },
       alinti: "Bu hesabı sen oluşturmadıysan bu maili yok sayabilirsin; hiçbir işlem yapılmaz.",
     },
   },
@@ -70,7 +82,7 @@ const sablonlar = {
       ozet:
         "Şifreni sıfırlama isteği aldık. Aşağıdaki düğmeye basıp yeni şifreni belirleyebilirsin. " +
         "Bağlantı kısa süre sonra geçersiz oluyor.",
-      eylem: { etiket: "Yeni şifre belirle", adres: BAGLANTI },
+      eylem: { etiket: "Yeni şifre belirle", adres: onayAdresi("recovery", "/sifre-belirle") },
       alinti:
         "Bu isteği sen yapmadıysan bu maili yok say — şifren değişmez. " +
         "Hesabına başkasının erişmeye çalıştığını düşünüyorsan bize yaz.",
@@ -84,7 +96,7 @@ const sablonlar = {
       ozet:
         "Ahmet Ekinci Akademi üye alanında senin için bir hesap açıldı. Eğitim içeriklerin, " +
         "ders kayıtların ve dokümanların burada toplanıyor. Başlamak için şifreni belirle.",
-      eylem: { etiket: "Şifremi belirle", adres: BAGLANTI },
+      eylem: { etiket: "Şifremi belirle", adres: onayAdresi("invite", "/sifre-belirle") },
     },
   },
   "sihirli-baglanti": {
@@ -95,7 +107,7 @@ const sablonlar = {
       ozet:
         "Şifre girmeden giriş yapmak için aşağıdaki düğmeyi kullan. Bağlantı bir kez çalışıyor " +
         "ve kısa süre sonra geçersiz oluyor.",
-      eylem: { etiket: "Giriş yap", adres: BAGLANTI },
+      eylem: { etiket: "Giriş yap", adres: onayAdresi("magiclink", "/panel") },
       // Bağlantı bazı posta istemcilerinde tıklanamıyor (kurumsal filtreler
       // düğmeleri sıyırıyor); kod ikinci yol olarak duruyor.
       kod: "{{ .Token }}",
@@ -131,7 +143,7 @@ const sablonlar = {
       ozet:
         "Hesabının e-posta adresini değiştirme isteği aldık. Değişikliğin tamamlanması için " +
         "yeni adresini doğrulaman gerekiyor.",
-      eylem: { etiket: "Yeni adresimi doğrula", adres: BAGLANTI },
+      eylem: { etiket: "Yeni adresimi doğrula", adres: onayAdresi("email_change", "/panel/hesabim") },
       alinti: "Bu isteği sen yapmadıysan bu maili yok say; adresin değişmez.",
     },
   },
