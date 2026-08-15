@@ -7,11 +7,12 @@ import { SectionKicker } from "@/components/site/SectionKicker";
 import { KayanSerit } from "@/components/site/KayanSerit";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { Icon } from "@/components/Icon";
-import { getSiteIcerik } from "@/lib/site-icerik";
+import { getHakkimizda, paragraflar } from "@/lib/hakkimizda";
+import { kapakUrl } from "@/lib/kapak";
 import { getReferanslar } from "@/lib/icerik";
 import { sayfaMeta } from "@/lib/seo";
 
-// Eğitmen biyografisi ve referanslar panelden yönetiliyor.
+// Sayfa metinleri ve fotoğrafı /admin/hakkimizda'dan yönetiliyor.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = sayfaMeta({
@@ -64,14 +65,12 @@ const CALISMA = [
 ];
 
 export default async function HakkimizdaPage() {
-  const [icerik, referanslar] = await Promise.all([getSiteIcerik(), getReferanslar()]);
+  const [icerik, referanslar] = await Promise.all([getHakkimizda(), getReferanslar()]);
 
-  // Biyografi panelden geliyor; paragraflara bölünüyor ki tek blok halinde
-  // okunmasın. Boşsa bölüm metinsiz kalmasın diye varsayılan metin var.
-  const biyografi = (icerik.egitmenBiyografi || VARSAYILAN_BIYOGRAFI)
-    .split(/\n{2,}|\n/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+  // Uzun metin panelden geliyor; paragraflara bölünüyor ki tek blok halinde
+  // okunmasın.
+  const metin = paragraflar(icerik.kisiMetin);
+  const fotograf = kapakUrl(icerik.kisiGorsel);
 
   return (
     <div className="bg-white">
@@ -88,36 +87,45 @@ export default async function HakkimizdaPage() {
         />
         <div className="absolute -top-52 left-1/2 h-[560px] w-[560px] -translate-x-1/2 rounded-full bg-brand opacity-20 blur-[130px]" />
         <div className="relative mx-auto max-w-[820px] px-5 pt-24 pb-24 text-center sm:px-8">
-          <div className="flex justify-center">
-            <SectionKicker tone="light">Hakkımızda</SectionKicker>
-          </div>
+          {icerik.heroEtiket && (
+            <div className="flex justify-center">
+              <SectionKicker tone="light">{icerik.heroEtiket}</SectionKicker>
+            </div>
+          )}
           <h1 className="mt-[20px] font-heading text-[38px] leading-[1.06] font-semibold tracking-[-0.04em] sm:text-[54px]">
-            Kurs satmıyoruz.
-            <br />
-            <span className="text-brand">Birlikte çalışıyoruz.</span>
+            {icerik.heroBaslik}
+            {icerik.heroVurgu && (
+              <>
+                <br />
+                <span className="text-brand">{icerik.heroVurgu}</span>
+              </>
+            )}
           </h1>
-          <p className="mx-auto mt-7 max-w-[620px] text-[17.5px] leading-[1.62] text-white/68">
-            Ahmet Ekinci Akademi, yeni medya temelleri üzerine kurulmuş bir eğitim programı. Kayıtlı kurs değil:
-            gerçek zamanlı, tek katılımcıya göre kurulan müfredat.
-          </p>
+          {icerik.heroMetin && (
+            <p className="mx-auto mt-7 max-w-[620px] text-[17.5px] leading-[1.62] text-white/68">
+              {icerik.heroMetin}
+            </p>
+          )}
         </div>
       </section>
 
       <KayanSerit kelimeler={SERIT_UST} tema="koyu" />
 
-      {/* Ahmet Ekinci kimdir */}
+      {/* Kimdir */}
       <section className="mx-auto max-w-[1240px] px-5 py-24 sm:px-8">
-        <div className="grid grid-cols-1 gap-14 lg:grid-cols-[1fr_0.92fr] lg:items-start lg:gap-20">
+        <div className="grid grid-cols-1 gap-14 lg:grid-cols-[1fr_0.78fr] lg:items-start lg:gap-20">
           <div>
-            <SectionKicker>Eğitmen</SectionKicker>
+            {icerik.kisiEtiket && <SectionKicker>{icerik.kisiEtiket}</SectionKicker>}
             <h2 className="mt-[18px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[42px]">
-              {icerik.egitmenAd} kimdir?
+              {icerik.kisiBaslik}
             </h2>
-            <div className="mt-3 font-mono text-[11.5px] tracking-[0.1em] text-brand uppercase">
-              {icerik.egitmenUnvan}
-            </div>
+            {icerik.kisiUnvan && (
+              <div className="mt-3 font-mono text-[11.5px] tracking-[0.1em] text-brand uppercase">
+                {icerik.kisiUnvan}
+              </div>
+            )}
             <div className="mt-7 flex flex-col gap-[18px]">
-              {biyografi.map((p, i) => (
+              {metin.map((p, i) => (
                 <p key={i} className="text-[16.5px] leading-[1.72] text-[#3A3F4F]">
                   {p}
                 </p>
@@ -133,14 +141,27 @@ export default async function HakkimizdaPage() {
           </div>
 
           {/*
-            Kolaj: dört kutu, ikisi uzun ikisi kısa. Eşit dört kareye göre daha
-            canlı duruyor ve gerçek fotoğraflar geldiğinde oranlar hazır.
+            Tek fotoğraf. Metin uzadıkça sütunlardan biri diğerinden çok uzun
+            kalıyor; sticky sayesinde fotoğraf okuma boyunca ekranda duruyor.
           */}
-          <div className="grid grid-cols-2 gap-4">
-            <Kutu oran="aspect-[3/4]" etiket="portre" />
-            <Kutu oran="aspect-square" etiket="eğitim / sahne" ust />
-            <Kutu oran="aspect-square" etiket="ödül töreni" />
-            <Kutu oran="aspect-[3/4]" etiket="ders anı" />
+          <div className="lg:sticky lg:top-24">
+            <div className="relative aspect-[3/4] overflow-hidden rounded-[18px]">
+              {fotograf ? (
+                /* eslint-disable-next-line @next/next/no-img-element -- Supabase
+                   Storage konağı next/image remotePatterns'a eklenmeli. */
+                <img
+                  src={fotograf}
+                  alt={icerik.kisiBaslik}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <div className="placeholder-block absolute inset-0 flex items-end p-3">
+                  <span className="rounded-[6px] bg-white/90 px-[8px] py-[4px] font-mono text-[9.5px] text-[#656B7A]">
+                    fotoğraf
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -152,15 +173,15 @@ export default async function HakkimizdaPage() {
       <section className="border-b border-ink/8 bg-mist">
         <div className="mx-auto max-w-[1240px] px-5 py-24 sm:px-8">
           <div className="max-w-[720px]">
-            <SectionKicker>Akademi</SectionKicker>
+            {icerik.akademiEtiket && <SectionKicker>{icerik.akademiEtiket}</SectionKicker>}
             <h2 className="mt-[18px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[42px]">
-              Ahmet Ekinci Akademi
+              {icerik.akademiBaslik}
             </h2>
-            <p className="mt-7 text-[16.5px] leading-[1.72] text-[#3A3F4F]">
-              Akademi <strong className="font-semibold text-ink">&ldquo;işi uzmanından öğren&rdquo;</strong> mottosuyla
-              hareket ediyor. Her katılımcının başlangıç noktası, işi ve öğrenme hızı farklı; bu yüzden programlar
-              esnek ve kişiselleştirilebilir kuruluyor.
-            </p>
+            {paragraflar(icerik.akademiMetin).map((p, i) => (
+              <p key={i} className="mt-7 text-[16.5px] leading-[1.72] text-[#3A3F4F]">
+                {p}
+              </p>
+            ))}
           </div>
 
           {/* Numaralı akış: dört kart yan yana dizmek yerine tek sütunda
@@ -192,23 +213,3 @@ export default async function HakkimizdaPage() {
     </div>
   );
 }
-
-/** Görsel yer tutucusu. Gerçek fotoğraflar panelden yüklenene kadar. */
-function Kutu({ oran, etiket, ust }: { oran: string; etiket: string; ust?: boolean }) {
-  return (
-    <div
-      className={`placeholder-block relative flex items-end overflow-hidden rounded-[14px] p-3 ${oran} ${
-        ust ? "mt-8" : ""
-      }`}
-    >
-      <span className="rounded-[6px] bg-white/90 px-[8px] py-[4px] font-mono text-[9.5px] text-[#656B7A]">
-        {etiket}
-      </span>
-    </div>
-  );
-}
-
-const VARSAYILAN_BIYOGRAFI = `Ahmet Ekinci, Yeni Medya ve İletişim lisans mezunu. 2018'den beri dijital medya alanında çalışıyor ve markaların çözüm ortağı oluyor.
-2021'de TRT Geleceğin İletişimcileri yarışmasına kendi Instagram projesiyle "Sosyal Medya Yönetimi" kategorisinde katıldı ve üçüncülük ödülünü kazandı.
-Yine 2021'den bu yana birebir ve kişiye özel eğitimlerle yüzlerce katılımcıyla bir araya geldi.
-Şu anda Ankara'da dijital medya çalışmalarını, içerik üreticiliğini ve Ahmet Ekinci Akademi ile eğitimlerini sürdürüyor.`;
