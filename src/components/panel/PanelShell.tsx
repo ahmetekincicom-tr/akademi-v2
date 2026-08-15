@@ -9,7 +9,13 @@ import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
 
-type MenuItem = { href: string; label: string; icon: IconName };
+type MenuItem = {
+  href: string;
+  label: string;
+  icon: IconName;
+  /** Menüde ayrıca öne çıkarılan bölüm; okunmamış sayacı da burada gösteriliyor. */
+  vurgulu?: boolean;
+};
 type MenuGroup = { title: string; items: MenuItem[] };
 
 const groups: MenuGroup[] = [
@@ -17,11 +23,14 @@ const groups: MenuGroup[] = [
     title: "Öğrenme",
     items: [
       { href: "/panel", label: "Genel bakış", icon: "grid" },
+      // Gündem listenin sonundaydı ve göz oraya en son gidiyordu. Zaman
+      // duyarlı tek bölüm burası: içeriği eskiyen, "bugün ne oldu" diye
+      // bakılan yer. Genel bakışın hemen altında.
+      { href: "/panel/duyurular", label: "Gündem", icon: "bell", vurgulu: true },
       { href: "/panel/dersler", label: "Derslerim", icon: "playCircle" },
       { href: "/panel/testlerim", label: "Testlerim", icon: "check" },
       { href: "/panel/birebir-egitim", label: "Birebir eğitim", icon: "calendar" },
       { href: "/panel/dokumanlar", label: "Doküman kütüphanesi", icon: "file" },
-      { href: "/panel/duyurular", label: "Gündem", icon: "bell" },
     ],
   },
   {
@@ -66,11 +75,14 @@ export function PanelShell({
   profil,
   aktifProgram,
   programSayisi,
+  yeniDuyuru,
 }: {
   children: React.ReactNode;
   profil: PanelProfile;
   aktifProgram: { baslik: string; slug: string } | null;
   programSayisi: number;
+  /** Son günlerde yayınlanan duyuru sayısı; menüde rozet olarak çıkıyor. */
+  yeniDuyuru: number;
 }) {
   const pathname = usePathname();
   const pageTitle = pageTitles[pathname] ?? "Panel";
@@ -202,15 +214,41 @@ export function PanelShell({
                     href={m.href}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setMenuAcik(false)}
-                    className="flex items-center gap-[11px] rounded-[9px] border-l-2 px-3 py-[9px] text-sm font-medium transition hover:bg-white/[0.07] hover:text-white"
+                    className="flex items-center gap-[11px] rounded-[9px] border-l-2 px-3 py-[9px] text-sm transition hover:bg-white/[0.07] hover:text-white"
                     style={{
                       borderColor: active ? "#1C56F3" : "transparent",
-                      background: active ? "rgba(28,86,243,0.16)" : "transparent",
-                      color: active ? "#FFFFFF" : "rgba(255,255,255,0.62)",
+                      /*
+                        Vurgulu bölüm seçili değilken de hafif bir zemin ve tam
+                        beyaz metin taşıyor. Yalnızca kalın yazıyla ayırmak
+                        yetmiyordu: koyu menüde ağırlık farkı zor seçiliyor,
+                        ayıran şey zemin ve metin parlaklığı.
+                      */
+                      background: active
+                        ? "rgba(28,86,243,0.16)"
+                        : m.vurgulu
+                          ? "rgba(255,255,255,0.06)"
+                          : "transparent",
+                      color: active || m.vurgulu ? "#FFFFFF" : "rgba(255,255,255,0.62)",
+                      fontWeight: m.vurgulu ? 600 : 500,
                     }}
                   >
-                    <Icon name={m.icon} size={17} className="flex-none opacity-80" />
+                    <span
+                      className="flex flex-none"
+                      style={{
+                        opacity: m.vurgulu ? 1 : 0.8,
+                        color: m.vurgulu && !active ? "#A9C0FF" : undefined,
+                      }}
+                    >
+                      <Icon name={m.icon} size={17} />
+                    </span>
                     <span className="flex-1 truncate">{m.label}</span>
+                    {/* Sayı yalnızca yeni duyuru varken çıkıyor; sıfır rozeti
+                        her gün duran bir gürültüye dönüşüyor. */}
+                    {m.vurgulu && yeniDuyuru > 0 && (
+                      <span className="flex-none rounded-full bg-brand px-[7px] py-[2px] font-mono text-[9.5px] font-semibold text-white">
+                        {yeniDuyuru}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
