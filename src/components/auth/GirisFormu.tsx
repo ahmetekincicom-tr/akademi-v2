@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { PasswordField } from "@/components/auth/PasswordField";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
 import { oturumKaydet } from "@/app/oturum-actions";
@@ -16,7 +17,6 @@ import { SadeceWeb } from "@/components/panel/SadeceWeb";
 export function GirisFormu({ hedef }: { hedef: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [visible, setVisible] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [yukleniyor, setYukleniyor] = useState(false);
 
@@ -80,25 +80,7 @@ export function GirisFormu({ hedef }: { hedef: string }) {
               className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
             />
           </label>
-          <label className="flex flex-col gap-2">
-            <span className="flex items-center justify-between">
-              <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Şifre</span>
-              <button
-                type="button"
-                onClick={() => setVisible((v) => !v)}
-                className="font-mono text-[10.5px] tracking-[0.06em] text-brand"
-              >
-                {visible ? "gizle" : "göster"}
-              </button>
-            </span>
-            <input
-              type={visible ? "text" : "password"}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
-            />
-          </label>
+          <PasswordField label="Şifre" placeholder="••••••••" value={password} onChange={setPassword} />
         </div>
 
         {/* "Beni hatırla" kutusu kaldırıldı: durumu hiçbir yerde okunmuyordu,

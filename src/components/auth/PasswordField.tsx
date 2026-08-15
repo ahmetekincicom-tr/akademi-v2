@@ -1,16 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { Icon } from "@/components/Icon";
 
-function strengthOf(password: string) {
+/**
+ * Güç göstergesi yalnızca renk ve doluluk.
+ *
+ * Yanında "zayıf / orta / güçlü" yazıyordu; şifre yazarken göz oraya kayıyor ve
+ * kelime, çubuğun zaten söylediği şeyi tekrarlıyordu. Etiket kaldırıldı, sinyal
+ * rengin kendisinde kaldı — ekran okuyucular için aria-label'da duruyor.
+ */
+function gucOlc(password: string) {
   const len = password.length;
-  const level = len === 0 ? 0 : len < 6 ? 1 : len < 10 ? 2 : 3;
+  const seviye = len === 0 ? 0 : len < 6 ? 1 : len < 10 ? 2 : 3;
   return [
-    { yuzde: "0%", etiket: "—", renk: "#656B7A" },
+    { yuzde: "0%", etiket: "boş", renk: "transparent" },
     { yuzde: "33%", etiket: "zayıf", renk: "#D93C3C" },
     { yuzde: "66%", etiket: "orta", renk: "#C98A1B" },
-    { yuzde: "100%", etiket: "güçlü", renk: "#1C56F3" },
-  ][level];
+    { yuzde: "100%", etiket: "güçlü", renk: "#1C9A5F" },
+  ][seviye];
 }
 
 export function PasswordField({
@@ -27,35 +35,45 @@ export function PasswordField({
   showStrength?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
-  const strength = strengthOf(value);
+  const guc = gucOlc(value);
 
   return (
     <label className="flex flex-col gap-2">
-      <span className="flex items-center justify-between">
-        <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">{label}</span>
+      <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">{label}</span>
+
+      {/* Göz düğmesi kutunun İÇİNDE: etiket satırında dururken "göster" yazısı
+          etiketle aynı hizada iki ayrı işlev gibi okunuyordu. */}
+      <span className="relative flex">
+        <input
+          type={visible ? "text" : "password"}
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-[50px] w-full rounded-[11px] border border-ink/14 bg-white pr-[46px] pl-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+        />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="font-mono text-[10.5px] tracking-[0.06em] text-brand"
+          aria-label={visible ? "Şifreyi gizle" : "Şifreyi göster"}
+          // tabIndex -1: klavyeyle şifre alanından çıkan kişi doğrudan bir
+          // sonraki alana geçsin, arada göz düğmesine takılmasın.
+          tabIndex={-1}
+          className="absolute top-0 right-0 flex h-[50px] w-[44px] items-center justify-center text-[#8A90A0] transition-colors hover:text-ink"
         >
-          {visible ? "gizle" : "göster"}
+          <Icon name={visible ? "eyeOff" : "eye"} size={18} />
         </button>
       </span>
-      <input
-        type={visible ? "text" : "password"}
-        placeholder={placeholder}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
-      />
+
       {showStrength && (
-        <span className="mt-0.5 flex items-center gap-2">
-          <span className="h-1 flex-1 overflow-hidden rounded-full bg-ink/8">
-            <span className="block h-full rounded-full transition-all" style={{ background: strength.renk, width: strength.yuzde }} />
-          </span>
-          <span className="w-[78px] text-right font-mono text-[10px]" style={{ color: strength.renk }}>
-            {strength.etiket}
-          </span>
+        <span
+          className="mt-0.5 block h-[5px] overflow-hidden rounded-full bg-ink/8"
+          role="progressbar"
+          aria-label={`Şifre gücü: ${guc.etiket}`}
+        >
+          <span
+            className="block h-full rounded-full transition-all duration-300"
+            style={{ background: guc.renk, width: guc.yuzde }}
+          />
         </span>
       )}
     </label>

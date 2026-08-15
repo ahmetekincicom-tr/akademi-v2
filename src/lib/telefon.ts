@@ -7,47 +7,49 @@
  * numarayı zaten ancak SMS göndererek anlarız.
  */
 
-export type Ulke = { kod: string; ad: string; bayrak: string };
+// Bayrak yok: emoji bayraklar platforma göre değişiyor (Windows bayrak yerine
+// "TR" harflerini basıyor) ve seçici zaten ülke adını yazıyor.
+export type Ulke = { kod: string; ad: string };
 
 /**
  * Türkiye başta, sonra katılımcıların geldiği yerler ve yaygın ülkeler.
  * Liste bilerek kısa: 200 ülkelik açılır menüde kimse kendi ülkesini bulamıyor.
  */
 export const ULKELER: Ulke[] = [
-  { kod: "+90", ad: "Türkiye", bayrak: "🇹🇷" },
-  { kod: "+49", ad: "Almanya", bayrak: "🇩🇪" },
-  { kod: "+31", ad: "Hollanda", bayrak: "🇳🇱" },
-  { kod: "+32", ad: "Belçika", bayrak: "🇧🇪" },
-  { kod: "+43", ad: "Avusturya", bayrak: "🇦🇹" },
-  { kod: "+41", ad: "İsviçre", bayrak: "🇨🇭" },
-  { kod: "+44", ad: "Birleşik Krallık", bayrak: "🇬🇧" },
-  { kod: "+33", ad: "Fransa", bayrak: "🇫🇷" },
-  { kod: "+39", ad: "İtalya", bayrak: "🇮🇹" },
-  { kod: "+34", ad: "İspanya", bayrak: "🇪🇸" },
-  { kod: "+46", ad: "İsveç", bayrak: "🇸🇪" },
-  { kod: "+47", ad: "Norveç", bayrak: "🇳🇴" },
-  { kod: "+45", ad: "Danimarka", bayrak: "🇩🇰" },
-  { kod: "+1", ad: "ABD / Kanada", bayrak: "🇺🇸" },
-  { kod: "+7", ad: "Rusya", bayrak: "🇷🇺" },
-  { kod: "+380", ad: "Ukrayna", bayrak: "🇺🇦" },
-  { kod: "+994", ad: "Azerbaycan", bayrak: "🇦🇿" },
-  { kod: "+996", ad: "Kırgızistan", bayrak: "🇰🇬" },
-  { kod: "+998", ad: "Özbekistan", bayrak: "🇺🇿" },
-  { kod: "+357", ad: "Kıbrıs", bayrak: "🇨🇾" },
-  { kod: "+971", ad: "BAE", bayrak: "🇦🇪" },
-  { kod: "+966", ad: "Suudi Arabistan", bayrak: "🇸🇦" },
-  { kod: "+974", ad: "Katar", bayrak: "🇶🇦" },
-  { kod: "+20", ad: "Mısır", bayrak: "🇪🇬" },
-  { kod: "+961", ad: "Lübnan", bayrak: "🇱🇧" },
-  { kod: "+962", ad: "Ürdün", bayrak: "🇯🇴" },
-  { kod: "+964", ad: "Irak", bayrak: "🇮🇶" },
-  { kod: "+98", ad: "İran", bayrak: "🇮🇷" },
-  { kod: "+91", ad: "Hindistan", bayrak: "🇮🇳" },
-  { kod: "+86", ad: "Çin", bayrak: "🇨🇳" },
-  { kod: "+81", ad: "Japonya", bayrak: "🇯🇵" },
-  { kod: "+61", ad: "Avustralya", bayrak: "🇦🇺" },
-  { kod: "+55", ad: "Brezilya", bayrak: "🇧🇷" },
-  { kod: "+27", ad: "Güney Afrika", bayrak: "🇿🇦" },
+  { kod: "+90", ad: "Türkiye" },
+  { kod: "+49", ad: "Almanya" },
+  { kod: "+31", ad: "Hollanda" },
+  { kod: "+32", ad: "Belçika" },
+  { kod: "+43", ad: "Avusturya" },
+  { kod: "+41", ad: "İsviçre" },
+  { kod: "+44", ad: "Birleşik Krallık" },
+  { kod: "+33", ad: "Fransa" },
+  { kod: "+39", ad: "İtalya" },
+  { kod: "+34", ad: "İspanya" },
+  { kod: "+46", ad: "İsveç" },
+  { kod: "+47", ad: "Norveç" },
+  { kod: "+45", ad: "Danimarka" },
+  { kod: "+1", ad: "ABD / Kanada" },
+  { kod: "+7", ad: "Rusya" },
+  { kod: "+380", ad: "Ukrayna" },
+  { kod: "+994", ad: "Azerbaycan" },
+  { kod: "+996", ad: "Kırgızistan" },
+  { kod: "+998", ad: "Özbekistan" },
+  { kod: "+357", ad: "Kıbrıs" },
+  { kod: "+971", ad: "BAE" },
+  { kod: "+966", ad: "Suudi Arabistan" },
+  { kod: "+974", ad: "Katar" },
+  { kod: "+20", ad: "Mısır" },
+  { kod: "+961", ad: "Lübnan" },
+  { kod: "+962", ad: "Ürdün" },
+  { kod: "+964", ad: "Irak" },
+  { kod: "+98", ad: "İran" },
+  { kod: "+91", ad: "Hindistan" },
+  { kod: "+86", ad: "Çin" },
+  { kod: "+81", ad: "Japonya" },
+  { kod: "+61", ad: "Avustralya" },
+  { kod: "+55", ad: "Brezilya" },
+  { kod: "+27", ad: "Güney Afrika" },
 ];
 
 export const VARSAYILAN_ULKE = "+90";

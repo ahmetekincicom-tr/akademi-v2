@@ -30,6 +30,9 @@ export type IconName =
   | "download"
   | "external"
   | "chevronRight"
+  | "chevronDown"
+  | "eye"
+  | "eyeOff"
   | "logout"
   | "upload"
   | "sparkle"
@@ -155,6 +158,23 @@ const paths: Record<IconName, React.ReactNode> = {
     </>
   ),
   chevronRight: <path d="m9.5 18 6-6-6-6" />,
+  chevronDown: <path d="m6 9.5 6 6 6-6" />,
+  eye: (
+    <>
+      <path d="M2 12s3.8-7 10-7 10 7 10 7-3.8 7-10 7-10-7-10-7z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  // Kapalı göz: aynı biçim üzerine çizgi. Ayrı bir "kapalı göz" çizimi yerine
+  // üstü çizili olması, iki durumun aynı şeyin açık/kapalı hali olduğunu
+  // anlatıyor — kullanıcı hangisinin hangisi olduğunu düşünmüyor.
+  eyeOff: (
+    <>
+      <path d="M10.6 6.2A9.9 9.9 0 0 1 12 6c6.2 0 10 6 10 6a18 18 0 0 1-3 3.6M6.5 7.8C3.7 9.4 2 12 2 12s3.8 6 10 6a10 10 0 0 0 3.9-.8" />
+      <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+      <path d="M3 3l18 18" />
+    </>
+  ),
   logout: (
     <>
       <path d="M9.5 21H5.5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
