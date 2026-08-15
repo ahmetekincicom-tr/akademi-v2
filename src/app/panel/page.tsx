@@ -74,7 +74,7 @@ export default async function PanelOverviewPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-5 xl:grid-cols-4">
             {kpiler.map((k) => (
               <div key={k.etiket} className="rounded-2xl border border-ink/10 bg-white p-5">
                 <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">{k.etiket}</div>
@@ -86,11 +86,14 @@ export default async function PanelOverviewPage() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[1fr_360px]">
+          {/* items-start YOK: ızgara varsayılanı stretch, iki kart aynı yerde
+              bitiyor. Öncesinde kartlar kendi içeriği kadar uzayıp alt kenarı
+              tırtıklı bırakıyordu. */}
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.42fr)]">
             <EgitimlerimKarti courses={courses} />
 
             {aktifKurs && aktifKurs.modules.length > 0 && (
-              <div className="rounded-2xl border border-ink/10 bg-white p-6">
+              <div className="flex h-full flex-col rounded-2xl border border-ink/10 bg-white p-6">
                 <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Modül ilerlemesi</h2>
                 <p className="mt-1 text-[13px] leading-[1.45] text-[#656B7A]">{aktifKurs.baslik}</p>
                 <div className="mt-5 flex flex-col gap-[14px]">
@@ -98,7 +101,8 @@ export default async function PanelOverviewPage() {
                     <div key={m.id}>
                       <div className="flex items-center justify-between gap-3">
                         <span className="min-w-0 text-[13.5px] leading-[1.4] text-ink">
-                          {i + 1}. {m.baslik}
+                          {/* Başlıksız modülde satır "1." diye asılı kalıyordu. */}
+                          {m.baslik?.trim() ? `${i + 1}. ${m.baslik}` : `${i + 1}. modül`}
                         </span>
                         <span className="flex-none font-mono text-[11.5px] text-[#656B7A]">{m.yuzde}%</span>
                       </div>
