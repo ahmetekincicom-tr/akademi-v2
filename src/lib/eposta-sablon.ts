@@ -33,6 +33,12 @@ export type BildirimIcerigi = {
   /** Kullanıcının yazdığı serbest metin; alıntı bloğunda gösteriliyor. */
   alinti?: string;
   eylem?: { etiket: string; adres: string };
+  /**
+   * Başlık şeridindeki ad. Yönetici bildirimleri "Akademi Yönetim" geçiyor;
+   * öğrenciye giden mailler (auth, hoş geldin) varsayılanı kullanıyor —
+   * şifresini sıfırlayan kişiye "yönetim paneli" demek yanlış olurdu.
+   */
+  marka?: string;
 };
 
 function kacir(s: string): string {
@@ -119,7 +125,7 @@ function html(i: BildirimIcerigi): string {
         <tr><td style="background:${INK};padding:18px 26px">
           <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
             <td style="background:${BRAND};border-radius:9px;width:32px;height:32px;text-align:center;font:700 14px/32px ${YAZI};color:#FFFFFF">AE</td>
-            <td style="padding-left:11px;font:600 14px/1.2 ${YAZI};color:#FFFFFF">Akademi Yönetim</td>
+            <td style="padding-left:11px;font:600 14px/1.2 ${YAZI};color:#FFFFFF">${kacir(i.marka ?? "Ahmet Ekinci Akademi")}</td>
           </tr></table>
         </td></tr>
 
@@ -128,7 +134,7 @@ function html(i: BildirimIcerigi): string {
       </table>
 
       <p style="max-width:560px;margin:16px auto 0;font:400 12px/1.6 ${YAZI};color:#8A90A0;text-align:center">
-        Bu bildirim Ahmet Ekinci Akademi yönetim panelinden otomatik gönderildi.
+        Ahmet Ekinci Akademi &middot; bu e-posta otomatik gönderildi.
       </p>
     </td></tr>
   </table>

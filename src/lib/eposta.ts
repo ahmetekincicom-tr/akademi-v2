@@ -129,6 +129,9 @@ export async function yoneticiBildirimi(girdi: {
 
   const kok = girdi.yol ? await panelKoku() : null;
   const { html, metin } = bildirimSablonu({
+    // Yönetici bildirimleri panelin kimliğiyle geliyor; öğrenciye giden
+    // mailler markanın kendisiyle.
+    marka: "Akademi Yönetim",
     ustEtiket: girdi.ustEtiket,
     baslik: girdi.baslik,
     ozet: girdi.ozet,
