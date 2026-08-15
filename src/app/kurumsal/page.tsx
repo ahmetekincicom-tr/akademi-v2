@@ -5,7 +5,6 @@ import { PublicFooter } from "@/components/site/PublicFooter";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { siteNav } from "@/components/site/siteNav";
 import { getCourses } from "@/lib/courses";
 
 export const metadata: Metadata = { title: "Kurumsal Eğitim — Ahmet Ekinci Akademi" };
@@ -41,7 +40,7 @@ export default async function KurumsalPage() {
 
   return (
     <div className="bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="İletişime geç" ctaHref="/iletisim" />
+      <PublicHeader />
 
       <section className="relative overflow-hidden bg-ink text-white">
         <div

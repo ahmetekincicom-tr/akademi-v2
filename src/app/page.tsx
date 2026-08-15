@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icon } from "@/components/Icon";
 import { getCourses } from "@/lib/courses";
 import { getYorumlar, getReferanslar } from "@/lib/icerik";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
@@ -6,17 +7,8 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
-import { FaqAccordion } from "@/components/site/FaqAccordion";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
-
-const nav = [
-  { label: "Eğitimler", href: "#egitimler" },
-  { label: "Neden birebir", href: "#neden" },
-  { label: "Nasıl işler", href: "#surec" },
-  { label: "Yorumlar", href: "#yorumlar" },
-  { label: "Üye alanı", href: "#panel" },
-];
 
 const heroStats = [
   { n: "5 yıl", t: "kesintisiz birebir eğitim" },
@@ -107,36 +99,6 @@ const panelKart = [
 ];
 
 
-const sss = [
-  {
-    soru: "Eğitimler gerçek zamanlı mı, kayıt mı?",
-    cevap: "Tamamı gerçek zamanlı ve birebir. Kayıtlar yalnızca tekrar amacıyla üye alanınızda arşivlenir.",
-  },
-  {
-    soru: "Hiç deneyimim yok, uygun mudur?",
-    cevap:
-      "Evet. Müfredat ön görüşmede seviyenize göre yeniden kurulur; sıfırdan başlayan ile ajansta çalışan aynı programı almaz.",
-  },
-  {
-    soru: "Online mı, yüz yüze mi?",
-    cevap: "İkisi de mümkün. Ankara'da yüz yüze görüşebiliriz; şehir dışındaki katılımcılarla program çevrimiçi yürür.",
-  },
-  {
-    soru: "Eğitim bittikten sonra destek var mı?",
-    cevap:
-      "Var. Üye alanındaki soru-cevap kanalına erişiminiz kalır; kampanyalarınızı birlikte gözden geçirmeye devam ederiz.",
-  },
-  {
-    soru: "Fiyatlar neden sitede yazmıyor?",
-    cevap:
-      "Her program tek kişiye göre kurulduğu için süre ve kapsam değişiyor. Ön görüşmeden sonra net bir teklif paylaşıyoruz.",
-  },
-  {
-    soru: "Fatura ve kurumsal ödeme mümkün mü?",
-    cevap: "Evet. Bireysel ve kurumsal faturalandırma, havale ve taksitli kredi kartı seçenekleri mevcut.",
-  },
-];
-
 function SectionKicker({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.16em] text-brand uppercase">
@@ -173,7 +135,7 @@ export default async function HomePage() {
 
   return (
     <div className="bg-white">
-      <PublicHeader nav={nav} ctaLabel="Eğitimleri incele" ctaHref="#egitimler" />
+      <PublicHeader />
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-ink text-white">
@@ -292,7 +254,10 @@ export default async function HomePage() {
               key={p.baslik}
               className="flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
             >
-              <div
+              {/* Görsel ve başlık da detaya gidiyor; /egitimler kartlarıyla aynı. */}
+              <Link
+                href={p.href}
+                aria-label={`${p.baslik} detayına git`}
                 className={`relative flex aspect-video items-end border-b border-ink/8 p-[14px] ${
                   p.kapak ? "bg-cover bg-center" : "placeholder-block"
                 }`}
@@ -306,7 +271,7 @@ export default async function HomePage() {
                 <span className="absolute top-[14px] left-[14px] rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
                   {p.etiket}
                 </span>
-              </div>
+              </Link>
               <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
                 <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">
                   <span>{p.sure}</span>
@@ -314,14 +279,16 @@ export default async function HomePage() {
                   <span>{p.modul}</span>
                 </div>
                 <h3 className="mt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
-                  {p.baslik}
+                  <Link href={p.href} className="transition-colors hover:text-brand">
+                    {p.baslik}
+                  </Link>
                 </h3>
                 <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
                 <div className="mt-auto flex flex-col gap-[11px] border-t border-ink/8 pt-5">
                   {p.maddeler.map((m) => (
                     <div key={m} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
-                      <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-[10px] font-bold text-brand">
-                        ✓
+                      <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-brand">
+                        <Icon name="check" size={11} strokeWidth={3} />
                       </span>
                       <span>{m}</span>
                     </div>
@@ -332,7 +299,7 @@ export default async function HomePage() {
                   className="mt-[26px] flex h-[46px] items-center justify-between rounded-[10px] bg-[#F2F4FA] px-[18px] text-[14.5px] font-semibold text-ink hover:bg-brand hover:text-white"
                 >
                   <span>Program detayını incele</span>
-                  <span>→</span>
+                  <Icon name="arrowRight" size={16} />
                 </Link>
               </div>
             </div>
@@ -489,22 +456,6 @@ export default async function HomePage() {
 
       <CorporateStrip text="Ekibinize özel, yerinde ya da uzaktan dijital pazarlama eğitimi." />
 
-      {/* FAQ */}
-      <section className="mx-auto grid max-w-[1240px] grid-cols-1 gap-18 px-5 sm:px-8 py-26 lg:grid-cols-[0.75fr_1.25fr]">
-        <div>
-          <SectionKicker>SSS</SectionKicker>
-          <h2 className="mt-[18px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
-            Sık sorulanlar
-          </h2>
-          <p className="mt-5 text-[15.5px] leading-[1.62] text-[#5C6273]">
-            Aradığınız yanıt yoksa ön görüşmede tek tek konuşuruz.
-          </p>
-          <Link href="/iletisim" className="mt-5 inline-flex text-[14.5px] font-semibold">
-            WhatsApp&apos;tan sor →
-          </Link>
-        </div>
-        <FaqAccordion items={sss} />
-      </section>
 
       {/* Closing CTA */}
       <section className="relative overflow-hidden bg-ink text-white">

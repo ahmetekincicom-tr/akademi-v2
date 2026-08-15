@@ -4,7 +4,6 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { siteNav } from "@/components/site/siteNav";
 import { egitmenStats } from "@/lib/courses";
 
 export const metadata: Metadata = { title: "Hakkımızda — Ahmet Ekinci Akademi" };
@@ -26,7 +25,7 @@ const zaman = [
 export default function HakkimizdaPage() {
   return (
     <div className="bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+      <PublicHeader />
 
       <section className="relative overflow-hidden bg-ink text-white">
         <div

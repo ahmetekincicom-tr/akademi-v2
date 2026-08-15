@@ -4,7 +4,6 @@ import { nativeIstekMi } from "@/lib/native-sunucu";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { YasalIcerik } from "@/components/site/YasalIcerik";
-import { siteNav } from "@/components/site/siteNav";
 import { EPOSTA } from "@/lib/iletisim";
 import type { YasalSayfa } from "@/lib/yasal";
 import { TR_ZAMAN } from "@/lib/zaman";
@@ -33,7 +32,7 @@ export async function YasalSayfaGorunumu({
       {/* Yasal metinler uygulamada açılabiliyor (App Store şartı) ama site
           menüsü ve alt bilgi orada gizli: ikisi de pazarlama sayfalarına
           gezinme veriyor. */}
-      {!native && <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />}
+      {!native && <PublicHeader />}
 
       <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-10">
         <SectionKicker>Yasal</SectionKicker>

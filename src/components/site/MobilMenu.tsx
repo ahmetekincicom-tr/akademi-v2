@@ -2,24 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Icon } from "@/components/Icon";
-import type { NavItem } from "./PublicHeader";
+import type { NavItem } from "./siteNav";
 
 /**
- * Only the toggle and the panel live on the client. PublicHeader itself stays
- * a server component because it renders <Logo>, which is async and cannot
- * hydrate if it is pulled into the browser bundle.
+ * Yalnızca düğme ve panel istemcide. PublicHeader sunucu bileşeni olarak
+ * kalıyor çünkü <Logo> async ve tarayıcı paketine çekilirse hydrate olamıyor.
  */
-export function MobilMenu({
-  nav,
-  ctaLabel,
-  ctaHref,
-}: {
-  nav: NavItem[];
-  ctaLabel: string;
-  ctaHref: string;
-}) {
+export function MobilMenu({ nav }: { nav: NavItem[] }) {
   const [acik, setAcik] = useState(false);
+  const pathname = usePathname();
   const kapat = () => setAcik(false);
 
   return (
@@ -37,32 +30,29 @@ export function MobilMenu({
       {acik && (
         <div className="absolute inset-x-0 top-full border-t border-ink/9 bg-white shadow-[0_18px_40px_rgba(10,13,24,0.12)] lg:hidden">
           <div className="mx-auto flex max-w-[1240px] flex-col px-5 py-3 sm:px-8">
-            {nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={kapat}
-                className="border-b border-ink/7 py-[13px] text-[15.5px] font-medium text-[#3A3F4F]"
-              >
-                {item.label}
-              </Link>
-            ))}
-            <div className="mt-4 mb-2 flex flex-col gap-[10px]">
-              <Link
-                href={ctaHref}
-                onClick={kapat}
-                className="inline-flex h-12 items-center justify-center rounded-[10px] bg-brand px-5 text-[15px] font-semibold text-white"
-              >
-                {ctaLabel}
-              </Link>
-              <Link
-                href="/giris"
-                onClick={kapat}
-                className="inline-flex h-12 items-center justify-center rounded-[10px] border border-ink/14 px-5 text-[15px] font-semibold text-ink"
-              >
-                Üye girişi
-              </Link>
-            </div>
+            {nav.map((item) => {
+              const aktif = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={kapat}
+                  aria-current={aktif ? "page" : undefined}
+                  className="flex items-center gap-[11px] border-b border-ink/7 py-[13px] text-[15.5px] font-medium"
+                  style={{ color: aktif ? "#1C56F3" : "#3A3F4F" }}
+                >
+                  <Icon name={item.icon} size={17} className="flex-none opacity-80" />
+                  {item.label}
+                </Link>
+              );
+            })}
+            <Link
+              href="/giris"
+              onClick={kapat}
+              className="mt-4 mb-2 inline-flex h-12 items-center justify-center rounded-[10px] bg-brand px-5 text-[15px] font-semibold text-white"
+            >
+              Üye girişi
+            </Link>
           </div>
         </div>
       )}

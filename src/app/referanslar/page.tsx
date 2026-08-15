@@ -5,7 +5,6 @@ import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { siteNav } from "@/components/site/siteNav";
 import { getYorumlar, getReferanslar } from "@/lib/icerik";
 import { ReferansLogo } from "@/components/site/ReferansLogo";
 
@@ -26,7 +25,7 @@ export default async function ReferanslarPage() {
   const [referanslar, yorumlar] = await Promise.all([getReferanslar(), getYorumlar()]);
   return (
     <div className="bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+      <PublicHeader />
 
       <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-14">
         <SectionKicker>Referanslar</SectionKicker>

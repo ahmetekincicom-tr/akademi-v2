@@ -3,7 +3,6 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { IletisimFormu } from "@/components/site/IletisimFormu";
-import { siteNav } from "@/components/site/siteNav";
 import {
   WHATSAPP_NUMARALAR,
   EPOSTA,
@@ -46,7 +45,7 @@ const kanallar: { baslik: string; deger: string; not: string; href?: string }[] 
 export default function IletisimPage() {
   return (
     <div className="bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+      <PublicHeader />
 
       <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-14">
         <SectionKicker>İletişim</SectionKicker>

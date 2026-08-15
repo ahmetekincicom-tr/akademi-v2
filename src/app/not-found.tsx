@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SadeceWeb } from "@/components/panel/SadeceWeb";
-import { siteNav } from "@/components/site/siteNav";
 
 export const metadata: Metadata = {
   title: "Sayfa bulunamadı — Ahmet Ekinci Akademi",
@@ -15,7 +14,7 @@ export default function NotFound() {
       {/* 404 her sayfanın yanında taşınıyor; uygulamada site menüsü
           göstermesin. */}
       <SadeceWeb>
-        <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+        <PublicHeader />
       </SadeceWeb>
 
       <main className="mx-auto flex w-full max-w-[1240px] flex-1 flex-col justify-center px-5 sm:px-8 py-24">

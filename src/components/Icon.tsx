@@ -5,6 +5,7 @@
  */
 
 export type IconName =
+  | "home"
   | "grid"
   | "play"
   | "playCircle"
@@ -159,6 +160,13 @@ const paths: Record<IconName, React.ReactNode> = {
   ),
   chevronRight: <path d="m9.5 18 6-6-6-6" />,
   chevronDown: <path d="m6 9.5 6 6 6-6" />,
+  home: (
+    <>
+      <path d="M3.5 10.5 12 3.5l8.5 7" />
+      <path d="M5.5 9.8V20h13V9.8" />
+      <path d="M9.75 20v-5.5h4.5V20" />
+    </>
+  ),
   eye: (
     <>
       <path d="M2 12s3.8-7 10-7 10 7 10 7-3.8 7-10 7-10-7-10-7z" />

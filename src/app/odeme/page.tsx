@@ -3,7 +3,6 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { TeklifFormu } from "@/components/site/TeklifFormu";
-import { siteNav } from "@/components/site/siteNav";
 import { getCourses } from "@/lib/courses";
 import { Icon } from "@/components/Icon";
 
@@ -37,7 +36,7 @@ export default async function OnGorusmePage({
 
   return (
     <div className="bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+      <PublicHeader />
 
       <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-12">
         <SectionKicker>Ön görüşme</SectionKicker>

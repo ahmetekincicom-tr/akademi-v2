@@ -2,7 +2,6 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { siteNav } from "@/components/site/siteNav";
 import { EgitimlerFiltre } from "@/components/site/EgitimlerFiltre";
 import { getCourses } from "@/lib/courses";
 import type { Metadata } from "next";
@@ -24,7 +23,7 @@ export default async function EgitimlerPage() {
 
   return (
     <div className="bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="İletişime geç" ctaHref="/iletisim" />
+      <PublicHeader />
 
       <section className="relative overflow-hidden bg-ink text-white">
         <div

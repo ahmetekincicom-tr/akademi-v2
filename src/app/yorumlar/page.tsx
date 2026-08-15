@@ -2,7 +2,6 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { siteNav } from "@/components/site/siteNav";
 import { YorumlarFiltre } from "@/components/site/YorumlarFiltre";
 import { getCourses } from "@/lib/courses";
 import { getYorumlar } from "@/lib/icerik";
@@ -25,7 +24,7 @@ export default async function YorumlarPage() {
 
   return (
     <div className="bg-white">
-      <PublicHeader nav={siteNav} ctaLabel="Eğitimleri incele" ctaHref="/egitimler" />
+      <PublicHeader />
 
       <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-16 pb-10">
         <SectionKicker>Katılımcı yorumları</SectionKicker>

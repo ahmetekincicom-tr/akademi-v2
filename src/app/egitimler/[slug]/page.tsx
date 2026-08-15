@@ -29,13 +29,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
 }
 
-const nav = [
-  { label: "Eğitim içeriği", href: "#mufredat" },
-  { label: "Eğitmen", href: "#egitmen" },
-  { label: "Kimler için", href: "#kimler" },
-  { label: "SSS", href: "#sss" },
-];
-
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
@@ -67,7 +60,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         dangerouslySetInnerHTML={{ __html: JSON.stringify(semalar) }}
       />
     <div className="bg-white">
-      <PublicHeader nav={nav} ctaLabel="Hemen katıl" ctaHref="#katil" />
+      <PublicHeader />
 
       <section className="relative overflow-hidden bg-ink text-white">
         <div
