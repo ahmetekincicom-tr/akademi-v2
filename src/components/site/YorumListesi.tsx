@@ -7,15 +7,15 @@ import type { Yorum } from "@/lib/icerik";
 const SAYFA = 9;
 
 /**
- * Yorumlar sayfa sayfa açılıyor.
+ * Yorumlar sayfa sayfa açılıyor ve tuğla (masonry) düzeninde diziliyor.
  *
- * Yüzlerce yorum tek seferde basıldığında ilk boyama gecikiyor ve sayfa uzun
- * bir kaydırma çubuğuyla açılıyordu. Burada ilk {SAYFA} kart basılıyor,
- * listenin sonundaki nöbetçi öğe görünür olunca bir sonraki grup ekleniyor.
+ * Izgara düzeninde her SATIRIN yüksekliği o satırdaki en uzun karta göre
+ * belirleniyordu; iki satırlık bir yorum, on satırlık bir yorumun yanında
+ * altında kocaman bir boşlukla duruyordu. CSS sütunları kartları yüksekliğe
+ * göre akıtıyor, boşluk kalmıyor.
  *
- * Kaydırma olayı DİNLENMİYOR: IntersectionObserver işi tarayıcının kendi
- * derleme hattında yapıyor, scroll dinleyicisi ise her karede JavaScript
- * çalıştırıp kaydırmayı takılmalı hale getiriyor.
+ * Yükleme IntersectionObserver ile: kaydırma olayı dinlenseydi her karede
+ * JavaScript çalışır ve düzeltmeye çalıştığımız akıcılığı bozardı.
  */
 export function YorumListesi({ yorumlar }: { yorumlar: Yorum[] }) {
   const [gorunen, setGorunen] = useState(SAYFA);
@@ -41,24 +41,38 @@ export function YorumListesi({ yorumlar }: { yorumlar: Yorum[] }) {
     return () => gozlemci.disconnect();
   }, [hepsiGeldi, gorunen]);
 
+  /*
+    Her grup KENDİ sütun kabında.
+
+    Tek bir kapsayıcı olsaydı yeni grup eklendiğinde tarayıcı bütün sütunları
+    baştan dengeler ve okunmakta olan kartlar gözün önünde yer değiştirirdi.
+    Grup başına ayrı kap, eklemenin önceki kartlara dokunmamasını sağlıyor.
+    Karşılığında grup sınırlarında küçük bir hizasızlık kalıyor — sütunlar
+    kendi içinde dengelendiği için o da neredeyse düz çıkıyor.
+  */
+  const gruplar: Yorum[][] = [];
+  for (let i = 0; i < gorunen && i < yorumlar.length; i += SAYFA) {
+    gruplar.push(yorumlar.slice(i, i + SAYFA));
+  }
+
   return (
     <section className="mx-auto max-w-[1240px] px-5 pb-24 sm:px-8">
-      <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2 lg:grid-cols-3">
-        {yorumlar.slice(0, gorunen).map((y, i) => (
-          <div
-            key={y.id}
-            className="yorum-giris"
-            /*
-              Gecikme kart SIRASINA göre değil, GRUP İÇİNDEKİ sırasına göre:
-              yüzüncü kartta 100 kat gecikme olsaydı kart görünene kadar
-              saniyeler geçerdi. Modülo ile her grup baştan sayıyor.
-            */
-            style={{ animationDelay: `${(i % SAYFA) * 60}ms` }}
-          >
-            <TestimonialCard metin={y.metin} isim={y.isim} rol={y.rol} />
-          </div>
-        ))}
-      </div>
+      {gruplar.map((grup, g) => (
+        <div key={g} className="columns-1 gap-[22px] md:columns-2 lg:columns-3">
+          {grup.map((y, i) => (
+            <div
+              key={y.id}
+              // break-inside-avoid: kart iki sütuna bölünmesin.
+              className="yorum-giris mb-[22px] break-inside-avoid"
+              // Gecikme grup içi sıraya göre: yüzüncü kartta 100 kat gecikme
+              // olsaydı kart görünene kadar saniyeler geçerdi.
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
+              <TestimonialCard metin={y.metin} isim={y.isim} rol={y.rol} />
+            </div>
+          ))}
+        </div>
+      ))}
 
       {!hepsiGeldi && <div ref={nobetci} aria-hidden className="h-px" />}
     </section>

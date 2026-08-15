@@ -404,9 +404,13 @@ export default async function HomePage() {
             Tüm yorumlar →
           </Link>
         </div>
-        <div className="grid grid-cols-1 gap-[22px] md:grid-cols-2 lg:grid-cols-3">
+        {/* Izgara değil sütun: satır yüksekliği en uzun karta göre belirlenip
+            kısa yorumların altında boşluk bırakıyordu. */}
+        <div className="columns-1 gap-[22px] md:columns-2 lg:columns-3">
           {yorumlar.map((y) => (
-            <TestimonialCard key={y.isim} {...y} />
+            <div key={y.isim} className="mb-[22px] break-inside-avoid">
+              <TestimonialCard {...y} />
+            </div>
           ))}
         </div>
       </section>
