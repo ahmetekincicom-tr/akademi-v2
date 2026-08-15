@@ -1,80 +1,84 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import type { Yorum } from "@/lib/icerik";
 
-const SAYFA = 9;
-
 /**
- * Yorumlar sayfa sayfa açılıyor ve tuğla (masonry) düzeninde diziliyor.
+ * Yorumlar: tek sürekli tuğla düzeni, kartlar kaydırdıkça beliriyor.
  *
- * Izgara düzeninde her SATIRIN yüksekliği o satırdaki en uzun karta göre
- * belirleniyordu; iki satırlık bir yorum, on satırlık bir yorumun yanında
- * altında kocaman bir boşlukla duruyordu. CSS sütunları kartları yüksekliğe
- * göre akıtıyor, boşluk kalmıyor.
+ * Önce kartlar gruplar halinde DOM'a ekleniyordu ve her grup kendi sütun
+ * kabındaydı. Sonuç, grup sınırlarında sütun boyu boşluklardı — düzeltmeye
+ * çalıştığımız sorunun aynısı, sadece daha seyrek. Tek kap kullanmak da
+ * çözüm değildi: yeni kart eklendiğinde tarayıcı bütün sütunları baştan
+ * dengeleyip okunmakta olan kartları yerinden oynatıyordu.
  *
- * Yükleme IntersectionObserver ile: kaydırma olayı dinlenseydi her karede
- * JavaScript çalışır ve düzeltmeye çalıştığımız akıcılığı bozardı.
+ * Çözüm ikisini de bırakmak: bütün kartlar en baştan tek bir sütun kabında
+ * duruyor (dolayısıyla hiç boşluk ve hiç yeniden dengeleme yok), belirme
+ * animasyonu ise DOM'a ekleme yerine görünürlükle tetikleniyor.
+ *
+ * Yorumlar zaten tek sorguyla geliyor; parça parça DOM'a eklemenin ağ tarafında
+ * bir kazancı yoktu.
  */
 export function YorumListesi({ yorumlar }: { yorumlar: Yorum[] }) {
-  const [gorunen, setGorunen] = useState(SAYFA);
-  const nobetci = useRef<HTMLDivElement>(null);
-
-  const hepsiGeldi = gorunen >= yorumlar.length;
+  const kok = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (hepsiGeldi) return;
-    const hedef = nobetci.current;
-    if (!hedef) return;
+    const kap = kok.current;
+    if (!kap) return;
+
+    const kartlar = Array.from(kap.querySelectorAll<HTMLElement>("[data-yorum]"));
+
+    /*
+      Sıra önemli.
+
+      1) Ekranda olanları açık işaretle, 2) sonra gizleme kuralını devreye al.
+      Ters sırada olsaydı ilk boyamadan sonra üstteki kartlar bir kare
+      kaybolup geri gelirdi. Gözlemci geri çağrısı eşzamansız olduğu için ona
+      bırakılamıyor.
+    */
+    for (const kart of kartlar) {
+      if (kart.getBoundingClientRect().top < window.innerHeight) kart.dataset.gorunur = "1";
+    }
+    kap.classList.add("yorum-akis-hazir");
 
     const gozlemci = new IntersectionObserver(
-      ([giris]) => {
-        if (giris.isIntersecting) setGorunen((n) => n + SAYFA);
+      (girisler) => {
+        for (const g of girisler) {
+          if (!g.isIntersecting) continue;
+          (g.target as HTMLElement).dataset.gorunur = "1";
+          // Bir kez belirdi, bir daha izlemeye gerek yok.
+          gozlemci.unobserve(g.target);
+        }
       },
-      // Nöbetçi ekrana girmeden 400px önce tetikleniyor: kullanıcı listenin
-      // sonuna vardığında kartlar çoktan yerinde oluyor, boşluk görmüyor.
-      { rootMargin: "400px" },
+      // Kart ekrana girmeden 120px önce başlasın: animasyon biterken kart
+      // tam görüş alanında oluyor, kullanıcı bulanık hali yakalamıyor.
+      { rootMargin: "0px 0px 120px 0px" },
     );
 
-    gozlemci.observe(hedef);
+    for (const kart of kartlar) {
+      if (!kart.dataset.gorunur) gozlemci.observe(kart);
+    }
+
     return () => gozlemci.disconnect();
-  }, [hepsiGeldi, gorunen]);
-
-  /*
-    Her grup KENDİ sütun kabında.
-
-    Tek bir kapsayıcı olsaydı yeni grup eklendiğinde tarayıcı bütün sütunları
-    baştan dengeler ve okunmakta olan kartlar gözün önünde yer değiştirirdi.
-    Grup başına ayrı kap, eklemenin önceki kartlara dokunmamasını sağlıyor.
-    Karşılığında grup sınırlarında küçük bir hizasızlık kalıyor — sütunlar
-    kendi içinde dengelendiği için o da neredeyse düz çıkıyor.
-  */
-  const gruplar: Yorum[][] = [];
-  for (let i = 0; i < gorunen && i < yorumlar.length; i += SAYFA) {
-    gruplar.push(yorumlar.slice(i, i + SAYFA));
-  }
+  }, [yorumlar]);
 
   return (
     <section className="mx-auto max-w-[1240px] px-5 pb-24 sm:px-8">
-      {gruplar.map((grup, g) => (
-        <div key={g} className="columns-1 gap-[22px] md:columns-2 lg:columns-3">
-          {grup.map((y, i) => (
-            <div
-              key={y.id}
-              // break-inside-avoid: kart iki sütuna bölünmesin.
-              className="yorum-giris mb-[22px] break-inside-avoid"
-              // Gecikme grup içi sıraya göre: yüzüncü kartta 100 kat gecikme
-              // olsaydı kart görünene kadar saniyeler geçerdi.
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              <TestimonialCard metin={y.metin} isim={y.isim} rol={y.rol} />
-            </div>
-          ))}
-        </div>
-      ))}
-
-      {!hepsiGeldi && <div ref={nobetci} aria-hidden className="h-px" />}
+      {/*
+        Gizleme kuralı "yorum-akis-hazir" sınıfına bağlı ve o sınıf yalnızca
+        JavaScript çalıştığında ekleniyor. Betik yüklenmezse kartlar olduğu gibi
+        görünüyor — yorumlar sayfanın asıl içeriği, animasyon uğruna
+        kaybolmamalı.
+      */}
+      <div ref={kok} className="yorum-akis columns-1 gap-[22px] md:columns-2 lg:columns-3">
+        {yorumlar.map((y) => (
+          // break-inside-avoid: kart iki sütuna bölünmesin.
+          <div key={y.id} data-yorum className="mb-[22px] break-inside-avoid">
+            <TestimonialCard metin={y.metin} isim={y.isim} rol={y.rol} />
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

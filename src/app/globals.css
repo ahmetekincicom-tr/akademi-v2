@@ -95,34 +95,38 @@
 
 
   /*
-    Yorum kartlarının giriş animasyonu: blur + fade + hafif yukarı kayma.
+    Yorum kartlarının belirmesi.
 
-    forwards şart — animasyon bittiğinde kart son karede kalmalı, yoksa
-    başlangıçtaki bulanık haline geri dönüyor.
+    Animasyon değil geçiş kullanılıyor: kart göründüğünde data-gorunur
+    işaretleniyor ve geçiş oradan çalışıyor. Animasyon olsaydı sınıf eklenene
+    kadar bir kez baştan oynar, sonra tekrar tetiklenmesi gerekirdi.
+
+    Gizleme yalnızca .yorum-akis-hazir varken geçerli; o sınıfı JavaScript
+    ekliyor. Betik çalışmazsa kartlar normal görünüyor.
   */
-  .yorum-giris {
-    animation: yorum-giris 620ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  .yorum-akis-hazir [data-yorum] {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(18px);
+    transition:
+      opacity 620ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      filter 620ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
-  @keyframes yorum-giris {
-    from {
-      opacity: 0;
-      filter: blur(10px);
-      transform: translateY(18px);
-    }
-    to {
-      opacity: 1;
-      filter: blur(0);
-      transform: none;
-    }
+  .yorum-akis-hazir [data-yorum][data-gorunur] {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
   }
 
-  /* Hareket azaltma tercihi açıksa yalnızca soluklaşma kalıyor: blur ve
-     kayma vestibüler rahatsızlık yaratabiliyor. */
+  /* Hareket azaltma tercihinde blur ve kayma kalkıyor: ikisi de vestibüler
+     rahatsızlık yaratabiliyor. */
   @media (prefers-reduced-motion: reduce) {
-    .yorum-giris {
-      animation-duration: 1ms;
-      animation-delay: 0ms !important;
+    .yorum-akis-hazir [data-yorum] {
+      filter: none;
+      transform: none;
+      transition-duration: 1ms;
     }
   }
 
