@@ -15,7 +15,14 @@ export const dynamic = "force-dynamic";
  */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: { userAgent: "*", disallow: ["/kontrol-9f4x2k", "/panel", "/api"] },
+    // Yönetim yolu BURAYA YAZILMAZ: robots.txt herkese açık bir dosya, gizli
+    // tutulan adresi oraya koymak adresi ilan etmek olur. Zaten hiçbir yerden
+    // bağlantı verilmiyor ve oturum istiyor.
+    //
+    // Yapay zekâ tarayıcıları (GPTBot, PerplexityBot, ClaudeBot,
+    // Google-Extended) da bilerek engellenmiyor: engellenen platform siteyi
+    // cevaplarında kaynak gösteremiyor.
+    rules: { userAgent: "*", disallow: ["/panel", "/api"] },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

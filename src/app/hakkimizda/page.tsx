@@ -10,7 +10,7 @@ import { Icon } from "@/components/Icon";
 import { getHakkimizda, paragraflar } from "@/lib/hakkimizda";
 import { kapakUrl } from "@/lib/kapak";
 import { getReferanslar } from "@/lib/icerik";
-import { sayfaMeta } from "@/lib/seo";
+import { sayfaMeta, kisiSemasi } from "@/lib/seo";
 
 // Sayfa metinleri ve fotoğrafı yönetim panelindeki Hakkımızda sayfasından yönetiliyor.
 export const dynamic = "force-dynamic";
@@ -74,6 +74,21 @@ export default async function HakkimizdaPage() {
 
   return (
     <div className="bg-white">
+      {/* Eğitmen bir varlık olarak işaretleniyor; içerik sayfada görünenin
+          aynısı, panelden yönetiliyor. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            kisiSemasi({
+              ad: icerik.kisiBaslik.replace(/\s*kimdir\?*\s*$/i, "").trim(),
+              unvan: icerik.kisiUnvan,
+              aciklama: metin[0] ?? icerik.heroMetin,
+              gorsel: fotograf,
+            }),
+          ),
+        }}
+      />
       <PublicHeader />
 
       {/* Hero */}

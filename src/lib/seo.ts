@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { EPOSTA, INSTAGRAM_URL, LINKEDIN_URL, OFIS_ADRESI, WHATSAPP_NUMARALAR } from "@/lib/iletisim";
 
 /**
  * SEO'nun tek kaynağı.
@@ -24,8 +25,12 @@ export const VARSAYILAN_ACIKLAMA =
   "Ankara merkezli birebir dijital pazarlama eğitimi. Meta Ads (Facebook & Instagram reklamları), " +
   "sosyal medya yönetimi ve yapay zekâ araçları; kurumlara ve girişimcilere özel program.";
 
-/** Paylaşım görseli; marka logosu yüklendiğinde ondan da beslenebilir. */
-export const OG_GORSEL = `${SITE_URL}/acilis-logo.svg`;
+/**
+ * Paylaşım görseli. PNG olmak ZORUNDA: Facebook, LinkedIn, X ve WhatsApp
+ * og:image olarak SVG kabul etmiyor, kart görselsiz çıkıyordu.
+ * scripts/og-gorsel.mjs üretiyor — 1200×630.
+ */
+export const OG_GORSEL = `${SITE_URL}/og.png`;
 
 type SayfaSeo = {
   baslik: string;
@@ -89,16 +94,75 @@ export function kurumSemasi() {
   return {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
+    "@id": `${SITE_URL}/#kurum`,
     name: SITE_ADI,
     url: SITE_URL,
     description: VARSAYILAN_ACIKLAMA,
+    logo: `${SITE_URL}/icon-512.png`,
+    image: OG_GORSEL,
+    email: EPOSTA,
+    telephone: WHATSAPP_NUMARALAR[0].gosterim,
     address: {
       "@type": "PostalAddress",
+      streetAddress: OFIS_ADRESI,
       addressLocality: "Ankara",
       addressCountry: "TR",
     },
+    // sameAs, arama motorlarının ve yapay zekâ arama motorlarının markayı tek
+    // bir varlık olarak tanımasını sağlıyor: sitedeki "Ahmet Ekinci Akademi"
+    // ile Instagram'daki hesabın aynı şey olduğu ancak böyle söyleniyor.
+    sameAs: [INSTAGRAM_URL, LINKEDIN_URL],
+    founder: { "@id": `${SITE_URL}/hakkimizda#kisi` },
     areaServed: "TR",
     knowsLanguage: "tr",
+  };
+}
+
+/**
+ * Eğitmenin kendisi bir varlık olarak işaretleniyor.
+ *
+ * "Ahmet Ekinci kimdir" türü sorularda kaynak olarak seçilmenin yolu bu:
+ * yapay zekâ arama motorları kişiyi kurumdan ayrı tanıyabilmeli, ikisi
+ * arasındaki bağı da görebilmeli.
+ */
+export function kisiSemasi(kisi: { ad: string; unvan: string; aciklama: string; gorsel: string | null }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${SITE_URL}/hakkimizda#kisi`,
+    name: kisi.ad,
+    jobTitle: kisi.unvan,
+    description: kisi.aciklama,
+    ...(kisi.gorsel ? { image: kisi.gorsel } : {}),
+    url: `${SITE_URL}/hakkimizda`,
+    sameAs: [INSTAGRAM_URL, LINKEDIN_URL],
+    worksFor: { "@id": `${SITE_URL}/#kurum` },
+    knowsAbout: [
+      "Dijital pazarlama",
+      "Meta Ads",
+      "Facebook ve Instagram reklamları",
+      "Sosyal medya yönetimi",
+      "İçerik üretimi",
+      "Yapay zekâ araçları",
+    ],
+    address: { "@type": "PostalAddress", addressLocality: "Ankara", addressCountry: "TR" },
+  };
+}
+
+/**
+ * Sıkça sorulan sorular. Eğitim sayfalarındaki açılır liste zaten bu veriyi
+ * gösteriyordu ama yalnızca insana; işaretlenmediği için arama motoru ve
+ * yapay zekâ arama motorları soruları eşleştiremiyordu.
+ */
+export function sssSemasi(sorular: { soru: string; cevap: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: sorular.map((s) => ({
+      "@type": "Question",
+      name: s.soru,
+      acceptedAnswer: { "@type": "Answer", text: s.cevap },
+    })),
   };
 }
 

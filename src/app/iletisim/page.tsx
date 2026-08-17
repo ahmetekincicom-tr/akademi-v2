@@ -11,12 +11,14 @@ import {
   OFIS_ADRESI,
   whatsappLink,
 } from "@/lib/iletisim";
+import { sayfaMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "İletişim — Ahmet Ekinci Akademi",
-  description:
-    "Hangi dijital pazarlama programının size uyduğunu birlikte belirleyelim. Formu doldurun ya da WhatsApp'tan yazın.",
-};
+export const metadata: Metadata = sayfaMeta({
+  baslik: "İletişim",
+  aciklama:
+    "Hangi dijital pazarlama programının size uyduğunu birlikte belirleyelim. Formu doldurun ya da WhatsApp'tan yazın; Ankara ofisi ve online görüşme seçenekleri açık.",
+  yol: "/iletisim",
+});
 
 // href olmayan kanallar tıklanabilir görünmesin diye link yerine kart olarak çizilir.
 const kanallar: { baslik: string; deger: string; href?: string }[] = [

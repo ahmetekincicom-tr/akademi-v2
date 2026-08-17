@@ -5,8 +5,14 @@ import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { getReferanslar } from "@/lib/icerik";
 import { ReferansLogo } from "@/components/site/ReferansLogo";
+import { sayfaMeta } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Referanslar — Ahmet Ekinci Akademi" };
+export const metadata: Metadata = sayfaMeta({
+  baslik: "Referanslar",
+  aciklama:
+    "Ahmet Ekinci Akademi eğitimlerini tercih eden kurumlar ve markalar. Birebir dijital pazarlama eğitimi alan ekiplerin listesi.",
+  yol: "/referanslar",
+});
 
 // Referanslar admin panelinden yönetiliyor.
 export const dynamic = "force-dynamic";

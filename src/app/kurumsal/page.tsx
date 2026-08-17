@@ -6,8 +6,14 @@ import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { getCourses } from "@/lib/courses";
+import { sayfaMeta } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Kurumsal Eğitim — Ahmet Ekinci Akademi" };
+export const metadata: Metadata = sayfaMeta({
+  baslik: "Kurumsal Eğitim",
+  aciklama:
+    "Ekibinize özel dijital pazarlama eğitimi: Ankara'da yerinde ya da tamamen uzaktan. Müfredat ekibin seviyesine göre kurulur, kurumsal faturalandırma ve eğitim sonrası destek dahil.",
+  yol: "/kurumsal",
+});
 
 const farklar = [
   { no: "01", baslik: "Ekibe özel müfredat", metin: "Program, ekibinizin mevcut seviyesine ve kullandığınız hesaplara göre yeniden kurulur." },

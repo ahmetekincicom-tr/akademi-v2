@@ -9,7 +9,7 @@ import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
 import { HeroHizliBilgi } from "@/components/site/HeroHizliBilgi";
 import { getCourseBySlug, kutuNot, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
-import { sayfaMeta, egitimSemasi, kirintiSemasi } from "@/lib/seo";
+import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
 
 // Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
 // build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
@@ -54,6 +54,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
       { ad: "Eğitimler", yol: "/egitimler" },
       { ad: course.baslik, yol: `/egitimler/${course.slug}` },
     ]),
+    // Sayfada gösterilen soru-cevapların aynısı; işaretlenmemiş bir SSS
+    // bölümü arama sonucunda da yapay zekâ cevaplarında da görünmüyor.
+    ...(course.sss.length > 0 ? [sssSemasi(course.sss)] : []),
   ];
 
   return (

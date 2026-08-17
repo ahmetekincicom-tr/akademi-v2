@@ -75,11 +75,13 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
                   <span className="text-ink/20">•</span>
                   <span>{p.modul}</span>
                 </div>
-                <h3 className="mt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
+                {/* h2: sayfanın h1'inden sonraki ilk seviye. Önce h3'tü ve
+                    başlık hiyerarşisinde h2 atlanıyordu. */}
+                <h2 className="mt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
                   <Link href={`/egitimler/${p.slug}`} className="transition-colors hover:text-brand">
                     {p.baslik}
                   </Link>
-                </h3>
+                </h2>
                 <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
                 <div className="mt-auto flex flex-col gap-[11px] border-t border-ink/8 pt-5">
                   {p.maddeler.map((m) => (
@@ -108,9 +110,9 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
         <div className="mt-9 flex flex-col gap-6 rounded-2xl border border-ink/11 bg-mist p-10 md:flex-row md:items-center md:justify-between">
           <div className="max-w-[520px]">
             <div className="font-mono text-[10.5px] tracking-[0.16em] text-brand uppercase">Kurumsal eğitim</div>
-            <h3 className="mt-3 font-heading text-2xl leading-[1.2] font-semibold tracking-[-0.025em]">
+            <h2 className="mt-3 font-heading text-2xl leading-[1.2] font-semibold tracking-[-0.025em]">
               Ekibinize özel, yerinde ya da uzaktan program kuralım.
-            </h3>
+            </h2>
             <p className="mt-3 text-[15px] leading-[1.6] text-[#5C6273]">
               Meta Ads, sosyal medya veya yapay zekâ eğitimlerinin herhangi biri ekip formatına uyarlanır; kapsam ve
               takvim birlikte belirlenir.
