@@ -19,6 +19,8 @@ export type SaveCourseInput = {
   satisaAcik: boolean;
   fiyatGorunur: boolean;
   durum: "taslak" | "yayinda";
+  /** Başlıkta renkli yazılacak kısım. Verilmezse mevcut değer korunuyor. */
+  baslikVurgu?: string;
 };
 
 type ExistingContent = {
@@ -60,6 +62,10 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
       existingContent = (existing.content as ExistingContent) ?? {};
     }
   }
+
+  // Editörden gelen vurgu her zaman kazanıyor; alan boş bırakıldıysa vurgu
+  // yapılmaması isteniyor demektir, o yüzden boş string de geçerli bir değer.
+  if (input.baslikVurgu !== undefined) baslikVurgu = input.baslikVurgu.trim();
 
   const modulSayisi = input.modules.length;
   const dersSayisi = input.modules.reduce((n, m) => n + m.dersler.length, 0);

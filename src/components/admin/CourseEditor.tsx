@@ -7,6 +7,7 @@ import { saveCourse, arsivleCourse } from "@/app/kontrol-9f4x2k/(protected)/egit
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
 import { KapakGorseli } from "@/components/admin/KapakGorseli";
+import { basligiParcala } from "@/lib/courses";
 
 // Rows loaded from the database carry their id so saving updates them in place
 // instead of recreating them (which would wipe student progress). Rows added in
@@ -16,6 +17,8 @@ type EditorModule = { id?: string; ad: string; dersler: EditorLesson[] };
 
 export type CourseEditorInitial = {
   ad: string;
+  /** Başlıkta marka rengiyle yazılacak kısım. Boşsa başlık düz görünür. */
+  vurgu: string;
   sure: string;
   format: string;
   seviye: string;
@@ -31,6 +34,7 @@ export type CourseEditorInitial = {
 
 const BOS_INITIAL: CourseEditorInitial = {
   ad: "",
+  vurgu: "",
   sure: "",
   format: "",
   seviye: "",
@@ -51,6 +55,7 @@ export function CourseEditor({
 }) {
   const bildir = useBildirim();
   const [ad, setAd] = useState(initial.ad);
+  const [vurgu, setVurgu] = useState(initial.vurgu);
   const [sure, setSure] = useState(initial.sure);
   const [format, setFormat] = useState(initial.format);
   const [seviye, setSeviye] = useState(initial.seviye);
@@ -73,6 +78,7 @@ export function CourseEditor({
       originalSlug,
       slug: url,
       baslik: ad,
+      baslikVurgu: vurgu,
       sure,
       format,
       seviye,
@@ -179,6 +185,42 @@ export function CourseEditor({
                   placeholder="Örn. Birebir Meta Business Eğitimi"
                   className="h-[46px] rounded-[10px] border border-ink/14 bg-white px-[14px] text-[14.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
                 />
+                <span className="text-[12.5px] leading-[1.5] text-[#656B7A]">
+                  Eğitim sayfasının başlığı, sekme adı ve arama sonucu bu adı kullanır.
+                </span>
+              </label>
+
+              {/* Vurgu ayrı bir alan: eğitim sayfasındaki başlıkta bir kısım
+                  marka rengiyle yazılıyor. Önceden yalnızca veritabanından
+                  düzenlenebiliyordu ve zamanla programın adından kopmuştu. */}
+              <label className="flex flex-col gap-2 sm:col-span-2">
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">
+                  Başlıkta renkli yazılacak kısım
+                </span>
+                <input
+                  type="text"
+                  value={vurgu}
+                  onChange={(e) => setVurgu(e.target.value)}
+                  placeholder="Örn. Meta Business"
+                  className="h-[46px] rounded-[10px] border border-ink/14 bg-white px-[14px] text-[14.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                />
+                <span className="text-[12.5px] leading-[1.5] text-[#656B7A]">
+                  Program adının içinde geçen bir parça olmalı. Boş bırakırsan başlık tek renk yazılır.
+                </span>
+                {ad.trim() && (
+                  <span className="mt-1 rounded-[10px] bg-ink px-4 py-3 font-heading text-[19px] leading-[1.15] font-semibold tracking-[-0.03em] text-white">
+                    {(() => {
+                      const p = basligiParcala(ad, vurgu);
+                      return (
+                        <>
+                          {p.once}
+                          {p.vurgu && <span className="text-brand">{p.vurgu}</span>}
+                          {p.sonra}
+                        </>
+                      );
+                    })()}
+                  </span>
+                )}
               </label>
               <label className="flex flex-col gap-2">
                 <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Toplam süre</span>

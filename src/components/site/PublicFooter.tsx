@@ -3,6 +3,7 @@ import { Logo } from "./Logo";
 import { Icon } from "@/components/Icon";
 import { CerezTercihleriDugmesi } from "@/components/site/CerezTercihleriDugmesi";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
+import { getCourses } from "@/lib/courses";
 import {
   SOSYAL,
   WHATSAPP_NUMARALAR,
@@ -28,16 +29,6 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
       { label: "Katılımcı yorumları", href: "/yorumlar" },
       { label: "İletişim", href: "/iletisim" },
       { label: "Panele giriş", href: "/giris" },
-    ],
-  },
-  {
-    baslik: "Eğitim",
-    linkler: [
-      { label: "Birebir Meta Ads Eğitimi", href: "/egitimler/meta-business" },
-      { label: "Birebir Sosyal Medya Eğitimi", href: "/egitimler/sosyal-medya" },
-      { label: "Yapay Zekâ Eğitimi", href: "/egitimler/yapay-zeka" },
-      { label: "Tüm eğitimler", href: "/egitimler" },
-      { label: "Kurumsal eğitim", href: "/kurumsal" },
     ],
   },
   {
@@ -72,10 +63,35 @@ const YASAL_LINKLER = [
   { label: "KVKK", href: "/kisisel-verilerin-islenmesi" },
 ];
 
+/**
+ * Eğitim sütunu veritabanından kuruluyor.
+ *
+ * Önceden üç eğitim elle yazılmıştı ve ikisinin adresi artık yoktu: eğitimler
+ * panelden yeniden adlandırılınca bağlantılar 404'e düşmüş, üstelik sitenin
+ * HER sayfasında. Elle yazılan liste er geç veriden kopuyor; bu yüzden liste
+ * artık yayındaki eğitimlerin kendisi.
+ */
+async function egitimSutunu(): Promise<{ baslik: string; linkler: FooterLink[] }> {
+  const egitimler = await getCourses();
+  return {
+    baslik: "Eğitim",
+    linkler: [
+      // Footer'ın uzamaması için ilk dördü; gerisi "Tüm eğitimler" altında.
+      ...egitimler.slice(0, 4).map((e) => ({ label: e.baslik, href: `/egitimler/${e.slug}` })),
+      { label: "Tüm eğitimler", href: "/egitimler" },
+      { label: "Kurumsal eğitim", href: "/kurumsal" },
+    ],
+  };
+}
+
 export async function PublicFooter() {
   // Bant yalnızca ölçümleme tanımlıyken basılıyor. Tercih bağlantısını her
   // koşulda göstermek, tıklanınca hiçbir şey yapmayan bir buton bırakırdı.
-  const olcumlemeVar = olcumlemeAcik(await getOlcumleme());
+  const [olcumleme, egitim] = await Promise.all([getOlcumleme(), egitimSutunu()]);
+  const olcumlemeVar = olcumlemeAcik(olcumleme);
+
+  // Eğitim sütunu "Akademi"den sonra, "İletişim"den önce duruyordu.
+  const sutunlar = [footerColumns[0], egitim, ...footerColumns.slice(1)];
 
   return (
     <footer className="border-t border-white/10 bg-ink text-white/60">
@@ -101,7 +117,7 @@ export async function PublicFooter() {
             ))}
           </div>
         </div>
-        {footerColumns.map((k) => (
+        {sutunlar.map((k) => (
           <div key={k.baslik}>
             <div className="font-mono text-[10.5px] tracking-[0.16em] text-white/55 uppercase">{k.baslik}</div>
             <div className="mt-[18px] flex flex-col gap-[11px]">

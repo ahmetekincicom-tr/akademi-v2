@@ -44,6 +44,36 @@ export const egitmenStats = [
   { n: "Ankara", t: "yüz yüze & online" },
 ];
 
+/**
+ * Eğitim başlığını üç parçaya ayırır: vurgudan önce, vurgu, vurgudan sonra.
+ *
+ * Amaç başlığın bir kısmını marka rengiyle göstermek — ama başlığın KENDİSİNİ
+ * bozmadan. Önceden hero'da başlık parça parça kuruluyordu ("Birebir" sabiti +
+ * vurgu + tek bir eğitim için elle eklenen "Eğitimi"), dolayısıyla ekranda
+ * görünen ad ile eğitimin gerçek adı tutmuyordu; sekme başlığı, kırıntı yolu
+ * ve yapısal veri tam adı kullandığı için aynı sayfada iki farklı isim vardı.
+ *
+ * Vurgu boşsa, tam başlığa eşitse ya da başlıkta geçmiyorsa vurgu yapılmıyor:
+ * bu durumların hepsinde doğru davranış, adı olduğu gibi yazmak.
+ */
+export function basligiParcala(baslik: string, vurgu: string) {
+  const tam = baslik.trim();
+  const aranan = vurgu.trim();
+  if (!aranan || aranan.toLocaleLowerCase("tr") === tam.toLocaleLowerCase("tr")) {
+    return { once: tam, vurgu: "", sonra: "" };
+  }
+
+  const yer = tam.toLocaleLowerCase("tr").indexOf(aranan.toLocaleLowerCase("tr"));
+  if (yer === -1) return { once: tam, vurgu: "", sonra: "" };
+
+  return {
+    once: tam.slice(0, yer),
+    // Büyük/küçük harf başlıktaki hâliyle korunuyor.
+    vurgu: tam.slice(yer, yer + aranan.length),
+    sonra: tam.slice(yer + aranan.length),
+  };
+}
+
 export const kutuNot = [
   "Ders kayıtları ve dokümanlar üye alanınızda",
   "Ömür boyu soru-cevap desteği",

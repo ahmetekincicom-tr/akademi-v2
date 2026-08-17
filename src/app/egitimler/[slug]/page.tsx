@@ -7,7 +7,7 @@ import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
 import { HeroHizliBilgi } from "@/components/site/HeroHizliBilgi";
-import { getCourseBySlug, kutuNot } from "@/lib/courses";
+import { getCourseBySlug, kutuNot, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { sayfaMeta, egitimSemasi, kirintiSemasi } from "@/lib/seo";
 
@@ -35,6 +35,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
   if (!course) notFound();
 
   const icerik = await getSiteIcerik();
+
+  // Hero başlığı eğitimin tam adı; vurgulanan kısım renkli yazılıyor.
+  const parca = basligiParcala(course.baslik, course.baslikVurgu);
 
   // Yapısal veri: eğitimi "Course" olarak işaretliyor ve arama sonucunda
   // kırıntı yolunu veriyor. İçerik bizim ürettiğimiz nesne.
@@ -81,7 +84,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               Eğitimler
             </Link>
             <span>/</span>
-            <span className="text-white/80">{course.baslikVurgu}</span>
+            {/* Kırıntı yolu da eğitimin tam adını gösteriyor: vurgu alanı
+                yalnızca renklendirme içindi ve zamanla addan kopabiliyor. */}
+            <span className="text-white/80">{course.baslik}</span>
           </div>
           <div className="mt-10 grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="animate-rise">
@@ -107,7 +112,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 </div>
               )}
               <h1 className="font-heading text-[38px] leading-[1.06] font-semibold tracking-[-0.04em] sm:text-[46px] lg:text-[56px] lg:leading-[1.04]">
-                Birebir <span className="text-brand">{course.baslikVurgu}</span> {course.slug === "meta-business" ? "Eğitimi" : ""}
+                {parca.once}
+                {parca.vurgu && <span className="text-brand">{parca.vurgu}</span>}
+                {parca.sonra}
               </h1>
               <p className="mt-6 max-w-[560px] text-[19px] leading-[1.62] text-white/68">{course.heroAciklama}</p>
               <HeroHizliBilgi bilgiler={course.hizli} />
