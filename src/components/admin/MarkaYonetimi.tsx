@@ -3,7 +3,12 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { markaGuncelle, type MarkaAlan } from "@/app/kontrol-9f4x2k/(protected)/marka/actions";
+import {
+  markaGuncelle,
+  logoYuksekligiKaydet,
+  type MarkaAlan,
+} from "@/app/kontrol-9f4x2k/(protected)/marka/actions";
+import { LOGO_YUKSEKLIK_ALT, LOGO_YUKSEKLIK_UST, VARSAYILAN_LOGO_YUKSEKLIGI } from "@/lib/marka";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
 
@@ -11,6 +16,7 @@ export type MarkaGorunum = {
   logoKoyuZemin: string | null;
   logoAcikZemin: string | null;
   favicon: string | null;
+  logoYuksekligi: number;
 };
 
 type Kart = {
@@ -68,6 +74,7 @@ export function MarkaYonetimi({ marka }: { marka: MarkaGorunum }) {
         {KARTLAR.map((k) => (
           <MarkaKarti key={k.alan} kart={k} url={mevcut[k.alan]} />
         ))}
+        <LogoBoyutu marka={marka} />
       </div>
     </main>
   );
@@ -191,5 +198,117 @@ function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Logo boyutu ayarı.
+ *
+ * Neden ayar: bir logonun ekranda ne kadar büyük durduğunu yalnızca piksel
+ * yüksekliği belirlemiyor. SVG'nin viewBox'ında kenar payı varsa aynı
+ * yükseklikte gözle görülür biçimde küçük duruyor — ve o payı kod tarafından
+ * bilmenin yolu yok. Sürgüyü oynatıp gözle karar vermek, dosyayı yeniden
+ * dışa aktarmaktan hızlı.
+ */
+function LogoBoyutu({ marka }: { marka: MarkaGorunum }) {
+  const router = useRouter();
+  const bildir = useBildirim();
+  const [deger, setDeger] = useState(marka.logoYuksekligi);
+  const [islemde, startTransition] = useTransition();
+
+  const degisti = deger !== marka.logoYuksekligi;
+
+  const kaydet = () =>
+    startTransition(async () => {
+      const r = await logoYuksekligiKaydet(deger);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili("Logo boyutu güncellendi.");
+        router.refresh();
+      }
+    });
+
+  // Site tarafındaki oranların aynısı (src/components/site/Logo.tsx).
+  const onizleme = [
+    { ad: "Üst menü", oran: 1, koyu: false, url: marka.logoAcikZemin },
+    { ad: "Alt bilgi", oran: 0.88, koyu: true, url: marka.logoKoyuZemin },
+    { ad: "Giriş ekranı", oran: 1.2, koyu: true, url: marka.logoKoyuZemin },
+  ];
+
+  return (
+    <section className="rounded-2xl border border-ink/10 bg-white p-6">
+      <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Logo boyutu</h2>
+      <p className="mt-1 max-w-[640px] text-[13.5px] leading-[1.6] text-[#5C6273]">
+        Üst menüdeki logonun yüksekliği. Alt bilgi ve giriş ekranı bu değerden oranlanır, yani üçü birlikte
+        büyüyüp küçülür. Logo olması gerekenden küçük duruyorsa önce buradan dene; düzelmiyorsa dosyanın
+        kenarlarında boşluk var demektir.
+      </p>
+
+      <div className="mt-5 flex flex-wrap items-center gap-4">
+        <input
+          type="range"
+          min={LOGO_YUKSEKLIK_ALT}
+          max={LOGO_YUKSEKLIK_UST}
+          step={1}
+          value={deger}
+          onChange={(e) => setDeger(Number(e.target.value))}
+          className="h-2 w-full max-w-[380px] accent-[#1C56F3]"
+          aria-label="Logo yüksekliği"
+        />
+        <span className="font-mono text-[13px] text-[#3A3F4F]">{deger} px</span>
+        {deger !== VARSAYILAN_LOGO_YUKSEKLIGI && (
+          <button
+            type="button"
+            onClick={() => setDeger(VARSAYILAN_LOGO_YUKSEKLIGI)}
+            className="text-[13px] font-semibold text-[#5C6273] underline underline-offset-2 hover:text-brand"
+          >
+            Varsayılana dön ({VARSAYILAN_LOGO_YUKSEKLIGI} px)
+          </button>
+        )}
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {onizleme.map((o) => {
+          const y = Math.round(deger * o.oran);
+          return (
+            <div key={o.ad} className="overflow-hidden rounded-[12px] border border-ink/10">
+              <div className="border-b border-ink/8 px-3 py-2 font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
+                {o.ad} · {y} px
+              </div>
+              <div
+                className="flex items-center px-4 py-5"
+                style={{ background: o.koyu ? "#0A0D18" : "#FFFFFF" }}
+              >
+                {o.url ? (
+                  /* eslint-disable-next-line @next/next/no-img-element -- önizleme */
+                  <img
+                    src={o.url}
+                    alt=""
+                    style={{ height: y, maxWidth: y * 7 }}
+                    className="w-auto object-contain"
+                  />
+                ) : (
+                  <span
+                    style={{ height: y, fontSize: Math.round(y * 0.38) }}
+                    className="flex items-center rounded-[9px] bg-brand px-3 font-heading font-bold text-white"
+                  >
+                    AE
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={kaydet}
+        disabled={!degisti || islemde}
+        className="mt-5 h-[44px] rounded-[10px] bg-brand px-6 text-[15px] font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"
+      >
+        {islemde ? "Kaydediliyor…" : degisti ? "Boyutu kaydet" : "Kaydedildi"}
+      </button>
+    </section>
   );
 }

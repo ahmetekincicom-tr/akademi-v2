@@ -45,7 +45,7 @@ export function AuthShell({
         <UygulamadaPasif>
           {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor;
               aksi halde tıklayan kişi yönlendirmeyle buraya geri düşüyordu. */}
-          <Logo href={ON_YUZ_ACIK ? "/" : "/giris"} variant="light" subline="Öğrenci paneli" />
+          <Logo href={ON_YUZ_ACIK ? "/" : "/giris"} variant="light" yer="giris" subline="Öğrenci paneli" />
         </UygulamadaPasif>
 
         <div className="relative max-w-[460px]">

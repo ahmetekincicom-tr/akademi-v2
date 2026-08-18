@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getMarkaYollari } from "@/lib/marka";
+import { getMarkaYollari, logoYuksekligiDuzelt } from "@/lib/marka";
 
 export type MarkaAlan = "logo_koyu_zemin" | "logo_acik_zemin" | "favicon";
 
@@ -45,6 +45,33 @@ export async function markaGuncelle(alan: MarkaAlan, yeniYol: string | null) {
   // deleted file is a broken logo on every page.
   if (eskiYol && eskiYol !== yeniYol) {
     await supabase.storage.from("marka").remove([eskiYol]);
+  }
+
+  tazele();
+  return {};
+}
+
+/**
+ * Logo yüksekliği.
+ *
+ * Ayrı bir eylem: dosya yükleme yok, yalnızca bir sayı. Değer sunucuda da
+ * sınırlanıyor — server action'lar herkese açık uç noktalar ve buraya gelen
+ * uç bir sayı bütün sayfaların başlığını bozardı. Veritabanındaki check
+ * kısıtı üçüncü katman.
+ */
+export async function logoYuksekligiKaydet(deger: number) {
+  const yukseklik = logoYuksekligiDuzelt(deger);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("marka")
+    .update({ logo_yuksekligi: yukseklik, updated_at: new Date().toISOString() })
+    .eq("id", true)
+    .select("id");
+
+  if (error) return { error: error.message };
+  if (!data || data.length === 0) {
+    return { error: "Kaydedilemedi. Yönetici yetkisi doğrulanamadı (RLS)." };
   }
 
   tazele();

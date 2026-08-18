@@ -28,7 +28,7 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
         genişliklerde olduğu için menü sürekli bir yana kayıyor. Yanlardaki iki
         sütunun 1fr olması ortadakini alanın gerçek ortasına oturtuyor.
       */}
-      <div className="mx-auto grid h-[74px] max-w-[1240px] grid-cols-[auto_1fr] items-center gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
+      <div className="mx-auto grid min-h-[74px] max-w-[1240px] py-2.5 grid-cols-[auto_1fr] items-center gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
         <Logo href={logoAdres} />
 
         {menu ? (

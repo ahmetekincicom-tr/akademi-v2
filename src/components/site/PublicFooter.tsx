@@ -111,7 +111,7 @@ export async function PublicFooter() {
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-12 px-5 sm:px-8 py-16 pb-7 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
         <div>
           {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor. */}
-          <Logo variant="light" href={ON_YUZ_ACIK ? "/" : "/giris"} />
+          <Logo variant="light" yer="alt" href={ON_YUZ_ACIK ? "/" : "/giris"} />
           <p className="mt-[18px] max-w-[280px] text-[14.5px] leading-[1.65]">
             Dijital çağın dinamiklerine uygun, birebir eğitim deneyimi. Ankara ve online.
           </p>
