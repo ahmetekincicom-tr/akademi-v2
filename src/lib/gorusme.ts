@@ -4,6 +4,8 @@ export type GorusmeDurum = "talep" | "odeme_bekliyor" | "planlandi" | "tamamland
 
 export type Gorusme = {
   id: string;
+  /** Ücretli görüşmenin ödeme kaydı; ücretsizlerde null. */
+  paymentId: string | null;
   userId: string;
   kisiAd: string;
   kisiEmail: string;
@@ -45,7 +47,7 @@ export const GORUSME_DURUM_ETIKET: Record<GorusmeDurum, string> = {
 };
 
 const SELECT = `
-  id, user_id, konu, aciklama, tercih_zaman, ucretsiz, ucret, odendi, odeme_referansi,
+  id, user_id, payment_id, konu, aciklama, tercih_zaman, ucretsiz, ucret, odendi, odeme_referansi,
   baslangic, sure_dk, toplanti_link, durum, admin_notu, created_at,
   profiles(ad, soyad, email)
 `;
@@ -53,6 +55,7 @@ const SELECT = `
 type Row = {
   id: string;
   user_id: string;
+  payment_id: string | null;
   konu: string;
   aciklama: string | null;
   tercih_zaman: string | null;
@@ -73,6 +76,7 @@ function map(r: Row): Gorusme {
   const kisi = r.profiles;
   return {
     id: r.id,
+    paymentId: r.payment_id ?? null,
     userId: r.user_id,
     kisiAd: [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—",
     kisiEmail: kisi?.email ?? "",
@@ -125,15 +129,38 @@ export async function getGorusmeAyarlari(client: SupabaseClient): Promise<Gorusm
   };
 }
 
+/** Kişinin iptal edilmemiş en az bir eğitim kaydı var mı. */
+export async function egitimKaydiVarMi(client: SupabaseClient): Promise<boolean> {
+  const { count, error } = await client
+    .from("enrollments")
+    .select("id", { count: "exact", head: true })
+    .neq("durum", "iptal");
+
+  if (error) {
+    console.error("[gorusme] eğitim kaydı okunamadı:", error.message);
+    // Hata durumunda "kaydı yok" varsayılıyor: yanlış tarafa düşmek ücretsiz
+    // hak dağıtmaktan iyi. Karar zaten sunucuda yeniden veriliyor.
+    return false;
+  }
+  return (count ?? 0) > 0;
+}
+
 /**
  * Mirrors the rule the database enforces when a request is created — cancelled
  * meetings do not consume a right. Used for display only; the decision that
  * matters is made server-side in gorusme_talep_olustur().
+ *
+ * Ücretsiz hak eğitim kaydına bağlı: kaydı olmayan için kalan hak sıfır ve
+ * her görüşme ücretli.
  */
-export function hakDurumu(gorusmeler: Gorusme[], ayarlar: GorusmeAyarlari) {
+export function hakDurumu(
+  gorusmeler: Gorusme[],
+  ayarlar: GorusmeAyarlari,
+  egitimKaydiVar: boolean,
+) {
   const kullanilan = gorusmeler.filter((g) => g.ucretsiz && g.durum !== "iptal").length;
-  const kalan = Math.max(ayarlar.ucretsizHak - kullanilan, 0);
+  const kalan = egitimKaydiVar ? Math.max(ayarlar.ucretsizHak - kullanilan, 0) : 0;
   const bekleyen = gorusmeler.some((g) => g.durum === "talep" || g.durum === "odeme_bekliyor");
 
-  return { kullanilan, kalan, bekleyen, sonrakiUcretli: kalan === 0 };
+  return { kullanilan, kalan, bekleyen, sonrakiUcretli: kalan === 0, egitimKaydiVar };
 }

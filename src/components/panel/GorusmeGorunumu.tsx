@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { gorusmeTalepEt, gorusmeIptalEt } from "@/app/panel/gorusmeler/actions";
 import { Icon } from "@/components/Icon";
@@ -31,7 +32,13 @@ export function GorusmeGorunumu({
 }: {
   gorusmeler: Gorusme[];
   ayarlar: GorusmeAyarlari;
-  hak: { kullanilan: number; kalan: number; bekleyen: boolean; sonrakiUcretli: boolean };
+  hak: {
+    kullanilan: number;
+    kalan: number;
+    bekleyen: boolean;
+    sonrakiUcretli: boolean;
+    egitimKaydiVar: boolean;
+  };
 }) {
   // Ödeme yüzeyleri uygulamada kapalı: Apple'ın 3.1.3 maddesi uygulama
   // içinden dışarıdaki ödemeye yönlendirmeyi yasaklıyor ve ödeme açıklaması
@@ -60,6 +67,11 @@ export function GorusmeGorunumu({
       if (r?.error) {
         setHata(r.error);
         bildir.hata(r.error);
+      } else if (r?.odemeYolu) {
+        // Ücretli yol: talep ödeme tamamlanınca geçerli oluyor, o yüzden
+        // kişiyi burada bırakmayıp doğrudan ödeme ekranına götürüyoruz.
+        bildir.basarili("Talebin hazır. Ödemeyi tamamlayınca planlamaya alıyoruz.");
+        router.push(r.odemeYolu);
       } else {
         bildir.basarili("Görüşme talebin alındı. En kısa sürede planlayıp buraya ekleyeceğiz.");
         setFormAcik(false);
@@ -93,10 +105,15 @@ export function GorusmeGorunumu({
             Danışmanlık görüşmeleri
           </h1>
           <p className="mt-2 max-w-[620px] text-[15px] text-[#5C6273]">
-            Eğitimin bittikten sonra da takıldığın yerlerde birebir görüşebilirsin.
+            {hak.egitimKaydiVar
+              ? "Eğitimin bittikten sonra da takıldığın yerlerde birebir görüşebilirsin."
+              : "Dijital pazarlamada takıldığın bir konuyu birebir konuşabilirsin. Eğitim katılımcısı değilsen görüşme ücrete tabidir."}
           </p>
         </div>
-        {ayarlar.aktif && !hak.bekleyen && (
+        {/* Uygulamada ödeme yüzeyi yok (Apple 3.1.3). Eğitim kaydı olmayan
+            kişinin tek yolu ödeme olduğu için talep düğmesi uygulamada
+            gösterilmiyor; yerine aşağıdaki bilgi kutusu çıkıyor. */}
+        {ayarlar.aktif && !hak.bekleyen && !(native && !hak.egitimKaydiVar) && (
           <button
             type="button"
             onClick={() => setFormAcik((v) => !v)}
@@ -123,11 +140,13 @@ export function GorusmeGorunumu({
         <div ref={formRef}>
           <GorusmeSihirbazi
             bilgi={
-              hak.sonrakiUcretli
-                ? native
-                  ? "Ücretsiz hakların doldu. Talebini gönderdikten sonra planlama için sana döneceğiz."
-                  : `Ücretsiz hakların doldu. Bu görüşme ${ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} olarak planlanır; talebi gönderdikten sonra ödeme bilgileri burada görünür.`
-                : `Bu görüşme ücretsiz haklarından düşülecek. Kalan: ${hak.kalan}`
+              !hak.sonrakiUcretli
+                ? `Bu görüşme ücretsiz haklarından düşülecek. Kalan: ${hak.kalan}`
+                : native
+                  ? "Talebini gönderdikten sonra planlama için sana döneceğiz."
+                  : hak.egitimKaydiVar
+                    ? `Ücretsiz hakların doldu. Bu görüşme ${ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"}; devam edince ödeme ekranına yönlendirileceksin.`
+                    : `Görüşme ücreti ${ayarlar.ucret > 0 ? para(ayarlar.ucret) : "belirlenecek"}. Devam edince ödeme ekranına yönlendirileceksin; talebin ödeme tamamlanınca planlamaya alınır.`
             }
             islemde={islemde}
             onGonder={gonder}
@@ -141,9 +160,13 @@ export function GorusmeGorunumu({
         <div className="rounded-2xl border border-ink/10 bg-white p-5">
           <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Kalan ücretsiz hak</div>
           <div className="mt-[10px] font-heading text-[30px] leading-none font-semibold tracking-[-0.03em]">
-            {hak.kalan}
+            {hak.egitimKaydiVar ? hak.kalan : "—"}
           </div>
-          <div className="mt-2 text-[13px] text-[#656B7A]">{ayarlar.ucretsizHak} hakkın var</div>
+          <div className="mt-2 text-[13px] text-[#656B7A]">
+            {hak.egitimKaydiVar
+              ? `${ayarlar.ucretsizHak} hakkın var`
+              : "Eğitim katılımcılarına özel"}
+          </div>
         </div>
         <div className="rounded-2xl border border-ink/10 bg-white p-5">
           <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Kullanılan</div>
@@ -175,9 +198,19 @@ export function GorusmeGorunumu({
           Ücretlendirme ve ödeme
         </div>
         <p className="mt-[10px] text-[14px] leading-[1.7] text-[#5C6273]">
-          Her katılımcının {ayarlar.ucretsizHak} ücretsiz birebir görüşme hakkı var. Hakların bittikten sonra her
-          görüşme {ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} olarak planlanır ve {ayarlar.sureDk} dakika
-          sürer. İptal ettiğin talepler hakkından düşmez.
+          {hak.egitimKaydiVar ? (
+            <>
+              Eğitime katılan her katılımcının {ayarlar.ucretsizHak} ücretsiz birebir görüşme hakkı var. Hakların
+              bittikten sonra her görüşme {ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} olarak planlanır ve{" "}
+              {ayarlar.sureDk} dakika sürer. İptal ettiğin talepler hakkından düşmez.
+            </>
+          ) : (
+            <>
+              Ücretsiz görüşme hakkı eğitime katılan katılımcılara özeldir. Eğitim kaydın olmadığı için her görüşme{" "}
+              {ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli"} ve {ayarlar.sureDk} dakika sürer. Talebin, ödeme
+              tamamlandıktan sonra planlamaya alınır; ödemeden vazgeçersen talebi iptal edebilirsin.
+            </>
+          )}
         </p>
         {ayarlar.odemeAciklamasi && (
           <div className="mt-4 rounded-[11px] bg-mist px-4 py-[14px]">
@@ -188,6 +221,16 @@ export function GorusmeGorunumu({
           </div>
         )}
       </div>
+      )}
+
+      {/* Uygulamada, eğitim kaydı olmayan kişiye ne ücret ne ödeme yolu
+          gösteriliyor (Apple 3.1.3). Yapabileceği bir şey olmadığı için
+          durumu açıkça yazmak, çalışmayan bir düğme bırakmaktan iyi. */}
+      {native && !hak.egitimKaydiVar && ayarlar.aktif && (
+        <div className="mt-5 rounded-[11px] border border-ink/12 bg-mist px-4 py-3 text-[13.5px] leading-[1.6] text-[#5C6273]">
+          Birebir danışmanlık görüşmeleri eğitim katılımcılarına açıktır. Eğitim kaydın oluşturulduğunda bu bölüm
+          kullanıma açılır.
+        </div>
       )}
 
       {!ayarlar.aktif && (
@@ -214,7 +257,9 @@ export function GorusmeGorunumu({
               <Icon name="clock" size={22} />
             </div>
             <p className="mx-auto mt-4 max-w-[420px] text-[14.5px] leading-[1.6] text-[#5C6273]">
-              Henüz bir görüşme talebin yok. {ayarlar.ucretsizHak} ücretsiz hakkın seni bekliyor.
+              {hak.egitimKaydiVar
+                ? `Henüz bir görüşme talebin yok. ${ayarlar.ucretsizHak} ücretsiz hakkın seni bekliyor.`
+                : "Henüz bir görüşme talebin yok."}
             </p>
           </div>
         ) : (
@@ -293,6 +338,17 @@ export function GorusmeGorunumu({
                     <p className="mt-2 text-[12.5px] text-[#656B7A]">
                       Ödemen onaylandığında bu talep otomatik olarak planlamaya geçer.
                     </p>
+                    {/* Ödeme kaydı varsa doğrudan ödeme ekranına: talebi
+                        oluşturup sayfayı kapatan kişinin geri dönüş yolu. */}
+                    {g.paymentId && (
+                      <Link
+                        href={`/panel/odemelerim/ode/${g.paymentId}`}
+                        className="mt-3 inline-flex h-9 items-center gap-[6px] rounded-[9px] bg-brand px-[15px] text-[13.5px] font-semibold text-white transition hover:bg-ink"
+                      >
+                        <Icon name="card" size={14} />
+                        Ödemeyi tamamla
+                      </Link>
+                    )}
                   </div>
                 )}
 

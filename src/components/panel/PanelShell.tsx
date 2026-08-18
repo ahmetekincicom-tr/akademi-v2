@@ -15,6 +15,12 @@ type MenuItem = {
   icon: IconName;
   /** Menüde ayrıca öne çıkarılan bölüm; okunmamış sayacı da burada gösteriliyor. */
   vurgulu?: boolean;
+  /**
+   * Henüz açılmamış bölüm: tıklanamaz, yanında "Çok yakında" etiketi çıkar.
+   * Menüden tamamen kaldırmak yerine bırakılıyor — yolun var olduğunu
+   * göstermek, sonradan belirmesinden daha anlaşılır.
+   */
+  yakinda?: boolean;
 };
 type MenuGroup = { title: string; items: MenuItem[] };
 
@@ -45,7 +51,7 @@ const groups: MenuGroup[] = [
     title: "Hesap",
     items: [
       { href: "/panel/odemelerim", label: "Ödemelerim", icon: "card" },
-      { href: "/panel/yeni-egitimler", label: "Yeni eğitimler", icon: "sparkle" },
+      { href: "/panel/yeni-egitimler", label: "Yeni eğitimler", icon: "sparkle", yakinda: true },
       { href: "/panel/hesabim", label: "Hesabım", icon: "user" },
     ],
   },
@@ -208,6 +214,26 @@ export function PanelShell({
               </div>
               {g.items.map((m) => {
                 const active = pathname === m.href;
+
+                if (m.yakinda) {
+                  return (
+                    <div
+                      key={m.href}
+                      aria-disabled
+                      className="flex cursor-not-allowed items-center gap-[11px] rounded-[9px] border-l-2 border-transparent px-3 py-[9px] text-sm"
+                      style={{ color: "rgba(255,255,255,0.34)", fontWeight: 500 }}
+                    >
+                      <span className="flex flex-none opacity-45">
+                        <Icon name={m.icon} size={17} />
+                      </span>
+                      <span className="flex-1 truncate">{m.label}</span>
+                      <span className="flex-none rounded-full bg-white/10 px-[7px] py-[2px] font-mono text-[9px] tracking-[0.06em] text-white/55 uppercase">
+                        Çok yakında
+                      </span>
+                    </div>
+                  );
+                }
+
                 return (
                   <Link
                     key={m.href}

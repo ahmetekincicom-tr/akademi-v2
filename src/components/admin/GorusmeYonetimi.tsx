@@ -49,7 +49,10 @@ export function GorusmeYonetimi({
   const [ayarAcik, setAyarAcik] = useState(false);
   const [islemde, startTransition] = useTransition();
 
-  const bekleyen = gorusmeler.filter((g) => g.durum === "talep" || g.durum === "odeme_bekliyor");
+  // Ödemesi tamamlanmamış taslaklar ayrı: onlarda yönetimin yapacağı bir iş
+  // yok, ödeme gelince kendiliğinden 'talep' oluyorlar.
+  const bekleyen = gorusmeler.filter((g) => g.durum === "talep");
+  const odemeBekleyen = gorusmeler.filter((g) => g.durum === "odeme_bekliyor");
   const planli = gorusmeler.filter((g) => g.durum === "planlandi");
 
   const calistir = (
@@ -79,7 +82,9 @@ export function GorusmeYonetimi({
             Danışmanlık görüşmeleri
           </h1>
           <p className="mt-[7px] text-[14.5px] text-[#5C6273]">
-            {bekleyen.length} bekleyen · {planli.length} planlı · {gorusmeler.length} toplam
+            {bekleyen.length} bekleyen · {planli.length} planlı
+            {odemeBekleyen.length > 0 && ` · ${odemeBekleyen.length} ödeme bekleyen taslak`} ·{" "}
+            {gorusmeler.length} toplam
           </p>
         </div>
         <button

@@ -40,7 +40,13 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
     supabase
       .from("gorusmeler")
       .select("id", { count: "exact", head: true })
-      .in("durum", ["talep", "odeme_bekliyor"]),
+      /*
+        Yalnızca 'talep'. 'odeme_bekliyor' artık ödemesi tamamlanmamış bir
+        taslak: kişi formu doldurdu ama ödemedi, dolayısıyla yönetimin
+        yapacağı bir iş yok. Sayaca dahil edilirse rozet hiç eksilmeyen bir
+        gürültüye dönüşüyor.
+      */
+      .eq("durum", "talep"),
   ]);
 
   const isim = [profile.ad, profile.soyad].filter(Boolean).join(" ") || profile.email || "Yönetici";

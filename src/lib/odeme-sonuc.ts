@@ -157,12 +157,32 @@ async function odemeBildirimi(
     telefon: string | null;
   } | null;
   const kurs = (odeme?.courses as unknown as { baslik: string } | null)?.baslik ?? "Belirtilmedi";
+
+  /*
+    Danışmanlık ödemesi mi?
+
+    Bu ödeme bir görüşmeye bağlıysa tahsilat aynı zamanda YENİ BİR TALEP demek:
+    veritabanındaki tetikleyici satırı 'odeme_bekliyor'dan 'talep'e çeviriyor.
+    Yöneticiye giden tek bildirim bu olduğu için görüşmenin konusu da burada
+    yazılıyor; aksi halde panelde nereden geldiği belirsiz bir talep beliriyor.
+  */
+  const { data: gorusme } = await servis
+    .from("gorusmeler")
+    .select("konu, tercih_zaman, sure_dk")
+    .eq("payment_id", paymentId)
+    .maybeSingle();
   const isim = [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—";
   const tutar = Number(odeme?.tutar ?? cevap.price ?? 0);
 
   const satirlar = [
     { etiket: "Tutar", deger: paraBicimi.format(tutar) },
-    { etiket: "Eğitim", deger: kurs },
+    ...(gorusme
+      ? [
+          { etiket: "Danışmanlık konusu", deger: gorusme.konu as string },
+          { etiket: "Tercih ettiği zaman", deger: (gorusme.tercih_zaman as string) || "Belirtilmedi" },
+          { etiket: "Süre", deger: `${gorusme.sure_dk} dk` },
+        ]
+      : [{ etiket: "Eğitim", deger: kurs }]),
     { etiket: "E-posta", deger: kisi?.email ?? "—" },
     { etiket: "Telefon", deger: kisi?.telefon ?? "—" },
   ];
@@ -183,12 +203,18 @@ async function odemeBildirimi(
   satirlar.push({ etiket: "iyzico ödeme no", deger: cevap.paymentId ?? "—" });
 
   await yoneticiBildirimi({
-    konu: `Ödeme alındı · ${paraBicimi.format(tutar)} · ${isim}`,
-    ustEtiket: "Ödeme alındı",
-    baslik: `${isim} ${paraBicimi.format(tutar)} ödedi`,
-    ozet: "Faturayı kesmeyi unutma.",
+    konu: gorusme
+      ? `Danışmanlık ödemesi · ${paraBicimi.format(tutar)} · ${isim}`
+      : `Ödeme alındı · ${paraBicimi.format(tutar)} · ${isim}`,
+    ustEtiket: gorusme ? "Danışmanlık talebi ödendi" : "Ödeme alındı",
+    baslik: gorusme
+      ? `${isim} danışmanlık görüşmesi için ödeme yaptı`
+      : `${isim} ${paraBicimi.format(tutar)} ödedi`,
+    ozet: gorusme
+      ? "Talep planlamaya hazır; görüşme saatini belirleyip katılımcıya ilet."
+      : "Faturayı kesmeyi unutma.",
     satirlar,
-    yol: "/kontrol-9f4x2k/odemeler",
-    eylemEtiketi: "Ödemeleri aç",
+    yol: gorusme ? "/kontrol-9f4x2k/gorusmeler" : "/kontrol-9f4x2k/odemeler",
+    eylemEtiketi: gorusme ? "Talebi panelde aç" : "Ödemeleri aç",
   });
 }
