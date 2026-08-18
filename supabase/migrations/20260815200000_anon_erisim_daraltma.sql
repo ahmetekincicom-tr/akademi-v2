@@ -26,7 +26,20 @@ revoke select on public.banka_ayarlari from anon;
 --
 -- Kayıtlı öğrenci ve yönetici (authenticated) etkilenmiyor: onların sorgusu
 -- oturumlu istemciden gidiyor ve RLS zaten kaydı olmayanı eliyor.
-revoke select (video_url, aciklama) on public.lessons from anon;
+--
+-- KOLON BAZLI REVOKE TEK BAŞINA İŞE YARAMIYOR. anon rolünde tablo düzeyinde
+-- SELECT var ve PostgreSQL'de tablo yetkisi bütün kolonları kapsıyor; kolon
+-- bazlı bir revoke onu delmiyor, hata da vermiyor — sessizce etkisiz kalıyor.
+-- (Bu dosyanın ilk hâli tam olarak bunu yapıyordu ve video kimlikleri açıkta
+-- kalmaya devam etmişti.) Doğru sıra: önce tablo yetkisini geri al, sonra
+-- yalnızca gösterilecek kolonları ver.
+revoke select on public.lessons from anon;
+grant select (id, module_id, sira, baslik, sure) on public.lessons to anon;
+
+-- Yazma yetkileri de alınıyor. RLS zaten engelliyordu (lessons'ta anon için
+-- insert/update/delete politikası yok), ama gereksiz bir yetkiyi taşımanın
+-- anlamı yok.
+revoke insert, update, delete, truncate, references, trigger on public.lessons from anon;
 
 -- İletişim formu boğması, aynı e-postadan son 10 dakikadaki kayıtları
 -- sayıyor (src/app/mesaj-actions.ts). Sayım her mesajda çalıştığı için
