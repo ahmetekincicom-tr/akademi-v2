@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { iyzicoAyari } from "@/lib/iyzico";
 import { denemeyiCoz } from "@/lib/odeme-sonuc";
+import { odemeAcildiBildir, odemeTamamlandiBildir } from "@/lib/odeme-eposta";
 
 export type OdemeInput = {
   userId: string;
@@ -24,7 +25,7 @@ export async function odemeEkle(input: OdemeInput) {
   if (!Number.isFinite(tutar) || tutar <= 0) return { error: "Geçerli bir tutar gir." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("payments").insert({
+  const { data: eklenen, error } = await supabase.from("payments").insert({
     user_id: input.userId,
     course_id: input.courseId || null,
     tutar,
@@ -33,9 +34,18 @@ export async function odemeEkle(input: OdemeInput) {
     odeme_tarihi: input.odemeTarihi ? new Date(input.odemeTarihi).toISOString() : new Date().toISOString(),
     fatura_no: input.faturaNo.trim() || null,
     online_odeme: input.onlineOdeme,
-  });
+  }).select("id").maybeSingle();
 
   if (error) return { error: error.message };
+
+  // Öğrenciye haber: bekleyen ödemede "ödemen tanımlandı", peşin
+  // işaretlenmişse doğrudan "ödemen alındı" (ve ön değerlendirme daveti).
+  // Kaydı görsün diye panele girmesini beklemenin anlamı yok.
+  if (eklenen?.id) {
+    if (input.durum === "bekliyor") await odemeAcildiBildir(supabase, eklenen.id);
+    else if (input.durum === "odendi") await odemeTamamlandiBildir(supabase, eklenen.id);
+  }
+
   revalidatePath("/kontrol-9f4x2k/odemeler");
   revalidatePath("/kontrol-9f4x2k");
   return {};
@@ -57,8 +67,16 @@ export async function odemeOnlineDegistir(id: string, acik: boolean) {
 
 export async function odemeDurumDegistir(id: string, durum: "odendi" | "bekliyor" | "iade") {
   const supabase = await createClient();
+
+  // Önceki durum okunuyor: "odendi" zaten yazılıysa tekrar mail gitmesin.
+  const { data: onceki } = await supabase.from("payments").select("durum").eq("id", id).maybeSingle();
+
   const { error } = await supabase.from("payments").update({ durum }).eq("id", id);
   if (error) return { error: error.message };
+
+  if (durum === "odendi" && onceki?.durum !== "odendi") {
+    await odemeTamamlandiBildir(supabase, id);
+  }
   revalidatePath("/kontrol-9f4x2k/odemeler");
   revalidatePath("/kontrol-9f4x2k");
   return {};

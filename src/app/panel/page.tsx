@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 import { Icon } from "@/components/Icon";
 import { EgitimlerimKarti } from "@/components/panel/EgitimlerimKarti";
 import { BaslangicAdimlari } from "@/components/panel/BaslangicAdimlari";
+import { PanelHosgeldin } from "@/components/panel/PanelHosgeldin";
 import { PanelUyari } from "@/components/panel/PanelUyari";
 import { UygulamaKurulum } from "@/components/panel/UygulamaKurulum";
 import { PushKayit } from "@/components/panel/PushKayit";
@@ -28,49 +28,55 @@ export default async function PanelOverviewPage() {
     { etiket: "Biten program", deger: String(tamamlananProgram), alt: "eğitim tamamlandı" },
   ];
 
+  // Karşılama kartındaki ilerleme çubuğu, aşağıdaki adım listesiyle aynı
+  // kaynaktan besleniyor; iki yerde iki farklı sayı görünmesin.
+  const adimToplam = baslangic.adimlar.length;
+  const adimTamam = baslangic.adimlar.filter((a) => a.tamam).length;
+
   return (
-    <main className="flex flex-col gap-[26px] p-[34px] pb-14">
+    <main className="flex flex-col gap-[22px] p-4 pb-14 sm:p-[34px]">
       <UygulamaKurulum />
       <PushKayit />
+
+      {/* Sıra: önce karşılama, sonra ne yapılacağı, sonra içerik. */}
+      <PanelHosgeldin
+        ad={profil?.ad ?? null}
+        altMetin={
+          courses.length > 0
+            ? "Kaldığın yerden devam edebilirsin."
+            : baslangic.tamamlandi
+              ? "Panelin hazır. Eğitim kaydın tanımlandığında dersler burada görünecek."
+              : "Kuruluma birkaç adım kaldı; aşağıdan takip edebilirsin."
+        }
+        ilerleme={baslangic.tamamlandi ? undefined : { tamam: adimTamam, toplam: adimToplam }}
+        eylem={
+          aktifKurs?.sonrakiDers
+            ? {
+                etiket: "Derse devam et",
+                yol: `/panel/dersler?kurs=${aktifKurs.slug}&ders=${aktifKurs.sonrakiDers.id}`,
+              }
+            : undefined
+        }
+      />
+
       {baslangic.uyari && <PanelUyari uyari={baslangic.uyari} />}
       {!baslangic.tamamlandi && <BaslangicAdimlari adimlar={baslangic.adimlar} />}
-      <div className="flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">
-            Merhaba{profil?.ad ? `, ${profil.ad}` : ""}
-          </h1>
-          <p className="mt-2 text-[15px] text-[#5C6273]">
-            {courses.length > 0
-              ? "Kaldığın yerden devam edebilirsin."
-              : "Panelin hazır. Eğitim kaydın tanımlandığında dersler burada görünecek."}
-          </p>
-        </div>
-        {aktifKurs?.sonrakiDers && (
-          <Link
-            href={`/panel/dersler?kurs=${aktifKurs.slug}&ders=${aktifKurs.sonrakiDers.id}`}
-            className="inline-flex h-[46px] items-center rounded-[11px] bg-brand px-[20px] text-[15px] font-semibold text-white hover:bg-ink"
-          >
-            Derse devam et
-          </Link>
-        )}
-      </div>
 
       {courses.length === 0 ? (
-        <div className="rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
+        /*
+          Düğme yok. Eskiden "Eğitimleri incele" vardı ve henüz açılmamış
+          bir sayfaya götürüyordu: çalışmayan bir düğme, hiç düğme
+          olmamasından kötü.
+        */
+        <div className="rounded-2xl border border-ink/10 bg-white px-6 py-12 text-center sm:px-8">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
             <Icon name="grid" size={22} />
           </div>
           <h2 className="mt-4 font-heading text-xl font-semibold tracking-[-0.02em]">Henüz bir eğitim kaydın yok</h2>
-          <p className="mx-auto mt-[10px] max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
-            Bir eğitime katıldığında dersler, ilerlemen ve materyaller bu panelde açılır. Programları inceleyip
-            başvurabilirsin.
+          <p className="mx-auto mt-[10px] max-w-[460px] text-[14.5px] leading-[1.65] text-[#5C6273]">
+            Eğitim kaydın tanımlandığında dersler, ilerlemen ve materyaller bu panelde açılır. Sorularını
+            soru-cevap bölümünden iletebilirsin.
           </p>
-          <Link
-            href="/panel/yeni-egitimler"
-            className="mt-6 inline-flex h-11 items-center rounded-[10px] bg-brand px-5 text-sm font-semibold text-white hover:bg-ink"
-          >
-            Eğitimleri incele
-          </Link>
         </div>
       ) : (
         <>

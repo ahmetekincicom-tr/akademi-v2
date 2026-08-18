@@ -108,6 +108,41 @@ async function panelKoku(): Promise<string | null> {
 }
 
 /**
+ * Öğrenciye biçimli bildirim gönderir.
+ *
+ * yoneticiBildirimi ile aynı iskelet, iki farkla: alıcı belirtiliyor ve marka
+ * kimliği akademinin kendisi ("Akademi Yönetim" değil). Yönetim bildirimleri
+ * iç yazışma gibi görünmeli, öğrenciye giden mail markanın yüzü.
+ */
+export async function ogrenciBildirimi(girdi: {
+  alici: string;
+  konu: string;
+  ustEtiket: string;
+  baslik: string;
+  ozet?: string;
+  satirlar?: BildirimSatiri[];
+  alinti?: string;
+  /** Panel içi yol: "/panel/odemelerim" gibi. Kök adres otomatik ekleniyor. */
+  yol?: string;
+  eylemEtiketi?: string;
+}): Promise<void> {
+  if (!epostaYapilandirildiMi()) return;
+  if (!girdi.alici) return;
+
+  const kok = girdi.yol ? await panelKoku() : null;
+  const { html, metin } = bildirimSablonu({
+    ustEtiket: girdi.ustEtiket,
+    baslik: girdi.baslik,
+    ozet: girdi.ozet,
+    satirlar: girdi.satirlar,
+    alinti: girdi.alinti,
+    eylem: kok && girdi.yol ? { etiket: girdi.eylemEtiketi ?? "Panele git", adres: `${kok}${girdi.yol}` } : undefined,
+  });
+
+  await epostaGonder({ konu: girdi.konu, metin, html, alici: girdi.alici });
+}
+
+/**
  * Yöneticiye biçimli bildirim gönderir.
  *
  * Çağıranların hepsi kullanıcıya ait bir işi yeni bitirmiş oluyor (mesaj

@@ -2,6 +2,7 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { basariliMi, odemeSorgula, type IyzicoAyar, type SorgulamaCevabi } from "@/lib/iyzico";
+import { odemeTamamlandiBildir } from "@/lib/odeme-eposta";
 import { yoneticiBildirimi } from "@/lib/eposta";
 
 /**
@@ -122,6 +123,8 @@ export async function denemeyiCoz(
     .eq("durum", "bekliyor");
 
   await odemeBildirimi(servis, deneme.payment_id, cevap);
+  // Öğrenciye de haber: tahsilat tamam, sıradaki adım ön değerlendirme.
+  await odemeTamamlandiBildir(servis, deneme.payment_id);
 
   return "basarili";
 }

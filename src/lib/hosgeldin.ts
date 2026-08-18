@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import { epostaGonder, epostaYapilandirildiMi } from "@/lib/eposta";
+import { epostaGonder, epostaYapilandirildiMi, yoneticiBildirimi } from "@/lib/eposta";
 import { bildirimSablonu } from "@/lib/eposta-sablon";
 
 /**
@@ -58,6 +58,35 @@ export async function hosgeldinGonder(): Promise<void> {
     });
 
     await epostaGonder({ konu: "Ahmet Ekinci Akademi üye alanına hoş geldin", metin, html, alici: user.email });
+
+    /*
+      Yeni üyelik bildirimi de burada.
+
+      Kayıt anında değil ilk girişte: e-posta doğrulaması açıkken kayıt olup
+      hiç giriş yapmayan adresler var ve onlar gerçek bir üye değil. Damga
+      zaten kişi başına bir kez atıldığı için bu bildirim de tam bir kez
+      gidiyor — ayrı bir "gönderildi mi" kaydı tutmaya gerek kalmıyor.
+    */
+    const { data: kisi } = await supabase
+      .from("profiles")
+      .select("ad, soyad, email, telefon, ileti_izni")
+      .eq("id", user.id)
+      .maybeSingle();
+    const tamAd = [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "Yeni üye";
+
+    await yoneticiBildirimi({
+      konu: `Yeni üyelik · ${tamAd}`,
+      ustEtiket: "Yeni üyelik",
+      baslik: `${tamAd} panele katıldı`,
+      ozet: "Hesap oluşturuldu ve ilk giriş yapıldı. Eğitim kaydı ve ödeme tanımlanmayı bekliyor.",
+      satirlar: [
+        { etiket: "E-posta", deger: kisi?.email ?? user.email ?? "—" },
+        { etiket: "Telefon", deger: kisi?.telefon ?? "—" },
+        { etiket: "İleti izni", deger: kisi?.ileti_izni ? "Var" : "Yok" },
+      ],
+      yol: "/kontrol-9f4x2k/ogrenciler",
+      eylemEtiketi: "Öğrencileri aç",
+    });
   } catch {
     // Hoş geldin maili girişi engellememeli. Sessiz geçiliyor.
   }
