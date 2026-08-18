@@ -3,6 +3,7 @@ import { Logo } from "./Logo";
 import { MobilMenu } from "./MobilMenu";
 import { AktifNav } from "./AktifNav";
 import { siteNav } from "./siteNav";
+import { ON_YUZ_ACIK } from "@/proxy";
 
 export type { NavItem } from "./siteNav";
 
@@ -13,6 +14,12 @@ export type { NavItem } from "./siteNav";
  * bağlantı vurgusu kendi istemci bileşenlerinde duruyor.
  */
 export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
+  // Ön yüz kapalıyken menü basılmıyor. Başlık yine de görünüyor çünkü yasal
+  // metin sayfaları açık kalıyor; ama oradaki menüdeki her bağlantı giriş
+  // ekranına yönlendirilirdi ve okuyan kişi çıkmaza girerdi.
+  const menu = ON_YUZ_ACIK;
+  const logoAdres = ON_YUZ_ACIK ? logoHref : "/giris";
+
   return (
     <header className="sticky top-0 z-60 border-b border-ink/9 bg-white/90 yapiskan-baslik">
       {/*
@@ -22,11 +29,15 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
         sütunun 1fr olması ortadakini alanın gerçek ortasına oturtuyor.
       */}
       <div className="mx-auto grid h-[74px] max-w-[1240px] grid-cols-[auto_1fr] items-center gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
-        <Logo href={logoHref} />
+        <Logo href={logoAdres} />
 
-        <nav className="hidden items-center justify-center gap-[6px] lg:flex">
-          <AktifNav items={siteNav} />
-        </nav>
+        {menu ? (
+          <nav className="hidden items-center justify-center gap-[6px] lg:flex">
+            <AktifNav items={siteNav} />
+          </nav>
+        ) : (
+          <div className="hidden lg:block" />
+        )}
 
         <div className="hidden justify-end lg:flex">
           <Link
@@ -38,7 +49,16 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
         </div>
 
         <div className="flex justify-end lg:hidden">
-          <MobilMenu nav={siteNav} />
+          {menu ? (
+            <MobilMenu nav={siteNav} />
+          ) : (
+            <Link
+              href="/giris"
+              className="inline-flex h-10 items-center rounded-[9px] bg-brand px-[16px] text-sm font-semibold text-white"
+            >
+              Üye girişi
+            </Link>
+          )}
         </div>
       </div>
     </header>

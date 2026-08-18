@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
@@ -106,7 +107,13 @@ export function GirisFormu({ hedef }: { hedef: string }) {
         <p className="mt-[26px] text-sm leading-[1.6] text-[#656B7A]">
           Panel erişimi yalnızca eğitime katılan kişiler içindir.{" "}
           <SadeceWeb>
-            Sorun yaşarsan <Link href="/iletisim">WhatsApp&apos;tan yaz</Link>.
+            {/* Doğrudan WhatsApp: iletişim sayfası ön yüzle birlikte kapalı,
+                ayrıca giriş yapamayan biri için en kısa yol zaten bu. */}
+            Sorun yaşarsan{" "}
+            <a href={whatsappLink(WHATSAPP_NUMARALAR[0].numara)} target="_blank" rel="noopener noreferrer">
+              WhatsApp&apos;tan yaz
+            </a>
+            .
           </SadeceWeb>
         </p>
     </div>

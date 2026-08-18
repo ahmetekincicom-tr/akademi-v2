@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ON_YUZ_ACIK } from "@/proxy";
 import { Logo } from "@/components/site/Logo";
 import { UygulamadaPasif } from "@/components/panel/SadeceWeb";
 
@@ -42,7 +43,9 @@ export function AuthShell({
 
         {/* Uygulamada logo tıklanmıyor: pazarlama sitesine açılan kapı olurdu. */}
         <UygulamadaPasif>
-          <Logo href="/" variant="light" subline="Öğrenci paneli" />
+          {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor;
+              aksi halde tıklayan kişi yönlendirmeyle buraya geri düşüyordu. */}
+          <Logo href={ON_YUZ_ACIK ? "/" : "/giris"} variant="light" subline="Öğrenci paneli" />
         </UygulamadaPasif>
 
         <div className="relative max-w-[460px]">

@@ -62,6 +62,64 @@ function uygulamayaAcik(pathname: string): boolean {
   return ACIK_KOKLER.some((k) => pathname === k || pathname.startsWith(k + "/"));
 }
 
+/**
+ * Tanıtım sitesi (ön yüz) yayında mı?
+ *
+ * false iken ana sayfa, eğitimler, hakkımızda gibi tanıtım sayfalarının
+ * hiçbiri sunulmuyor; hepsi panel girişine yönlendiriliyor. Tasarım ve
+ * içerikler bitene kadar yarım bir ön yüzü ne ziyaretçiye ne arama motoruna
+ * göstermenin anlamı var.
+ *
+ * Ön yüz hazır olduğunda: bu değeri true yap, yeterli. Sayfaları tek tek
+ * açmak istersen yolunu AYRICA_ACIK listesine ekle — o liste bayrak
+ * kapalıyken de geçerli.
+ */
+export const ON_YUZ_ACIK = false;
+
+/**
+ * Ön yüz kapalıyken bile açık kalan yollar.
+ *
+ * ACIK_KOKLER'den ayrı tutuluyor: o liste "uygulamanın içinde açılabilir"
+ * sorusunu, bu liste "tarayıcıda sunulur" sorusunu yanıtlıyor. İkisi bugün
+ * büyük ölçüde örtüşüyor ama aynı şey değil ve birini diğeri için
+ * değiştirmek sessiz hatalara yol açar.
+ */
+const AYRICA_ACIK = [
+  // Oturum akışı ve panel
+  "/panel",
+  YONETIM_KOKU,
+  "/giris",
+  "/kayit",
+  "/sifremi-unuttum",
+  "/sifre-belirle",
+  "/auth",
+  "/api",
+  "/cevrimdisi",
+  // Yasal metinler: kayıt ve ödeme ekranları buraya bağlantı veriyor,
+  // App Store da erişilebilir olmasını şart koşuyor.
+  "/gizlilik-politikasi",
+  "/kisisel-verilerin-islenmesi",
+  "/uyelik-sozlesmesi",
+  "/satis-sozlesmesi",
+  "/iptal-iade-politikasi",
+  // Makine tarafından okunan dosyalar. Bunlar ara katmandan geçiyor
+  // (matcher yalnızca görsel uzantılarını dışarıda bırakıyor); yönlendirilirse
+  // arama motoru site haritası yerine giriş sayfasının HTML'ini alır.
+  "/robots.txt",
+  "/sitemap.xml",
+  "/llms.txt",
+  "/manifest.webmanifest",
+  "/sw.js",
+];
+
+/** Ön yüz kapalıyken ziyaretçinin gönderildiği yer. */
+const KAPALI_HEDEF = "/giris";
+
+function suAndaSunuluyor(pathname: string): boolean {
+  if (ON_YUZ_ACIK) return true;
+  return AYRICA_ACIK.some((k) => pathname === k || pathname.startsWith(k + "/"));
+}
+
 // Panel arayan otomatik taramaların denediği bilinen adresler. Cevap olarak
 // giriş ekranı değil, ana sayfa dönüyor: burada bir panel olduğu bilgisi bile
 // verilmiyor.
@@ -71,7 +129,16 @@ export async function proxy(request: NextRequest) {
   // Oturum tazelemesinden önce: bu adreslerde yapılacak başka iş yok.
   const yol = request.nextUrl.pathname;
   if (TUZAK_KOKLER.some((k) => yol === k || yol.startsWith(k + "/"))) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL(ON_YUZ_ACIK ? "/" : KAPALI_HEDEF, request.url));
+  }
+
+  // Ön yüz kapalı: tanıtım sayfaları sunulmuyor, panel girişine gidiliyor.
+  //
+  // 307 kullanılıyor, 301 DEĞİL: bu geçici bir durum ve kalıcı yönlendirme
+  // hem tarayıcıda hem arama motorunda önbelleğe alınıyor. Ön yüz açıldığında
+  // 301 yemiş ziyaretçiler aylarca giriş ekranına düşmeye devam ederdi.
+  if (!suAndaSunuluyor(yol)) {
+    return NextResponse.redirect(new URL(KAPALI_HEDEF, request.url), 307);
   }
 
   let response = NextResponse.next({ request });

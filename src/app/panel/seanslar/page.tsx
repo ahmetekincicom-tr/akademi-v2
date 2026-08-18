@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 import { createClient } from "@/lib/supabase/server";
 import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
@@ -87,12 +88,16 @@ export default async function SeanslarPage() {
           {/* Uygulamada site iletişim sayfasına çıkmıyor; panel içindeki
               destek kanalına yönlendiriliyor. */}
           <SadeceWeb>
-            <Link
-              href="/iletisim"
+            {/* Site iletişim sayfası ön yüzle birlikte kapalı; öğrenci
+                doğrudan WhatsApp'a gidiyor. */}
+            <a
+              href={whatsappLink(WHATSAPP_NUMARALAR[0].numara)}
+              target="_blank"
+              rel="noopener noreferrer"
               className="mt-6 inline-flex h-11 items-center rounded-[10px] bg-brand px-5 text-sm font-semibold text-white hover:bg-ink"
             >
               İletişime geç
-            </Link>
+            </a>
           </SadeceWeb>
           <SadeceUygulama>
             <Link

@@ -4,6 +4,7 @@ import { Icon } from "@/components/Icon";
 import { CerezTercihleriDugmesi } from "@/components/site/CerezTercihleriDugmesi";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import { getCourses } from "@/lib/courses";
+import { ON_YUZ_ACIK } from "@/proxy";
 import {
   SOSYAL,
   WHATSAPP_NUMARALAR,
@@ -87,17 +88,30 @@ async function egitimSutunu(): Promise<{ baslik: string; linkler: FooterLink[] }
 export async function PublicFooter() {
   // Bant yalnızca ölçümleme tanımlıyken basılıyor. Tercih bağlantısını her
   // koşulda göstermek, tıklanınca hiçbir şey yapmayan bir buton bırakırdı.
-  const [olcumleme, egitim] = await Promise.all([getOlcumleme(), egitimSutunu()]);
+  const [olcumleme, egitim] = await Promise.all([
+    getOlcumleme(),
+    ON_YUZ_ACIK ? egitimSutunu() : Promise.resolve(null),
+  ]);
   const olcumlemeVar = olcumlemeAcik(olcumleme);
 
-  // Eğitim sütunu "Akademi"den sonra, "İletişim"den önce duruyordu.
-  const sutunlar = [footerColumns[0], egitim, ...footerColumns.slice(1)];
+  /*
+    Ön yüz kapalıyken tanıtım sütunları basılmıyor.
+
+    Alt bilgi yine görünüyor çünkü yasal metin sayfaları açık; ama oradaki
+    "Ana sayfa", "Hakkımızda", eğitim adları gibi bağlantıların hepsi giriş
+    ekranına yönlendirilir ve tıklayan kişi çıkmaza girerdi. Kalanlar
+    gerçekten çalışan bağlantılar: iletişim kanalları ve yasal metinler.
+  */
+  const sutunlar = ON_YUZ_ACIK
+    ? [footerColumns[0], egitim!, ...footerColumns.slice(1)]
+    : [{ baslik: "Akademi", linkler: [{ label: "Üye girişi", href: "/giris" }] }, ...footerColumns.slice(1)];
 
   return (
     <footer className="border-t border-white/10 bg-ink text-white/60">
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-12 px-5 sm:px-8 py-16 pb-7 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
         <div>
-          <Logo variant="light" />
+          {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor. */}
+          <Logo variant="light" href={ON_YUZ_ACIK ? "/" : "/giris"} />
           <p className="mt-[18px] max-w-[280px] text-[14.5px] leading-[1.65]">
             Dijital çağın dinamiklerine uygun, birebir eğitim deneyimi. Ankara ve online.
           </p>

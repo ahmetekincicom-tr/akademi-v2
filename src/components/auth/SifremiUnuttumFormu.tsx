@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 import { useRouter } from "next/navigation";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { Icon } from "@/components/Icon";
@@ -84,8 +85,11 @@ export function SifremiUnuttumFormu({ uyari }: { uyari?: string }) {
         </button>
         <p className="mt-[22px] text-sm leading-[1.6] text-[#656B7A]">
           <SadeceWeb>
-            E-postana erişimin yoksa <Link href="/iletisim">destek ekibine yaz</Link>; kimliğini doğrulayıp
-            adresi güncelleyelim.
+            E-postana erişimin yoksa{" "}
+            <a href={whatsappLink(WHATSAPP_NUMARALAR[0].numara)} target="_blank" rel="noopener noreferrer">
+              WhatsApp&apos;tan yaz
+            </a>
+            ; kimliğini doğrulayıp adresi güncelleyelim.
           </SadeceWeb>
           <SadeceUygulama>
             E-postana erişimin yoksa eğitmeninle iletişime geç; kimliğini doğrulayıp adresi güncelleyelim.

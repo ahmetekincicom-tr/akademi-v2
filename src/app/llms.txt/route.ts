@@ -1,6 +1,7 @@
 import { SITE_URL, SITE_ADI, VARSAYILAN_ACIKLAMA } from "@/lib/seo";
 import { getCourses } from "@/lib/courses";
 import { EPOSTA, INSTAGRAM_URL, OFIS_ADRESI, WHATSAPP_NUMARALAR } from "@/lib/iletisim";
+import { ON_YUZ_ACIK } from "@/proxy";
 
 // Eğitimler panelden değişiyor; dosya istek anında üretiliyor ki liste
 // gerçekle uyumsuz kalmasın.
@@ -18,7 +19,10 @@ export const dynamic = "force-dynamic";
  * public/ altına konsaydı ilk yeniden adlandırmada yanlış bilgi verirdi.
  */
 export async function GET() {
-  const egitimler = await getCourses();
+  // Ön yüz kapalıyken tanıtım sayfaları sunulmuyor; hepsi panel girişine
+  // yönlendiriliyor. Yönlendirilen adresleri burada saymak yapay zekâ arama
+  // motoruna okuyamayacağı bağlantılar vermek olur.
+  const egitimler = ON_YUZ_ACIK ? await getCourses() : [];
 
   const satirlar = [
     `# ${SITE_ADI}`,
@@ -37,6 +41,13 @@ export async function GET() {
     "",
     "## Eğitimler",
     "",
+    ...(!ON_YUZ_ACIK
+      ? [
+          "Eğitimlerin tanıtım sayfaları şu an yayında değil; yenileniyor.",
+          "Program bilgisi için iletişim kanalları aşağıda.",
+          "",
+        ]
+      : []),
     ...(egitimler.length > 0
       ? egitimler.flatMap((e) => [
           `### ${e.baslik}`,
@@ -49,13 +60,18 @@ export async function GET() {
       : ["Şu anda yayında eğitim yok.", ""]),
     "## Sayfalar",
     "",
-    `- [Ana sayfa](${SITE_URL}/)`,
-    `- [Eğitim programları](${SITE_URL}/egitimler)`,
-    `- [Hakkımızda — Ahmet Ekinci kimdir](${SITE_URL}/hakkimizda)`,
-    `- [Kurumsal eğitim](${SITE_URL}/kurumsal)`,
-    `- [Referanslar](${SITE_URL}/referanslar)`,
-    `- [Katılımcı yorumları](${SITE_URL}/yorumlar)`,
-    `- [İletişim](${SITE_URL}/iletisim)`,
+    `- [Katılımcı paneli girişi](${SITE_URL}/giris)`,
+    ...(ON_YUZ_ACIK
+      ? [
+          `- [Ana sayfa](${SITE_URL}/)`,
+          `- [Eğitim programları](${SITE_URL}/egitimler)`,
+          `- [Hakkımızda — Ahmet Ekinci kimdir](${SITE_URL}/hakkimizda)`,
+          `- [Kurumsal eğitim](${SITE_URL}/kurumsal)`,
+          `- [Referanslar](${SITE_URL}/referanslar)`,
+          `- [Katılımcı yorumları](${SITE_URL}/yorumlar)`,
+          `- [İletişim](${SITE_URL}/iletisim)`,
+        ]
+      : []),
     "",
     "## Fiyatlandırma",
     "",
