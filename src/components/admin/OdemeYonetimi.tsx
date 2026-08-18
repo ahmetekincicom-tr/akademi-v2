@@ -79,7 +79,9 @@ export function OdemeYonetimi({
         setHata(r.error);
         bildir.hata(r.error);
       } else {
-        bildir.basarili("Ödeme kaydedildi.");
+        // Uyarı varsa onu göster: kayıt oluştu ama öğrenci haberdar edilemedi.
+        if (r?.uyari) bildir.hata(r.uyari);
+        else bildir.basarili("Ödeme kaydedildi, katılımcıya bildirim gönderildi.");
         setForm({ ...form, userId: "", courseId: "", tutar: "", faturaNo: "" });
         setFormAcik(false);
         router.refresh();
@@ -92,7 +94,8 @@ export function OdemeYonetimi({
       const r = await odemeDurumDegistir(id, durum);
       if (r?.error) bildir.hata(r.error);
       else {
-        bildir.basarili("Ödeme durumu güncellendi.");
+        if (r?.uyari) bildir.hata(r.uyari);
+        else bildir.basarili("Ödeme durumu güncellendi.");
         router.refresh();
       }
     });

@@ -104,7 +104,7 @@ export async function mesajGonder(ticketId: string, metin: string) {
   return {};
 }
 
-export async function talepDurumDegistir(ticketId: string, durum: "acik" | "yanitlandi" | "kapandi") {
+export async function talepDurumDegistir(ticketId: string, durum: "acik" | "inceleniyor" | "yanitlandi" | "kapandi") {
   const supabase = await createClient();
   const { error } = await supabase
     .from("support_tickets")

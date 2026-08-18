@@ -21,10 +21,13 @@ import { useBildirim } from "@/components/Bildirim";
  * ayrı kayıyor, insan nerede olduğunu kaybediyordu.
  */
 
-type Durum = "acik" | "yanitlandi" | "kapandi";
+type Durum = "acik" | "inceleniyor" | "yanitlandi" | "kapandi";
 
 const DURUM_STIL: Record<Durum, { etiket: string; nokta: string; bg: string; fg: string }> = {
   acik: { etiket: "Açık", nokta: "#1C56F3", bg: "rgba(28,86,243,0.11)", fg: "#1C56F3" },
+  // Kehribar: "bakılıyor ama bitmedi" hâli için açık ile yanıtlandı arasında
+  // duran tek renk. Mavi de yeşil de bu ara adımı yutuyordu.
+  inceleniyor: { etiket: "İnceleniyor", nokta: "#C98A1B", bg: "rgba(201,138,27,0.15)", fg: "#A5711A" },
   yanitlandi: { etiket: "Yanıtlandı", nokta: "#188C5A", bg: "rgba(24,140,90,0.13)", fg: "#157A4E" },
   kapandi: { etiket: "Kapandı", nokta: "#8A90A0", bg: "rgba(10,13,24,0.07)", fg: "#5C6273" },
 };
@@ -32,6 +35,7 @@ const DURUM_STIL: Record<Durum, { etiket: string; nokta: string; bg: string; fg:
 const SUZGECLER: { deger: "hepsi" | Durum; etiket: string }[] = [
   { deger: "hepsi", etiket: "Tümü" },
   { deger: "acik", etiket: "Açık" },
+  { deger: "inceleniyor", etiket: "İnceleniyor" },
   { deger: "yanitlandi", etiket: "Yanıtlandı" },
   { deger: "kapandi", etiket: "Kapandı" },
 ];
@@ -111,11 +115,13 @@ export function TalepGorunumu({
   const [hata, setHata] = useState<string | null>(null);
   const [islemde, startTransition] = useTransition();
   const akisRef = useRef<HTMLDivElement>(null);
+  const yaziRef = useRef<HTMLTextAreaElement>(null);
 
   const sayilar = useMemo(
     () => ({
       hepsi: talepler.length,
       acik: talepler.filter((t) => t.durum === "acik").length,
+      inceleniyor: talepler.filter((t) => t.durum === "inceleniyor").length,
       yanitlandi: talepler.filter((t) => t.durum === "yanitlandi").length,
       kapandi: talepler.filter((t) => t.durum === "kapandi").length,
     }),
@@ -141,6 +147,21 @@ export function TalepGorunumu({
     yoksa listenin ilki gösteriliyor.
   */
   const secili = listelenen.find((t) => t.id === seciliId) ?? listelenen[0] ?? null;
+
+  /*
+    Yazma alanı içeriğe göre büyüyor.
+
+    resize tutamacı kaldırıldı: köşedeki tutamak gönder düğmesinin üstüne
+    biniyordu ve elle boyutlandırılan bir kutu sonraki mesajda o boyutta
+    kalıyordu. Üst sınır var, yoksa uzun bir mesaj yazma alanını ekranın
+    tamamına yayıp yazışmayı görünmez yapıyor.
+  */
+  useEffect(() => {
+    const el = yaziRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 220)}px`;
+  }, [yanit]);
 
   // Yeni mesaj gelince ya da başka talebe geçince akışın sonuna in.
   useEffect(() => {
@@ -212,6 +233,7 @@ export function TalepGorunumu({
           {adminMi && (
             <div className="flex items-center gap-2">
               <Ozet etiket="Açık" deger={sayilar.acik} vurgulu />
+              <Ozet etiket="İnceleniyor" deger={sayilar.inceleniyor} />
               <Ozet etiket="Yanıtlandı" deger={sayilar.yanitlandi} />
               <Ozet etiket="Toplam" deger={sayilar.hepsi} />
             </div>
@@ -436,6 +458,7 @@ export function TalepGorunumu({
                       className="h-9 rounded-[9px] border border-ink/13 bg-white px-[11px] text-[13px] font-semibold text-ink outline-none focus:border-brand"
                     >
                       <option value="acik">Açık</option>
+                      <option value="inceleniyor">İnceleniyor</option>
                       <option value="yanitlandi">Yanıtlandı</option>
                       <option value="kapandi">Kapandı</option>
                     </select>
@@ -526,8 +549,16 @@ export function TalepGorunumu({
               {/* Yazma alanı */}
               {secili.durum !== "kapandi" ? (
                 <div className="flex-none border-t border-ink/8 px-4 py-4 sm:px-6">
-                  <div className="rounded-[12px] border border-ink/13 bg-white transition focus-within:border-brand">
+                  {/*
+                    Kenarlık YALNIZCA bu sarmalayıcıda. Textarea'ya ayrıca
+                    border-0 veriliyor: tarayıcının kendi kenarlığı kalınca
+                    ekranda iç içe iki kutu görünüyordu.
+                  */}
+                  <div className="overflow-hidden rounded-[12px] border border-ink/13 bg-white transition focus-within:border-brand focus-within:ring-[3px] focus-within:ring-brand/12">
                     <textarea
+                      ref={yaziRef}
+                      data-odak="sarmal"
+                      rows={2}
                       value={yanit}
                       onChange={(e) => setYanit(e.target.value)}
                       onKeyDown={(e) => {
@@ -539,9 +570,9 @@ export function TalepGorunumu({
                         }
                       }}
                       placeholder={adminMi ? "Yanıtını yaz…" : "Mesajını yaz…"}
-                      className="min-h-[78px] w-full resize-y bg-transparent px-[14px] py-3 text-[15px] leading-[1.6] text-ink outline-none"
+                      className="block max-h-[220px] w-full resize-none appearance-none border-0 bg-transparent px-[14px] py-3 text-[15px] leading-[1.6] text-ink outline-none"
                     />
-                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink/7 px-[14px] py-[10px]">
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink/7 bg-[#FBFCFE] px-[14px] py-[10px]">
                       <span className="font-mono text-[10px] text-[#8A90A0]">⌘/Ctrl + Enter ile gönder</span>
                       <button
                         type="button"

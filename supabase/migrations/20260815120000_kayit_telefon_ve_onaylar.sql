@@ -35,11 +35,16 @@ declare
   v_ileti boolean := coalesce((new.raw_user_meta_data->>'ileti_izni')::boolean, false);
   v_sozlesme boolean := coalesce((new.raw_user_meta_data->>'sozlesme_onayi')::boolean, false);
 begin
-  insert into public.profiles (id, ad, soyad, telefon, sozlesme_onayi_tarihi, ileti_izni, ileti_izni_tarihi)
+  -- email UNUTULMAMALI: auth.users RLS altında okunamıyor, admin listeleri ve
+  -- öğrenciye giden bildirimlerin alıcısı bu aynadan geliyor. Bu satır bir kez
+  -- düşürüldü ve o tarihten sonra açılan hesaplarda mail sessizce gitmedi
+  -- (bkz. 20260818140000_profil_eposta_aynasini_onar.sql).
+  insert into public.profiles (id, ad, soyad, email, telefon, sozlesme_onayi_tarihi, ileti_izni, ileti_izni_tarihi)
   values (
     new.id,
     new.raw_user_meta_data->>'ad',
     new.raw_user_meta_data->>'soyad',
+    new.email,
     nullif(new.raw_user_meta_data->>'telefon', ''),
     case when v_sozlesme then now() end,
     v_ileti,

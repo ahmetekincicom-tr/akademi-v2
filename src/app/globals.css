@@ -299,6 +299,33 @@
   border-radius: 3px;
 }
 
+/*
+  Metin alanları bu kuralın DIŞINDA.
+
+  Şartnameye göre yazılabilir alanlar (input, textarea) fareyle tıklandığında
+  da :focus-visible eşleşiyor — düğmelerin aksine. Alanların hepsinde zaten
+  focus:border-brand var, dolayısıyla üstteki kural ikinci bir çerçeve
+  çiziyordu: ekranda iç içe iki mavi kutu. Destek ekranındaki yazma alanında
+  bu iyice göze batıyordu çünkü orada alanın kendisi de bir çerçevenin içinde.
+
+  Erişilebilirlik kaybı yok, tersine: odak göstergesi artık tek ve her alanda
+  aynı — kenarlık markaya döner, çevresinde yumuşak bir halka belirir.
+*/
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(28, 86, 243, 0.13);
+}
+
+/* Kendi çerçevesi olan bir sarmalayıcının içindeki alan: halka dışarıdaki
+   sarmalayıcıda çiziliyor, alanın kendisi işaretsiz kalmalı. */
+[data-odak="sarmal"]:focus-visible {
+  box-shadow: none;
+  border-color: transparent;
+}
+
 /* iOS Safari, 16px altındaki bir alana odaklanınca sayfayı yakınlaştırıyor ve
    düzen zıplıyor. Tailwind sınıfları eleman seçicisini geçtiği için !important
    şart; onay kutuları hariç tutuldu, orada yazı boyutu görünürlüğü etkilemiyor. */

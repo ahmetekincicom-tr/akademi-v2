@@ -6,6 +6,10 @@ import { ogrenciBildirimi } from "@/lib/eposta";
 /**
  * Ödemeyle ilgili öğrenci e-postaları.
  *
+ * Dönüş değeri var ve çağıran ona bakıyor. Önceden her şey sessizce yutuluyordu;
+ * öğrencinin profilinde e-posta adresi olmadığı için hiç gönderilmeyen bir
+ * bildirim, yönetici tarafında "gönderildi" gibi görünüyordu.
+ *
  * Tek dosyada toplanıyor çünkü aynı olay birden fazla yerden tetikleniyor:
  * ödeme yöneticinin panelinden de tamamlanabiliyor, iyzico dönüşünden de,
  * mutabakat görevinden de. Metni her çağrı yerinde ayrı yazmak er geç
@@ -14,6 +18,11 @@ import { ogrenciBildirimi } from "@/lib/eposta";
  * Hiçbiri hata fırlatmıyor: postanın gitmemesi tahsilatı ya da kaydı
  * geçersiz kılmaz.
  */
+
+export type BildirimSonuc = { gonderildi: boolean; sebep?: string };
+
+const EPOSTA_YOK =
+  "Katılımcının profilinde e-posta adresi yok, bildirim gönderilemedi.";
 
 const paraBicimi = new Intl.NumberFormat("tr-TR", {
   style: "currency",
@@ -70,10 +79,14 @@ async function odemeyiOku(servis: SupabaseClient, paymentId: string): Promise<Od
  * Ödemesi olduğunu panele girip fark etmesini beklemek, ödemenin günlerce
  * bekleyeceği anlamına geliyor. Bu mail o beklemeyi kaldırıyor.
  */
-export async function odemeAcildiBildir(servis: SupabaseClient, paymentId: string): Promise<void> {
+export async function odemeAcildiBildir(
+  servis: SupabaseClient,
+  paymentId: string,
+): Promise<BildirimSonuc> {
   try {
     const o = await odemeyiOku(servis, paymentId);
-    if (!o?.email) return;
+    if (!o) return { gonderildi: false, sebep: "Ödeme kaydı okunamadı." };
+    if (!o.email) return { gonderildi: false, sebep: EPOSTA_YOK };
 
     await ogrenciBildirimi({
       alici: o.email,
@@ -91,8 +104,10 @@ export async function odemeAcildiBildir(servis: SupabaseClient, paymentId: strin
       yol: "/panel/odemelerim",
       eylemEtiketi: "Ödemeyi görüntüle",
     });
-  } catch {
-    // Bildirim, ödemenin tanımlanmasını engellememeli.
+    return { gonderildi: true };
+  } catch (e) {
+    // Bildirim, ödemenin tanımlanmasını engellememeli; ama sessiz de kalmamalı.
+    return { gonderildi: false, sebep: e instanceof Error ? e.message : "Bilinmeyen hata" };
   }
 }
 
@@ -103,10 +118,14 @@ export async function odemeAcildiBildir(servis: SupabaseClient, paymentId: strin
  * takvimi ona göre kuruyoruz, dolayısıyla asıl istenen eylem bu. Danışmanlık
  * ödemesinde böyle bir adım yok, o yüzden metin ayrılıyor.
  */
-export async function odemeTamamlandiBildir(servis: SupabaseClient, paymentId: string): Promise<void> {
+export async function odemeTamamlandiBildir(
+  servis: SupabaseClient,
+  paymentId: string,
+): Promise<BildirimSonuc> {
   try {
     const o = await odemeyiOku(servis, paymentId);
-    if (!o?.email) return;
+    if (!o) return { gonderildi: false, sebep: "Ödeme kaydı okunamadı." };
+    if (!o.email) return { gonderildi: false, sebep: EPOSTA_YOK };
 
     if (o.gorusmeKonusu) {
       await ogrenciBildirimi({
@@ -124,7 +143,7 @@ export async function odemeTamamlandiBildir(servis: SupabaseClient, paymentId: s
         yol: "/panel/gorusmeler",
         eylemEtiketi: "Görüşmelerim",
       });
-      return;
+      return { gonderildi: true };
     }
 
     await ogrenciBildirimi({
@@ -143,7 +162,9 @@ export async function odemeTamamlandiBildir(servis: SupabaseClient, paymentId: s
       yol: "/panel/on-degerlendirme",
       eylemEtiketi: "Ön değerlendirmeyi doldur",
     });
-  } catch {
+    return { gonderildi: true };
+  } catch (e) {
     // Bildirim, tahsilatı geçersiz kılmaz.
+    return { gonderildi: false, sebep: e instanceof Error ? e.message : "Bilinmeyen hata" };
   }
 }

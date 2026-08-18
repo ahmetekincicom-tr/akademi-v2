@@ -41,14 +41,23 @@ export async function odemeEkle(input: OdemeInput) {
   // Öğrenciye haber: bekleyen ödemede "ödemen tanımlandı", peşin
   // işaretlenmişse doğrudan "ödemen alındı" (ve ön değerlendirme daveti).
   // Kaydı görsün diye panele girmesini beklemenin anlamı yok.
+  let uyari: string | undefined;
   if (eklenen?.id) {
-    if (input.durum === "bekliyor") await odemeAcildiBildir(supabase, eklenen.id);
-    else if (input.durum === "odendi") await odemeTamamlandiBildir(supabase, eklenen.id);
+    const sonuc =
+      input.durum === "bekliyor"
+        ? await odemeAcildiBildir(supabase, eklenen.id)
+        : input.durum === "odendi"
+          ? await odemeTamamlandiBildir(supabase, eklenen.id)
+          : { gonderildi: true };
+
+    // Kayıt oluştu ama bildirim gitmediyse bunu söylemek gerekiyor: sessiz
+    // kalırsa öğrencinin haberi olduğu varsayılıyor ve ödeme günlerce bekliyor.
+    if (!sonuc.gonderildi) uyari = `Ödeme kaydedildi ancak bildirim gönderilemedi. ${sonuc.sebep ?? ""}`.trim();
   }
 
   revalidatePath("/kontrol-9f4x2k/odemeler");
   revalidatePath("/kontrol-9f4x2k");
-  return {};
+  return uyari ? { uyari } : {};
 }
 
 /**
@@ -74,12 +83,14 @@ export async function odemeDurumDegistir(id: string, durum: "odendi" | "bekliyor
   const { error } = await supabase.from("payments").update({ durum }).eq("id", id);
   if (error) return { error: error.message };
 
+  let uyari: string | undefined;
   if (durum === "odendi" && onceki?.durum !== "odendi") {
-    await odemeTamamlandiBildir(supabase, id);
+    const sonuc = await odemeTamamlandiBildir(supabase, id);
+    if (!sonuc.gonderildi) uyari = `Durum güncellendi ancak bildirim gönderilemedi. ${sonuc.sebep ?? ""}`.trim();
   }
   revalidatePath("/kontrol-9f4x2k/odemeler");
   revalidatePath("/kontrol-9f4x2k");
-  return {};
+  return uyari ? { uyari } : {};
 }
 
 export async function odemeSil(id: string) {

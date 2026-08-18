@@ -21,7 +21,7 @@ export type DestekTalep = {
   kisiAd: string;
   baslik: string;
   program: string;
-  durum: "acik" | "yanitlandi" | "kapandi";
+  durum: "acik" | "inceleniyor" | "yanitlandi" | "kapandi";
   tarih: string;
   guncelleme: string;
   mesajlar: DestekMesaj[];
@@ -31,7 +31,7 @@ type TicketRow = {
   id: string;
   user_id: string;
   baslik: string;
-  durum: "acik" | "yanitlandi" | "kapandi";
+  durum: "acik" | "inceleniyor" | "yanitlandi" | "kapandi";
   created_at: string;
   updated_at: string;
   profiles: { ad: string | null; soyad: string | null; email: string | null } | null;

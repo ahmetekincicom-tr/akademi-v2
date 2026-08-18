@@ -46,6 +46,7 @@ export const odemeDurumEtiket: Record<string, string> = {
 
 export const talepDurumEtiket: Record<string, string> = {
   acik: "Açık",
+  inceleniyor: "İnceleniyor",
   yanitlandi: "Yanıtlandı",
   kapandi: "Kapandı",
 };
