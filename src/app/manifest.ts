@@ -31,7 +31,7 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: "Derslerim", url: "/panel/dersler" },
+      { name: "Gündem", url: "/panel/duyurular" },
       { name: "Birebir eğitim", url: "/panel/birebir-egitim" },
       { name: "Birebir eğitim", url: "/panel/birebir-egitim" },
     ],

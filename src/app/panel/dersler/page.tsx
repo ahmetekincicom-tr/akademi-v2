@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getPanelCourses } from "@/lib/panel";
+import { DERSLER_ACIK } from "@/lib/bolumler";
 import { DersPlayer } from "@/components/panel/DersPlayer";
 import { Icon } from "@/components/Icon";
 
@@ -8,6 +10,13 @@ export default async function DersIzlemePage({
 }: {
   searchParams: Promise<{ kurs?: string; ders?: string }>;
 }) {
+  /*
+    Bölüm kapalıyken adres elle yazılarak da açılmasın. Menüden kaldırmak
+    yetmiyor: eski sekmeler, yer imleri ve maillerdeki bağlantılar hâlâ
+    buraya geliyor ve içi boş bir oynatıcı açılıyordu.
+  */
+  if (!DERSLER_ACIK) redirect("/panel");
+
   const { kurs, ders } = await searchParams;
   const courses = await getPanelCourses();
 

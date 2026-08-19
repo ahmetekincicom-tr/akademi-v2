@@ -9,6 +9,7 @@ import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
 import type { PanelBildirimleri } from "@/lib/bildirimler";
+import { DERSLER_ACIK } from "@/lib/bolumler";
 
 type MenuItem = {
   href: string;
@@ -38,7 +39,9 @@ const groups: MenuGroup[] = [
       // duyarlı tek bölüm burası: içeriği eskiyen, "bugün ne oldu" diye
       // bakılan yer. Genel bakışın hemen altında.
       { href: "/panel/duyurular", label: "Gündem", icon: "bell", vurgulu: true, rozet: "duyuru" },
-      { href: "/panel/dersler", label: "Derslerim", icon: "playCircle" },
+      // Ders videoları hazır değil; bölüm menüde duruyor ama tıklanmıyor.
+      // Bayrak lib/bolumler.ts'te, üç yerde ayrı ayrı değil.
+      { href: "/panel/dersler", label: "Derslerim", icon: "playCircle", yakinda: !DERSLER_ACIK },
       { href: "/panel/testlerim", label: "Testlerim", icon: "check" },
       { href: "/panel/birebir-egitim", label: "Birebir eğitim", icon: "calendar", rozet: "birebir" },
       { href: "/panel/dokumanlar", label: "Doküman kütüphanesi", icon: "file" },
@@ -184,7 +187,7 @@ export function PanelShell({
         </div>
 
         <div className="border-b border-white/8 px-[18px] pt-4 pb-[14px]">
-          {aktifProgram ? (
+          {aktifProgram && DERSLER_ACIK ? (
             <Link
               href="/panel/dersler"
               className="group flex w-full items-center gap-[11px] rounded-[11px] border border-white/12 bg-white/[0.04] px-3 py-[11px] text-left transition hover:border-brand/60 hover:bg-white/[0.07]"
@@ -203,11 +206,15 @@ export function PanelShell({
               <Icon name="chevronRight" size={14} className="flex-none text-white/55 transition group-hover:text-white/70" />
             </Link>
           ) : (
+            /* Dersler kapalıyken kutu duruyor ama tıklanmıyor: programın adı
+               bilgi, oynatıcıya çıkan yol ise henüz yok. */
             <div className="rounded-[11px] border border-white/12 bg-white/[0.04] px-3 py-[11px]">
               <span className="block font-mono text-[9px] tracking-[0.16em] text-white/55 uppercase">
                 Aktif program
               </span>
-              <span className="mt-[3px] block text-[13px] font-semibold text-white/70">Henüz kayıt yok</span>
+              <span className="mt-[3px] block truncate text-[13px] font-semibold text-white/70">
+                {aktifProgram ? aktifProgram.baslik : "Henüz kayıt yok"}
+              </span>
             </div>
           )}
         </div>

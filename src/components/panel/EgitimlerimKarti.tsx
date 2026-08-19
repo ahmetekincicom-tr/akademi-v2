@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PanelCourse } from "@/lib/panel";
+import { DERSLER_ACIK } from "@/lib/bolumler";
 
 /**
  * Panel özetindeki eğitim listesi. Eğitim adı sarıyor, kesilmiyor: telefonda
@@ -18,23 +19,37 @@ export function EgitimlerimKarti({ courses }: { courses: PanelCourse[] }) {
           <div className="flex items-start gap-3 sm:gap-4">
             <div className="min-w-0 flex-1 text-[15px] leading-[1.35] font-semibold text-ink">{c.baslik}</div>
             <div className="flex flex-none items-center gap-[10px] sm:gap-4">
-              <span className="font-mono text-[13px] font-medium text-brand">{c.yuzde}%</span>
-              <Link
-                href={`/panel/dersler?kurs=${c.slug}`}
-                className="inline-flex h-9 items-center rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold whitespace-nowrap text-ink hover:border-brand hover:text-brand sm:px-[15px] sm:text-[13.5px]"
-              >
-                {c.yuzde === 100 ? "Tekrar izle" : "Devam et"}
-              </Link>
+              {DERSLER_ACIK ? (
+                <>
+                  <span className="font-mono text-[13px] font-medium text-brand">{c.yuzde}%</span>
+                  <Link
+                    href={`/panel/dersler?kurs=${c.slug}`}
+                    className="inline-flex h-9 items-center rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold whitespace-nowrap text-ink hover:border-brand hover:text-brand sm:px-[15px] sm:text-[13.5px]"
+                  >
+                    {c.yuzde === 100 ? "Tekrar izle" : "Devam et"}
+                  </Link>
+                </>
+              ) : (
+                /* Yüzde de gizli: ders yokken %0 yazmak "ilerlemedin" gibi
+                   okunuyor, oysa açılmamış bir bölüm. */
+                <span className="rounded-full bg-mist px-[9px] py-[4px] font-mono text-[9.5px] tracking-[0.08em] text-[#656B7A] uppercase">
+                  Çok yakında
+                </span>
+              )}
             </div>
           </div>
           {/* Künye satırın tamamını alıyor: dar sol sütunda "22 / saat" diye
               ikiye bölünüyordu. */}
           <div className="mt-[7px] font-mono text-[11.5px] leading-[1.5] text-[#656B7A]">
-            {c.modules.length} modül · {c.dersSayisi} ders{c.sure ? ` · ${c.sure}` : ""}
+            {DERSLER_ACIK
+              ? `${c.modules.length} modül · ${c.dersSayisi} ders${c.sure ? ` · ${c.sure}` : ""}`
+              : "Ders videoları hazırlanıyor; birebir eğitim takvimin etkilenmiyor."}
           </div>
-          <div className="mt-[11px] h-[6px] w-full overflow-hidden rounded-full bg-mist">
-            <div className="h-full rounded-full bg-brand" style={{ width: `${c.yuzde}%` }} />
-          </div>
+          {DERSLER_ACIK && (
+            <div className="mt-[11px] h-[6px] w-full overflow-hidden rounded-full bg-mist">
+              <div className="h-full rounded-full bg-brand" style={{ width: `${c.yuzde}%` }} />
+            </div>
+          )}
         </div>
       ))}
     </div>

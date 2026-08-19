@@ -10,6 +10,7 @@ import { PushKayit } from "@/components/panel/PushKayit";
 import { BildirimKutusu } from "@/components/panel/BildirimKutusu";
 import { OzetKarti } from "@/components/panel/OzetKarti";
 import { SonrakiDersKarti } from "@/components/panel/SonrakiDersKarti";
+import { DERSLER_ACIK } from "@/lib/bolumler";
 import { getBaslangic } from "@/lib/baslangic";
 import { getBildirimler } from "@/lib/bildirimler";
 import { getEgitimOturumlarim } from "@/lib/egitim-oturumu";
@@ -83,8 +84,13 @@ export default async function PanelOverviewPage() {
         Kaldığın yer, karşılamanın hemen altında ve tek başına bir satırda.
         Panelin girişinde yapılan işlerin çoğu bu: kutulardan biri olarak
         araya karışması, en sık tıklanan şeyi en zor bulunan şey yapıyordu.
+
+        Dersler kapalıyken hiç basılmıyor. Ders yokken kart "program
+        tamamlandı, tekrar izle" diyordu: sonrakiDers null olduğunda kalan
+        tek yorum bu ve daha ilk dersi görmemiş kişiye söylenecek en yanlış
+        cümle. Sayının değil, bölümün kendisinin olmaması sorundu.
       */}
-      {aktifKurs && <SonrakiDersKarti kurs={aktifKurs} />}
+      {DERSLER_ACIK && aktifKurs && <SonrakiDersKarti kurs={aktifKurs} />}
 
       {/*
         Özet kutuları. Dördü de artık bir yere gidiyor ve üçü değişken bir
@@ -92,21 +98,36 @@ export default async function PanelOverviewPage() {
         ("2/16", "2", "16") ve dünden bugüne hiçbiri değişmiyordu.
       */}
       <div className="grid grid-cols-2 gap-4 sm:gap-5 xl:grid-cols-4">
-        <OzetKarti
-          etiket="Genel ilerleme"
-          deger={`${genelYuzde}%`}
-          alt={toplamDers ? `${toplamTamamlanan}/${toplamDers} ders tamamlandı` : "Henüz ders yok"}
-          ikon="check"
-          yuzde={genelYuzde}
-          yol={aktifKurs ? `/panel/dersler?kurs=${aktifKurs.slug}` : undefined}
-        />
+        {/*
+          Dersler kapalıyken "Genel ilerleme %0" yazmak yanlış bilgi: kişi
+          geri kalmış değil, bölüm henüz açılmamış. Yerine kurulumun neresinde
+          olduğu yazıyor — o gerçekten değişen ve onu ilgilendiren sayı.
+        */}
+        {DERSLER_ACIK ? (
+          <OzetKarti
+            etiket="Genel ilerleme"
+            deger={`${genelYuzde}%`}
+            alt={toplamDers ? `${toplamTamamlanan}/${toplamDers} ders tamamlandı` : "Henüz ders yok"}
+            ikon="check"
+            yuzde={genelYuzde}
+            yol={aktifKurs ? `/panel/dersler?kurs=${aktifKurs.slug}` : undefined}
+          />
+        ) : (
+          <OzetKarti
+            etiket="Kurulum"
+            deger={`${adimTamam}/${adimToplam}`}
+            alt={baslangic.tamamlandi ? "Bütün adımlar tamam" : "adım tamamlandı"}
+            ikon="check"
+            yuzde={adimToplam ? Math.round((adimTamam / adimToplam) * 100) : 0}
+          />
+        )}
 
         <OzetKarti
           etiket="Kayıtlı program"
           deger={String(courses.length)}
           alt={courses.length === 1 ? "aktif eğitim" : "aktif eğitim kaydı"}
           ikon="playCircle"
-          yol={courses.length > 0 ? "/panel/dersler" : undefined}
+          yol={DERSLER_ACIK && courses.length > 0 ? "/panel/dersler" : undefined}
         />
 
         {/* Yaklaşan ders: sayfadaki tek gerçek zamanlı değer. */}
@@ -168,7 +189,7 @@ export default async function PanelOverviewPage() {
             <EgitimlerimKarti courses={courses} />
           )}
 
-          {aktifKurs && aktifKurs.modules.length > 0 && (
+          {DERSLER_ACIK && aktifKurs && aktifKurs.modules.length > 0 && (
             <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
               <div className="flex flex-wrap items-center gap-2.5 border-b border-ink/7 px-5 py-4 sm:px-6">
                 <span className="flex h-8 w-8 flex-none items-center justify-center rounded-[10px] bg-brand/11 text-brand">

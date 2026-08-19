@@ -88,7 +88,9 @@ export async function getBaslangic(): Promise<Baslangic> {
       // Kaynak egitim_oturumlari; seanslar DEĞİL. Seanslar eğitim bittikten
       // sonra kullanılan görüşme hakları, eğitimin takvimi değil.
       yol: planlandi ? null : testTamam ? "/panel/birebir-egitim" : null,
-      eylem: planlandi ? null : testTamam ? "Eğitimlerim" : null,
+      // Düğme "Eğitimlerim" yazıyordu ama birebir eğitim takvimine gidiyor;
+      // panelde "Eğitimlerim" diye bir bölüm yok, ad yolla eşleşmiyordu.
+      eylem: planlandi ? null : testTamam ? "Birebir eğitim" : null,
       bekliyor: !planlandi
         ? testTamam
           ? "Ön değerlendirmeni inceleyip tarihler için sana döneceğiz."
@@ -97,31 +99,23 @@ export async function getBaslangic(): Promise<Baslangic> {
     },
   ];
 
-  // Panele girer girmez görülecek tek iş. Öğrencinin yapabileceği iş, bizi
-  // bekleyen işin önüne geçiyor: bekleyen ödemede öğrenciye düşen bir şey yok
-  // ("ödemen ulaştığında işaretliyoruz"), test ise onun elinde.
-  //
-  // Bu sıralama yüzünden tek bir aralıkta bekleyen ödeme uyarısı görünmüyor:
-  // ilk ödeme onaylanmış ama test henüz doldurulmamışken. O aralıkta kayıt
-  // /panel/odemelerim'de duruyor ve test biter bitmez uyarı geri geliyor.
+  /*
+    Panele girer girmez görülecek tek iş.
+
+    Bekleyen ödeme buradan çıkarıldı: genel bakışta artık kendi özet kutusu
+    ve bildirim satırı var, şerit üçüncü kez aynı şeyi söylüyordu. Şerit
+    yalnızca ÖĞRENCİNİN YAPABİLECEĞİ bir iş için kalıyor — bekleyen ödemede
+    ona düşen bir şey yok ("ödemen ulaştığında işaretliyoruz"), test ise
+    onun elinde.
+  */
   let uyari: Uyari | null = null;
   if (odendi && !testTamam) {
     uyari = {
-      tip: "eylem",
       baslik: "Ön değerlendirme testini tamamla",
       metin: "Eğitimi sana göre kurabilmemiz için kısa bir soru setini doldurman gerekiyor.",
       yol: "/panel/testlerim",
       eylem: "Testi doldur",
       ikon: "file",
-    };
-  } else if (odemeler.bekleyenAdet > 0) {
-    uyari = {
-      tip: "bekleyen",
-      baslik: "Bekleyen ödemen var",
-      metin: `${paraBicimi.format(odemeler.bekleyenTutar)} tutarında ${odemeler.bekleyenAdet} ödeme onay bekliyor. Ödemen bize ulaştığında işaretliyoruz.`,
-      yol: "/panel/odemelerim",
-      eylem: "Ödemelerim",
-      ikon: "card",
     };
   }
 
