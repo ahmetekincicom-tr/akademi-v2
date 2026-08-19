@@ -8,6 +8,14 @@ import { Icon } from "@/components/Icon";
  * Burada gösterilmesinin sebebi kozmetik değil: adresi yanlış yazan kişi
  * mailin neden gelmediğini başka türlü anlayamıyor. Parametre yoksa (sayfa
  * elle açılmışsa) genel metne düşülüyor.
+ *
+ * Metin bilerek koşullu: "gönderdik" değil, "bağlıysa gönderdik".
+ *
+ * Supabase kayıtlı olmayan adres için de başarı dönüyor (HTTP 200, boş
+ * gövde) — adresin sistemde olup olmadığını sızdırmamak için. Yani bu sayfa
+ * mailin gerçekten gidip gitmediğini BİLMİYOR; kesin konuşursa yarısı yalan
+ * oluyor ve rastgele adres yazan kişi o adresin kayıtlı olduğunu sanıyor.
+ * Koşullu cümle hem doğru hem de kimseye hesap listesi vermiyor.
  */
 export default async function EPostaKontrolPage({
   searchParams,
@@ -28,17 +36,19 @@ export default async function EPostaKontrolPage({
         <p className="mt-3 text-[15.5px] leading-[1.65] text-[#5C6273]">
           {email ? (
             <>
-              <span className="font-semibold text-ink">{email}</span> adresine sıfırlama bağlantısı gönderdik.
+              <span className="font-semibold text-ink">{email}</span> adresi bir hesaba bağlıysa sıfırlama
+              bağlantısını oraya gönderdik.
             </>
           ) : (
-            "Kayıtlı adresine sıfırlama bağlantısı gönderdik."
+            "Yazdığın adres bir hesaba bağlıysa sıfırlama bağlantısını oraya gönderdik."
           )}{" "}
           Bağlantıya tıkladıktan sonra yeni şifreni belirleyebilirsin.
         </p>
         <div className="mt-[26px] rounded-[13px] border border-ink/11 bg-white px-5 py-[18px]">
           <div className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Gelmedi mi?</div>
           <p className="mt-[9px] text-sm leading-[1.6] text-[#3A3F4F]">
-            Spam klasörünü kontrol et. Adresi yanlış yazdıysan baştan deneyebilirsin; bağlantı 30 dakika geçerli.
+            Önce spam klasörüne bak. Mail hiç gelmediyse bu adres kayıtlı olmayabilir; hesabını başka bir adresle
+            açmış olabilirsin. Adresi yanlış yazdıysan baştan deneyebilirsin; bağlantı 30 dakika geçerli.
           </p>
         </div>
         <Link
