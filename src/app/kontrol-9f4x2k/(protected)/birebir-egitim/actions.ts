@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { trSaatiniUtcYap } from "@/lib/zaman";
 import { guvenliUrl } from "@/lib/guvenli-url";
 import { veriHatasi } from "@/lib/auth-hatalari";
+import { kayitArsiviBildir, oturumPlanlandiBildir } from "@/lib/egitim-eposta";
 
 export async function oturumEkle(input: {
   userId: string;
@@ -38,11 +40,39 @@ export async function oturumEkle(input: {
     kayit_link: input.kayitLink?.trim() || null,
   });
 
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
+
+  /*
+    Katılımcıya haber. Panele her gün girilmiyor; ders tarihini yalnızca
+    panele koymak, çoğu zaman kimsenin görmemesi demek.
+
+    Sonuç geri veriliyor ama hata sayılmıyor: oturum kaydedildi, postanın
+    gitmemesi bunu geri almaz. Yönetici arayüzde uyarıyı görüyor.
+  */
+  const program = input.courseId ? await kursAdi(supabase, input.courseId) : null;
+  const posta = await oturumPlanlandiBildir(supabase, input.userId, {
+    baslangic: baslangicUtc,
+    sureDk: sure,
+    konu: input.konu.trim(),
+    program,
+    toplantiLink: input.toplantiLink.trim() || null,
+  });
+
+  oturumTazele();
+  return posta.gonderildi ? {} : { uyari: `Oturum kaydedildi ama bildirim gitmedi: ${posta.sebep}` };
+}
+
+async function kursAdi(supabase: SupabaseClient, courseId: string): Promise<string | null> {
+  const { data } = await supabase.from("courses").select("baslik").eq("id", courseId).maybeSingle();
+  return (data?.baslik as string) ?? null;
+}
+
+function oturumTazele() {
   revalidatePath("/kontrol-9f4x2k/birebir-egitim");
   revalidatePath("/kontrol-9f4x2k/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
-  return {};
+  // Rozet ve bildirim kutusu panelin her sayfasında duruyor.
+  revalidatePath("/panel", "layout");
 }
 
 export async function oturumDurumDegistir(id: string, durum: "planlandi" | "tamamlandi" | "iptal") {
@@ -106,8 +136,17 @@ export async function arsivEkle(input: {
   });
 
   if (error) return { error: veriHatasi(error) };
+
+  // Yalnızca ekleme haber veriyor; güncelleme vermiyor. Bir yazım hatasını
+  // düzeltmek katılımcıya "kayıtların hazır" maili göndermemeli.
+  const program = input.courseId ? await kursAdi(supabase, input.courseId) : null;
+  const posta = await kayitArsiviBildir(supabase, input.userId, {
+    baslik: input.baslik?.trim() || "Ders kayıtları",
+    program,
+  });
+
   arsivTazele();
-  return {};
+  return posta.gonderildi ? {} : { uyari: `Klasör paylaşıldı ama bildirim gitmedi: ${posta.sebep}` };
 }
 
 export async function arsivGuncelle(id: string, input: { link: string; baslik?: string; aciklama?: string }) {
@@ -140,6 +179,7 @@ export async function arsivSil(id: string) {
 function arsivTazele() {
   revalidatePath("/kontrol-9f4x2k/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
+  revalidatePath("/panel", "layout");
 }
 
 export async function oturumSil(id: string) {

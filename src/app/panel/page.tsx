@@ -7,12 +7,15 @@ import { PanelUyari } from "@/components/panel/PanelUyari";
 import { UygulamaKurulum } from "@/components/panel/UygulamaKurulum";
 import { PushKayit } from "@/components/panel/PushKayit";
 import { getBaslangic } from "@/lib/baslangic";
+import { BildirimKutusu } from "@/components/panel/BildirimKutusu";
+import { getBildirimler } from "@/lib/bildirimler";
 
 export default async function PanelOverviewPage() {
-  const [profil, courses, baslangic] = await Promise.all([
+  const [profil, courses, baslangic, bildirim] = await Promise.all([
     getPanelProfile(),
     getPanelCourses(),
     getBaslangic(),
+    getBildirimler(),
   ]);
 
   const toplamDers = courses.reduce((n, c) => n + c.dersSayisi, 0);
@@ -61,6 +64,10 @@ export default async function PanelOverviewPage() {
 
       {baslangic.uyari && <PanelUyari uyari={baslangic.uyari} />}
       {!baslangic.tamamlandi && <BaslangicAdimlari adimlar={baslangic.adimlar} />}
+
+      {/* Bildirimler ilerleme sayılarından önce: sayılar dünden bugüne
+          değişmiyor, bildirim satırı ise bakılmasının sebebi. */}
+      <BildirimKutusu bildirim={bildirim} />
 
       {courses.length === 0 ? (
         /*

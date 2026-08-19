@@ -91,7 +91,11 @@ export function OgrenciDetay({
 
   const atanabilir = kurslar.filter((k) => !ogrenci.kayitlar.some((r) => r.courseId === k.id));
 
-  const calistir = (isim: string, is: () => Promise<{ error?: string } | undefined>, sonra?: () => void) => {
+  const calistir = (
+    isim: string,
+    is: () => Promise<{ error?: string; uyari?: string } | undefined>,
+    sonra?: () => void,
+  ) => {
     startTransition(async () => {
       const r = await is();
       if (r?.error) {
@@ -99,6 +103,9 @@ export function OgrenciDetay({
         return;
       }
       bildir.basarili(isim);
+      // İşlem oldu ama bildirim maili gitmedi: hata değil, ama sessizce
+      // geçilirse katılımcının haberi olduğu sanılır.
+      if (r?.uyari) bildir.bilgi(r.uyari);
       sonra?.();
       router.refresh();
     });

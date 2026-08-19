@@ -41,8 +41,18 @@ export type OturumMetinleri = {
   eklendi: string;
 };
 
+/**
+ * Ekleme sonucu.
+ *
+ * `typeof seansEkle` yazılmıyor: bileşen iki farklı eylemle çalışıyor
+ * (seanslar ve birebir eğitim) ve birebir eğitim tarafı ayrıca `uyari`
+ * döndürüyor — kayıt oldu ama bildirim maili gitmedi durumu. Tek bir
+ * eylemin imzasına bağlanmak diğerinin alanını görünmez yapıyordu.
+ */
+type EkleSonuc = { error?: string; uyari?: string };
+
 export type OturumEylemleri = {
-  ekle: typeof seansEkle;
+  ekle: (input: Parameters<typeof seansEkle>[0]) => Promise<EkleSonuc>;
   durumDegistir: typeof seansDurumDegistir;
   sil: typeof seansSil;
   kayitLinki: typeof seansKayitLinki;
@@ -101,6 +111,9 @@ export function SeansYonetimi({
         bildir.hata(r.error);
       } else {
         bildir.basarili(metin.eklendi);
+        // Kayıt oldu ama katılımcıya mail gitmediyse söylenmeli; sessiz
+        // kalırsa haberi olduğu sanılır.
+        if (r?.uyari) bildir.bilgi(r.uyari);
         setForm({ userId: "", courseId: "", baslangic: "", sureDk: "60", konu: "", toplantiLink: "" });
         setFormAcik(false);
         router.refresh();

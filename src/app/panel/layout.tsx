@@ -2,14 +2,13 @@ import { redirect } from "next/navigation";
 import { PanelShell } from "@/components/panel/PanelShell";
 import { AcilisEkrani } from "@/components/panel/AcilisEkrani";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
-import { getYayindakiDuyurular } from "@/lib/duyuru-sorgu";
-import { yeniSayisi } from "@/lib/duyuru";
+import { getBildirimler } from "@/lib/bildirimler";
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
-  const [profil, courses, duyurular] = await Promise.all([
+  const [profil, courses, bildirim] = await Promise.all([
     getPanelProfile(),
     getPanelCourses(),
-    getYayindakiDuyurular(),
+    getBildirimler(),
   ]);
   if (!profil) redirect("/giris");
 
@@ -20,7 +19,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         profil={profil}
         aktifProgram={courses[0] ? { baslik: courses[0].baslik, slug: courses[0].slug } : null}
         programSayisi={courses.length}
-        yeniDuyuru={yeniSayisi(duyurular)}
+        bildirim={bildirim}
       >
         {children}
       </PanelShell>

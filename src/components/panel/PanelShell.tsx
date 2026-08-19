@@ -8,13 +8,18 @@ import { Icon, type IconName } from "@/components/Icon";
 import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
+import type { PanelBildirimleri } from "@/lib/bildirimler";
 
 type MenuItem = {
   href: string;
   label: string;
   icon: IconName;
-  /** Menüde ayrıca öne çıkarılan bölüm; okunmamış sayacı da burada gösteriliyor. */
+  /** Menüde ayrıca öne çıkarılan bölüm. */
   vurgulu?: boolean;
+  /** Okunmamış sayacı hangi sayaçtan okunacak. */
+  rozet?: "duyuru" | "birebir" | "soruCevap";
+  /** Sayı değil, duran bir uyarı taşıyan bölüm (bekleyen ödeme gibi). */
+  uyari?: boolean;
   /**
    * Henüz açılmamış bölüm: tıklanamaz, yanında "Çok yakında" etiketi çıkar.
    * Menüden tamamen kaldırmak yerine bırakılıyor — yolun var olduğunu
@@ -32,25 +37,27 @@ const groups: MenuGroup[] = [
       // Gündem listenin sonundaydı ve göz oraya en son gidiyordu. Zaman
       // duyarlı tek bölüm burası: içeriği eskiyen, "bugün ne oldu" diye
       // bakılan yer. Genel bakışın hemen altında.
-      { href: "/panel/duyurular", label: "Gündem", icon: "bell", vurgulu: true },
+      { href: "/panel/duyurular", label: "Gündem", icon: "bell", vurgulu: true, rozet: "duyuru" },
       { href: "/panel/dersler", label: "Derslerim", icon: "playCircle" },
       { href: "/panel/testlerim", label: "Testlerim", icon: "check" },
-      { href: "/panel/birebir-egitim", label: "Birebir eğitim", icon: "calendar" },
+      { href: "/panel/birebir-egitim", label: "Birebir eğitim", icon: "calendar", rozet: "birebir" },
       { href: "/panel/dokumanlar", label: "Doküman kütüphanesi", icon: "file" },
     ],
   },
   {
     title: "Destek",
     items: [
-      { href: "/panel/seanslar", label: "Birebir seanslar", icon: "clock" },
+      // "Birebir seanslar" buradan kaldırıldı: birebir eğitimin kendi
+      // takvimi ve kayıtları artık Birebir eğitim sayfasında, iki ayrı
+      // takvim sekmesi aynı şeyi anlatıyordu.
       { href: "/panel/gorusmeler", label: "Danışmanlık görüşmeleri", icon: "calendar" },
-      { href: "/panel/soru-cevap", label: "Soru-cevap", icon: "message" },
+      { href: "/panel/soru-cevap", label: "Soru-cevap", icon: "message", rozet: "soruCevap" },
     ],
   },
   {
     title: "Hesap",
     items: [
-      { href: "/panel/odemelerim", label: "Ödemelerim", icon: "card" },
+      { href: "/panel/odemelerim", label: "Ödemelerim", icon: "card", uyari: true },
       { href: "/panel/yeni-egitimler", label: "Yeni eğitimler", icon: "sparkle", yakinda: true },
       { href: "/panel/hesabim", label: "Hesabım", icon: "user" },
     ],
@@ -69,7 +76,6 @@ const pageTitles: Record<string, string> = {
   "/panel/odemelerim": "Ödemelerim",
   "/panel/dokumanlar": "Doküman kütüphanesi",
   "/panel/duyurular": "Gündem",
-  "/panel/seanslar": "Birebir seanslar",
   "/panel/gorusmeler": "Danışmanlık görüşmeleri",
   "/panel/soru-cevap": "Soru-cevap",
   "/panel/yeni-egitimler": "Yeni eğitimler",
@@ -81,14 +87,14 @@ export function PanelShell({
   profil,
   aktifProgram,
   programSayisi,
-  yeniDuyuru,
+  bildirim,
 }: {
   children: React.ReactNode;
   profil: PanelProfile;
   aktifProgram: { baslik: string; slug: string } | null;
   programSayisi: number;
-  /** Son günlerde yayınlanan duyuru sayısı; menüde rozet olarak çıkıyor. */
-  yeniDuyuru: number;
+  /** Menü rozetleri; genel bakıştaki bildirim kutusuyla aynı kaynak. */
+  bildirim: PanelBildirimleri;
 }) {
   const pathname = usePathname();
   const pageTitle = pageTitles[pathname] ?? "Panel";
@@ -214,6 +220,10 @@ export function PanelShell({
               </div>
               {g.items.map((m) => {
                 const active = pathname === m.href;
+                const sayi = m.rozet ? bildirim.sayac[m.rozet] : 0;
+                // Ödeme sayı taşımıyor: "kaç tane" değil "hâlâ duruyor"
+                // bilgisi. Nokta o yüzden sayıdan ayrı.
+                const uyariVar = Boolean(m.uyari && bildirim.odemeBekliyor);
 
                 if (m.yakinda) {
                   return (
@@ -251,28 +261,39 @@ export function PanelShell({
                       */
                       background: active
                         ? "rgba(28,86,243,0.16)"
-                        : m.vurgulu
+                        : m.vurgulu || sayi > 0 || uyariVar
                           ? "rgba(255,255,255,0.06)"
                           : "transparent",
-                      color: active || m.vurgulu ? "#FFFFFF" : "rgba(255,255,255,0.62)",
-                      fontWeight: m.vurgulu ? 600 : 500,
+                      color:
+                        active || m.vurgulu || sayi > 0 || uyariVar ? "#FFFFFF" : "rgba(255,255,255,0.62)",
+                      fontWeight: m.vurgulu || sayi > 0 || uyariVar ? 600 : 500,
                     }}
                   >
                     <span
-                      className="flex flex-none"
+                      className="relative flex flex-none"
                       style={{
-                        opacity: m.vurgulu ? 1 : 0.8,
-                        color: m.vurgulu && !active ? "#A9C0FF" : undefined,
+                        opacity: m.vurgulu || sayi > 0 || uyariVar ? 1 : 0.8,
+                        color: uyariVar ? "#FFB4B6" : (m.vurgulu || sayi > 0) && !active ? "#A9C0FF" : undefined,
                       }}
                     >
                       <Icon name={m.icon} size={17} />
+                      {/*
+                        Ödeme uyarısı simgenin köşesinde nokta olarak duruyor.
+                        Sayı yazılmıyor: bekleyen ödeme adedi kullanıcının
+                        aklında tuttuğu bir sayı değil, "bir şey duruyor"
+                        bilgisi yeterli. Kırmızı, çünkü diğer rozetlerden
+                        farklı olarak bu eylem bekliyor.
+                      */}
+                      {uyariVar && (
+                        <span className="absolute -top-[3px] -right-[3px] h-[7px] w-[7px] rounded-full bg-[#E5484D] ring-2 ring-ink" />
+                      )}
                     </span>
                     <span className="flex-1 truncate">{m.label}</span>
-                    {/* Sayı yalnızca yeni duyuru varken çıkıyor; sıfır rozeti
+                    {/* Sayı yalnızca okunmamış varken çıkıyor; sıfır rozeti
                         her gün duran bir gürültüye dönüşüyor. */}
-                    {m.vurgulu && yeniDuyuru > 0 && (
+                    {sayi > 0 && (
                       <span className="flex-none rounded-full bg-brand px-[7px] py-[2px] font-mono text-[9.5px] font-semibold text-white">
-                        {yeniDuyuru}
+                        {sayi > 9 ? "9+" : sayi}
                       </span>
                     )}
                   </Link>

@@ -6,10 +6,11 @@ import { guvenliUrl } from "@/lib/guvenli-url";
 import { oynatmaCoz } from "@/lib/oynatma";
 import { Icon } from "@/components/Icon";
 import { SeansKaydi } from "@/components/panel/SeansKaydi";
+import { GorulduIsareti } from "@/components/panel/GorulduIsareti";
 
 /**
  * Birebir eğitimin kayıtları ve takvimi. Eğitim bittikten sonra kullanılan
- * görüşme hakları ayrı sayfada: /panel/seanslar.
+ * görüşme hakları ayrı sayfada: /panel/gorusmeler.
  *
  * Sayfa iki bölüme ayrıldı, bilerek. Kayıt bağlantısı önce her oturumun kendi
  * satırında duruyordu; kayıtlar tek bir klasörde toplandığı için aynı adres
@@ -74,6 +75,8 @@ export default async function PanelBirebirEgitimPage() {
 
   return (
     <main className="p-4 pb-14 sm:p-[34px]">
+      {/* Sayfa açıldı: yan menüdeki ve genel bakıştaki rozet düşüyor. */}
+      <GorulduIsareti alan="birebir" />
       <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">
         Birebir eğitim
       </h1>

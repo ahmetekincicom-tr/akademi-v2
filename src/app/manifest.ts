@@ -33,7 +33,7 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       { name: "Derslerim", url: "/panel/dersler" },
       { name: "Birebir eğitim", url: "/panel/birebir-egitim" },
-      { name: "Seans takvimim", url: "/panel/seanslar" },
+      { name: "Birebir eğitim", url: "/panel/birebir-egitim" },
     ],
   };
 }
