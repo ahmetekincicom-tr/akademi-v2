@@ -35,10 +35,29 @@ export const VARSAYILAN_ACIKLAMA =
  * Not: PNG/JPG olmak zorunda. Facebook, LinkedIn, X ve WhatsApp og:image
  * olarak SVG kabul etmiyor; kart görselsiz çıkıyor.
  */
-async function ogGorseli(): Promise<string | null> {
+async function ogGorseli(): Promise<
+  { url: string; width?: number; height?: number; type?: string } | null
+> {
   const { getMarka } = await import("@/lib/marka");
   const marka = await getMarka();
-  return marka.ogGorsel;
+  if (!marka.ogGorsel) return null;
+
+  /*
+    Ölçüler bilerek etikete yazılıyor.
+
+    og:image tek başına yetmiyor: WhatsApp ve bazı istemciler görseli
+    indirmeden önce boyutunu bilmek istiyor; width/height yoksa görseli hiç
+    çekmeden kartı yazıyla basıyorlar. Ölçüler yükleme anında kaydediliyor.
+  */
+  const uzanti = marka.ogGorsel.split(".").pop()?.toLowerCase();
+  const tip = uzanti === "jpg" || uzanti === "jpeg" ? "image/jpeg" : uzanti === "webp" ? "image/webp" : "image/png";
+
+  return {
+    url: marka.ogGorsel,
+    ...(marka.ogGenislik ? { width: marka.ogGenislik } : {}),
+    ...(marka.ogYukseklik ? { height: marka.ogYukseklik } : {}),
+    type: tip,
+  };
 }
 
 type SayfaSeo = {
@@ -88,7 +107,7 @@ export async function sayfaMeta({
       title: tamBaslik,
       description: aciklama,
       locale: "tr_TR",
-      ...(gorsel ? { images: [{ url: gorsel }] } : {}),
+      ...(gorsel ? { images: [gorsel] } : {}),
       ...(yayinTarihi ? { publishedTime: yayinTarihi } : {}),
     },
     twitter: {
@@ -96,7 +115,7 @@ export async function sayfaMeta({
       card: gorsel ? "summary_large_image" : "summary",
       title: tamBaslik,
       description: aciklama,
-      ...(gorsel ? { images: [gorsel] } : {}),
+      ...(gorsel ? { images: [gorsel.url] } : {}),
     },
   };
 }

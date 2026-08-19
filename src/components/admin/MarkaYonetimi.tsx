@@ -90,6 +90,19 @@ export function MarkaYonetimi({ marka }: { marka: MarkaGorunum }) {
   );
 }
 
+/** Dosyayı yüklemeden önce doğal ölçüsünü okur; okunamazsa null. */
+async function gorselOlcusu(dosya: File): Promise<{ genislik: number; yukseklik: number } | null> {
+  try {
+    const bitmap = await createImageBitmap(dosya);
+    const olcu = { genislik: bitmap.width, yukseklik: bitmap.height };
+    bitmap.close();
+    return olcu;
+  } catch {
+    // SVG ve bazı biçimler createImageBitmap ile okunamıyor; ölçüsüz devam.
+    return null;
+  }
+}
+
 function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
   const router = useRouter();
   const bildir = useBildirim();
@@ -101,6 +114,10 @@ function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
   const yukle = async (dosya: File) => {
     setHata(null);
     setYukleniyor(true);
+
+    // Paylaşım görselinin ölçüsü etikete yazılıyor; burada okumak, sunucuda
+    // her istekte görseli indirip ölçmekten çok daha ucuz.
+    const olcu = kart.alan === "og_gorsel" ? await gorselOlcusu(dosya) : null;
 
     const temizAd = dosya.name.replace(/[^\w.\-]/g, "_");
     const yol = `${kart.alan}-${Date.now()}-${temizAd}`;
@@ -117,7 +134,7 @@ function MarkaKarti({ kart, url }: { kart: Kart; url: string | null }) {
       return;
     }
 
-    const r = await markaGuncelle(kart.alan, yol);
+    const r = await markaGuncelle(kart.alan, yol, olcu);
     setYukleniyor(false);
     if (r?.error) {
       setHata(r.error);

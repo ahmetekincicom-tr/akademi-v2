@@ -14,7 +14,12 @@ function tazele() {
 
 const IZINLI_ALANLAR: MarkaAlan[] = ["logo_koyu_zemin", "logo_acik_zemin", "favicon", "og_gorsel"];
 
-export async function markaGuncelle(alan: MarkaAlan, yeniYol: string | null) {
+export async function markaGuncelle(
+  alan: MarkaAlan,
+  yeniYol: string | null,
+  /** Paylaşım görselinde ölçüler; tarayıcıda okunup birlikte yazılıyor. */
+  olcu?: { genislik: number; yukseklik: number } | null,
+) {
   // Server action'lar herkese acik uc noktalardir; TypeScript tipi calisma
   // zamaninda yok, bu yuzden sutun adi burada dogrulanir.
   if (!IZINLI_ALANLAR.includes(alan)) return { error: "Geçersiz alan." };
@@ -31,9 +36,16 @@ export async function markaGuncelle(alan: MarkaAlan, yeniYol: string | null) {
           ? oncekiler.ogGorsel
           : oncekiler.favicon;
 
+  // Ölçüler yalnızca paylaşım görseline ait; görsel kaldırılınca da temizleniyor
+  // ki eski boyut yeni görsele yapışmasın.
+  const olculer =
+    alan === "og_gorsel"
+      ? { og_genislik: yeniYol ? (olcu?.genislik ?? null) : null, og_yukseklik: yeniYol ? (olcu?.yukseklik ?? null) : null }
+      : {};
+
   const { data, error } = await supabase
     .from("marka")
-    .update({ [alan]: yeniYol, updated_at: new Date().toISOString() })
+    .update({ [alan]: yeniYol, ...olculer, updated_at: new Date().toISOString() })
     .eq("id", true)
     .select("id");
 

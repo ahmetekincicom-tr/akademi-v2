@@ -48,7 +48,19 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: "tr_TR",
       url: SITE_URL,
       // Paylaşım görseli panelden geliyor; yüklenmemişse hiç basılmıyor.
-      ...(marka.ogGorsel ? { images: [{ url: marka.ogGorsel }] } : {}),
+      // Ölçüler de basılıyor: bazı istemciler (özellikle WhatsApp) boyutu
+      // bilmeden görseli hiç indirmiyor.
+      ...(marka.ogGorsel
+        ? {
+            images: [
+              {
+                url: marka.ogGorsel,
+                ...(marka.ogGenislik ? { width: marka.ogGenislik } : {}),
+                ...(marka.ogYukseklik ? { height: marka.ogYukseklik } : {}),
+              },
+            ],
+          }
+        : {}),
     },
     twitter: marka.ogGorsel
       ? { card: "summary_large_image", images: [marka.ogGorsel] }

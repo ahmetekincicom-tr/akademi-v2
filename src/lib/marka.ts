@@ -8,6 +8,9 @@ export type Marka = {
   favicon: string | null;
   /** Sosyal medya paylaşım görseli (og:image). Boşsa hiç basılmıyor. */
   ogGorsel: string | null;
+  /** Görselin ölçüleri; og:image:width/height olarak basılıyor. */
+  ogGenislik: number | null;
+  ogYukseklik: number | null;
   /** Başlıktaki logo yüksekliği (piksel); diğer yerler bundan oranlanıyor. */
   logoYuksekligi: number;
 };
@@ -42,6 +45,8 @@ const BOS: Marka = {
   logoAcikZemin: null,
   favicon: null,
   ogGorsel: null,
+  ogGenislik: null,
+  ogYukseklik: null,
   logoYuksekligi: VARSAYILAN_LOGO_YUKSEKLIGI,
 };
 
@@ -77,6 +82,8 @@ export const getMarka = cache(async (client?: SupabaseClient): Promise<Marka> =>
     logoAcikZemin: markaUrl(data.logo_acik_zemin),
     favicon: markaUrl(data.favicon),
     ogGorsel: markaUrl(data.og_gorsel),
+    ogGenislik: data.og_genislik ?? null,
+    ogYukseklik: data.og_yukseklik ?? null,
     logoYuksekligi: logoYuksekligiDuzelt(data.logo_yuksekligi),
   };
 });
