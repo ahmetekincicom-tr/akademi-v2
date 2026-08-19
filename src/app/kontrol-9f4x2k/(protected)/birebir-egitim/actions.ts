@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { trSaatiniUtcYap } from "@/lib/zaman";
+import { guvenliUrl } from "@/lib/guvenli-url";
+import { veriHatasi } from "@/lib/auth-hatalari";
 
 export async function oturumEkle(input: {
   userId: string;
@@ -70,6 +72,74 @@ export async function oturumKayitLinki(id: string, link: string) {
   revalidatePath("/kontrol-9f4x2k/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
   return {};
+}
+
+/* ------------------------------------------------------- kayıt arşivi --- */
+
+/**
+ * Katılımcının kayıt klasörü. Oturuma değil kişiye bağlı: aynı Drive
+ * klasörünü her derse tek tek yapıştırmak gerekmesin, klasöre yeni kayıt
+ * eklendiğinde panelde bir şey değiştirmek gerekmesin.
+ */
+export async function arsivEkle(input: {
+  userId: string;
+  link: string;
+  baslik?: string;
+  aciklama?: string;
+  courseId?: string;
+}) {
+  if (!input.userId) return { error: "Öğrenci seçmelisin." };
+
+  // Bağlantı burada da süzülüyor. Panelde ayrıca guvenliUrl'den geçiyor ama
+  // geçersiz bir değeri hiç kaydetmemek, sonra "neden görünmüyor" diye
+  // aramaktan iyi.
+  const link = guvenliUrl(input.link);
+  if (!link) return { error: "Geçerli bir bağlantı gir (https://…)." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("egitim_kayit_arsivi").insert({
+    user_id: input.userId,
+    course_id: input.courseId || null,
+    baslik: input.baslik?.trim() || null,
+    aciklama: input.aciklama?.trim() || null,
+    link,
+  });
+
+  if (error) return { error: veriHatasi(error) };
+  arsivTazele();
+  return {};
+}
+
+export async function arsivGuncelle(id: string, input: { link: string; baslik?: string; aciklama?: string }) {
+  const link = guvenliUrl(input.link);
+  if (!link) return { error: "Geçerli bir bağlantı gir (https://…)." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("egitim_kayit_arsivi")
+    .update({
+      link,
+      baslik: input.baslik?.trim() || null,
+      aciklama: input.aciklama?.trim() || null,
+    })
+    .eq("id", id);
+
+  if (error) return { error: veriHatasi(error) };
+  arsivTazele();
+  return {};
+}
+
+export async function arsivSil(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("egitim_kayit_arsivi").delete().eq("id", id);
+  if (error) return { error: veriHatasi(error) };
+  arsivTazele();
+  return {};
+}
+
+function arsivTazele() {
+  revalidatePath("/kontrol-9f4x2k/ogrenciler");
+  revalidatePath("/panel/birebir-egitim");
 }
 
 export async function oturumSil(id: string) {

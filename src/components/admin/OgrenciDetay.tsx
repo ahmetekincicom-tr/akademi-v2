@@ -8,6 +8,9 @@ import {
   oturumSil,
   oturumKayitLinki,
   oturumDurumDegistir,
+  arsivEkle,
+  arsivGuncelle,
+  arsivSil,
 } from "@/app/kontrol-9f4x2k/(protected)/birebir-egitim/actions";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
@@ -78,6 +81,11 @@ export function OgrenciDetay({
     courseId: "",
   });
   const [kayitLinkleri, setKayitLinkleri] = useState<Record<string, string>>({});
+  const [arsivAcik, setArsivAcik] = useState(false);
+  const [yeniArsiv, setYeniArsiv] = useState({ link: "", baslik: "", aciklama: "", courseId: "" });
+  // Sunucudaki satırın üzerine yazılmıyor; kaydedilene kadar taslak ayrı
+  // duruyor ki "Kaydet" düğmesi gerçekten değişiklik olduğunda açılsın.
+  const [arsivTaslak, setArsivTaslak] = useState<Record<string, { baslik: string; link: string }>>({});
   // Şüphe varsa açık gelsin; yönetici o zaman zaten bakacak.
   const [girisAcik, setGirisAcik] = useState(ogrenci.sinyal.supheli);
 
@@ -182,6 +190,152 @@ export function OgrenciDetay({
             </button>
           </div>
         )}
+      </div>
+
+      {/* -------------------------------------------------- kayıt arşivi ---
+          Takvimden önce geliyor: bir katılımcıya bakarken en sık sorulan
+          "kayıtları paylaştım mı" ve oturum listesi uzadıkça bu satır aşağıda
+          kaybolurdu. */}
+      <div className="border-t border-ink/8 px-4 py-4 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className={BASLIK}>Eğitim kayıtları</div>
+          <button
+            type="button"
+            onClick={() => setArsivAcik((a) => !a)}
+            className="inline-flex h-[34px] items-center gap-1.5 rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold text-ink hover:border-brand hover:text-brand"
+          >
+            <Icon name={arsivAcik ? "x" : "plus"} size={14} />
+            {arsivAcik ? "Vazgeç" : "Klasör ekle"}
+          </button>
+        </div>
+
+        {arsivAcik && (
+          <div className="mt-3 rounded-[12px] border border-brand/25 bg-white p-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex flex-col gap-1.5 sm:col-span-2">
+                <span className="text-[12.5px] font-semibold text-ink">Klasör bağlantısı</span>
+                <input
+                  value={yeniArsiv.link}
+                  onChange={(e) => setYeniArsiv({ ...yeniArsiv, link: e.target.value })}
+                  placeholder="https://drive.google.com/drive/folders/…"
+                  className={ALAN}
+                />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[12.5px] font-semibold text-ink">Başlık</span>
+                <input
+                  value={yeniArsiv.baslik}
+                  onChange={(e) => setYeniArsiv({ ...yeniArsiv, baslik: e.target.value })}
+                  placeholder="Ders kayıtları"
+                  className={ALAN}
+                />
+              </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-[12.5px] font-semibold text-ink">Program</span>
+                <select
+                  value={yeniArsiv.courseId}
+                  onChange={(e) => setYeniArsiv({ ...yeniArsiv, courseId: e.target.value })}
+                  className={ALAN}
+                >
+                  <option value="">Genel</option>
+                  {kurslar.map((k) => (
+                    <option key={k.id} value={k.id}>
+                      {k.baslik}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1.5 sm:col-span-2">
+                <span className="text-[12.5px] font-semibold text-ink">Not (katılımcı görür)</span>
+                <input
+                  value={yeniArsiv.aciklama}
+                  onChange={(e) => setYeniArsiv({ ...yeniArsiv, aciklama: e.target.value })}
+                  placeholder="Kayıtlar ders bitiminden birkaç saat sonra klasöre ekleniyor."
+                  className={ALAN}
+                />
+              </label>
+            </div>
+            <button
+              type="button"
+              disabled={islemde || !yeniArsiv.link.trim()}
+              onClick={() =>
+                calistir(
+                  "Kayıt klasörü paylaşıldı.",
+                  () => arsivEkle({ userId: ogrenci.id, ...yeniArsiv }),
+                  () => {
+                    setYeniArsiv({ link: "", baslik: "", aciklama: "", courseId: "" });
+                    setArsivAcik(false);
+                  },
+                )
+              }
+              className="mt-4 h-[42px] rounded-[10px] bg-brand px-[18px] text-sm font-semibold text-white hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Klasörü paylaş
+            </button>
+          </div>
+        )}
+
+        <div className="mt-2 flex flex-col gap-1.5">
+          {ogrenci.arsiv.length === 0 && !arsivAcik && (
+            <div className="rounded-[9px] border border-dashed border-ink/16 px-3 py-3 text-center text-[12.5px] text-[#656B7A]">
+              Bu katılımcıya henüz kayıt klasörü paylaşılmamış.
+            </div>
+          )}
+
+          {ogrenci.arsiv.map((a) => {
+            const taslak = arsivTaslak[a.id] ?? a;
+            const degisti = taslak.link !== a.link || taslak.baslik !== a.baslik;
+            return (
+              <div key={a.id} className="rounded-[9px] border border-ink/11 bg-white px-3 py-2.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Icon name="folder" size={13} className="flex-none text-[#8A90A0]" />
+                  <input
+                    aria-label="Başlık"
+                    value={taslak.baslik}
+                    onChange={(e) => setArsivTaslak({ ...arsivTaslak, [a.id]: { ...taslak, baslik: e.target.value } })}
+                    placeholder="Ders kayıtları"
+                    className={`${ALAN} h-[28px] w-[150px] flex-none text-[12px]`}
+                  />
+                  <input
+                    aria-label="Bağlantı"
+                    value={taslak.link}
+                    onChange={(e) => setArsivTaslak({ ...arsivTaslak, [a.id]: { ...taslak, link: e.target.value } })}
+                    className={`${ALAN} h-[28px] min-w-[180px] flex-1 text-[12px]`}
+                  />
+                  <button
+                    type="button"
+                    disabled={islemde || !degisti}
+                    onClick={() =>
+                      calistir("Kayıt klasörü güncellendi.", () =>
+                        arsivGuncelle(a.id, {
+                          link: taslak.link,
+                          baslik: taslak.baslik,
+                          aciklama: a.aciklama,
+                        }),
+                      )
+                    }
+                    className="h-[28px] flex-none rounded-[7px] border border-ink/13 bg-white px-2.5 text-[12px] font-semibold text-ink hover:border-brand hover:text-brand disabled:opacity-40"
+                  >
+                    Kaydet
+                  </button>
+                  <button
+                    type="button"
+                    disabled={islemde}
+                    onClick={() => calistir("Kayıt klasörü kaldırıldı.", () => arsivSil(a.id))}
+                    className="h-[28px] flex-none rounded-[7px] border border-ink/13 bg-white px-2.5 text-[12px] font-semibold text-[#5C6273] hover:border-danger/40 hover:text-danger disabled:opacity-50"
+                  >
+                    Sil
+                  </button>
+                </div>
+                {(a.program || a.aciklama) && (
+                  <div className="mt-1.5 pl-[21px] font-mono text-[10.5px] text-[#656B7A]">
+                    {[a.program, a.aciklama].filter(Boolean).join(" · ")}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* ------------------------------------------------ birebir eğitim --- */}

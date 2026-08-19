@@ -36,6 +36,41 @@ export async function getEgitimOturumlarim(): Promise<EgitimOturumu[]> {
   }));
 }
 
+export type KayitArsivi = {
+  id: string;
+  baslik: string;
+  link: string;
+  aciklama: string;
+  program: string;
+};
+
+/**
+ * Katılımcıya paylaşılan ders kaydı klasörleri.
+ *
+ * Takvimden ayrı duruyor: kayıtlar tek bir Drive klasöründe toplanıyor ve o
+ * klasörün adresini her oturuma tek tek yapıştırmak gerekiyordu. Klasöre yeni
+ * kayıt eklendiğinde panelde değişen bir şey de olmuyordu. Arşiv artık kişiye
+ * bağlı, oturuma değil.
+ *
+ * RLS satırları kişinin kendisiyle sınırlıyor.
+ */
+export async function getKayitArsivim(): Promise<KayitArsivi[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("egitim_kayit_arsivi")
+    .select("id, baslik, link, aciklama, courses(baslik)")
+    .order("sira", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  return (data ?? []).map((k) => ({
+    id: k.id,
+    baslik: k.baslik ?? "",
+    link: k.link,
+    aciklama: k.aciklama ?? "",
+    program: (k.courses as unknown as { baslik: string } | null)?.baslik ?? "",
+  }));
+}
+
 /** Karşılama adımı için: eğitim takvimi kurulmuş mu? */
 export async function egitimPlanlandiMi(): Promise<boolean> {
   const supabase = await createClient();

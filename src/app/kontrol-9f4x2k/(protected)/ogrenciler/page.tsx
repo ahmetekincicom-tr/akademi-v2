@@ -4,6 +4,7 @@ import {
   type AdminOgrenci,
   type AdminKurs,
   type AdminEgitimOturumu,
+  type AdminKayitArsivi,
 } from "@/components/admin/OgrenciYonetimi";
 import { getOturumlar, paylasimSinyali, type OturumKaydi } from "@/lib/oturum";
 
@@ -16,6 +17,7 @@ export default async function OgrencilerPage() {
     { data: courses },
     { data: progress },
     { data: egitimOturumlari },
+    { data: kayitArsivi },
     oturumlar,
   ] = await Promise.all([
     // En yeni kayıt en üstte: listeye bakma sebebi çoğunlukla "kim yeni
@@ -33,6 +35,12 @@ export default async function OgrencilerPage() {
       .from("egitim_oturumlari")
       .select("id, user_id, baslangic, sure_dk, konu, toplanti_link, kayit_link, durum")
       .order("baslangic", { ascending: false }),
+    // Kayıt klasörleri takvimden ayrı: kişiye bağlı, oturuma değil.
+    supabase
+      .from("egitim_kayit_arsivi")
+      .select("id, user_id, course_id, baslik, link, aciklama")
+      .order("sira", { ascending: true })
+      .order("created_at", { ascending: true }),
     // Yönetici RLS politikası tüm kullanıcıların kayıtlarını görmesine izin verir.
     getOturumlar(supabase),
   ]);
@@ -89,6 +97,21 @@ export default async function OgrencilerPage() {
   const kurslar: AdminKurs[] = courseRows.map((c) => ({ id: c.id, slug: c.slug, baslik: c.baslik }));
   const kursAdi = new Map(courseRows.map((c) => [c.id, c.baslik]));
 
+  const kisiArsivi = new Map<string, AdminKayitArsivi[]>();
+  for (const a of kayitArsivi ?? []) {
+    const kayit: AdminKayitArsivi = {
+      id: a.id,
+      baslik: a.baslik ?? "",
+      link: a.link,
+      aciklama: a.aciklama ?? "",
+      courseId: a.course_id ?? "",
+      program: a.course_id ? (kursAdi.get(a.course_id) ?? "") : "",
+    };
+    const mevcut = kisiArsivi.get(a.user_id);
+    if (mevcut) mevcut.push(kayit);
+    else kisiArsivi.set(a.user_id, [kayit]);
+  }
+
   const ogrenciler: AdminOgrenci[] = (profiles ?? []).map((p) => {
     const kendiKayitlari = (enrollments ?? []).filter((e) => e.user_id === p.id);
     const ad = [p.ad, p.soyad].filter(Boolean).join(" ");
@@ -101,6 +124,7 @@ export default async function OgrencilerPage() {
       kayitTarihi: p.created_at,
       silmeTalebi: p.silme_talebi_tarihi ?? null,
       egitimler: kisiEgitimleri.get(p.id) ?? [],
+      arsiv: kisiArsivi.get(p.id) ?? [],
       oturumlar: kendiOturumlari,
       sinyal: paylasimSinyali(kendiOturumlari),
       kayitlar: kendiKayitlari.map((e) => {

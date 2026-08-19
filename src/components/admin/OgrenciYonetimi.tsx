@@ -19,6 +19,19 @@ export type AdminEgitimOturumu = {
   durum: "planlandi" | "tamamlandi" | "iptal";
 };
 
+/**
+ * Kişiye paylaşılan kayıt klasörü. Takvimden ayrı: aynı Drive klasörünü her
+ * oturuma tek tek yapıştırmak gerekmesin diye kişiye bağlı duruyor.
+ */
+export type AdminKayitArsivi = {
+  id: string;
+  baslik: string;
+  link: string;
+  aciklama: string;
+  courseId: string;
+  program: string;
+};
+
 export type AdminOgrenci = {
   id: string;
   isim: string;
@@ -37,6 +50,8 @@ export type AdminOgrenci = {
   }[];
   /** Birebir eğitim takvimi; detayda buradan yönetiliyor. */
   egitimler: AdminEgitimOturumu[];
+  /** Ders kaydı klasörleri; takvimden bağımsız. */
+  arsiv: AdminKayitArsivi[];
   oturumlar: OturumKaydi[];
   sinyal: PaylasimSinyali;
 };
