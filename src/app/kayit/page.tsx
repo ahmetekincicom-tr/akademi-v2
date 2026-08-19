@@ -5,13 +5,16 @@ import { sayfaMeta } from "@/lib/seo";
 
 // AuthShell sunucuda kalmalı: içindeki Logo async bir sunucu bileşeni ve
 // istemci paketine girdiğinde sayfa hidrate olamıyor.
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Hesap oluştur",
   aciklama: "Katılımcı hesabı oluştur.",
   yol: "/kayit",
   // Oturum sayfalarının arama sonucunda işi yok.
   indeksleme: false,
 });
+}
 
 export default function KayitPage() {
   return (

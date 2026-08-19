@@ -15,12 +15,15 @@ import { sayfaMeta, kisiSemasi } from "@/lib/seo";
 // Sayfa metinleri ve fotoğrafı yönetim panelindeki Hakkımızda sayfasından yönetiliyor.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Hakkımızda",
   aciklama:
     "Ahmet Ekinci ve Ahmet Ekinci Akademi: yeni medya temelleri üzerine kurulmuş, birebir yürüyen dijital pazarlama eğitimi.",
   yol: "/hakkimizda",
 });
+}
 
 const SERIT_UST = [
   "Dijital Pazarlama",

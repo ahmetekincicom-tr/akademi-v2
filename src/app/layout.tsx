@@ -9,7 +9,7 @@ import { NativeIsaretci } from "@/components/site/NativeIsaretci";
 import { getMarka } from "@/lib/marka";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import "./globals.css";
-import { SITE_URL, SITE_ADI, VARSAYILAN_ACIKLAMA, OG_GORSEL, kurumSemasi, siteSemasi } from "@/lib/seo";
+import { SITE_URL, SITE_ADI, VARSAYILAN_ACIKLAMA, kurumSemasi, siteSemasi } from "@/lib/seo";
 
 const heading = Space_Grotesk({
   variable: "--font-heading",
@@ -47,12 +47,24 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: SITE_ADI,
       locale: "tr_TR",
       url: SITE_URL,
-      images: [{ url: OG_GORSEL }],
+      // Paylaşım görseli panelden geliyor; yüklenmemişse hiç basılmıyor.
+      ...(marka.ogGorsel ? { images: [{ url: marka.ogGorsel }] } : {}),
     },
-    twitter: { card: "summary_large_image", images: [OG_GORSEL] },
-    ...(marka.favicon
-      ? { icons: { icon: marka.favicon, shortcut: marka.favicon, apple: marka.favicon } }
-      : { icons: { apple: "/apple-touch-icon.png" } }),
+    twitter: marka.ogGorsel
+      ? { card: "summary_large_image", images: [marka.ogGorsel] }
+      : { card: "summary" },
+    /*
+      İkonlar tek kaynaktan.
+
+      src/app/favicon.ico KALDIRILDI: dosya tabanlı favicon hem kendi <link>
+      etiketini basıyor hem de /favicon.ico adresini işgal ediyordu. Panelden
+      yüklenen ikon da ayrıca basılınca sayfada üç ikon bağlantısı oluyor ve
+      tarayıcı boyutu/tipi belirtilmiş olan yerleşik .ico'yu tercih ediyordu —
+      yüklenen favicon hiç görünmüyordu.
+    */
+    icons: marka.favicon
+      ? { icon: marka.favicon, shortcut: marka.favicon, apple: marka.favicon }
+      : { icon: "/icon-192.png", shortcut: "/icon-192.png", apple: "/apple-touch-icon.png" },
     // iOS ana ekrandan açıldığında Safari çubuğu olmadan, tam ekran çalışsın.
     // Android bu bilgiyi manifest'ten okuyor, iOS hâlâ bu etiketlere bakıyor.
     appleWebApp: {

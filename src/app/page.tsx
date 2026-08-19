@@ -100,12 +100,15 @@ function SectionKicker({ children }: { children: React.ReactNode }) {
 // admin panelinde yayınlanan program burada görünmez.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Birebir Dijital Pazarlama Eğitimleri",
   aciklama:
     "Meta Ads, sosyal medya yönetimi ve yapay zekâ araçlarını birebir öğren. Ankara merkezli, kuruma ve kişiye özel program; eğitim sonrası destek dahil.",
   yol: "/",
 });
+}
 
 export default async function HomePage() {
   const [courses, logos, siteYorumlari] = await Promise.all([getCourses(), getReferanslar(), getYorumlar()]);

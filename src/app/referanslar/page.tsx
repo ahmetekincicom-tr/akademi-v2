@@ -7,12 +7,15 @@ import { getReferanslar } from "@/lib/icerik";
 import { ReferansLogo } from "@/components/site/ReferansLogo";
 import { sayfaMeta } from "@/lib/seo";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Referanslar",
   aciklama:
     "Ahmet Ekinci Akademi eğitimlerini tercih eden kurumlar ve markalar. Birebir dijital pazarlama eğitimi alan ekiplerin listesi.",
   yol: "/referanslar",
 });
+}
 
 // Referanslar admin panelinden yönetiliyor.
 export const dynamic = "force-dynamic";

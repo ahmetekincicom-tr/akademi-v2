@@ -8,6 +8,11 @@
  *
  * 1200×630, Facebook/X/LinkedIn'in ortak önerdiği ölçü.
  *
+ * Görsel artık YÖNETİM PANELİNDEN yükleniyor (Logo ve favicon → Paylaşım
+ * görseli). Bu betik yalnızca başlangıç için markadan bir kapak üretiyor;
+ * çıktıyı panelden yüklemek gerekiyor, dosyanın depoda durması tek başına
+ * hiçbir şey yapmıyor.
+ *
  * Çalıştırma:  node scripts/og-gorsel.mjs
  * sharp zaten Next'in bağımlılığı olarak kurulu; ayrıca paket eklenmiyor.
  */

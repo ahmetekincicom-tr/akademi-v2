@@ -3,13 +3,16 @@ import { SifremiUnuttumFormu } from "@/components/auth/SifremiUnuttumFormu";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Şifremi unuttum",
   aciklama: "Şifre sıfırlama bağlantısı al.",
   yol: "/sifremi-unuttum",
   // Oturum sayfalarının arama sonucunda işi yok.
   indeksleme: false,
 });
+}
 
 export default async function SifremiUnuttumPage({
   searchParams,

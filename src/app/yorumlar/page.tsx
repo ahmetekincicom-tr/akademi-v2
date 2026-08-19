@@ -11,12 +11,15 @@ import { sayfaMeta } from "@/lib/seo";
 // build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Katılımcı Yorumları",
   aciklama:
     "Eğitime katılanların deneyimleri: ne öğrendiler, işlerinde ne değişti.",
   yol: "/yorumlar",
 });
+}
 
 export default async function YorumlarPage() {
   const yorumlar = await getYorumlar();

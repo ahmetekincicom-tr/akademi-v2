@@ -82,9 +82,11 @@ cevapladığın sorular. İçerik zaten var; eksik olan yayınlanacak yer.
    pazarlama sayfaları oraya taşınmamalı; kök alan adına geçiliyorsa
    `NEXT_PUBLIC_SITE_URL` ve `INDEKSLENEBILIR_ALAN_ADLARI` birlikte güncellenmeli.
 2. **Search Console'a ekle**, site haritasını gönder: `/sitemap.xml`.
-3. **Paylaşım görselini değiştir.** Şu an açılış logosu kullanılıyor
-   (`OG_GORSEL`, `src/lib/seo.ts`). 1200×630 bir kapak görseli sosyal
-   paylaşımlarda belirgin fark yaratıyor.
+3. **Paylaşım görselini yükle.** Yönetim panelinde Logo ve favicon →
+   Paylaşım görseli (OpenGraph). Yüklenmediği sürece paylaşımlarda görsel
+   çıkmıyor, bu bilinçli: yanlış görselle paylaşılmaktansa görselsiz.
+   1200×630 PNG/JPG olmalı — bu platformların hiçbiri SVG okumuyor.
+   Başlangıç için `scripts/og-gorsel.mjs` markadan bir kapak üretiyor.
 4. **Sayfa metinlerini kelimeye göre gözden geçir.** Meta etiket tek başına
    sıralama getirmiyor; H1 ve ilk paragrafın kelimeyi doğal biçimde içermesi
    gerekiyor.

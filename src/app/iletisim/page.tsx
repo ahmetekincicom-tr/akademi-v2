@@ -13,12 +13,15 @@ import {
 } from "@/lib/iletisim";
 import { sayfaMeta } from "@/lib/seo";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "İletişim",
   aciklama:
     "Hangi dijital pazarlama programının size uyduğunu birlikte belirleyelim. Formu doldurun ya da WhatsApp'tan yazın; Ankara ofisi ve online görüşme seçenekleri açık.",
   yol: "/iletisim",
 });
+}
 
 // href olmayan kanallar tıklanabilir görünmesin diye link yerine kart olarak çizilir.
 const kanallar: { baslik: string; deger: string; href?: string }[] = [

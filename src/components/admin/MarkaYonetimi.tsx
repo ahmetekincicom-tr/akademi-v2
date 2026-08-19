@@ -16,6 +16,7 @@ export type MarkaGorunum = {
   logoKoyuZemin: string | null;
   logoAcikZemin: string | null;
   favicon: string | null;
+  ogGorsel: string | null;
   logoYuksekligi: number;
 };
 
@@ -49,6 +50,14 @@ const KARTLAR: Kart[] = [
     oneri: "Kare · 512×512 PNG, SVG veya .ico",
     kucuk: true,
   },
+  {
+    alan: "og_gorsel",
+    baslik: "Paylaşım görseli (OpenGraph)",
+    aciklama:
+      "Bir bağlantı WhatsApp, LinkedIn, X veya Facebook'ta paylaşıldığında çıkan kapak görseli. Yüklemezsen paylaşımlarda görsel gösterilmez.",
+    oneri: "1200×630 PNG veya JPG · SVG çalışmaz, bu platformlar SVG okumuyor",
+    koyuOnizleme: true,
+  },
 ];
 
 export function MarkaYonetimi({ marka }: { marka: MarkaGorunum }) {
@@ -56,6 +65,7 @@ export function MarkaYonetimi({ marka }: { marka: MarkaGorunum }) {
     logo_acik_zemin: marka.logoAcikZemin,
     logo_koyu_zemin: marka.logoKoyuZemin,
     favicon: marka.favicon,
+    og_gorsel: marka.ogGorsel,
   };
 
   return (

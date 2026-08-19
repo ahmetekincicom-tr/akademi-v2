@@ -8,12 +8,15 @@ import { SectionKicker } from "@/components/site/SectionKicker";
 import { getCourses } from "@/lib/courses";
 import { sayfaMeta } from "@/lib/seo";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Kurumsal Eğitim",
   aciklama:
     "Ekibinize özel dijital pazarlama eğitimi: Ankara'da yerinde ya da tamamen uzaktan. Müfredat ekibin seviyesine göre kurulur, kurumsal faturalandırma ve eğitim sonrası destek dahil.",
   yol: "/kurumsal",
 });
+}
 
 const farklar = [
   { no: "01", baslik: "Ekibe özel müfredat", metin: "Program, ekibinizin mevcut seviyesine ve kullandığınız hesaplara göre yeniden kurulur." },

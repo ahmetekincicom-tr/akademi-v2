@@ -11,12 +11,15 @@ import { sayfaMeta } from "@/lib/seo";
 // build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Eğitim Programları",
   aciklama:
     "Meta Ads reklam yönetimi, sosyal medya yönetimi ve yapay zekâ araçları eğitimleri. Kapsam ön görüşmede sana göre kurulur.",
   yol: "/egitimler",
 });
+}
 
 export default async function EgitimlerPage() {
   const courses = await getCourses();

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getMarkaYollari, logoYuksekligiDuzelt } from "@/lib/marka";
 
-export type MarkaAlan = "logo_koyu_zemin" | "logo_acik_zemin" | "favicon";
+export type MarkaAlan = "logo_koyu_zemin" | "logo_acik_zemin" | "favicon" | "og_gorsel";
 
 // Branding shows on every page, so the whole site has to be refreshed.
 function tazele() {
@@ -12,7 +12,7 @@ function tazele() {
   revalidatePath("/kontrol-9f4x2k/marka");
 }
 
-const IZINLI_ALANLAR: MarkaAlan[] = ["logo_koyu_zemin", "logo_acik_zemin", "favicon"];
+const IZINLI_ALANLAR: MarkaAlan[] = ["logo_koyu_zemin", "logo_acik_zemin", "favicon", "og_gorsel"];
 
 export async function markaGuncelle(alan: MarkaAlan, yeniYol: string | null) {
   // Server action'lar herkese acik uc noktalardir; TypeScript tipi calisma
@@ -27,7 +27,9 @@ export async function markaGuncelle(alan: MarkaAlan, yeniYol: string | null) {
       ? oncekiler.logoKoyuZemin
       : alan === "logo_acik_zemin"
         ? oncekiler.logoAcikZemin
-        : oncekiler.favicon;
+        : alan === "og_gorsel"
+          ? oncekiler.ogGorsel
+          : oncekiler.favicon;
 
   const { data, error } = await supabase
     .from("marka")

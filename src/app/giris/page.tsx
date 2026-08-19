@@ -23,12 +23,15 @@ import { createClient } from "@/lib/supabase/server";
 // Oturum durumuna göre yönlendiriliyor; önbelleğe alınmamalı.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = sayfaMeta({
+// Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
+export function generateMetadata(): Promise<Metadata> {
+  return sayfaMeta({
   baslik: "Üye Girişi",
   aciklama:
     "Ahmet Ekinci Akademi katılımcı paneli. Derslerine, ders kayıtlarına, dokümanlarına ve ödeme bilgilerine buradan ulaşırsın.",
   yol: "/giris",
 });
+}
 
 export default async function GirisPage({
   searchParams,

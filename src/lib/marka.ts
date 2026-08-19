@@ -6,6 +6,8 @@ export type Marka = {
   logoKoyuZemin: string | null;
   logoAcikZemin: string | null;
   favicon: string | null;
+  /** Sosyal medya paylaşım görseli (og:image). Boşsa hiç basılmıyor. */
+  ogGorsel: string | null;
   /** Başlıktaki logo yüksekliği (piksel); diğer yerler bundan oranlanıyor. */
   logoYuksekligi: number;
 };
@@ -39,6 +41,7 @@ const BOS: Marka = {
   logoKoyuZemin: null,
   logoAcikZemin: null,
   favicon: null,
+  ogGorsel: null,
   logoYuksekligi: VARSAYILAN_LOGO_YUKSEKLIGI,
 };
 
@@ -73,6 +76,7 @@ export const getMarka = cache(async (client?: SupabaseClient): Promise<Marka> =>
     logoKoyuZemin: markaUrl(data.logo_koyu_zemin),
     logoAcikZemin: markaUrl(data.logo_acik_zemin),
     favicon: markaUrl(data.favicon),
+    ogGorsel: markaUrl(data.og_gorsel),
     logoYuksekligi: logoYuksekligiDuzelt(data.logo_yuksekligi),
   };
 });
@@ -81,12 +85,13 @@ export const getMarka = cache(async (client?: SupabaseClient): Promise<Marka> =>
 export async function getMarkaYollari(client: SupabaseClient) {
   const { data } = await client
     .from("marka")
-    .select("logo_koyu_zemin, logo_acik_zemin, favicon")
+    .select("logo_koyu_zemin, logo_acik_zemin, favicon, og_gorsel")
     .maybeSingle();
 
   return {
     logoKoyuZemin: data?.logo_koyu_zemin ?? null,
     logoAcikZemin: data?.logo_acik_zemin ?? null,
     favicon: data?.favicon ?? null,
+    ogGorsel: data?.og_gorsel ?? null,
   };
 }

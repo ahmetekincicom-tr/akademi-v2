@@ -26,11 +26,20 @@ export const VARSAYILAN_ACIKLAMA =
   "sosyal medya yönetimi ve yapay zekâ araçları; kurumlara ve girişimcilere özel program.";
 
 /**
- * Paylaşım görseli. PNG olmak ZORUNDA: Facebook, LinkedIn, X ve WhatsApp
- * og:image olarak SVG kabul etmiyor, kart görselsiz çıkıyordu.
- * scripts/og-gorsel.mjs üretiyor — 1200×630.
+ * Paylaşım görseli artık panelden geliyor (marka.og_gorsel).
+ *
+ * Depoda sabit bir PNG duruyordu; marka değişince dosyayı yeniden üretip
+ * dağıtım yapmak gerekiyordu. Yüklenmemişse hiç og:image basılmıyor —
+ * yanlış bir görselle paylaşılmaktansa görselsiz paylaşılmak iyi.
+ *
+ * Not: PNG/JPG olmak zorunda. Facebook, LinkedIn, X ve WhatsApp og:image
+ * olarak SVG kabul etmiyor; kart görselsiz çıkıyor.
  */
-export const OG_GORSEL = `${SITE_URL}/og.png`;
+async function ogGorseli(): Promise<string | null> {
+  const { getMarka } = await import("@/lib/marka");
+  const marka = await getMarka();
+  return marka.ogGorsel;
+}
 
 type SayfaSeo = {
   baslik: string;
@@ -46,16 +55,24 @@ type SayfaSeo = {
 /**
  * Sayfa metadata'sını tek yerden kurar: başlık, açıklama, kanonik adres ve
  * paylaşım kartları. Elle yazıldığında biri hep unutuluyor.
+ *
+ * async çünkü paylaşım görseli veritabanından geliyor. Sayfalar bunu
+ * `export const metadata` yerine `generateMetadata` ile çağırıyor: Next
+ * metadata'yı SIĞ birleştiriyor ve alt sayfa openGraph tanımlayınca kökteki
+ * openGraph'ı bütünüyle değiştiriyor — yani görseli yalnızca kökte tanımlamak
+ * alt sayfalarda görseli düşürüyordu. getMarka() cache'li, istek başına tek
+ * sorgu.
  */
-export function sayfaMeta({
+export async function sayfaMeta({
   baslik,
   aciklama,
   yol,
   indeksleme = true,
   tip = "website",
   yayinTarihi,
-}: SayfaSeo): Metadata {
+}: SayfaSeo): Promise<Metadata> {
   const tamAdres = `${SITE_URL}${yol}`;
+  const gorsel = await ogGorseli();
   // Ana sayfada marka adını iki kez yazmıyoruz.
   const tamBaslik = yol === "/" ? baslik : `${baslik} — ${SITE_ADI}`;
 
@@ -71,14 +88,15 @@ export function sayfaMeta({
       title: tamBaslik,
       description: aciklama,
       locale: "tr_TR",
-      images: [{ url: OG_GORSEL }],
+      ...(gorsel ? { images: [{ url: gorsel }] } : {}),
       ...(yayinTarihi ? { publishedTime: yayinTarihi } : {}),
     },
     twitter: {
-      card: "summary_large_image",
+      // Görsel yoksa büyük kart boş bir çerçeve gösteriyor; özet kartı doğrusu.
+      card: gorsel ? "summary_large_image" : "summary",
       title: tamBaslik,
       description: aciklama,
-      images: [OG_GORSEL],
+      ...(gorsel ? { images: [gorsel] } : {}),
     },
   };
 }
@@ -99,7 +117,6 @@ export function kurumSemasi() {
     url: SITE_URL,
     description: VARSAYILAN_ACIKLAMA,
     logo: `${SITE_URL}/icon-512.png`,
-    image: OG_GORSEL,
     email: EPOSTA,
     telephone: WHATSAPP_NUMARALAR[0].gosterim,
     address: {
