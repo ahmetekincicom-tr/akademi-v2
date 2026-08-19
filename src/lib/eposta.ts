@@ -16,17 +16,44 @@ const UC_NOKTA = "https://api.resend.com/emails";
 
 type Ayar = { anahtar: string; gonderen: string; alici: string[] };
 
+/**
+ * Gelen kutusunda görünen gönderici adı.
+ *
+ * Tek yerde duruyor ve ortam değişkeninden gelmiyor. Gönderici adı
+ * BILDIRIM_GONDEREN'in içinde taşınıyordu; orası bir dağıtım ayarı ve
+ * "Akademi", "Bildirim", boş — her dağıtımda başka bir şey yazılabiliyordu.
+ * Alıcı için bu tutarsızlık markanın kendisiyle ilgili: aynı akademiden gelen
+ * iki mail gelen kutusunda iki farklı gönderici gibi sıralanıyordu.
+ */
+export const GONDERICI_ADI = "Ahmet Ekinci Akademi";
+
+/**
+ * "Ad <adres>" ya da düz "adres" biçimindeki değerden yalnızca adresi alır.
+ *
+ * Ortam değişkeni iki biçimde de yazılabiliyor; adı biz koyduğumuz için
+ * içindekini atıp adresi almak gerekiyor.
+ */
+function adresiAyikla(deger: string): string {
+  const kose = deger.match(/<([^>]+)>/);
+  return (kose ? kose[1] : deger).trim();
+}
+
 function ayarlariOku(): Ayar | null {
   const anahtar = process.env.RESEND_API_KEY?.trim();
-  // Doğrulanmış alan adından bir adres olmalı; "Ad <adres>" biçimi de geçerli.
-  const gonderen = process.env.BILDIRIM_GONDEREN?.trim();
+  // Doğrulanmış alan adından bir adres olmalı; "Ad <adres>" biçimi de geçerli
+  // ama içindeki ad yok sayılıyor, gönderici adını burası belirliyor.
+  const ham = process.env.BILDIRIM_GONDEREN?.trim();
   const alici = (process.env.BILDIRIM_EPOSTA ?? "")
     .split(",")
     .map((a) => a.trim())
     .filter(Boolean);
 
-  if (!anahtar || !gonderen || alici.length === 0) return null;
-  return { anahtar, gonderen, alici };
+  if (!anahtar || !ham || alici.length === 0) return null;
+
+  const adres = adresiAyikla(ham);
+  if (!adres.includes("@")) return null;
+
+  return { anahtar, gonderen: `${GONDERICI_ADI} <${adres}>`, alici };
 }
 
 export function epostaYapilandirildiMi(): boolean {
@@ -84,6 +111,26 @@ export async function epostaGonder(girdi: {
 }
 
 /**
+ * E-posta başlığındaki logo.
+ *
+ * Ayrı bir marka alanından okunuyor (marka.eposta_logo), sitedeki logodan
+ * değil: sitedeki logolar SVG olabiliyor ve e-posta istemcileri SVG
+ * çizmiyor — mailin tepesinde kırık bir görsel çıkardı. Alan boşsa null
+ * dönüyor ve şablon yazı işaretine düşüyor.
+ *
+ * Hata yutuluyor: logo okunamadı diye mail gönderilmemesi saçma olurdu.
+ */
+async function epostaLogosu(): Promise<string | null> {
+  try {
+    const { getMarka } = await import("@/lib/marka");
+    const marka = await getMarka();
+    return marka.epostaLogo;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Panelin adresi — maildeki düğmenin gideceği yer.
  *
  * headers() istek bağlamında çalışıyor ve doğru alan adını veriyor; zamanlanmış
@@ -129,8 +176,9 @@ export async function ogrenciBildirimi(girdi: {
   if (!epostaYapilandirildiMi()) return;
   if (!girdi.alici) return;
 
-  const kok = girdi.yol ? await panelKoku() : null;
+  const [kok, logo] = await Promise.all([girdi.yol ? panelKoku() : null, epostaLogosu()]);
   const { html, metin } = bildirimSablonu({
+    logo,
     ustEtiket: girdi.ustEtiket,
     baslik: girdi.baslik,
     ozet: girdi.ozet,
@@ -162,8 +210,9 @@ export async function yoneticiBildirimi(girdi: {
 }): Promise<void> {
   if (!epostaYapilandirildiMi()) return;
 
-  const kok = girdi.yol ? await panelKoku() : null;
+  const [kok, logo] = await Promise.all([girdi.yol ? panelKoku() : null, epostaLogosu()]);
   const { html, metin } = bildirimSablonu({
+    logo,
     // Yönetici bildirimleri panelin kimliğiyle geliyor; öğrenciye giden
     // mailler markanın kendisiyle.
     marka: "Akademi Yönetim",

@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getMarkaYollari, logoYuksekligiDuzelt } from "@/lib/marka";
 
-export type MarkaAlan = "logo_koyu_zemin" | "logo_acik_zemin" | "favicon" | "og_gorsel";
+export type MarkaAlan =
+  | "logo_koyu_zemin"
+  | "logo_acik_zemin"
+  | "favicon"
+  | "og_gorsel"
+  | "eposta_logo";
 
 // Branding shows on every page, so the whole site has to be refreshed.
 function tazele() {
@@ -12,7 +17,13 @@ function tazele() {
   revalidatePath("/kontrol-9f4x2k/marka");
 }
 
-const IZINLI_ALANLAR: MarkaAlan[] = ["logo_koyu_zemin", "logo_acik_zemin", "favicon", "og_gorsel"];
+const IZINLI_ALANLAR: MarkaAlan[] = [
+  "logo_koyu_zemin",
+  "logo_acik_zemin",
+  "favicon",
+  "og_gorsel",
+  "eposta_logo",
+];
 
 export async function markaGuncelle(
   alan: MarkaAlan,
@@ -34,7 +45,9 @@ export async function markaGuncelle(
         ? oncekiler.logoAcikZemin
         : alan === "og_gorsel"
           ? oncekiler.ogGorsel
-          : oncekiler.favicon;
+          : alan === "eposta_logo"
+            ? oncekiler.epostaLogo
+            : oncekiler.favicon;
 
   // Ölçüler yalnızca paylaşım görseline ait; görsel kaldırılınca da temizleniyor
   // ki eski boyut yeni görsele yapışmasın.

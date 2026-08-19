@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { iyzicoAyari } from "@/lib/iyzico";
 import { denemeyiCoz } from "@/lib/odeme-sonuc";
@@ -33,6 +34,15 @@ function kokAdres(istek: Request): string {
 }
 
 function panele(kok: string, sonuc: string) {
+  /*
+    Ödeme burada tamamlanıyor ve panelin DÜZENİ bundan etkileniyor: yan
+    menüdeki bekleyen ödeme işareti ve genel bakıştaki bildirim kutusu orada
+    duruyor. Yalnızca ödemeler sayfasına yönlendirmek, tahsilat bittiği halde
+    işaretin bir süre daha durması demekti.
+  */
+  revalidatePath("/panel/odemelerim");
+  revalidatePath("/panel", "layout");
+
   // 303: iyzico POST ile geldi, tarayıcının yönlendirmeyi GET olarak izlemesi
   // gerekiyor. 302'de bazı tarayıcılar POST'u tekrarlıyor.
   return NextResponse.redirect(new URL(`/panel/odemelerim?sonuc=${sonuc}`, kok), 303);

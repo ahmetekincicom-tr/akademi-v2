@@ -18,6 +18,7 @@ export type MarkaGorunum = {
   favicon: string | null;
   ogGorsel: string | null;
   logoYuksekligi: number;
+  epostaLogo: string | null;
 };
 
 type Kart = {
@@ -58,6 +59,15 @@ const KARTLAR: Kart[] = [
     oneri: "1200×630 PNG veya JPG · SVG çalışmaz, bu platformlar SVG okumuyor",
     koyuOnizleme: true,
   },
+  {
+    alan: "eposta_logo",
+    baslik: "E-posta logosu",
+    aciklama:
+      "Bildirim e-postalarının üst şeridinde görünür. Şerit koyu olduğu için açık renkli bir sürüm gerekiyor. Yüklemezsen mailler yerleşik “AE” işaretiyle gider.",
+    oneri:
+      "Açık renkli PNG · yüksekliği 64-96 piksel · SVG çalışmaz, e-posta istemcileri SVG çizmiyor",
+    koyuOnizleme: true,
+  },
 ];
 
 export function MarkaYonetimi({ marka }: { marka: MarkaGorunum }) {
@@ -66,6 +76,7 @@ export function MarkaYonetimi({ marka }: { marka: MarkaGorunum }) {
     logo_koyu_zemin: marka.logoKoyuZemin,
     favicon: marka.favicon,
     og_gorsel: marka.ogGorsel,
+    eposta_logo: marka.epostaLogo,
   };
 
   return (

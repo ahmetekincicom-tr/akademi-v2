@@ -7,6 +7,22 @@ import { iyzicoAyari } from "@/lib/iyzico";
 import { denemeyiCoz } from "@/lib/odeme-sonuc";
 import { odemeAcildiBildir, odemeTamamlandiBildir } from "@/lib/odeme-eposta";
 
+/**
+ * Ödeme değiştiğinde tazelenmesi gereken her yer.
+ *
+ * Panel tarafı eksikti: yalnızca yönetim ekranları tazeleniyordu. Katılımcının
+ * yan menüsündeki bekleyen ödeme işareti ve genel bakıştaki bildirim kutusu
+ * panelin DÜZENİNDE duruyor, yani ödeme sayfasında değil; sayfa yolu
+ * tazelenince o katman yenilenmiyordu ve işaret bir sonraki tam yüklemeye
+ * kadar gecikiyordu.
+ */
+function odemeTazele() {
+  revalidatePath("/kontrol-9f4x2k/odemeler");
+  revalidatePath("/kontrol-9f4x2k");
+  revalidatePath("/panel/odemelerim");
+  revalidatePath("/panel", "layout");
+}
+
 export type OdemeInput = {
   userId: string;
   courseId: string;
@@ -55,8 +71,7 @@ export async function odemeEkle(input: OdemeInput) {
     if (!sonuc.gonderildi) uyari = `Ödeme kaydedildi ancak bildirim gönderilemedi. ${sonuc.sebep ?? ""}`.trim();
   }
 
-  revalidatePath("/kontrol-9f4x2k/odemeler");
-  revalidatePath("/kontrol-9f4x2k");
+  odemeTazele();
   return uyari ? { uyari } : {};
 }
 
@@ -70,7 +85,7 @@ export async function odemeOnlineDegistir(id: string, acik: boolean) {
   const supabase = await createClient();
   const { error } = await supabase.from("payments").update({ online_odeme: acik }).eq("id", id);
   if (error) return { error: error.message };
-  revalidatePath("/kontrol-9f4x2k/odemeler");
+  odemeTazele();
   return {};
 }
 
@@ -88,8 +103,7 @@ export async function odemeDurumDegistir(id: string, durum: "odendi" | "bekliyor
     const sonuc = await odemeTamamlandiBildir(supabase, id);
     if (!sonuc.gonderildi) uyari = `Durum güncellendi ancak bildirim gönderilemedi. ${sonuc.sebep ?? ""}`.trim();
   }
-  revalidatePath("/kontrol-9f4x2k/odemeler");
-  revalidatePath("/kontrol-9f4x2k");
+  odemeTazele();
   return uyari ? { uyari } : {};
 }
 
@@ -97,8 +111,7 @@ export async function odemeSil(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("payments").delete().eq("id", id);
   if (error) return { error: error.message };
-  revalidatePath("/kontrol-9f4x2k/odemeler");
-  revalidatePath("/kontrol-9f4x2k");
+  odemeTazele();
   return {};
 }
 
@@ -133,7 +146,7 @@ export async function denemeSorgula(denemeId: string) {
   }
 
   const sonuc = await denemeyiCoz(servis, ayar, deneme.token);
-  revalidatePath("/kontrol-9f4x2k/odemeler");
+  odemeTazele();
   revalidatePath("/kontrol-9f4x2k/tani");
 
   const mesaj: Record<string, string> = {

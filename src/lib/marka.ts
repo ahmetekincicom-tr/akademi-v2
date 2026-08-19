@@ -13,6 +13,11 @@ export type Marka = {
   ogYukseklik: number | null;
   /** Başlıktaki logo yüksekliği (piksel); diğer yerler bundan oranlanıyor. */
   logoYuksekligi: number;
+  /**
+   * E-posta başlığındaki logo. Ayrı bir alan çünkü sitedeki logolar SVG
+   * olabiliyor ve e-posta istemcileri SVG çizmiyor.
+   */
+  epostaLogo: string | null;
 };
 
 /**
@@ -48,6 +53,7 @@ const BOS: Marka = {
   ogGenislik: null,
   ogYukseklik: null,
   logoYuksekligi: VARSAYILAN_LOGO_YUKSEKLIGI,
+  epostaLogo: null,
 };
 
 /**
@@ -85,6 +91,7 @@ export const getMarka = cache(async (client?: SupabaseClient): Promise<Marka> =>
     ogGenislik: data.og_genislik ?? null,
     ogYukseklik: data.og_yukseklik ?? null,
     logoYuksekligi: logoYuksekligiDuzelt(data.logo_yuksekligi),
+    epostaLogo: markaUrl(data.eposta_logo),
   };
 });
 
@@ -92,7 +99,7 @@ export const getMarka = cache(async (client?: SupabaseClient): Promise<Marka> =>
 export async function getMarkaYollari(client: SupabaseClient) {
   const { data } = await client
     .from("marka")
-    .select("logo_koyu_zemin, logo_acik_zemin, favicon, og_gorsel")
+    .select("*")
     .maybeSingle();
 
   return {
@@ -100,5 +107,6 @@ export async function getMarkaYollari(client: SupabaseClient) {
     logoAcikZemin: data?.logo_acik_zemin ?? null,
     favicon: data?.favicon ?? null,
     ogGorsel: data?.og_gorsel ?? null,
+    epostaLogo: data?.eposta_logo ?? null,
   };
 }

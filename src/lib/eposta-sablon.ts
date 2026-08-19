@@ -41,6 +41,11 @@ export type BildirimIcerigi = {
    * şifresini sıfırlayan kişiye "yönetim paneli" demek yanlış olurdu.
    */
   marka?: string;
+  /**
+   * Başlık şeridindeki logo (mutlak adres). Verilmezse yazı işaretine
+   * düşülüyor — mail hiçbir zaman logosuz görünmüyor.
+   */
+  logo?: string | null;
 };
 
 function kacir(s: string): string {
@@ -79,6 +84,27 @@ function satirlarHtml(satirlar: BildirimSatiri[]): string {
       </tr>`,
     )
     .join("");
+}
+
+/**
+ * Üst şerit: logo varsa logo, yoksa yazı işareti.
+ *
+ * Logo tek başına bırakılmıyor, yanında marka adı da yazılı kalıyor. Sebep
+ * e-postaya özgü: istemcilerin çoğu uzak görselleri varsayılan olarak
+ * engelliyor ve görsel çizilmediğinde şerit bomboş kalırdı. alt metni de
+ * bu yüzden dolu — görsel engellendiğinde onun yerine o okunuyor.
+ */
+function baslikSeridi(i: BildirimIcerigi): string {
+  const ad = kacir(i.marka ?? "Ahmet Ekinci Akademi");
+
+  const isaret = i.logo
+    ? `<img src="${kacir(i.logo)}" alt="${ad}" height="28" style="display:block;height:28px;width:auto;border:0;outline:none;text-decoration:none">`
+    : `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="background:${BRAND};border-radius:9px;width:32px;height:32px;text-align:center;font:700 14px/32px ${YAZI};color:#FFFFFF">AE</td></tr></table>`;
+
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="vertical-align:middle">${isaret}</td>
+            <td style="padding-left:11px;font:600 14px/1.2 ${YAZI};color:#FFFFFF;vertical-align:middle">${ad}</td>
+          </tr></table>`;
 }
 
 function html(i: BildirimIcerigi): string {
@@ -136,12 +162,7 @@ function html(i: BildirimIcerigi): string {
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:#FFFFFF;border:1px solid ${KENAR};border-radius:16px;overflow:hidden">
 
-        <tr><td style="background:${INK};padding:18px 26px">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-            <td style="background:${BRAND};border-radius:9px;width:32px;height:32px;text-align:center;font:700 14px/32px ${YAZI};color:#FFFFFF">AE</td>
-            <td style="padding-left:11px;font:600 14px/1.2 ${YAZI};color:#FFFFFF">${kacir(i.marka ?? "Ahmet Ekinci Akademi")}</td>
-          </tr></table>
-        </td></tr>
+        <tr><td style="background:${INK};padding:18px 26px">${baslikSeridi(i)}</td></tr>
 
         <tr><td style="padding:28px 26px 30px">${govde.join("")}</td></tr>
 
