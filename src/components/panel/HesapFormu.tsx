@@ -6,6 +6,7 @@ import { profilGuncelle } from "@/app/panel/actions";
 import { createClient } from "@/lib/supabase/client";
 import type { PanelProfile } from "@/lib/panel";
 import { useBildirim } from "@/components/Bildirim";
+import { authHatasi } from "@/lib/auth-hatalari";
 
 export function HesapFormu({ profil }: { profil: PanelProfile }) {
   const router = useRouter();
@@ -44,8 +45,9 @@ export function HesapFormu({ profil }: { profil: PanelProfile }) {
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password: yeniSifre });
     if (error) {
-      setSifreDurum({ tip: "hata", mesaj: error.message });
-      bildir.hata(error.message);
+      const mesaj = authHatasi(error, "sifre-degistir");
+      setSifreDurum({ tip: "hata", mesaj });
+      bildir.hata(mesaj);
     } else {
       setSifreDurum({ tip: "ok", mesaj: "Şifren güncellendi." });
       bildir.basarili("Şifren güncellendi.");

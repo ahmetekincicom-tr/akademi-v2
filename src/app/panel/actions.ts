@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { veriHatasi } from "@/lib/auth-hatalari";
 
 export async function dersDurumDegistir(lessonId: string, tamamlandi: boolean) {
   const supabase = await createClient();
@@ -19,7 +20,7 @@ export async function dersDurumDegistir(lessonId: string, tamamlandi: boolean) {
       { onConflict: "user_id,lesson_id" },
     );
 
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
 
   revalidatePath("/panel");
   revalidatePath("/panel/dersler");
@@ -48,7 +49,7 @@ export async function profilGuncelle(input: {
     })
     .eq("id", user.id);
 
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
 
   revalidatePath("/panel", "layout");
   return {};

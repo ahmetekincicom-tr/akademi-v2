@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { authHatasi } from "@/lib/auth-hatalari";
 import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
@@ -34,11 +35,7 @@ export function GirisFormu({ hedef }: { hedef: string }) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setYukleniyor(false);
-        setHata(
-          error.message === "Invalid login credentials"
-            ? "E-posta veya şifre hatalı. Şifreni hatırlamıyorsan sıfırlama bağlantısı isteyebilirsin."
-            : error.message,
-        );
+        setHata(authHatasi(error, "giris"));
         return;
       }
 
@@ -55,7 +52,8 @@ export function GirisFormu({ hedef }: { hedef: string }) {
       window.location.assign(hedef);
     } catch (e) {
       setYukleniyor(false);
-      setHata(e instanceof Error ? e.message : "Beklenmeyen bir hata oldu. Tekrar dene.");
+      // Ağ hatası da buraya düşüyor; authHatasi onu da Türkçeye çeviriyor.
+      setHata(authHatasi(e, "giris"));
     }
   };
 

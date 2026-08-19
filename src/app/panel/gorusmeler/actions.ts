@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { yoneticiBildirimi } from "@/lib/eposta";
+import { veriHatasi } from "@/lib/auth-hatalari";
 
 export type TalepSonuc = {
   error?: string;
@@ -25,7 +26,7 @@ export async function gorusmeTalepEt(input: {
     p_tercih_zaman: input.tercihZaman,
   });
 
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
 
   // Oluşan kaydın ücretli mi ücretsiz mi olduğuna İSTEMCİYE değil satıra
   // bakılıyor: karar sunucuda verildi.
@@ -87,7 +88,7 @@ export async function gorusmeTalepEt(input: {
 export async function gorusmeIptalEt(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.rpc("gorusme_iptal", { p_id: id });
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
 
   revalidatePath("/panel/gorusmeler");
   revalidatePath("/panel/odemelerim");

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { authHatasi } from "@/lib/auth-hatalari";
 import { useRouter } from "next/navigation";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { CheckToggle } from "@/components/auth/CheckToggle";
@@ -52,7 +53,7 @@ export function KayitFormu() {
     });
     setYukleniyor(false);
     if (error) {
-      setHata(error.message);
+      setHata(authHatasi(error, "kayit"));
       return;
     }
     if (data.session) {

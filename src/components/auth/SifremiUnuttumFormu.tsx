@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { authHatasi } from "@/lib/auth-hatalari";
 import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 import { useRouter } from "next/navigation";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
@@ -31,10 +32,27 @@ export function SifremiUnuttumFormu({ uyari }: { uyari?: string }) {
 
       Ama hız sınırı gibi gerçek hatalar da sessizce yutuluyordu; onlar artık
       ekranda görünüyor — kullanıcı beklediği maili boşuna beklemesin.
-      Supabase bu iki durumu farklı kodlarla bildiriyor.
+
+      Hangi hatanın gösterileceği bir LİSTEYLE belirleniyor, "hepsini göster"
+      ile değil: user_not_found gibi bir kod ekrana basılsaydı bu form yine
+      adres sorgulama aracına dönerdi.
     */
-    if (error?.status === 429) {
-      setHata("Çok sık denedin. Bir dakika bekleyip tekrar dene.");
+    const gosterilebilir = new Set([
+      "over_request_rate_limit",
+      "over_email_send_rate_limit",
+      "email_address_invalid",
+      "validation_failed",
+      "email_address_not_authorized",
+      "email_provider_disabled",
+      "provider_disabled",
+      "captcha_failed",
+      "request_timeout",
+    ]);
+
+    const agHatasi = error?.message?.toLowerCase().includes("failed to fetch");
+
+    if (error && (error.status === 429 || agHatasi || gosterilebilir.has(error.code ?? ""))) {
+      setHata(authHatasi(error, "sifre-sifirla"));
       return;
     }
 

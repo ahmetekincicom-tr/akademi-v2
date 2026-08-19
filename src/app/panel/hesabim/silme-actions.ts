@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { yoneticiBildirimi } from "@/lib/eposta";
+import { veriHatasi } from "@/lib/auth-hatalari";
 
 /**
  * Hesap silme talebi. Apple App Store 5.1.1(v) hesabın uygulama içinden
@@ -25,7 +26,7 @@ export async function silmeTalebiOlustur() {
     .update({ silme_talebi_tarihi: new Date().toISOString() })
     .eq("id", user.id);
 
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
 
   // Bu talebin bir kuyrukta beklemesi Apple açısından yeterli değil; işlenmesi
   // gerekiyor. Panele bakmadan haberdar olmanın tek yolu bu bildirim.
@@ -67,7 +68,7 @@ export async function silmeTalebiGeriAl() {
     .update({ silme_talebi_tarihi: null })
     .eq("id", user.id);
 
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
 
   revalidatePath("/panel/hesabim");
   return {};

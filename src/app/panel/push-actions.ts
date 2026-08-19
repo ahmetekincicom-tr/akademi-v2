@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { veriHatasi } from "@/lib/auth-hatalari";
 
 /**
  * Cihazın APNs token'ını kaydeder.
@@ -33,6 +34,6 @@ export async function cihazKaydet(token: string, platform: "ios" | "android") {
     { onConflict: "token" },
   );
 
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
   return {};
 }

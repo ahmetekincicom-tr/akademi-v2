@@ -13,7 +13,14 @@ export async function girisYap(formData: FormData) {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password: sifre });
 
   if (error || !data.user) {
-    redirect(`/kontrol-9f4x2k/giris?hata=1&next=${encodeURIComponent(next)}`);
+    /*
+      Hata KODU adrese taşınıyor, metin değil: sayfa onu Türkçeye çeviriyor.
+      Eskiden her hata "E-posta veya şifre hatalı" olarak gösteriliyordu ve
+      hız sınırına takılan ya da e-postasını doğrulamamış biri yanlış yöne
+      bakıyordu. Kod hassas bir bilgi değil.
+    */
+    const kod = error?.code || "invalid_credentials";
+    redirect(`/kontrol-9f4x2k/giris?hata=${encodeURIComponent(kod)}&next=${encodeURIComponent(next)}`);
   }
 
   const { data: profile } = await supabase

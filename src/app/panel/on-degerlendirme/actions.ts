@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { veriHatasi } from "@/lib/auth-hatalari";
 
 /**
  * Formun doldurulduğunu işaretler. Cevaplar Tally'de kalıyor; burada tutulan
@@ -24,7 +25,7 @@ export async function onDegerlendirmeIsaretle() {
     .update({ on_degerlendirme_tarihi: new Date().toISOString() })
     .eq("id", user.id);
 
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
 
   revalidatePath("/panel");
   revalidatePath("/panel/on-degerlendirme");

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { authHatasi } from "@/lib/auth-hatalari";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
@@ -22,7 +23,7 @@ export function SifreBelirleFormu() {
     const { error } = await supabase.auth.updateUser({ password });
     setYukleniyor(false);
     if (error) {
-      setHata(error.message);
+      setHata(authHatasi(error, "sifre-degistir"));
       return;
     }
     router.push("/sifre-belirle/tamam");

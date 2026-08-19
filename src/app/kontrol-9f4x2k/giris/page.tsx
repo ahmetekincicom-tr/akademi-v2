@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { girisYap } from "./actions";
+import { authHatasi } from "@/lib/auth-hatalari";
 
 export const metadata: Metadata = { title: "Yönetim girişi — Ahmet Ekinci Akademi" };
 
@@ -9,11 +10,16 @@ export default async function AdminGirisPage({
   searchParams: Promise<{ next?: string; hata?: string }>;
 }) {
   const { next = "/kontrol-9f4x2k", hata } = await searchParams;
+  /*
+    Adresteki "hata" artık Supabase hata kodu taşıyor; sözlük onu Türkçeye
+    çeviriyor. "1" eski bağlantılardan gelen değer, hatalı kimlik olarak
+    okunuyor.
+  */
   const hataMesaji =
     hata === "yetki"
       ? "Bu hesabın yönetim paneline erişim yetkisi yok."
       : hata
-        ? "E-posta veya şifre hatalı. Tekrar dener misin?"
+        ? authHatasi({ code: hata === "1" ? "invalid_credentials" : hata }, "giris")
         : null;
 
   return (
