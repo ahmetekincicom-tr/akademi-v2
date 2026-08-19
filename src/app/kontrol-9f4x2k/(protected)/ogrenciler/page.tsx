@@ -18,7 +18,13 @@ export default async function OgrencilerPage() {
     { data: egitimOturumlari },
     oturumlar,
   ] = await Promise.all([
-    supabase.from("profiles").select("id, ad, soyad, email, role, created_at, silme_talebi_tarihi").order("created_at"),
+    // En yeni kayıt en üstte: listeye bakma sebebi çoğunlukla "kim yeni
+    // katıldı" sorusu. Eskiden artan sıradaydı ve yeni üye listenin dibine
+    // düşüyordu; kişi sayısı arttıkça her seferinde sona kaydırmak gerekiyordu.
+    supabase
+      .from("profiles")
+      .select("id, ad, soyad, email, role, created_at, silme_talebi_tarihi")
+      .order("created_at", { ascending: false }),
     supabase.from("enrollments").select("user_id, course_id, atanma_tarihi"),
     supabase.from("courses").select("id, slug, baslik, modules(lessons(id))").order("created_at"),
     supabase.from("lesson_progress").select("user_id, lesson_id").eq("tamamlandi", true),
