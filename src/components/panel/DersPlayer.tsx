@@ -93,15 +93,34 @@ export function DersPlayer({
     setAktifDersId(ilkTamamlanmayan?.id ?? yeni.modules[0]?.dersler[0]?.id ?? null);
   };
 
+  // Kurs ve modül adı; boş olan ve kursla aynı olan parça atılıyor.
+  const ustSatir = [kurs.baslik, aktifDers?.modulBaslik?.trim()]
+    .map((p) => p?.trim())
+    .filter((p): p is string => Boolean(p))
+    .filter((p, i, hepsi) => hepsi.indexOf(p) === i);
+
   return (
     <main className="p-4 pt-4 pb-14 sm:p-[34px] sm:pt-[26px]">
       {/* Panele dönüş düğmesi yok: shell'in üst çubuğunda zaten tıklanabilir
           bir "Panel" kırıntısı var, ikincisi hem gereksizdi hem başlığı içeri
           itiyordu. */}
       <div className="mb-4 min-w-0 sm:mb-5">
+        {/*
+          Üst satır "kurs · modül" olarak kuruluyor ama parçalar tek tek
+          süzülüyor.
+
+          Önceden modül adı yoksa yedek olarak KURS ADI yazılıyordu ve satır
+          "Birebir Meta Ads Eğitimi · Birebir Meta Ads Eğitimi" haline
+          geliyordu. Aynı gerekçeyle boş dizeye de dikkat ediliyor: modül
+          başlıksız kaydedilmişse ?? bunu yakalamıyor ve satır ayraçla
+          bitiyordu.
+
+          Kurs adı dar ekranda gizli kalmaya devam ediyor; mobilde tek parça
+          gösteriliyor.
+        */}
         <div className="truncate font-mono text-[10px] tracking-[0.1em] text-[#656B7A] uppercase sm:text-[10.5px]">
-          <span className="hidden sm:inline">{kurs.baslik} · </span>
-          {aktifDers?.modulBaslik ?? kurs.baslik}
+          <span className="hidden sm:inline">{ustSatir.join(" · ")}</span>
+          <span className="sm:hidden">{ustSatir[ustSatir.length - 1]}</span>
         </div>
         <h1 className="mt-[5px] font-heading text-[18px] leading-[1.22] font-semibold tracking-[-0.03em] sm:mt-[6px] sm:text-[26px]">
           {aktifDers?.ad ?? "Bu eğitimde henüz ders yok"}
