@@ -90,6 +90,7 @@ Gecelik iki temizlik görevi çalışıyor:
 |---|---|---|
 | Giriş kayıtları | 90 gün | `oturum-kayit-temizligi` · 03:15 |
 | E-posta günlüğü | 90 gün | `eposta-gunlugu-temizligi` · 03:25 |
+| Meta olay günlüğü ve temas kayıtları | 90 gün | `meta-kayit-temizligi` · 03:35 |
 
 İkisi de kişisel veri taşıyor (IP, konum, e-posta adresi) ve işe yaradıkları
 pencere dar: "geçen ay şu mail gitti mi" sorulur, "iki yıl önce" sorulmaz.

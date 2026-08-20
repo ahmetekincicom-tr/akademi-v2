@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { yoneticiBildirimi } from "@/lib/eposta";
+import { metaOlayiKuyrukla } from "@/lib/meta/kuyruk";
+import { kimlikKur } from "@/lib/meta/kimlik";
+import { istekBaglami } from "@/lib/meta/toplama";
 
 export type MesajInput = {
   tur: "iletisim" | "teklif";
@@ -78,18 +81,52 @@ export async function mesajGonder(input: MesajInput): Promise<{ error?: string }
     courseId = data?.id ?? null;
   }
 
-  const { error } = await supabase.from("iletisim_mesajlari").insert({
-    tur: input.tur,
-    ad,
-    email,
-    telefon: kirp(input.telefon, SINIR.telefon) || null,
-    sirket: kirp(input.sirket, SINIR.sirket) || null,
-    konu: kirp(input.konu, SINIR.konu) || null,
-    mesaj,
-    course_id: courseId,
-  });
+  const { data: kayit, error } = await supabase
+    .from("iletisim_mesajlari")
+    .insert({
+      tur: input.tur,
+      ad,
+      email,
+      telefon: kirp(input.telefon, SINIR.telefon) || null,
+      sirket: kirp(input.sirket, SINIR.sirket) || null,
+      konu: kirp(input.konu, SINIR.konu) || null,
+      mesaj,
+      course_id: courseId,
+    })
+    .select("id")
+    .single();
 
   if (error) return { error: "Mesaj gönderilemedi. Lütfen tekrar dener misin?" };
+
+  /*
+    Meta'ya Lead.
+
+    Reklam optimizasyonunun asıl hedefi bu olay: satın alma haftalar sonra ve
+    panelin içinde gerçekleşiyor, Meta'nın öğrenebileceği sıklıkta olan tek
+    dönüşüm bu form.
+
+    Mesaj KAYDEDİLDİKTEN sonra ve kaydın kimliğiyle: event_id deterministik
+    olsun ki form iki kez gönderildiğinde iki ayrı satış gibi sayılmasın.
+  */
+  if (kayit) {
+    const baglam = await istekBaglami();
+    await metaOlayiKuyrukla({
+      olay: "Lead",
+      eventId: `lead-${kayit.id}`,
+      kimlik: kimlikKur({
+        eposta: email,
+        telefon: input.telefon,
+        ad,
+        fbp: baglam.fbp,
+        fbc: baglam.fbc,
+        ip: baglam.ip,
+        ua: baglam.ua,
+      }),
+      ozel: { content_name: input.tur === "teklif" ? "Teklif talebi" : "İletişim formu" },
+      aksiyon: "website",
+      izin: baglam.izin,
+    });
+  }
 
   // Bildirim mesaj KAYDEDİLDİKTEN sonra: postanın gitmemesi mesajı kaybetmesin.
   await yoneticiBildirimi({

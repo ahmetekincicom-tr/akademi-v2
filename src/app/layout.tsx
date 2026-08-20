@@ -6,8 +6,10 @@ import { Olcumleme, ONYUKLEME } from "@/components/site/Olcumleme";
 import { CerezBandi } from "@/components/site/CerezBandi";
 import { ServiceWorkerKaydi } from "@/components/site/ServiceWorkerKaydi";
 import { NativeIsaretci } from "@/components/site/NativeIsaretci";
+import { MetaPixel } from "@/components/site/MetaPixel";
 import { getMarka } from "@/lib/marka";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
+import { getPixelId } from "@/lib/meta/pixel";
 import "./globals.css";
 import { SITE_URL, SITE_ADI, VARSAYILAN_ACIKLAMA, kurumSemasi, siteSemasi } from "@/lib/seo";
 
@@ -100,9 +102,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Panelde GA4/GTM tanımlı değilse ne etiket ne de çerez bandı basılır —
-  // izin sorulacak bir şey yokken banner göstermek ziyaretçiyi boşa yorar.
-  const olcumlemeVar = olcumlemeAcik(await getOlcumleme());
+  // Panelde GA4/GTM ya da Meta pixel tanımlı değilse ne etiket ne de çerez
+  // bandı basılır — izin sorulacak bir şey yokken banner göstermek ziyaretçiyi
+  // boşa yorar.
+  const [olcumleme, pixelId] = await Promise.all([getOlcumleme(), getPixelId()]);
+  // Google önyüklemesi yalnızca Google etiketi varken anlamlı; Consent Mode
+  // Meta'yı ilgilendirmiyor.
+  const googleVar = olcumlemeAcik(olcumleme);
+  // Bant ise ikisinden biri varsa gerekiyor: izin sorulacak bir şey var.
+  const bantVar = googleVar || Boolean(pixelId);
 
   return (
     <html lang="tr" className={`${heading.variable} ${body.variable} ${mono.variable}`}>
@@ -111,7 +119,7 @@ export default async function RootLayout({
           İzin varsayılanı Google etiketlerinden önce senkron çalışmak zorunda,
           o yüzden next/script değil düz inline script — gerekçesi Olcumleme.tsx'te.
         */}
-        {olcumlemeVar && <script dangerouslySetInnerHTML={{ __html: ONYUKLEME }} />}
+        {googleVar && <script dangerouslySetInnerHTML={{ __html: ONYUKLEME }} />}
         {/*
           Yapısal veri: arama motoruna sayfanın ne olduğunu söylüyor. İçerik
           bizim ürettiğimiz sabit bir nesne, dışarıdan gelen veri yok.
@@ -123,11 +131,14 @@ export default async function RootLayout({
       </head>
       <body className="antialiased font-body text-ink bg-white">
         <Olcumleme />
+        {/* Pixel ID girilmemişse hiç çizilmiyor: kapatma düğmesi burada,
+            "Pixel ID'yi boş bırak" demek pixel'i tamamen kaldırmak demek. */}
+        {pixelId && <MetaPixel pixelId={pixelId} />}
         <ServiceWorkerKaydi />
         <NativeIsaretci />
         <TopLoader />
         <BildirimSaglayici>{children}</BildirimSaglayici>
-        {olcumlemeVar && <CerezBandi />}
+        {bantVar && <CerezBandi />}
       </body>
     </html>
   );

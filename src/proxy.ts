@@ -1,5 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { cerezAlanAdi } from "@/lib/izin";
+import { FBC_CEREZI, FBC_OMRU_SN, fbcKur } from "@/lib/meta/fbc";
 
 /**
  * Arama motorlarına açık alan adları. Virgülle ayrılır.
@@ -95,6 +97,14 @@ const AYRICA_ACIK = [
   "/auth",
   "/api",
   "/cevrimdisi",
+  /*
+    Dışarı çıkan yönlendirmeler (WhatsApp).
+
+    Ön yüz kapalıyken de açık kalmak ZORUNDA: bu bağlantıyı WordPress'teki
+    ana site kullanıyor ve orası yayında. Kapalı olsaydı ana sitedeki
+    WhatsApp butonu panel giriş ekranına düşerdi.
+  */
+  "/git",
   // Yasal metinler: kayıt ve ödeme ekranları buraya bağlantı veriyor,
   // App Store da erişilebilir olmasını şart koşuyor.
   "/gizlilik-politikasi",
@@ -124,6 +134,48 @@ function suAndaSunuluyor(pathname: string): boolean {
 // giriş ekranı değil, ana sayfa dönüyor: burada bir panel olduğu bilgisi bile
 // verilmiyor.
 const TUZAK_KOKLER = ["/admin", "/administrator", "/wp-admin", "/wp-login.php", "/yonetim"];
+
+/**
+ * Reklam tıklamasını çereze yazar.
+ *
+ * Meta reklamından gelen adreste `fbclid` parametresi bulunuyor. Pixel bunu
+ * kendisi de `_fbc` çerezine çeviriyor — ama iki sebeple burada, sunucudan
+ * yazılıyor:
+ *
+ *  1. Pixel yalnızca reklam izni verilmişse yükleniyor ve izin bandı
+ *     kapanana kadar geçen sürede tıklama kimliği kaybolabiliyor. Burası
+ *     ilk isteğin kendisi.
+ *
+ *  2. Safari'nin ITP'si JavaScript'in yazdığı çerezlere 7 gün ömür biçiyor;
+ *     sunucudan Set-Cookie ile yazılana biçmiyor. Tıklama ile ödeme arasında
+ *     haftalar olan bir funnel'da bu fark, ölçülen ile ölçülmeyen arasındaki
+ *     fark.
+ *
+ * VAR OLAN çerezin üzerine yazılmıyor: ilk tıklama, sonrakinden değerli —
+ * kişiyi getiren o.
+ *
+ * Alan adı `.ahmetekinciakademi.com` olarak yazılıyor ki WordPress'teki ana
+ * site ile panel aynı değeri görsün.
+ */
+function tiklamaKimliginiYaz(request: NextRequest, response: NextResponse): void {
+  const fbclid = request.nextUrl.searchParams.get("fbclid");
+  if (!fbclid || request.cookies.has(FBC_CEREZI)) return;
+
+  const deger = fbcKur(fbclid);
+  if (!deger) return;
+
+  const alan = cerezAlanAdi(request.nextUrl.hostname);
+  response.cookies.set(FBC_CEREZI, deger, {
+    path: "/",
+    maxAge: FBC_OMRU_SN,
+    sameSite: "lax",
+    secure: request.nextUrl.protocol === "https:",
+    // httpOnly DEĞİL: Meta'nın kendi pixel'i de bu çerezi okuyor ve
+    // gizlenmiş bir değer tarayıcı tarafındaki olayları eşleşmesiz bırakırdı.
+    httpOnly: false,
+    ...(alan ? { domain: alan } : {}),
+  });
+}
 
 export async function proxy(request: NextRequest) {
   // Oturum tazelemesinden önce: bu adreslerde yapılacak başka iş yok.
@@ -203,6 +255,8 @@ export async function proxy(request: NextRequest) {
   if (!indekslenebilirMi(request)) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
+
+  tiklamaKimliginiYaz(request, response);
 
   // Not: burada Vary: User-Agent EKLENMİYOR. Next kendi Vary başlığını
   // sonradan yazıp üzerine geçiyor, dolayısıyla ölü kod olurdu. Gerek de yok:

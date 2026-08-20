@@ -389,6 +389,44 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["marka"]["Row"]>;
         Relationships: [];
       };
+      meta_akislari: {
+        Row: { acik: boolean; anahtar: string; guncelleme: string };
+        Insert: Partial<Database["public"]["Tables"]["meta_akislari"]["Row"]> & { anahtar: string };
+        Update: Partial<Database["public"]["Tables"]["meta_akislari"]["Row"]>;
+        Relationships: [];
+      };
+      meta_olaylari: {
+        Row: {
+          aksiyon: string;
+          created_at: string;
+          deneme: number;
+          durum: string;
+          event_id: string;
+          gonderim_zamani: string | null;
+          id: string;
+          kaynak_url: string | null;
+          kimlik: Json;
+          olay: string;
+          olay_zamani: string;
+          ozel: Json;
+          sebep: string | null;
+          user_id: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["meta_olaylari"]["Row"]> & {
+          event_id: string;
+          olay: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["meta_olaylari"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "meta_olaylari_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       modules: {
         Row: { baslik: string; course_id: string; id: string; meta: string | null; sira: number };
         Insert: Partial<Database["public"]["Tables"]["modules"]["Row"]> & {
@@ -535,17 +573,25 @@ export type Database = {
           ad: string | null;
           created_at: string;
           email: string | null;
+          fbc: string | null;
+          fbp: string | null;
           hosgeldin_tarihi: string | null;
           id: string;
           ileti_izni: boolean;
           ileti_izni_tarihi: string | null;
+          ilk_ip: string | null;
+          ilk_ua: string | null;
+          kaynak: string | null;
           on_degerlendirme_tarihi: string | null;
+          reklam_izni: boolean | null;
+          reklam_izni_tarihi: string | null;
           role: Database["public"]["Enums"]["user_role"];
           silme_talebi_tarihi: string | null;
           sirket: string | null;
           soyad: string | null;
           sozlesme_onayi_tarihi: string | null;
           telefon: string | null;
+          temas_kodu: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]> & { id: string };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
@@ -776,6 +822,34 @@ export type Database = {
           },
         ];
       };
+      temaslar: {
+        Row: {
+          created_at: string;
+          eslesme_zamani: string | null;
+          fbc: string | null;
+          fbp: string | null;
+          hedef: string | null;
+          id: string;
+          ip: string | null;
+          izin: boolean;
+          kod: string;
+          referrer: string | null;
+          ua: string | null;
+          user_id: string | null;
+          yer: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["temaslar"]["Row"]> & { kod: string };
+        Update: Partial<Database["public"]["Tables"]["temaslar"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "temaslar_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       yasal_sayfalar: {
         Row: {
           baslik: string;
@@ -833,6 +907,10 @@ export type Database = {
       };
       form_ayarlari: {
         Row: { on_degerlendirme: string | null };
+        Relationships: [];
+      };
+      meta_pixel_ayari: {
+        Row: { pixel_id: string | null };
         Relationships: [];
       };
       olcumleme_ayarlari: {

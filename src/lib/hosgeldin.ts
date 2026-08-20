@@ -88,9 +88,87 @@ export async function hosgeldinGonder(): Promise<void> {
       yol: "/kontrol-9f4x2k/ogrenciler",
       eylemEtiketi: "Öğrencileri aç",
     });
+
+    await kayitOlayi(user.id, {
+      eposta: kisi?.email ?? user.email,
+      telefon: kisi?.telefon,
+      ad: kisi?.ad,
+      soyad: kisi?.soyad,
+    });
   } catch {
     // Hoş geldin maili girişi engellememeli. Sessiz geçiliyor.
   }
+}
+
+/**
+ * Meta'ya CompleteRegistration ve tıklama kimliğinin profile yapıştırılması.
+ *
+ * İlk giriş anında, çünkü ölçümleme açısından da doğru an burası: kayıt
+ * akışı tarayıcıdan Supabase'e doğrudan gidiyor (araya girebileceğimiz bir
+ * sunucu adımı yok) ve içe aktarılan öğrenciler o akıştan hiç geçmiyor.
+ *
+ * ASIL İŞ kimliği profile yazmak. Kişi şu an panelde, çerezleri elimizde;
+ * ödeme günler sonra, belki havaleyle gelecek ve o gün çerez ortada
+ * olmayacak. Bu satır yazılmazsa satın alma reklama hiçbir zaman bağlanamaz.
+ *
+ * Damga zaten kişi başına bir kez atıldığı için burası da tam bir kez
+ * çalışıyor.
+ */
+async function kayitOlayi(
+  userId: string,
+  kisi: { eposta?: string | null; telefon?: string | null; ad?: string | null; soyad?: string | null },
+): Promise<void> {
+  const [{ istekBaglami }, { kimlikKur }, { metaOlayiKuyrukla }, { gorevIstemcisi }] = await Promise.all([
+    import("@/lib/meta/toplama"),
+    import("@/lib/meta/kimlik"),
+    import("@/lib/meta/kuyruk"),
+    import("@/lib/supabase/gorev"),
+  ]);
+
+  const baglam = await istekBaglami();
+
+  /*
+    Yazma servis anahtarıyla: bu sütunlar katılımcının kendi düzenleyeceği
+    alanlar değil ve profil güncellemesine açık bırakılmaları, tıklama
+    kimliğinin dışarıdan yazılabilmesi demek olurdu.
+
+    Var olan değerin üzerine yazılmıyor (coalesce yerine yalnızca boşken
+    yazma): ilk temas, sonrakinden değerli.
+  */
+  const servis = gorevIstemcisi();
+  if (servis) {
+    await servis
+      .from("profiles")
+      .update({
+        fbp: baglam.fbp,
+        fbc: baglam.fbc,
+        ilk_ip: baglam.ip,
+        ilk_ua: baglam.ua,
+        reklam_izni: baglam.izin,
+        reklam_izni_tarihi: new Date().toISOString(),
+      })
+      .eq("id", userId)
+      .is("fbp", null);
+  }
+
+  await metaOlayiKuyrukla({
+    olay: "CompleteRegistration",
+    eventId: `register-${userId}`,
+    kimlik: kimlikKur({
+      eposta: kisi.eposta,
+      telefon: kisi.telefon,
+      ad: kisi.ad,
+      soyad: kisi.soyad,
+      userId,
+      fbp: baglam.fbp,
+      fbc: baglam.fbc,
+      ip: baglam.ip,
+      ua: baglam.ua,
+    }),
+    aksiyon: "website",
+    userId,
+    izin: baglam.izin,
+  });
 }
 
 async function panelAdresi(): Promise<string> {

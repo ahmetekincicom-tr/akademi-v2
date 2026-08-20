@@ -19,6 +19,7 @@ import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { konumEtiketi, cihazEtiketi } from "@/lib/oturum";
 import { TR_ZAMAN } from "@/lib/zaman";
 import type { AdminKurs, AdminOgrenci } from "@/components/admin/OgrenciYonetimi";
+import { temasiKisiyeBagla } from "@/app/kontrol-9f4x2k/(protected)/meta/actions";
 import { BAGLAM_ETIKET } from "@/lib/riza-tipleri";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
@@ -98,6 +99,7 @@ export function OgrenciDetay({
   // duruyor ki "Kaydet" düğmesi gerçekten değişiklik olduğunda açılsın.
   const [arsivTaslak, setArsivTaslak] = useState<Record<string, { baslik: string; link: string }>>({});
   const [onayAcik, setOnayAcik] = useState(false);
+  const [temasKodu, setTemasKodu] = useState("");
   // Şüphe varsa açık gelsin; yönetici o zaman zaten bakacak.
   const [girisAcik, setGirisAcik] = useState(ogrenci.sinyal.supheli);
 
@@ -141,6 +143,54 @@ export function OgrenciDetay({
         >
           <Icon name="x" size={16} />
         </button>
+      </div>
+
+      {/* ------------------------------------------------- geliş kaynağı --- */}
+      {/*
+        WhatsApp yolunun tek köprüsü.
+
+        Kişi reklama tıklayıp WhatsApp'a yazdığında mesajın içinde kısa bir
+        referans kodu geliyor. Burada yapıştırılmazsa tıklama kimliği kişiye
+        hiç yapışmıyor ve günler sonra gelen ödeme reklama bağlanamıyor —
+        ölçümlemenin sessizce boş kaldığı yer tam olarak burası.
+      */}
+      <div className="border-b border-ink/8 px-4 py-3 sm:px-5">
+        <div className={BASLIK}>Geliş kaynağı</div>
+        {ogrenci.temasKodu ? (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <code className="rounded-[7px] bg-white px-[9px] py-[3px] font-mono text-[12px] font-semibold tracking-[0.08em] text-ink">
+              {ogrenci.temasKodu}
+            </code>
+            <span className="text-[12.5px] text-[#656B7A]">
+              tıklama kimliği bağlı{ogrenci.kaynak ? ` · ${ogrenci.kaynak}` : ""}
+            </span>
+          </div>
+        ) : (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <input
+              value={temasKodu}
+              onChange={(e) => setTemasKodu(e.target.value.toUpperCase())}
+              placeholder="WhatsApp mesajındaki kod"
+              maxLength={8}
+              className="h-[34px] w-[190px] rounded-[8px] border border-ink/14 bg-white px-3 font-mono text-[12.5px] tracking-[0.08em] outline-none focus:border-brand"
+            />
+            <button
+              type="button"
+              disabled={islemde || temasKodu.trim().length < 4}
+              onClick={() =>
+                calistir("Tıklama kaydı kişiye bağlandı.", () => temasiKisiyeBagla(temasKodu, ogrenci.id), () =>
+                  setTemasKodu(""),
+                )
+              }
+              className="h-[34px] rounded-[8px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-40"
+            >
+              Bağla
+            </button>
+            <span className="text-[12px] text-[#8A90A0]">
+              Kodlar Meta ölçümleme ekranında listeleniyor.
+            </span>
+          </div>
+        )}
       </div>
 
       {/* ---------------------------------------------- eğitim kayıtları --- */}

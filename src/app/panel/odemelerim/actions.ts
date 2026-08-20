@@ -8,6 +8,8 @@ import { iyzicoAyari, odemeBaslat as iyzicoBaslat, taksitleriCoz } from "@/lib/i
 import { yoneticiBildirimi } from "@/lib/eposta";
 import { paraBicimi } from "@/lib/odeme";
 import { rizaKaydet } from "@/lib/riza";
+import { metaOlayiKuyrukla } from "@/lib/meta/kuyruk";
+import { istekBaglami, profildenKimlik } from "@/lib/meta/toplama";
 
 /** Ödeme adımında onaylanan metinler. */
 const ODEME_BELGELERI = ["satis-sozlesmesi", "iptal-iade-politikasi"];
@@ -186,6 +188,36 @@ export async function odemeyeGec(
     .update({ token: cevap.token ?? null })
     .eq("conversation_id", konusmaId)
     .eq("user_id", user.id);
+
+  /*
+    Meta'ya InitiateCheckout.
+
+    iyzico sayfası AÇILDIKTAN sonra: daha önce yazılsaydı, sayfası hiç
+    açılmayan başarısız denemeler de "ödemeye başladı" diye sayılırdı.
+
+    Kimlik profilden geliyor ama _fbp/_fbc istekten tazeleniyor: kişi o an
+    panelde ve tarayıcısındaki değer profildekinden yeni olabilir.
+  */
+  const [baglam, metaKimlik] = await Promise.all([istekBaglami(), profildenKimlik(servis, user.id)]);
+  if (metaKimlik) {
+    await metaOlayiKuyrukla({
+      olay: "InitiateCheckout",
+      eventId: `checkout-${konusmaId}`,
+      kimlik: {
+        ...metaKimlik.kimlik,
+        ...(baglam.fbp ? { fbp: baglam.fbp } : {}),
+        ...(baglam.fbc ? { fbc: baglam.fbc } : {}),
+        ...(baglam.ip ? { client_ip_address: baglam.ip } : {}),
+        ...(baglam.ua ? { client_user_agent: baglam.ua } : {}),
+      },
+      ozel: { value: tutar, currency: "TRY", content_name: kursAdi ?? "Eğitim" },
+      aksiyon: "website",
+      userId: user.id,
+      // Panelde olduğu için isteğin izni asıl kaynak; profildeki kayıt
+      // yalnızca istekte çerez yoksa devreye giriyor.
+      izin: baglam.izin || metaKimlik.izin,
+    });
+  }
 
   return { adres: cevap.paymentPageUrl };
 }

@@ -7,6 +7,7 @@ import { iyzicoAyari } from "@/lib/iyzico";
 import { denemeyiCoz } from "@/lib/odeme-sonuc";
 import { odemeAcildiBildir, odemeTamamlandiBildir } from "@/lib/odeme-eposta";
 import { yoneticiMi } from "@/lib/panel-kapsam";
+import { satinAlmaOlayi } from "@/lib/meta/satis";
 
 /**
  * Ödeme değiştiğinde tazelenmesi gereken her yer.
@@ -70,6 +71,10 @@ export async function odemeEkle(input: OdemeInput) {
     // Kayıt oluştu ama bildirim gitmediyse bunu söylemek gerekiyor: sessiz
     // kalırsa öğrencinin haberi olduğu varsayılıyor ve ödeme günlerce bekliyor.
     if (!sonuc.gonderildi) uyari = `Ödeme kaydedildi ancak bildirim gönderilemedi. ${sonuc.sebep ?? ""}`.trim();
+
+    // Peşin işaretlenerek açılan kayıt da bir satıştır; kartla ödenmiş
+    // olmadığı için kaynağı "other".
+    if (input.durum === "odendi") await satinAlmaOlayi(supabase, eklenen.id, "other");
   }
 
   odemeTazele();
@@ -148,6 +153,12 @@ export async function odemeDurumDegistir(id: string, durum: "odendi" | "bekliyor
   if (durum === "odendi" && onceki?.durum !== "odendi") {
     const sonuc = await odemeTamamlandiBildir(supabase, id);
     if (!sonuc.gonderildi) uyari = `Durum güncellendi ancak bildirim gönderilemedi. ${sonuc.sebep ?? ""}`.trim();
+    /*
+      Havale burada kesinleşiyor: kişi o an hiçbir sayfada değil, yönetici
+      işaretliyor. action_source bu yüzden "other" — "website" yazmak Meta'ya
+      olmayan bir site trafiği bildirmek olurdu.
+    */
+    await satinAlmaOlayi(supabase, id, "other");
   }
   odemeTazele();
   return uyari ? { uyari } : {};

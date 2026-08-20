@@ -41,12 +41,24 @@ export const entegrasyonGruplari: AyarGrubu[] = [
   {
     anahtar: "meta",
     baslik: "Meta",
-    aciklama: "Pixel ve Conversions API bilgileri. Buraya girdiklerin kayıtlı tutulur; olay gönderimi ayrı bir geliştirme adımıdır.",
+    aciklama:
+      "Pixel ve Conversions API. Pixel ID girildiği anda tarayıcı etiketi yayına giriyor; token da girilince sunucu olayları (satın alma, teklif formu, WhatsApp) gönderilmeye başlıyor.",
     alanlar: [
-      { ad: "pixelId", etiket: "Pixel ID" },
-      { ad: "datasetId", etiket: "Dataset / CAPI ID" },
+      {
+        ad: "pixelId",
+        etiket: "Pixel ID",
+        // Dataset ID diye ayrı bir alan YOK: Meta ikisini birleştirdi, aynı
+        // numara. İki alan bırakmak hangisinin doldurulacağı sorusunu
+        // üretiyordu — özellikle iki mülk (ana site + panel) varken.
+        ipucu: "Events Manager'daki veri kümesi numarası. Boş bırakılırsa pixel hiç yüklenmez.",
+      },
       { ad: "capiToken", etiket: "Conversions API token", gizli: true, genis: true },
-      { ad: "testKodu", etiket: "Test event kodu" },
+      {
+        ad: "testKodu",
+        etiket: "Test event kodu",
+        ipucu:
+          "Yalnızca doğrulama için. Doluyken olaylar Events Manager'ın test sekmesine düşer ve GERÇEK raporlara girmez — doğrulama bitince boşalt.",
+      },
     ],
   },
   {

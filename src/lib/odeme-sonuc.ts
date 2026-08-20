@@ -5,6 +5,7 @@ import type { Database } from "@/lib/supabase/tipler";
 import { basariliMi, odemeSorgula, type IyzicoAyar, type SorgulamaCevabi } from "@/lib/iyzico";
 import { odemeTamamlandiBildir } from "@/lib/odeme-eposta";
 import { yoneticiBildirimi } from "@/lib/eposta";
+import { satinAlmaOlayi } from "@/lib/meta/satis";
 
 /**
  * Bir ödeme denemesinin sonucunu iyzico'ya sorup kaydeder.
@@ -126,6 +127,8 @@ export async function denemeyiCoz(
   await odemeBildirimi(servis, deneme.payment_id, cevap);
   // Öğrenciye de haber: tahsilat tamam, sıradaki adım ön değerlendirme.
   await odemeTamamlandiBildir(servis, deneme.payment_id);
+  // Meta'ya da: kartla ödeme burada kesinleşiyor.
+  await satinAlmaOlayi(servis, deneme.payment_id, "website");
 
   return "basarili";
 }

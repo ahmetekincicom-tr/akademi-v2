@@ -9,7 +9,7 @@ import {
   INSTAGRAM_KULLANICI,
   INSTAGRAM_URL,
   OFIS_ADRESI,
-  whatsappLink,
+  olculenWhatsapp,
 } from "@/lib/iletisim";
 import { sayfaMeta } from "@/lib/seo";
 
@@ -28,12 +28,12 @@ const kanallar: { baslik: string; deger: string; href?: string }[] = [
   {
     baslik: "WhatsApp",
     deger: WHATSAPP_NUMARALAR[0].gosterim,
-    href: whatsappLink(WHATSAPP_NUMARALAR[0].numara),
+    href: olculenWhatsapp("iletisim"),
   },
   {
     baslik: "WhatsApp (2. hat)",
     deger: WHATSAPP_NUMARALAR[1].gosterim,
-    href: whatsappLink(WHATSAPP_NUMARALAR[1].numara),
+    href: olculenWhatsapp("iletisim", 1),
   },
   { baslik: "Instagram", deger: INSTAGRAM_KULLANICI, href: INSTAGRAM_URL },
   { baslik: "E-posta", deger: EPOSTA, href: `mailto:${EPOSTA}` },

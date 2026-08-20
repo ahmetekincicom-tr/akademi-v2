@@ -1,7 +1,14 @@
 import Script from "next/script";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
+import { IZIN_CEREZI } from "@/lib/izin";
 
-/** Ziyaretçinin seçimini tuttuğumuz localStorage anahtarı. */
+/**
+ * Eski localStorage anahtarı.
+ *
+ * Artık yazılmıyor; yalnızca bir kez okunup çereze taşınıyor. Kaldırılsaydı
+ * daha önce seçim yapmış herkese bant yeniden çıkardı — verilmiş bir izni
+ * unutmak, hiç sormamaktan kötü.
+ */
 export const IZIN_ANAHTARI = "aea-cerez-izni";
 
 /**
@@ -24,8 +31,29 @@ export const ONYUKLEME = `
   function gtag() { dataLayer.push(arguments); }
   window.gtag = gtag;
 
+  /*
+    İzin ÖNCE çerezden okunuyor.
+
+    Çerez .ahmetekinciakademi.com kapsamında yazılıyor, yani WordPress'teki
+    ana sitede verilen izin panelde de görülüyor. localStorage bunu yapamaz
+    ve eskiden aynı ziyaretçi iki mülkte iki kez sorulurdu.
+
+    localStorage yalnızca GERİYE DÖNÜK okunuyor: çerezden önce seçim yapmış
+    ziyaretçiye bant yeniden çıkmasın diye. Çereze taşıma işini bandın kendisi
+    yapıyor; burada yazma yok, bu script yalnızca varsayılanı kuruyor.
+  */
   var kayit = null;
-  try { kayit = JSON.parse(window.localStorage.getItem(${JSON.stringify(IZIN_ANAHTARI)})); } catch (e) {}
+  try {
+    var ad = ${JSON.stringify(IZIN_CEREZI)} + '=';
+    var hepsi = document.cookie ? document.cookie.split(';') : [];
+    for (var i = 0; i < hepsi.length; i++) {
+      var p = hepsi[i].trim();
+      if (p.indexOf(ad) === 0) { kayit = JSON.parse(decodeURIComponent(p.slice(ad.length))); break; }
+    }
+  } catch (e) {}
+  if (!kayit) {
+    try { kayit = JSON.parse(window.localStorage.getItem(${JSON.stringify(IZIN_ANAHTARI)})); } catch (e) {}
+  }
 
   // Global Privacy Control tarayıcıdan gelen yasal bir ret sinyali:
   // kullanıcı ne seçmiş olursa olsun reklam izni verilmez.

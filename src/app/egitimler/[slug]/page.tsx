@@ -7,6 +7,7 @@ import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
 import { HeroHizliBilgi } from "@/components/site/HeroHizliBilgi";
+import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
 import { getCourseBySlug, kutuNot, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
@@ -64,6 +65,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(semalar) }}
       />
+      <ProgramGoruntulendi baslik={course.baslik} />
     <div className="bg-white">
       <PublicHeader />
 

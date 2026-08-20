@@ -12,7 +12,7 @@ import {
   INSTAGRAM_KULLANICI,
   INSTAGRAM_URL,
   SEHIR,
-  whatsappLink,
+  olculenWhatsapp,
 } from "@/lib/iletisim";
 
 import type { IconName } from "@/components/Icon";
@@ -39,13 +39,13 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
     linkler: [
       {
         label: WHATSAPP_NUMARALAR[0].gosterim,
-        href: whatsappLink(WHATSAPP_NUMARALAR[0].numara),
+        href: olculenWhatsapp("footer"),
         dis: true,
         ikon: "whatsapp",
       },
       {
         label: WHATSAPP_NUMARALAR[1].gosterim,
-        href: whatsappLink(WHATSAPP_NUMARALAR[1].numara),
+        href: olculenWhatsapp("footer", 1),
         dis: true,
         ikon: "whatsapp",
       },

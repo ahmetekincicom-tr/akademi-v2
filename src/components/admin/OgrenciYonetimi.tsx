@@ -41,6 +41,10 @@ export type AdminOgrenci = {
   kayitTarihi: string;
   /** Öğrenci uygulamadan hesap silme talebi açtıysa dolu (App Store 5.1.1v). */
   silmeTalebi: string | null;
+  /** Bağlanmış WhatsApp tıklama kodu; boşsa reklam ilişkisi kurulmamış. */
+  temasKodu: string | null;
+  /** Yöneticinin işaretlediği geliş kaynağı. */
+  kaynak: string | null;
   kayitlar: {
     courseId: string;
     baslik: string;

@@ -27,7 +27,7 @@ export default async function OgrencilerPage() {
     // düşüyordu; kişi sayısı arttıkça her seferinde sona kaydırmak gerekiyordu.
     supabase
       .from("profiles")
-      .select("id, ad, soyad, email, role, created_at, silme_talebi_tarihi")
+      .select("id, ad, soyad, email, role, created_at, silme_talebi_tarihi, temas_kodu, kaynak")
       .order("created_at", { ascending: false }),
     supabase.from("enrollments").select("user_id, course_id, atanma_tarihi"),
     supabase.from("courses").select("id, slug, baslik, modules(lessons(id))").order("created_at"),
@@ -147,6 +147,8 @@ export default async function OgrencilerPage() {
       admin: p.role === "admin",
       kayitTarihi: p.created_at,
       silmeTalebi: p.silme_talebi_tarihi ?? null,
+      temasKodu: p.temas_kodu ?? null,
+      kaynak: p.kaynak ?? null,
       egitimler: kisiEgitimleri.get(p.id) ?? [],
       arsiv: kisiArsivi.get(p.id) ?? [],
       onaylar: kisiOnaylari.get(p.id) ?? [],

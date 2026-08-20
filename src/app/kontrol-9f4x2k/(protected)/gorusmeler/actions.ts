@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { trSaatiniUtcYap } from "@/lib/zaman";
 import type { GorusmeDurum } from "@/lib/gorusme";
+import { metaOlayiKuyrukla } from "@/lib/meta/kuyruk";
+import { profildenKimlik } from "@/lib/meta/toplama";
 
 const GECERLI_DURUMLAR: GorusmeDurum[] = ["talep", "odeme_bekliyor", "planlandi", "tamamlandi", "iptal"];
 
@@ -43,13 +45,41 @@ export async function gorusmePlanla(input: {
   const baslangicUtc = trSaatiniUtcYap(input.baslangic);
   if (!baslangicUtc) return { error: "Tarih ve saat okunamadı." };
 
-  return guncelle(input.id, {
+  const sonuc = await guncelle(input.id, {
     baslangic: baslangicUtc,
     sure_dk: Number(input.sureDk) || 45,
     toplanti_link: input.toplantiLink.trim() || null,
     admin_notu: input.adminNotu.trim() || null,
     durum: "planlandi",
   });
+
+  // Meta'ya Schedule. Kimlik profilden: planlamayı yönetici yapıyor, istekte
+  // katılımcının değil onun kimliği var.
+  if (!sonuc.error) await planlamaOlayi(input.id);
+  return sonuc;
+}
+
+async function planlamaOlayi(gorusmeId: string): Promise<void> {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.from("gorusmeler").select("user_id, konu").eq("id", gorusmeId).maybeSingle();
+    if (!data?.user_id) return;
+
+    const kimlik = await profildenKimlik(supabase, data.user_id);
+    if (!kimlik) return;
+
+    await metaOlayiKuyrukla({
+      olay: "Schedule",
+      eventId: `schedule-${gorusmeId}`,
+      kimlik: kimlik.kimlik,
+      ozel: { content_name: data.konu ?? "Danışmanlık" },
+      aksiyon: "other",
+      userId: data.user_id,
+      izin: kimlik.izin,
+    });
+  } catch (hata) {
+    console.error("[meta] planlama olayı yazılamadı", hata);
+  }
 }
 
 export async function gorusmeOdemeOnayla(id: string, referans: string) {
