@@ -65,7 +65,7 @@ export function OdemeSihirbazi({
   function kartaGec() {
     setHata(null);
     basla(async () => {
-      const { adres, hata: h } = await odemeyeGec(id);
+      const { adres, hata: h } = await odemeyeGec(id, onay);
       if (h || !adres) {
         setHata(h ?? "Ödeme başlatılamadı.");
         return;
@@ -78,7 +78,7 @@ export function OdemeSihirbazi({
   function havaleyiBildir() {
     setHata(null);
     basla(async () => {
-      const { hata: h } = await havaleBildir(id);
+      const { hata: h } = await havaleBildir(id, onay);
       if (h) {
         setHata(h);
         return;
@@ -123,27 +123,39 @@ export function OdemeSihirbazi({
         </div>
       )}
 
+      {/*
+        Sözleşme onayı iki yöntem için de ortak.
+
+        Önceden yalnızca kart adımında vardı; havale ile ödeyen kişi aynı satın
+        almayı hiçbir sözleşmeyi kabul etmeden yapıyordu. Aynı işi kapsayan
+        sözleşme, ödeme aracına göre değişmez.
+
+        Onay ayrıca zaman damgasıyla kaydediliyor (riza_kayitlari): hangi
+        metnin hangi sürümünün ne zaman kabul edildiği ispat edilebilir olsun.
+      */}
+      {adim === 2 && (yontem === "kart" || (yontem === "havale" && banka)) && !bildirildi && (
+        <label className="mt-5 flex cursor-pointer items-start gap-[10px] rounded-2xl border border-ink/10 bg-white p-5">
+          <input
+            type="checkbox"
+            checked={onay}
+            onChange={(e) => setOnay(e.target.checked)}
+            className="mt-[3px] h-[17px] w-[17px] flex-none accent-brand"
+          />
+          <span className="text-[13.5px] leading-[1.6] text-[#3A3F4F]">
+            <Link href="/satis-sozlesmesi" target="_blank" className="font-semibold text-brand underline">
+              Mesafeli satış sözleşmesini
+            </Link>{" "}
+            ve{" "}
+            <Link href="/iptal-iade-politikasi" target="_blank" className="font-semibold text-brand underline">
+              iptal ve iade politikasını
+            </Link>{" "}
+            okudum, onaylıyorum.
+          </span>
+        </label>
+      )}
+
       {adim === 2 && yontem === "kart" && (
         <>
-          <label className="mt-5 flex cursor-pointer items-start gap-[10px] rounded-2xl border border-ink/10 bg-white p-5">
-            <input
-              type="checkbox"
-              checked={onay}
-              onChange={(e) => setOnay(e.target.checked)}
-              className="mt-[3px] h-[17px] w-[17px] flex-none accent-brand"
-            />
-            <span className="text-[13.5px] leading-[1.6] text-[#3A3F4F]">
-              <Link href="/satis-sozlesmesi" target="_blank" className="font-semibold text-brand underline">
-                Mesafeli satış sözleşmesini
-              </Link>{" "}
-              ve{" "}
-              <Link href="/iptal-iade-politikasi" target="_blank" className="font-semibold text-brand underline">
-                iptal ve iade politikasını
-              </Link>{" "}
-              okudum, onaylıyorum.
-            </span>
-          </label>
-
           {hata && <Uyari mesaj={hata} />}
 
           <button
@@ -180,8 +192,8 @@ export function OdemeSihirbazi({
               <button
                 type="button"
                 onClick={havaleyiBildir}
-                disabled={islemde}
-                className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[11px] bg-ink text-[14.5px] font-semibold text-white transition hover:bg-brand disabled:opacity-45"
+                disabled={!onay || islemde}
+                className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-[11px] bg-ink text-[14.5px] font-semibold text-white transition hover:bg-brand disabled:cursor-not-allowed disabled:opacity-45"
               >
                 <Icon name="check" size={16} />
                 {islemde ? "Gönderiliyor…" : "Ödemeyi yaptım, bildir"}

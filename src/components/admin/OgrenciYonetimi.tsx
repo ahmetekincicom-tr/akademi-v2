@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { OgrenciDetay } from "@/components/admin/OgrenciDetay";
 import type { OturumKaydi, PaylasimSinyali } from "@/lib/oturum";
+import type { RizaKaydi } from "@/lib/riza-tipleri";
 import { TR_ZAMAN } from "@/lib/zaman";
 
 export type AdminKurs = { id: string; slug: string; baslik: string };
@@ -52,6 +53,8 @@ export type AdminOgrenci = {
   egitimler: AdminEgitimOturumu[];
   /** Ders kaydı klasörleri; takvimden bağımsız. */
   arsiv: AdminKayitArsivi[];
+  /** Verilen onayların zaman damgalı kaydı (KVKK ispatı). */
+  onaylar: RizaKaydi[];
   oturumlar: OturumKaydi[];
   sinyal: PaylasimSinyali;
 };

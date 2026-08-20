@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getOturumlar } from "@/lib/oturum";
 import { TR_ZAMAN } from "@/lib/zaman";
 import { GirisHareketleri } from "@/components/panel/GirisHareketleri";
+import { OnayKayitlari } from "@/components/panel/OnayKayitlari";
+import { getRizalarim } from "@/lib/riza";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
@@ -20,7 +22,10 @@ export default async function HesabimPage() {
   if (!profil) redirect("/giris");
 
   // RLS bu listeyi kullanıcının kendi kayıtlarıyla sınırlar.
-  const oturumlar = await getOturumlar(supabase, { limit: 20 });
+  const [oturumlar, rizalar] = await Promise.all([
+    getOturumlar(supabase, { limit: 20 }),
+    getRizalarim(profil.id),
+  ]);
 
   const { data: silmeSatiri } = await supabase
     .from("profiles")
@@ -60,6 +65,13 @@ export default async function HesabimPage() {
             </div>
           ))
         )}
+      </div>
+
+      {/* Onaylar giriş hareketlerinden önce: ikisi de "hesabımla ilgili
+          kayıtlar" ama onay listesi KVKK kapsamında talep edilebilen bir
+          bilgi, giriş listesi yalnızca güvenlik amaçlı. */}
+      <div className="mt-5">
+        <OnayKayitlari kayitlar={rizalar} />
       </div>
 
       <GirisHareketleri oturumlar={oturumlar} />

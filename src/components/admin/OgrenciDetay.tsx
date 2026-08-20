@@ -19,12 +19,23 @@ import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { konumEtiketi, cihazEtiketi } from "@/lib/oturum";
 import { TR_ZAMAN } from "@/lib/zaman";
 import type { AdminKurs, AdminOgrenci } from "@/components/admin/OgrenciYonetimi";
+import { BAGLAM_ETIKET } from "@/lib/riza-tipleri";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
   day: "numeric",
   month: "short",
   year: "numeric",
+});
+/* Onay listesinde yıl da yazılıyor: eski hesapların onayları geçen yıla ait
+   olabiliyor ve "12 Mart 14:20" hangi yıl olduğunu söylemiyor. */
+const onayBicimi = new Intl.DateTimeFormat("tr-TR", {
+  timeZone: TR_ZAMAN,
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
 });
 const anBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
@@ -86,6 +97,7 @@ export function OgrenciDetay({
   // Sunucudaki satırın üzerine yazılmıyor; kaydedilene kadar taslak ayrı
   // duruyor ki "Kaydet" düğmesi gerçekten değişiklik olduğunda açılsın.
   const [arsivTaslak, setArsivTaslak] = useState<Record<string, { baslik: string; link: string }>>({});
+  const [onayAcik, setOnayAcik] = useState(false);
   // Şüphe varsa açık gelsin; yönetici o zaman zaten bakacak.
   const [girisAcik, setGirisAcik] = useState(ogrenci.sinyal.supheli);
 
@@ -522,6 +534,69 @@ export function OgrenciDetay({
             );
           })}
         </div>
+      </div>
+
+      {/* -------------------------------------------------------- onaylar ---
+          Katlanmış başlıyor: her gün bakılan bir liste değil, bir uyuşmazlıkta
+          ya da KVKK talebinde açılıyor. */}
+      <div className="border-t border-ink/8 px-4 py-4 sm:px-5">
+        <button
+          type="button"
+          onClick={() => setOnayAcik((a) => !a)}
+          className="flex w-full flex-wrap items-center justify-between gap-2 text-left"
+        >
+          <span className="flex items-center gap-1.5">
+            <Icon
+              name="chevronRight"
+              size={13}
+              className={`text-[#8A90A0] transition-transform ${onayAcik ? "rotate-90" : ""}`}
+            />
+            <span className={BASLIK}>Verilen onaylar</span>
+          </span>
+          <span className="font-mono text-[10px] text-[#656B7A]">
+            {ogrenci.onaylar.length === 0 ? "kayıt yok" : `${ogrenci.onaylar.length} kayıt`}
+          </span>
+        </button>
+
+        {onayAcik && (
+          <div className="mt-3">
+            {ogrenci.onaylar.length === 0 ? (
+              <div className="rounded-[9px] border border-dashed border-ink/16 px-3 py-3 text-center text-[12.5px] text-[#656B7A]">
+                Bu hesap için onay kaydı yok. Hesap, onay kaydı tutulmaya başlanmadan önce açılmış olabilir.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {ogrenci.onaylar.map((o) => (
+                  <div
+                    key={o.id}
+                    className="flex flex-wrap items-center gap-2 rounded-[9px] border border-ink/11 bg-white px-3 py-2"
+                  >
+                    <span className="flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full bg-[rgba(24,140,90,0.13)] text-[#15774E]">
+                      <Icon name="check" size={12} strokeWidth={3} />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">{o.baslik}</span>
+                    <span className="flex-none rounded-full bg-mist px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-[#5C6273] uppercase">
+                      {BAGLAM_ETIKET[o.baglam] ?? o.baglam}
+                    </span>
+                    {/* Metnin parmak izi: metin sonradan düzenlense de hangi
+                        sürümün kabul edildiği buradan bulunuyor. */}
+                    {o.ozet && (
+                      <span
+                        title={`Metin özeti (SHA-256): ${o.ozet}`}
+                        className="flex-none font-mono text-[9.5px] text-[#A6ABB8]"
+                      >
+                        {o.ozet.slice(0, 8)}
+                      </span>
+                    )}
+                    <span className="flex-none font-mono text-[10.5px] whitespace-nowrap text-[#5C6273]">
+                      {onayBicimi.format(new Date(o.tarih))}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ----------------------------------------------- giriş hareketleri ---

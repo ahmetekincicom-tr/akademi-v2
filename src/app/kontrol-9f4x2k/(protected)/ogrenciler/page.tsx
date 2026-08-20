@@ -6,6 +6,7 @@ import {
   type AdminEgitimOturumu,
   type AdminKayitArsivi,
 } from "@/components/admin/OgrenciYonetimi";
+import type { RizaKaydi } from "@/lib/riza-tipleri";
 import { getOturumlar, paylasimSinyali, type OturumKaydi } from "@/lib/oturum";
 
 export default async function OgrencilerPage() {
@@ -18,6 +19,7 @@ export default async function OgrencilerPage() {
     { data: progress },
     { data: egitimOturumlari },
     { data: kayitArsivi },
+    { data: rizalar },
     oturumlar,
   ] = await Promise.all([
     // En yeni kayıt en üstte: listeye bakma sebebi çoğunlukla "kim yeni
@@ -41,6 +43,12 @@ export default async function OgrencilerPage() {
       .select("id, user_id, course_id, baslik, link, aciklama")
       .order("sira", { ascending: true })
       .order("created_at", { ascending: true }),
+    // Onay kayıtları: RLS yöneticiye hepsini açıyor, kişi başına aşağıda
+    // gruplanıyor.
+    supabase
+      .from("riza_kayitlari")
+      .select("id, user_id, belge, baglam, belge_basligi, belge_guncelleme, belge_ozeti, created_at")
+      .order("created_at", { ascending: false }),
     // Yönetici RLS politikası tüm kullanıcıların kayıtlarını görmesine izin verir.
     getOturumlar(supabase),
   ]);
@@ -112,6 +120,22 @@ export default async function OgrencilerPage() {
     else kisiArsivi.set(a.user_id, [kayit]);
   }
 
+  const kisiOnaylari = new Map<string, RizaKaydi[]>();
+  for (const r of rizalar ?? []) {
+    const kayit: RizaKaydi = {
+      id: r.id,
+      belge: r.belge,
+      baglam: r.baglam as RizaKaydi["baglam"],
+      baslik: (r.belge_basligi as string) || r.belge,
+      tarih: r.created_at,
+      belgeGuncelleme: r.belge_guncelleme ?? null,
+      ozet: r.belge_ozeti ?? null,
+    };
+    const mevcut = kisiOnaylari.get(r.user_id);
+    if (mevcut) mevcut.push(kayit);
+    else kisiOnaylari.set(r.user_id, [kayit]);
+  }
+
   const ogrenciler: AdminOgrenci[] = (profiles ?? []).map((p) => {
     const kendiKayitlari = (enrollments ?? []).filter((e) => e.user_id === p.id);
     const ad = [p.ad, p.soyad].filter(Boolean).join(" ");
@@ -125,6 +149,7 @@ export default async function OgrencilerPage() {
       silmeTalebi: p.silme_talebi_tarihi ?? null,
       egitimler: kisiEgitimleri.get(p.id) ?? [],
       arsiv: kisiArsivi.get(p.id) ?? [],
+      onaylar: kisiOnaylari.get(p.id) ?? [],
       oturumlar: kendiOturumlari,
       sinyal: paylasimSinyali(kendiOturumlari),
       kayitlar: kendiKayitlari.map((e) => {

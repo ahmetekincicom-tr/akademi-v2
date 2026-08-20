@@ -7,6 +7,10 @@ import { nativeIstekMi } from "@/lib/native-sunucu";
 import { iyzicoAyari, odemeBaslat as iyzicoBaslat, taksitleriCoz } from "@/lib/iyzico";
 import { yoneticiBildirimi } from "@/lib/eposta";
 import { paraBicimi } from "@/lib/odeme";
+import { rizaKaydet } from "@/lib/riza";
+
+/** Ödeme adımında onaylanan metinler. */
+const ODEME_BELGELERI = ["satis-sozlesmesi", "iptal-iade-politikasi"];
 
 /**
  * Ödeme başlatma.
@@ -33,10 +37,23 @@ async function istekIp(): Promise<string> {
   return ilk || "127.0.0.1";
 }
 
-export async function odemeyeGec(paymentId: string): Promise<{ adres?: string; hata?: string }> {
+export async function odemeyeGec(
+  paymentId: string,
+  /*
+    Sözleşme onayı sunucuya taşınıyor.
+
+    Kutucuk şimdiye kadar yalnızca düğmeyi açıyordu: işaretlendiği hiçbir yere
+    yazılmıyor, sunucu da sormuyordu. Yani onay ne ispat edilebiliyordu ne de
+    zorunluydu — bu eylem tarayıcıdan doğrudan çağrılabilir ve ödeme, kutucuk
+    hiç işaretlenmeden başlatılabilirdi.
+  */
+  onay = false,
+): Promise<{ adres?: string; hata?: string }> {
   // Apple 3.1.3: uygulama içinden ödeme akışı hiç açılmamalı. Sayfa zaten
   // uygulamada basılmıyor ama sunucu eylemi adresten bağımsız çağrılabilir.
   if (await nativeIstekMi()) return { hata: "Bu işlem uygulamada yapılamıyor." };
+
+  if (!onay) return { hata: "Devam etmek için sözleşmeleri onaylaman gerekiyor." };
 
   const ayar = iyzicoAyari();
   if (!ayar) return { hata: "Ödeme altyapısı henüz yapılandırılmadı." };
@@ -79,6 +96,18 @@ export async function odemeyeGec(paymentId: string): Promise<{ adres?: string; h
     .eq("anahtar", "odeme")
     .maybeSingle();
   const odemeAyari = (ayarSatiri?.deger ?? {}) as Record<string, string>;
+
+  /*
+    Onay, iyzico'ya gitmeden ÖNCE yazılıyor. Dönüşte yazsaydık yarıda bırakılan
+    ödemelerde onay hiç kaydedilmezdi — oysa kişi sözleşmeyi o an kabul etti ve
+    kabul ettiği metin o anki metindi.
+  */
+  await rizaKaydet({
+    userId: user.id,
+    belgeler: ODEME_BELGELERI,
+    baglam: "odeme",
+    paymentId: kayit.id,
+  });
 
   const konusmaId = crypto.randomUUID();
 
@@ -160,8 +189,13 @@ export async function odemeyeGec(paymentId: string): Promise<{ adres?: string; h
  * Yaptığı tek şey yöneticiye haber vermek ve kayda bir damga düşmek; asıl
  * doğrulama hesap ekstresinden yapılıyor.
  */
-export async function havaleBildir(paymentId: string): Promise<{ tamam?: true; hata?: string }> {
+export async function havaleBildir(
+  paymentId: string,
+  /** Mesafeli satış sözleşmesi onayı; kart yolundaki gibi sunucuda zorunlu. */
+  onay = false,
+): Promise<{ tamam?: true; hata?: string }> {
   if (await nativeIstekMi()) return { hata: "Bu işlem uygulamada yapılamıyor." };
+  if (!onay) return { hata: "Devam etmek için sözleşmeleri onaylaman gerekiyor." };
 
   const supabase = await createClient();
   const {
@@ -189,6 +223,13 @@ export async function havaleBildir(paymentId: string): Promise<{ tamam?: true; h
     .update({ havale_bildirimi_tarihi: new Date().toISOString() })
     .eq("id", kayit.id)
     .eq("durum", "bekliyor");
+
+  await rizaKaydet({
+    userId: user.id,
+    belgeler: ODEME_BELGELERI,
+    baglam: "odeme",
+    paymentId: kayit.id,
+  });
 
   const { data: profil } = await supabase
     .from("profiles")
