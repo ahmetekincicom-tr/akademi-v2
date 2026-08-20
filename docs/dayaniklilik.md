@@ -82,6 +82,29 @@ tipsiz bir nesneyle yazılması.
 
 ---
 
+## Saklama süreleri
+
+Gecelik iki temizlik görevi çalışıyor:
+
+| Ne | Süre | Görev |
+|---|---|---|
+| Giriş kayıtları | 90 gün | `oturum-kayit-temizligi` · 03:15 |
+| E-posta günlüğü | 90 gün | `eposta-gunlugu-temizligi` · 03:25 |
+
+İkisi de kişisel veri taşıyor (IP, konum, e-posta adresi) ve işe yaradıkları
+pencere dar: "geçen ay şu mail gitti mi" sorulur, "iki yıl önce" sorulmaz.
+Süresiz saklamak, faydası bitmiş kişisel veriyi tutmak demek.
+
+Silme fonksiyonları `SECURITY DEFINER` ve çağırma yetkisi yalnızca
+zamanlayıcıda. Oturum açmış birine açık bırakılsaydı, herhangi bir katılımcı
+REST üzerinden çağırıp günlüğü budayabilirdi — "gitti mi" sorusunun cevabını
+silen bir uç nokta.
+
+**Onay kayıtları (`riza_kayitlari`) hiç silinmiyor** ve silinmemeli: onlar
+delil ve yeniden üretilemezler.
+
+---
+
 ## Yedekleme — **denenmedi**
 
 Supabase otomatik yedek alıyor ama saklama süresi plana göre değişiyor ve
@@ -109,7 +132,9 @@ Onay kayıtları özellikle önemli: onlar delil ve yeniden üretilemezler.
 Zinciri Capacitor CLI → xcode → uuid; yalnızca geliştirme bağımlılığı, canlıya
 çıkan pakete girmiyor. Düzeltmesi Capacitor'ın kendi güncellemesini bekliyor.
 
-**E-posta günlüğü sınırsız birikiyor.** Giriş kayıtları için gecelik temizlik
-görevi var (`oturum-kayit-temizligi`), e-posta günlüğü için yok. İçinde
-katılımcı adresleri olduğu için bir saklama süresi konmalı. Onay kayıtları
-hariç — onlar silinmemeli.
+**`pg_net` uzantısı `public` şemasında görünüyor.** Supabase denetleyicisi
+uyarıyor ama düzeltilemiyor ve gerçek bir açıklık da değil: uzantının bütün
+nesneleri (`http_post`, kuyruk tablosu, yardımcılar) zaten `net` şemasında;
+`public`'te duran tek şey uzantının kayıt satırı. Taşınamıyor da —
+`relocatable = false`. Tek yol düşürüp yeniden kurmak olurdu, o da iki cron
+görevini çalışırken keserdi. Uyarı bilerek açık bırakıldı.
