@@ -23,7 +23,10 @@ export default async function HesabimPage() {
 
   // RLS bu listeyi kullanıcının kendi kayıtlarıyla sınırlar.
   const [oturumlar, rizalar] = await Promise.all([
-    getOturumlar(supabase, { limit: 20 }),
+    // userId AÇIK veriliyor: RLS yöneticiye herkesin girişini açıyor ve bu
+    // ekran "benim hesabım". Süzgeç olmadan yönetici burada bütün
+    // katılımcıların IP ve konum geçmişini görüyordu.
+    getOturumlar(supabase, { userId: profil.id, limit: 20 }),
     getRizalarim(profil.id),
   ]);
 

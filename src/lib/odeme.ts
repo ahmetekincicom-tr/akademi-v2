@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { panelKullanicisi } from "@/lib/panel-kapsam";
 
 export type Banka = {
   unvan: string | null;
@@ -59,16 +60,21 @@ export const paraBicimi = new Intl.NumberFormat("tr-TR", {
 });
 
 /**
- * RLS (payments_select_own_or_admin) satırları öğrencinin kendisiyle
- * sınırlıyor, burada ayrıca user_id süzmeye gerek yok.
+ * user_id süzgeci AÇIK: RLS "kendi satırın veya yöneticiysen hepsi" diyor ve
+ * yönetici aynı zamanda bir katılımcı. Süzgeç olmadan yönetici kendi öğrenci
+ * panelinde herkesin ödemelerini görüyordu (bkz. lib/panel-kapsam.ts).
  */
 export async function getOdemelerim(): Promise<Odemelerim> {
+  const kullanici = await panelKullanicisi();
+  if (!kullanici) return { satirlar: [], bekleyenTutar: 0, bekleyenAdet: 0 };
+
   const supabase = await createClient();
   const { data } = await supabase
     .from("payments")
     .select(
       "id, tutar, durum, yontem, odeme_tarihi, fatura_no, admin_notu, online_odeme, havale_bildirimi_tarihi, courses(baslik)",
     )
+    .eq("user_id", kullanici)
     .order("odeme_tarihi", { ascending: false });
 
   const satirlar: OdemeSatiri[] = (data ?? []).map((p) => ({
@@ -109,11 +115,17 @@ export type OdenecekKayit = {
  * sınırlıyor, buradaki kontrol kaydın DURUMUNU koruyor.
  */
 export async function getOdenecekKayit(id: string): Promise<OdenecekKayit | null> {
+  const kullanici = await panelKullanicisi();
+  if (!kullanici) return null;
+
   const supabase = await createClient();
   const { data } = await supabase
     .from("payments")
     .select("id, tutar, odeme_tarihi, admin_notu, online_odeme, courses(baslik)")
     .eq("id", id)
+    // Sahiplik süzgeci: yönetici için RLS her satırı açıyor ve bu ekran
+    // "kendi ödemem" ekranı. Başkasının kaydının ödeme sayfası açılmamalı.
+    .eq("user_id", kullanici)
     .eq("durum", "bekliyor")
     .maybeSingle();
 

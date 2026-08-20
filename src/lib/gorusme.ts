@@ -96,12 +96,21 @@ function map(r: Row): Gorusme {
   };
 }
 
-/** RLS decides the scope: a student sees their own, an admin sees all. */
-export async function getGorusmeler(client: SupabaseClient): Promise<Gorusme[]> {
-  const { data, error } = await client
-    .from("gorusmeler")
-    .select(SELECT)
-    .order("created_at", { ascending: false });
+/**
+ * Görüşmeler.
+ *
+ * userId verildiğinde yalnızca o kişininkiler dönüyor; panel bunu veriyor.
+ * RLS "kendi satırın veya yöneticiysen hepsi" diyor ve yönetici aynı zamanda
+ * bir katılımcı — süzgeç olmadan yönetici kendi görüşmeler sayfasında
+ * herkesin talebini görüyordu. Dahası ücretsiz hak sayımı bu listeden
+ * yapılıyor: karışık liste, hakkı da yanlış hesaplıyordu.
+ * (bkz. lib/panel-kapsam.ts)
+ */
+export async function getGorusmeler(client: SupabaseClient, userId?: string): Promise<Gorusme[]> {
+  let sorgu = client.from("gorusmeler").select(SELECT).order("created_at", { ascending: false });
+  if (userId) sorgu = sorgu.eq("user_id", userId);
+
+  const { data, error } = await sorgu;
 
   if (error) {
     console.error("[gorusme] liste okunamadı:", error.message);
@@ -130,11 +139,13 @@ export async function getGorusmeAyarlari(client: SupabaseClient): Promise<Gorusm
 }
 
 /** Kişinin iptal edilmemiş en az bir eğitim kaydı var mı. */
-export async function egitimKaydiVarMi(client: SupabaseClient): Promise<boolean> {
-  const { count, error } = await client
-    .from("enrollments")
-    .select("id", { count: "exact", head: true })
-    .neq("durum", "iptal");
+export async function egitimKaydiVarMi(client: SupabaseClient, userId?: string): Promise<boolean> {
+  let sorgu = client.from("enrollments").select("id", { count: "exact", head: true }).neq("durum", "iptal");
+  // Süzgeç olmadan yönetici için "sistemde herhangi bir eğitim kaydı var mı"
+  // sorusuna dönüşüyordu ve ücretsiz hak ona da açılıyordu.
+  if (userId) sorgu = sorgu.eq("user_id", userId);
+
+  const { count, error } = await sorgu;
 
   if (error) {
     console.error("[gorusme] eğitim kaydı okunamadı:", error.message);

@@ -5,7 +5,7 @@ import { TalepGorunumu } from "@/components/destek/TalepGorunumu";
 import { GorulduIsareti } from "@/components/panel/GorulduIsareti";
 
 export default async function SoruCevapPage() {
-  const [profil, talepler, courses] = await Promise.all([getPanelProfile(), getTalepler(), getPanelCourses()]);
+  const [profil, talepler, courses] = await Promise.all([getPanelProfile(), getTalepler("kendi"), getPanelCourses()]);
   if (!profil) redirect("/giris");
 
   return (

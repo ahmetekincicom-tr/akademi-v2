@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { panelKullanicisi } from "@/lib/panel-kapsam";
 
 export type EgitimOturumu = {
   id: string;
@@ -15,13 +16,19 @@ export type EgitimOturumu = {
  * Birebir eğitimin takvimi. Eğitim bittikten sonra kullanılan görüşme
  * hakları için seanslar tablosuna bak — ikisi bilerek ayrı.
  *
- * RLS satırları öğrencinin kendisiyle sınırlıyor, ayrıca süzmeye gerek yok.
+ * user_id süzgeci AÇIK: RLS "kendi satırın veya yöneticiysen hepsi" diyor ve
+ * yönetici aynı zamanda bir katılımcı. Süzgeç olmadan yönetici kendi öğrenci
+ * panelinde herkesin takvimini görüyordu (bkz. lib/panel-kapsam.ts).
  */
 export async function getEgitimOturumlarim(): Promise<EgitimOturumu[]> {
+  const kullanici = await panelKullanicisi();
+  if (!kullanici) return [];
+
   const supabase = await createClient();
   const { data } = await supabase
     .from("egitim_oturumlari")
     .select("id, baslangic, sure_dk, konu, toplanti_link, kayit_link, durum, courses(baslik)")
+    .eq("user_id", kullanici)
     .order("baslangic", { ascending: true });
 
   return (data ?? []).map((o) => ({
@@ -52,13 +59,17 @@ export type KayitArsivi = {
  * kayıt eklendiğinde panelde değişen bir şey de olmuyordu. Arşiv artık kişiye
  * bağlı, oturuma değil.
  *
- * RLS satırları kişinin kendisiyle sınırlıyor.
+ * user_id süzgeci AÇIK — getEgitimOturumlarim ile aynı sebep.
  */
 export async function getKayitArsivim(): Promise<KayitArsivi[]> {
+  const kullanici = await panelKullanicisi();
+  if (!kullanici) return [];
+
   const supabase = await createClient();
   const { data } = await supabase
     .from("egitim_kayit_arsivi")
     .select("id, baslik, link, aciklama, courses(baslik)")
+    .eq("user_id", kullanici)
     .order("sira", { ascending: true })
     .order("created_at", { ascending: true });
 
@@ -73,10 +84,14 @@ export async function getKayitArsivim(): Promise<KayitArsivi[]> {
 
 /** Karşılama adımı için: eğitim takvimi kurulmuş mu? */
 export async function egitimPlanlandiMi(): Promise<boolean> {
+  const kullanici = await panelKullanicisi();
+  if (!kullanici) return false;
+
   const supabase = await createClient();
   const { count } = await supabase
     .from("egitim_oturumlari")
     .select("id", { count: "exact", head: true })
+    .eq("user_id", kullanici)
     .in("durum", ["planlandi", "tamamlandi"]);
   return (count ?? 0) > 0;
 }

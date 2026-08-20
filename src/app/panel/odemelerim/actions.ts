@@ -64,12 +64,17 @@ export async function odemeyeGec(
   } = await supabase.auth.getUser();
   if (!user) return { hata: "Oturumun kapanmış görünüyor, tekrar giriş yap." };
 
-  // RLS satırı kullanıcının kendisiyle sınırlıyor; durum süzgeci ödenmiş bir
-  // kaydın ikinci kez tahsil edilmesini engelliyor.
+  /*
+    Sahiplik süzgeci AÇIK. RLS "kendi satırın veya yöneticiysen hepsi" diyor
+    ve yönetici de bu paneli kullanıyor; süzgeç olmadan başkasının bekleyen
+    ödemesinin id'siyle bu eylem çağrılabilirdi. Durum süzgeci ise ödenmiş bir
+    kaydın ikinci kez tahsil edilmesini engelliyor.
+  */
   const { data: kayit } = await supabase
     .from("payments")
     .select("id, tutar, online_odeme, courses(baslik)")
     .eq("id", paymentId)
+    .eq("user_id", user.id)
     .eq("durum", "bekliyor")
     .maybeSingle();
 
@@ -203,12 +208,13 @@ export async function havaleBildir(
   } = await supabase.auth.getUser();
   if (!user) return { hata: "Oturumun kapanmış görünüyor, tekrar giriş yap." };
 
-  // RLS satırı kullanıcının kendisiyle sınırlıyor; durum süzgeci ödenmiş bir
-  // kayda bildirim düşmesini engelliyor.
+  // Sahiplik süzgeci AÇIK — odemeyeGec ile aynı sebep. Durum süzgeci ödenmiş
+  // bir kayda bildirim düşmesini engelliyor.
   const { data: kayit } = await supabase
     .from("payments")
     .select("id, tutar, courses(baslik)")
     .eq("id", paymentId)
+    .eq("user_id", user.id)
     .eq("durum", "bekliyor")
     .maybeSingle();
   if (!kayit) return { hata: "Ödenecek kayıt bulunamadı." };
@@ -216,12 +222,17 @@ export async function havaleBildir(
   const servis = gorevIstemcisi();
   if (!servis) return { hata: "Sunucu yapılandırması eksik." };
 
-  // payments'ta yazma yetkisi yalnızca yöneticide; damgayı servis anahtarı
-  // atıyor. Sahiplik yukarıdaki RLS'li okumada zaten doğrulandı.
+  /*
+    payments'ta yazma yetkisi yalnızca yöneticide; damgayı servis anahtarı
+    atıyor. Servis anahtarı RLS'i atladığı için user_id süzgeci burada da
+    tekrarlanıyor: sahiplik yukarıda doğrulandı ama bu satır o doğrulamaya
+    değil, kendi süzgecine dayanmalı.
+  */
   await servis
     .from("payments")
     .update({ havale_bildirimi_tarihi: new Date().toISOString() })
     .eq("id", kayit.id)
+    .eq("user_id", user.id)
     .eq("durum", "bekliyor");
 
   await rizaKaydet({

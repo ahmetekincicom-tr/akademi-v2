@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { panelKullanicisi } from "@/lib/panel-kapsam";
 
 export type DestekMesaj = {
   id: string;
@@ -52,10 +53,28 @@ function kisiAdi(p: { ad: string | null; soyad: string | null; email: string | n
   return [p?.ad, p?.soyad].filter(Boolean).join(" ") || p?.email || "—";
 }
 
-/** RLS decides scope: an admin gets every ticket, a student only their own. */
-export async function getTalepler(): Promise<DestekTalep[]> {
+/**
+ * Talepler.
+ *
+ * kapsam="kendi" verildiğinde yalnızca giriş yapan kişinin talepleri
+ * dönüyor. Panel bunu kullanıyor: RLS "kendi satırın veya yöneticiysen
+ * hepsi" diyor ve yönetici aynı zamanda bir katılımcı — süzgeç olmadan
+ * yönetici kendi soru-cevap sayfasında herkesin talebini görüyordu
+ * (bkz. lib/panel-kapsam.ts). Yönetim ekranı kapsamı vermiyor, hepsini
+ * görmesi gerekiyor.
+ */
+export async function getTalepler(kapsam: "hepsi" | "kendi" = "hepsi"): Promise<DestekTalep[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from("support_tickets").select(TICKET_SELECT).order("updated_at", { ascending: false });
+
+  let sorgu = supabase.from("support_tickets").select(TICKET_SELECT).order("updated_at", { ascending: false });
+
+  if (kapsam === "kendi") {
+    const kullanici = await panelKullanicisi();
+    if (!kullanici) return [];
+    sorgu = sorgu.eq("user_id", kullanici);
+  }
+
+  const { data } = await sorgu;
 
   return ((data ?? []) as unknown as TicketRow[]).map((t) => {
     const sahipAd = kisiAdi(t.profiles);
