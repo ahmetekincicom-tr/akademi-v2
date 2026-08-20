@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { oynatmaCoz, type Oynatma } from "@/lib/oynatma";
 import { kapakUrl } from "@/lib/kapak";
@@ -71,7 +72,17 @@ type EnrollmentRow = {
   } | null;
 };
 
-export async function getPanelProfile(): Promise<PanelProfile | null> {
+/*
+  cache(): panel düzeni ve sayfanın kendisi aynı isteği ikişer kez yapıyordu.
+
+  /panel açıldığında düzen profili ve eğitimleri okuyor, sayfa da aynısını
+  okuyordu — dört sorgu yerine iki. getPanelCourses özellikle ağır: kayıtlı
+  her eğitimin bütün modüllerini, derslerini ve ilerleme satırlarını çekiyor.
+
+  React'in cache'i istek başına: iki farklı ziyaretçi birbirinin verisini
+  görmüyor, aynı isteğin içindeki ikinci çağrı ilkinin sonucunu alıyor.
+*/
+export const getPanelProfile = cache(async (): Promise<PanelProfile | null> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -102,9 +113,9 @@ export async function getPanelProfile(): Promise<PanelProfile | null> {
     basHarfler: [ad[0], soyad[0]].filter(Boolean).join("").toUpperCase() || email.slice(0, 2).toUpperCase(),
     admin: data?.role === "admin",
   };
-}
+});
 
-export async function getPanelCourses(): Promise<PanelCourse[]> {
+export const getPanelCourses = cache(async (): Promise<PanelCourse[]> => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -186,7 +197,7 @@ export async function getPanelCourses(): Promise<PanelCourse[]> {
         sonrakiDers,
       };
     });
-}
+});
 
 /** Published, purchasable courses the user doesn't already own. */
 export async function getOnerilenCourses() {
