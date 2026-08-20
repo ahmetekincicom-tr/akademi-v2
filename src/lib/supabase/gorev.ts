@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 
 /**
  * Zamanlanmış görevler için Supabase istemcisi.
@@ -18,7 +19,7 @@ export function gorevIstemcisi() {
   const anahtar = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !anahtar) return null;
 
-  return createClient(url, anahtar, {
+  return createClient<Database>(url, anahtar, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }

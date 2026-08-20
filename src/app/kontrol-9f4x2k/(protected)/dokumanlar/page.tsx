@@ -15,7 +15,7 @@ export default async function AdminDokumanlarPage() {
   const dokumanlar: DokumanSatir[] = (documents ?? []).map((d) => ({
     id: d.id,
     baslik: d.baslik,
-    program: (d.courses as unknown as { baslik: string } | null)?.baslik ?? "Tüm öğrenciler",
+    program: d.courses?.baslik ?? "Tüm öğrenciler",
     dosyaYolu: d.dosya_yolu,
     dosyaTipi: d.dosya_tipi ?? "",
     boyut: d.boyut,

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export type Marka = {
@@ -60,7 +61,7 @@ const BOS: Marka = {
  * cache() dedupes this within a single render — the header, the footer and the
  * root layout all ask for the brand, and one query per request is enough.
  */
-export const getMarka = cache(async (client?: SupabaseClient): Promise<Marka> => {
+export const getMarka = cache(async (client?: SupabaseClient<Database>): Promise<Marka> => {
   const supabase = client ?? createPublicClient();
   const { data, error } = await supabase
     .from("marka")
@@ -96,7 +97,7 @@ export const getMarka = cache(async (client?: SupabaseClient): Promise<Marka> =>
 });
 
 /** Raw storage paths — the admin screen needs these to delete old files. */
-export async function getMarkaYollari(client: SupabaseClient) {
+export async function getMarkaYollari(client: SupabaseClient<Database>) {
   const { data } = await client
     .from("marka")
     .select("*")

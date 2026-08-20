@@ -214,7 +214,7 @@ export async function getOnerilenCourses() {
       .neq("durum", "iptal");
     sahipOlunan = new Set(
       (enrollments ?? [])
-        .map((e) => (e.courses as unknown as { slug: string } | null)?.slug)
+        .map((e) => e.courses?.slug)
         .filter((s): s is string => Boolean(s)),
     );
   }

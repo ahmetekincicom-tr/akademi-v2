@@ -96,9 +96,20 @@ function SectionKicker({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Eğitim kartları veritabanından geliyor; sayfa build anında dondurulursa
-// admin panelinde yayınlanan program burada görünmez.
-export const dynamic = "force-dynamic";
+/*
+  Sayfa önbelleğe alınıyor, her istekte yeniden üretilmiyor.
+
+  force-dynamic doğru bir başlangıçtı: içerik panelden düzenleniyor ve
+  "kaydettim ama sitede değişmedi" en can sıkıcı hata. Ama bedeli her
+  ziyaretçi için bir veritabanı turu ve bu sayfaların içeriği günde bir
+  değişmiyor.
+
+  Anında güncelleme kaybolmuyor: yönetim eylemleri kaydettikten sonra
+  revalidatePath çağırıyor, yani düzenleme yapıldığı anda sayfa yenileniyor.
+  Buradaki süre yalnızca "hiç kimse bir şey düzenlemezse en geç ne zaman
+  tazelensin" sorusunun cevabı.
+*/
+export const revalidate = 3600;
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
 export function generateMetadata(): Promise<Metadata> {

@@ -25,6 +25,38 @@ const GUVENLIK_BASLIKLARI = [
 ];
 
 const nextConfig: NextConfig = {
+  /*
+    Yüklenen görseller Supabase Storage'ta duruyor ve next/image yabancı bir
+    konaktan görsel işlemeyi izin verilmedikçe reddediyor. Bu izin olmadığı
+    için bütün yüklü görseller düz <img> ile basılıyordu: boyutlandırma ve
+    modern format dönüşümü devre dışıydı — telefonda 1200 piksellik bir kapak,
+    300 piksellik kutuya olduğu gibi iniyordu.
+
+    Konak adı NEXT_PUBLIC_SUPABASE_URL'den türetiliyor: elle yazılsaydı proje
+    taşındığında sessizce bozulur, bütün görseller kaybolurdu.
+
+    SVG bilerek açılmıyor (dangerouslyAllowSVG yok). SVG script taşıyabiliyor
+    ve logolarımız SVG; onlar <img> ile basılmaya devam ediyor — vektör
+    oldukları için zaten boyutlandırmadan bir şey kazanmıyorlar.
+  */
+  images: {
+    remotePatterns: (() => {
+      const kok = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!kok) return [];
+      try {
+        return [
+          {
+            protocol: "https" as const,
+            hostname: new URL(kok).hostname,
+            pathname: "/storage/v1/object/public/**",
+          },
+        ];
+      } catch {
+        return [];
+      }
+    })(),
+  },
+
   async headers() {
     return [{ source: "/:yol*", headers: GUVENLIK_BASLIKLARI }];
   },

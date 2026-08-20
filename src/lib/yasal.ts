@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export type YasalSayfa = {
@@ -41,7 +42,7 @@ function map(row: {
   };
 }
 
-export async function getYasalSayfalar(client?: SupabaseClient): Promise<YasalSayfa[]> {
+export async function getYasalSayfalar(client?: SupabaseClient<Database>): Promise<YasalSayfa[]> {
   const supabase = client ?? createPublicClient();
   const { data, error } = await supabase
     .from("yasal_sayfalar")
@@ -55,7 +56,7 @@ export async function getYasalSayfalar(client?: SupabaseClient): Promise<YasalSa
   return (data ?? []).map(map);
 }
 
-export async function getYasalSayfa(slug: string, client?: SupabaseClient): Promise<YasalSayfa | null> {
+export async function getYasalSayfa(slug: string, client?: SupabaseClient<Database>): Promise<YasalSayfa | null> {
   const supabase = client ?? createPublicClient();
   const { data, error } = await supabase
     .from("yasal_sayfalar")

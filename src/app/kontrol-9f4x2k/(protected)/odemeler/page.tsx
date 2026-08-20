@@ -20,8 +20,8 @@ export default async function OdemelerPage() {
   ]);
 
   const odemeler: OdemeSatir[] = (payments ?? []).map((p) => {
-    const kisi = p.profiles as unknown as { ad: string | null; soyad: string | null; email: string | null } | null;
-    const kurs = p.courses as unknown as { baslik: string } | null;
+    const kisi = p.profiles;
+    const kurs = p.courses;
     return {
       id: p.id,
       isim: [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—",
@@ -53,7 +53,7 @@ export default async function OdemelerPage() {
     .limit(20);
 
   const askidakiler: AskidaDeneme[] = (askida ?? []).map((d) => {
-    const kisi = d.profiles as unknown as { ad: string | null; soyad: string | null; email: string | null } | null;
+    const kisi = d.profiles;
     return {
       id: d.id,
       isim: [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—",

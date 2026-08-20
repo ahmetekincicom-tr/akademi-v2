@@ -1,10 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
+import type { Database } from "@/lib/supabase/tipler";
 import { cookies } from "next/headers";
 
 export async function createClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(
+  // <Database>: sorgular artık gerçek satır tipini döndürüyor. Öncesinde
+  // her sonuç tipsizdi ve kod elle yazılmış `as unknown as` iddialarıyla
+  // ilerliyordu — o iddialar derleyici tarafından doğrulanmıyordu.
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {

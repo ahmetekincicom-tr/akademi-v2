@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 import { createClient } from "@/lib/supabase/server";
 import { trSaatiniUtcYap } from "@/lib/zaman";
 import { guvenliUrl } from "@/lib/guvenli-url";
@@ -62,7 +63,7 @@ export async function oturumEkle(input: {
   return posta.gonderildi ? {} : { uyari: `Oturum kaydedildi ama bildirim gitmedi: ${posta.sebep}` };
 }
 
-async function kursAdi(supabase: SupabaseClient, courseId: string): Promise<string | null> {
+async function kursAdi(supabase: SupabaseClient<Database>, courseId: string): Promise<string | null> {
   const { data } = await supabase.from("courses").select("baslik").eq("id", courseId).maybeSingle();
   return (data?.baslik as string) ?? null;
 }

@@ -17,8 +17,8 @@ export function generateMetadata(): Promise<Metadata> {
 });
 }
 
-// Referanslar admin panelinden yönetiliyor.
-export const dynamic = "force-dynamic";
+// Gerekçe: src/app/page.tsx
+export const revalidate = 3600;
 
 export default async function ReferanslarPage() {
   const referanslar = await getReferanslar();

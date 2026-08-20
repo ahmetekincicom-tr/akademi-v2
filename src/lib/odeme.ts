@@ -84,7 +84,7 @@ export async function getOdemelerim(): Promise<Odemelerim> {
     yontem: p.yontem ?? null,
     tarih: p.odeme_tarihi,
     faturaNo: p.fatura_no ?? null,
-    kurs: (p.courses as unknown as { baslik: string } | null)?.baslik ?? null,
+    kurs: p.courses?.baslik ?? null,
     not: p.admin_notu ?? null,
     onlineOdeme: p.online_odeme !== false,
     havaleBildirimi: p.havale_bildirimi_tarihi ?? null,
@@ -134,7 +134,7 @@ export async function getOdenecekKayit(id: string): Promise<OdenecekKayit | null
   return {
     id: data.id,
     tutar: Number(data.tutar),
-    kurs: (data.courses as unknown as { baslik: string } | null)?.baslik ?? null,
+    kurs: data.courses?.baslik ?? null,
     not: data.admin_notu ?? null,
     tarih: data.odeme_tarihi,
   };

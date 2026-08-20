@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 import { ogrenciBildirimi } from "@/lib/eposta";
 
 /**
@@ -46,7 +47,7 @@ type OdemeSatiri = {
   gorusmeKonusu: string | null;
 };
 
-async function odemeyiOku(servis: SupabaseClient, paymentId: string): Promise<OdemeSatiri | null> {
+async function odemeyiOku(servis: SupabaseClient<Database>, paymentId: string): Promise<OdemeSatiri | null> {
   const { data } = await servis
     .from("payments")
     .select("tutar, profiles(ad, email), courses(baslik)")
@@ -55,8 +56,8 @@ async function odemeyiOku(servis: SupabaseClient, paymentId: string): Promise<Od
 
   if (!data) return null;
 
-  const kisi = data.profiles as unknown as { ad: string | null; email: string | null } | null;
-  const kurs = (data.courses as unknown as { baslik: string } | null)?.baslik ?? null;
+  const kisi = data.profiles;
+  const kurs = data.courses?.baslik ?? null;
 
   const { data: gorusme } = await servis
     .from("gorusmeler")
@@ -80,7 +81,7 @@ async function odemeyiOku(servis: SupabaseClient, paymentId: string): Promise<Od
  * bekleyeceği anlamına geliyor. Bu mail o beklemeyi kaldırıyor.
  */
 export async function odemeAcildiBildir(
-  servis: SupabaseClient,
+  servis: SupabaseClient<Database>,
   paymentId: string,
 ): Promise<BildirimSonuc> {
   try {
@@ -120,7 +121,7 @@ export async function odemeAcildiBildir(
  * ödemesinde böyle bir adım yok, o yüzden metin ayrılıyor.
  */
 export async function odemeTamamlandiBildir(
-  servis: SupabaseClient,
+  servis: SupabaseClient<Database>,
   paymentId: string,
 ): Promise<BildirimSonuc> {
   try {

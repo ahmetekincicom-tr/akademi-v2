@@ -128,7 +128,7 @@ export async function odemeyeGec(
   if (denemeHatasi) return { hata: "Ödeme kaydı oluşturulamadı." };
 
   const kok = await siteKoku();
-  const kursAdi = (kayit.courses as unknown as { baslik: string } | null)?.baslik ?? null;
+  const kursAdi = kayit.courses?.baslik ?? null;
 
   let cevap;
   try {
@@ -160,7 +160,8 @@ export async function odemeyeGec(
     await servis
       .from("odeme_denemeleri")
       .update({ durum: "basarisiz", hata_mesaji: e instanceof Error ? e.message : "Bilinmeyen hata" })
-      .eq("conversation_id", konusmaId);
+      .eq("conversation_id", konusmaId)
+      .eq("user_id", user.id);
     return { hata: "Ödeme sayfası açılamadı, birazdan tekrar dene." };
   }
 
@@ -173,7 +174,8 @@ export async function odemeyeGec(
         hata_mesaji: cevap.errorMessage ?? "iyzico ödeme sayfası döndürmedi.",
         ham_yanit: cevap,
       })
-      .eq("conversation_id", konusmaId);
+      .eq("conversation_id", konusmaId)
+      .eq("user_id", user.id);
     // iyzico'nun hata metni teknik ("Sistem hatası" / alan doğrulama);
     // öğrenciye ham hâlini göstermenin faydası yok.
     return { hata: "Ödeme başlatılamadı. Sorun sürerse bize yaz." };
@@ -182,7 +184,8 @@ export async function odemeyeGec(
   await servis
     .from("odeme_denemeleri")
     .update({ token: cevap.token ?? null })
-    .eq("conversation_id", konusmaId);
+    .eq("conversation_id", konusmaId)
+    .eq("user_id", user.id);
 
   return { adres: cevap.paymentPageUrl };
 }
@@ -258,7 +261,7 @@ export async function havaleBildir(
     ozet: "Tutarın hesaba geçtiğini ekstreden doğrulayıp kaydı “Ödendi” olarak işaretle.",
     satirlar: [
       { etiket: "Tutar", deger: paraBicimi.format(tutar) },
-      { etiket: "Eğitim", deger: (kayit.courses as unknown as { baslik: string } | null)?.baslik ?? "Belirtilmedi" },
+      { etiket: "Eğitim", deger: kayit.courses?.baslik ?? "Belirtilmedi" },
       { etiket: "E-posta", deger: user.email ?? "—" },
       { etiket: "Telefon", deger: profil?.telefon ?? "—" },
     ],

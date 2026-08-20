@@ -1,0 +1,56 @@
+# Her itmede aynı dört kontrol.
+#
+# Şimdiye kadar tip denetimi ve lint elle çalıştırılıyordu; unutulduğu gün
+# bozuk kod dağıtıma gidebiliyordu. Vercel derlemesi de hatayı yakalıyor ama
+# geç: dağıtım başladıktan sonra.
+#
+# Sır kullanılmıyor. Testlerin hepsi saf mantık ve kaynak taraması; veritabanı
+# ya da API anahtarı isteseydi, bu iş çatal (fork) gönderimlerinde çalışmazdı.
+name: Denetim
+
+on:
+  push:
+    branches: [main, "claude/**"]
+  pull_request:
+
+# Aynı dal için yeni itme geldiğinde öncekini iptal et: art arda itmelerde
+# ilk çalışmanın sonucunu beklemenin faydası yok.
+concurrency:
+  group: denetim-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  kontrol:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # npm ci: package-lock.json'a birebir uyuyor. npm install sürümleri
+      # sessizce yükseltebilir ve CI, yerelde olmayan bir kodu doğrulardı.
+      - run: npm ci
+
+      - name: Tip denetimi
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint . --max-warnings=0
+
+      - name: Testler
+        run: npm test
+
+      # Derleme en sona bırakıldı: en yavaş adım o ve öncekiler daha hızlı
+      # geri bildirim veriyor.
+      - name: Derleme
+        run: npm run build
+        env:
+          # Derleme sırasında Supabase'e istek atılmıyor ama istemci kurulumu
+          # değişkenlerin varlığını arıyor. Sahte değerler yeterli.
+          NEXT_PUBLIC_SUPABASE_URL: https://ornek.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-derleme-icin-sahte-anahtar

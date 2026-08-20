@@ -1,5 +1,6 @@
 import { createPublicClient } from "@/lib/supabase/public";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 
 export type Yorum = {
   id: string;
@@ -27,7 +28,7 @@ export function logoUrl(yol: string | null): string | null {
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logolar/${yol}`;
 }
 
-export async function getYorumlar(client?: SupabaseClient): Promise<Yorum[]> {
+export async function getYorumlar(client?: SupabaseClient<Database>): Promise<Yorum[]> {
   const supabase = client ?? createPublicClient();
   const { data } = await supabase
     .from("yorumlar")
@@ -46,7 +47,7 @@ export async function getYorumlar(client?: SupabaseClient): Promise<Yorum[]> {
   }));
 }
 
-export async function getReferanslar(client?: SupabaseClient): Promise<Referans[]> {
+export async function getReferanslar(client?: SupabaseClient<Database>): Promise<Referans[]> {
   const supabase = client ?? createPublicClient();
   const { data } = await supabase
     .from("referanslar")

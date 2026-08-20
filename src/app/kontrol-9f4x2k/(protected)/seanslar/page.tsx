@@ -16,11 +16,11 @@ export default async function AdminSeanslarPage() {
   ]);
 
   const seanslar: SeansSatir[] = (seanslarData ?? []).map((s) => {
-    const kisi = s.profiles as unknown as { ad: string | null; soyad: string | null; email: string | null } | null;
+    const kisi = s.profiles;
     return {
       id: s.id,
       isim: [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—",
-      program: (s.courses as unknown as { baslik: string } | null)?.baslik ?? "Genel",
+      program: s.courses?.baslik ?? "Genel",
       baslangic: s.baslangic,
       sureDk: s.sure_dk,
       konu: s.konu ?? "",

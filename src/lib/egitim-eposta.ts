@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 import { ogrenciBildirimi } from "@/lib/eposta";
 import { TR_ZAMAN } from "@/lib/zaman";
 import type { BildirimSonuc } from "@/lib/odeme-eposta";
@@ -28,14 +29,14 @@ const tarihSaatBicimi = new Intl.DateTimeFormat("tr-TR", {
   minute: "2-digit",
 });
 
-async function kisiyiOku(servis: SupabaseClient, userId: string) {
+async function kisiyiOku(servis: SupabaseClient<Database>, userId: string) {
   const { data } = await servis.from("profiles").select("ad, email").eq("id", userId).maybeSingle();
   return { ad: (data?.ad as string) ?? null, email: (data?.email as string) ?? null };
 }
 
 /** Kayıt klasörü paylaşıldığında. */
 export async function kayitArsiviBildir(
-  servis: SupabaseClient,
+  servis: SupabaseClient<Database>,
   userId: string,
   bilgi: { baslik: string; program: string | null },
 ): Promise<BildirimSonuc> {
@@ -67,7 +68,7 @@ export async function kayitArsiviBildir(
 
 /** Birebir ders planlandığında. */
 export async function oturumPlanlandiBildir(
-  servis: SupabaseClient,
+  servis: SupabaseClient<Database>,
   userId: string,
   bilgi: { baslangic: string; sureDk: number; konu: string; program: string | null; toplantiLink: string | null },
 ): Promise<BildirimSonuc> {

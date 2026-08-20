@@ -39,7 +39,7 @@ export async function getEgitimOturumlarim(): Promise<EgitimOturumu[]> {
     toplantiLink: o.toplanti_link ?? "",
     kayitLink: o.kayit_link ?? "",
     durum: o.durum as EgitimOturumu["durum"],
-    program: (o.courses as unknown as { baslik: string } | null)?.baslik ?? "Genel",
+    program: o.courses?.baslik ?? "Genel",
   }));
 }
 
@@ -78,7 +78,7 @@ export async function getKayitArsivim(): Promise<KayitArsivi[]> {
     baslik: k.baslik ?? "",
     link: k.link,
     aciklama: k.aciklama ?? "",
-    program: (k.courses as unknown as { baslik: string } | null)?.baslik ?? "",
+    program: k.courses?.baslik ?? "",
   }));
 }
 

@@ -219,7 +219,7 @@ export default async function AdminGenelBakisPage() {
               <div className="px-[22px] py-8 text-center text-sm text-[#656B7A]">Henüz ödeme kaydı yok.</div>
             ) : (
               sonIslemler.map((i) => {
-                const kisi = i.profiles as unknown as { ad: string | null; soyad: string | null; email: string | null } | null;
+                const kisi = i.profiles;
                 const isim = [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—";
                 const etiket = odemeDurumEtiket[i.durum] ?? i.durum;
                 const st = durumStil(etiket);

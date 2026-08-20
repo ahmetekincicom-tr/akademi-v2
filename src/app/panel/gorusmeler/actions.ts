@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { yoneticiBildirimi } from "@/lib/eposta";
 import { veriHatasi } from "@/lib/auth-hatalari";
+import { panelKullanicisi } from "@/lib/panel-kapsam";
 
 export type TalepSonuc = {
   error?: string;
@@ -17,6 +18,8 @@ export async function gorusmeTalepEt(input: {
   tercihZaman: string;
 }): Promise<TalepSonuc> {
   const supabase = await createClient();
+  const kullanici = await panelKullanicisi();
+  if (!kullanici) return { error: "Oturumun kapanmış görünüyor, tekrar giriş yap." };
 
   // Ücretsiz hak, eğitim kaydı koşulu ve fiyat veritabanı fonksiyonunda
   // belirlenir; buradan gönderilen hiçbir değer bunları etkilemez.
@@ -34,6 +37,10 @@ export async function gorusmeTalepEt(input: {
     .from("gorusmeler")
     .select("ucretsiz, payment_id")
     .eq("id", gorusmeId as string)
+    // Kapsam süzgeci: id RPC'den geldi, yani zaten bize ait. Süzgeç yine de
+    // duruyor — "çağıran doğru id verdi" varsayımı, bu dosyanın ileride
+    // değişmesine karşı bir güvence değil.
+    .eq("user_id", kullanici)
     .maybeSingle();
 
   revalidatePath("/panel/gorusmeler");

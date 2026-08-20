@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 import { basariliMi, odemeSorgula, type IyzicoAyar, type SorgulamaCevabi } from "@/lib/iyzico";
 import { odemeTamamlandiBildir } from "@/lib/odeme-eposta";
 import { yoneticiBildirimi } from "@/lib/eposta";
@@ -25,7 +26,7 @@ export type CozumSonucu =
   | "belirsiz";
 
 export async function denemeyiCoz(
-  servis: SupabaseClient,
+  servis: SupabaseClient<Database>,
   ayar: IyzicoAyar,
   token: string,
 ): Promise<CozumSonucu> {
@@ -143,7 +144,7 @@ const paraBicimi = new Intl.NumberFormat("tr-TR", {
  * postanın gitmemesi tahsilatı geçersiz kılmaz.
  */
 async function odemeBildirimi(
-  servis: SupabaseClient,
+  servis: SupabaseClient<Database>,
   paymentId: string,
   cevap: SorgulamaCevabi,
 ): Promise<void> {

@@ -5,7 +5,14 @@ import { getYasalSayfa, getYasalSayfalar } from "@/lib/yasal";
 
 const SLUG = "gizlilik-politikasi";
 
-// Metin admin panelinden düzenleniyor; build anında dondurulmamalı.
+/*
+  Bu sayfa bilerek önbelleğe alınmıyor.
+
+  YasalSayfaGorunumu, isteğin native uygulamadan gelip gelmediğine bakıyor
+  (Apple 3.1.3: uygulama içinde satış ve ödeme yüzeyleri gizleniyor) ve bu
+  kontrol headers() okuyor. headers() sayfayı zaten dinamik render'a zorluyor;
+  buraya revalidate yazmak, etkisi olmayan bir sayı bırakmak olurdu.
+*/
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {

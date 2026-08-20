@@ -17,7 +17,7 @@ export default async function AdminMesajlarPage() {
     sirket: m.sirket ?? "",
     konu: m.konu ?? "",
     mesaj: m.mesaj,
-    program: (m.courses as unknown as { baslik: string } | null)?.baslik ?? "—",
+    program: m.courses?.baslik ?? "—",
     okundu: m.okundu,
     tarih: m.created_at,
   }));

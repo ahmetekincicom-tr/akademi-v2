@@ -3,9 +3,8 @@ import { getCourses } from "@/lib/courses";
 import { EPOSTA, INSTAGRAM_URL, OFIS_ADRESI, WHATSAPP_NUMARALAR } from "@/lib/iletisim";
 import { ON_YUZ_ACIK } from "@/proxy";
 
-// Eğitimler panelden değişiyor; dosya istek anında üretiliyor ki liste
-// gerçekle uyumsuz kalmasın.
-export const dynamic = "force-dynamic";
+// Gerekçe: src/app/page.tsx
+export const revalidate = 3600;
 
 /**
  * llms.txt — yapay zekâ arama motorları için özet (llmstxt.org).

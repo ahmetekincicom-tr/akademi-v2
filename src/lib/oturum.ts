@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 
 export type OturumKaydi = {
   id: string;
@@ -60,7 +61,7 @@ export function cihazEtiketi(k: OturumKaydi): string {
  * gets everyone's. Passing a userId narrows an admin query to one person.
  */
 export async function getOturumlar(
-  client: SupabaseClient,
+  client: SupabaseClient<Database>,
   opts: { userId?: string; limit?: number } = {},
 ): Promise<OturumKaydi[]> {
   let sorgu = client.from("oturum_kayitlari").select(SELECT).order("created_at", { ascending: false });

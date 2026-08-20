@@ -11,9 +11,8 @@ import { getCourseBySlug, kutuNot, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
 
-// Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
-// build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
-export const dynamic = "force-dynamic";
+// Gerekçe: src/app/page.tsx
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

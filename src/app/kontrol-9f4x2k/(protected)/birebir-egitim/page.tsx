@@ -24,11 +24,11 @@ export default async function AdminBirebirEgitimPage() {
   ]);
 
   const satirlar: SeansSatir[] = (oturumlar ?? []).map((o) => {
-    const kisi = o.profiles as unknown as { ad: string | null; soyad: string | null; email: string | null } | null;
+    const kisi = o.profiles;
     return {
       id: o.id,
       isim: [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—",
-      program: (o.courses as unknown as { baslik: string } | null)?.baslik ?? "Genel",
+      program: o.courses?.baslik ?? "Genel",
       baslangic: o.baslangic,
       sureDk: o.sure_dk,
       konu: o.konu ?? "",

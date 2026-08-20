@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
@@ -12,8 +13,8 @@ import { kapakUrl } from "@/lib/kapak";
 import { getReferanslar } from "@/lib/icerik";
 import { sayfaMeta, kisiSemasi } from "@/lib/seo";
 
-// Sayfa metinleri ve fotoğrafı yönetim panelindeki Hakkımızda sayfasından yönetiliyor.
-export const dynamic = "force-dynamic";
+// Gerekçe: src/app/page.tsx
+export const revalidate = 3600;
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
 export function generateMetadata(): Promise<Metadata> {
@@ -165,12 +166,18 @@ export default async function HakkimizdaPage() {
           <div className="lg:sticky lg:top-24">
             <div className="relative aspect-[3/4] overflow-hidden rounded-[18px]">
               {fotograf ? (
-                /* eslint-disable-next-line @next/next/no-img-element -- Supabase
-                   Storage konağı next/image remotePatterns'a eklenmeli. */
-                <img
+                /*
+                  fill + sizes: fotoğraf sabit oranlı bir kutuyu dolduruyor ve
+                  gerçek genişliği ekrana göre değişiyor. sizes olmadan Next
+                  görselin ekran genişliğinde çizildiğini varsayıp gereğinden
+                  büyük dosya gönderiyor.
+                */
+                <Image
                   src={fotograf}
                   alt={icerik.kisiBaslik}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  fill
+                  sizes="(min-width: 1024px) 420px, 100vw"
+                  className="object-cover"
                 />
               ) : (
                 <div className="placeholder-block absolute inset-0 flex items-end p-3">

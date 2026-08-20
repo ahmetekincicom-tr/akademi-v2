@@ -5,7 +5,7 @@ import { getYasalSayfa, getYasalSayfalar } from "@/lib/yasal";
 
 const SLUG = "iptal-iade-politikasi";
 
-// Metin admin panelinden düzenleniyor; build anında dondurulmamalı.
+// Gerekçe: src/app/gizlilik-politikasi/page.tsx
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {

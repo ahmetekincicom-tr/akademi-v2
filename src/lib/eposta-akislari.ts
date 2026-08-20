@@ -115,6 +115,16 @@ export const AKISLAR = [
     zorunlu: true,
   },
   {
+    anahtar: "sistem-hatasi",
+    baslik: "Sistem hatası",
+    aciklama:
+      "Canlıda bir sunucu hatası oluştuğunda sana haber verir. Aynı hata 15 dakika boyunca tekrar bildirilmez.",
+    kime: "yonetim",
+    // Kapatılabilir olsaydı, kapalı olduğu unutulduğunda sistemin sessizce
+    // bozulduğu tek durum bu olurdu.
+    zorunlu: true,
+  },
+  {
     anahtar: "tani-testi",
     baslik: "Test e-postası",
     aciklama: "Entegrasyonlar ekranındaki “test gönder” düğmesi.",

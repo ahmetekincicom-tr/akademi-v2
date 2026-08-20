@@ -1,5 +1,6 @@
 import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 import { createPublicClient } from "@/lib/supabase/public";
 import { kapakUrl } from "@/lib/kapak";
 
@@ -160,7 +161,7 @@ function mapCourse(row: CourseRow): Course {
  * eğitimler listesi, site haritası). Sarmalanmazsa her çağrı ayrı bir
  * veritabanı gidiş-dönüşü demek ve ilk bayt süresi buna doğrudan yansıyor.
  */
-export const getCourses = cache(async function getCourses(client?: SupabaseClient): Promise<Course[]> {
+export const getCourses = cache(async function getCourses(client?: SupabaseClient<Database>): Promise<Course[]> {
   const supabase = client ?? createPublicClient();
   const { data, error } = await supabase
     .from("courses")
@@ -177,7 +178,7 @@ export const getCourses = cache(async function getCourses(client?: SupabaseClien
   return (data as unknown as CourseRow[]).map(mapCourse);
 });
 
-export async function getCourseBySlug(slug: string, client?: SupabaseClient): Promise<Course | undefined> {
+export async function getCourseBySlug(slug: string, client?: SupabaseClient<Database>): Promise<Course | undefined> {
   const supabase = client ?? createPublicClient();
   const { data, error } = await supabase.from("courses").select(COURSE_SELECT).eq("slug", slug).maybeSingle();
 

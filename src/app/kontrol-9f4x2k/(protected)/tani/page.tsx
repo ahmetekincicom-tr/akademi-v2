@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
+import type { TabloAdi } from "@/lib/supabase/tipler";
 import { Icon } from "@/components/Icon";
 import { iyzicoAyari, odemeSorgula } from "@/lib/iyzico";
 import { epostaYapilandirildiMi } from "@/lib/eposta";
@@ -60,7 +61,13 @@ export default async function TaniPage() {
   });
 
   // --- Tabloların varlığı (hangi migration'lar uygulanmış) ---
-  const tablolar = [
+  /*
+    Tablo adları TabloAdi birliğiyle yazılıyor: bir tablo yeniden
+    adlandırıldığında ya da silindiğinde tanılama ekranı derlemede kırılıyor.
+    Öncesinde düz metindi ve ekran, olmayan bir tabloyu "YOK" diye
+    raporlayıp doğru çalışıyormuş gibi görünürdü.
+  */
+  const tablolar: { ad: TabloAdi; faz: string }[] = [
     { ad: "courses", faz: "Başlangıç" },
     { ad: "enrollments", faz: "Faz 1" },
     { ad: "lesson_progress", faz: "Faz 1" },

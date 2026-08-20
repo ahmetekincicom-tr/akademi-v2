@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import type { Ekle } from "@/lib/supabase/tipler";
 import { createClient } from "@/lib/supabase/server";
 
 // Public pages that surface testimonials or logos.
@@ -67,7 +68,9 @@ export async function referansKaydet(input: ReferansInput) {
   if (!input.ad.trim()) return { error: "Kurum adı zorunlu." };
 
   const supabase = await createClient();
-  const satir: Record<string, unknown> = {
+  // Record<string, unknown> yerine tablonun kendi ekleme tipi: yanlış yazılmış
+  // bir sütun adı artık derlemede yakalanıyor, çalışma zamanında değil.
+  const satir: Ekle<"referanslar"> = {
     ad: input.ad.trim(),
     sektor: input.sektor.trim() || null,
     site_url: input.siteUrl.trim() || null,

@@ -23,14 +23,20 @@ export async function oturumKaydet() {
 
     const bilgi = istemciBilgisi(await headers());
 
+    /*
+      null yerine undefined: RPC parametrelerinin hepsi varsayılan değerli ve
+      üretilen tipler onları `string | undefined` olarak veriyor. null
+      göndermek de çalışıyordu ama tip artık bunu söylüyor — okunamayan bir
+      alan "gönderilmedi" demek, "boş" demek değil.
+    */
     const { error } = await supabase.rpc("oturum_kaydet", {
-      p_ip: bilgi.ip,
-      p_ulke: bilgi.ulke,
-      p_sehir: bilgi.sehir,
-      p_bolge: bilgi.bolge,
-      p_tarayici: bilgi.tarayici,
-      p_isletim_sistemi: bilgi.isletimSistemi,
-      p_cihaz: bilgi.cihaz,
+      p_ip: bilgi.ip ?? undefined,
+      p_ulke: bilgi.ulke ?? undefined,
+      p_sehir: bilgi.sehir ?? undefined,
+      p_bolge: bilgi.bolge ?? undefined,
+      p_tarayici: bilgi.tarayici ?? undefined,
+      p_isletim_sistemi: bilgi.isletimSistemi ?? undefined,
+      p_cihaz: bilgi.cihaz ?? undefined,
     });
 
     if (error) console.error("[oturum] kayıt yazılamadı:", error.message);

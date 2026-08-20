@@ -7,9 +7,8 @@ import { getYorumlar } from "@/lib/icerik";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
 
-// Kurslar admin panelinden düzenlendiği için sayfa istek anında render edilir;
-// build anında dondurulursa yayınlanan eğitim siteye hiç yansımaz.
-export const dynamic = "force-dynamic";
+// Gerekçe: src/app/page.tsx
+export const revalidate = 3600;
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
 export function generateMetadata(): Promise<Metadata> {

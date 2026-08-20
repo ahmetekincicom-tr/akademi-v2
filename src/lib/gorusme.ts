@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/tipler";
 
 export type GorusmeDurum = "talep" | "odeme_bekliyor" | "planlandi" | "tamamlandi" | "iptal";
 
@@ -106,7 +107,7 @@ function map(r: Row): Gorusme {
  * yapılıyor: karışık liste, hakkı da yanlış hesaplıyordu.
  * (bkz. lib/panel-kapsam.ts)
  */
-export async function getGorusmeler(client: SupabaseClient, userId?: string): Promise<Gorusme[]> {
+export async function getGorusmeler(client: SupabaseClient<Database>, userId?: string): Promise<Gorusme[]> {
   let sorgu = client.from("gorusmeler").select(SELECT).order("created_at", { ascending: false });
   if (userId) sorgu = sorgu.eq("user_id", userId);
 
@@ -119,7 +120,7 @@ export async function getGorusmeler(client: SupabaseClient, userId?: string): Pr
   return ((data ?? []) as unknown as Row[]).map(map);
 }
 
-export async function getGorusmeAyarlari(client: SupabaseClient): Promise<GorusmeAyarlari> {
+export async function getGorusmeAyarlari(client: SupabaseClient<Database>): Promise<GorusmeAyarlari> {
   const { data, error } = await client
     .from("gorusme_ayarlari")
     .select("ucretsiz_hak, ucret, sure_dk, odeme_aciklamasi, aktif")
@@ -139,7 +140,7 @@ export async function getGorusmeAyarlari(client: SupabaseClient): Promise<Gorusm
 }
 
 /** Kişinin iptal edilmemiş en az bir eğitim kaydı var mı. */
-export async function egitimKaydiVarMi(client: SupabaseClient, userId?: string): Promise<boolean> {
+export async function egitimKaydiVarMi(client: SupabaseClient<Database>, userId?: string): Promise<boolean> {
   let sorgu = client.from("enrollments").select("id", { count: "exact", head: true }).neq("durum", "iptal");
   // Süzgeç olmadan yönetici için "sistemde herhangi bir eğitim kaydı var mı"
   // sorusuna dönüşüyordu ve ücretsiz hak ona da açılıyordu.
