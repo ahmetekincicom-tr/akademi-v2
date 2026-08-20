@@ -150,7 +150,36 @@ export async function basarisizlariSiraya(
     .in("durum", ["basarisiz", "vazgecildi"])
     .select("id");
 
-  return { sayi: data?.length ?? 0 };
+  const izinliler = await izniSonradanVerilenler(servis);
+  return { sayi: (data?.length ?? 0) + izinliler };
+}
+
+/**
+ * İzin sonradan verilmiş olayları serbest bırakır.
+ *
+ * "izinsiz" satırlar KÖRÜ KÖRÜNE sıraya alınmıyor — o, izin kontrolünü bir
+ * düğmeyle iptal etmek olurdu. Yalnızca kişinin profilinde bugün `reklam_izni`
+ * true olan satırlar geçiyor.
+ *
+ * Gerçek karşılığı var: kişi ödemeyi yapıyor, çerez bandını sonra kabul
+ * ediyor. Olay o an izinsiz diye bekletiliyor ama izin verildiğinde artık
+ * gönderilebilir. Kimin izni yoksa satırı olduğu yerde kalıyor.
+ */
+async function izniSonradanVerilenler(servis: SupabaseClient<Database>): Promise<number> {
+  const { data: izinli } = await servis.from("profiles").select("id").eq("reklam_izni", true);
+  if (!izinli?.length) return 0;
+
+  const { data } = await servis
+    .from("meta_olaylari")
+    .update({ durum: "bekliyor", sebep: null, deneme: 0 })
+    .eq("durum", "izinsiz")
+    .in(
+      "user_id",
+      izinli.map((p) => p.id),
+    )
+    .select("id");
+
+  return data?.length ?? 0;
 }
 
 async function tekOlayGonder(

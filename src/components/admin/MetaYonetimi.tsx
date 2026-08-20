@@ -80,7 +80,9 @@ export function MetaYonetimi({
     return s;
   }, [gunluk]);
 
-  const takilanVar = (sayim.basarisiz ?? 0) + (sayim.vazgecildi ?? 0) > 0;
+  // İzinsizler de düğmeye dahil: izin sonradan verilmişse o satırlar
+  // gönderilebilir hale geliyor (kontrolü sunucu yapıyor, düğme değil).
+  const takilanVar = (sayim.basarisiz ?? 0) + (sayim.vazgecildi ?? 0) + (sayim.izinsiz ?? 0) > 0;
 
   const degistir = (anahtar: string, acik: boolean, baslik: string) => {
     basla(async () => {

@@ -2,7 +2,7 @@ import "server-only";
 
 import { cookies, headers } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/lib/supabase/tipler";
+import type { Database, Guncelle } from "@/lib/supabase/tipler";
 import { IZIN_CEREZI, izniCoz, reklamIzniVar } from "@/lib/izin";
 import { kimlikKur, type MetaKimlik } from "@/lib/meta/kimlik";
 
@@ -117,26 +117,58 @@ export async function profildenKimlik(
 }
 
 /**
- * Panelde görülen izni profile yazar.
+ * Panel ziyaretinde izni ve tıklama kimliğini profile işler.
  *
- * Panel düzeni her ziyarette çalışıyor, o yüzden yalnızca DEĞİŞTİĞİNDE
- * yazıyor: her sayfa açılışında bir UPDATE atmak, hiçbir şeyi değiştirmeyen
- * bir yazma yükü olurdu.
+ * Bu bir sonradan eklenen düzeltme ve sebebi somut: ilk kurulumda bu iş
+ * YALNIZCA hoş geldin akışında yapılıyordu — yani kişi başına bir kez, ilk
+ * girişte. Zaten panele girmiş herkesin (bugünkü 307 kişinin tamamının)
+ * `reklam_izni` alanı null kalıyordu ve null "izin yok" demek olduğu için
+ * onların ödemeleri kuyruğa `izinsiz` diye düşüyordu. İlk canlı ödeme
+ * testinde de tam olarak bu oldu.
  *
- * Hatası yutuluyor — bu bir yan iş; paneli açamamanın sebebi olamaz.
+ * Panel düzeni her ziyarette çalıştığı için burası doğru yer, ama yalnızca
+ * DEĞİŞEN alanlar yazılıyor: her sayfa açılışında bir UPDATE atmak hiçbir
+ * şeyi değiştirmeyen bir yazma yükü olurdu.
+ *
+ * Tıklama kimliği yalnızca BOŞKEN yazılıyor — ilk temas, sonrakinden değerli.
+ *
+ * Hatası yutuluyor: bu bir yan iş, paneli açamamanın sebebi olamaz.
  */
-export async function izniProfileIsle(
-  servis: SupabaseClient<Database>,
-  userId: string,
-  mevcut: boolean | null,
-  istektekiIzin: boolean,
-): Promise<void> {
-  if (mevcut === istektekiIzin) return;
+export async function panelOlcumlemeTazele(userId: string): Promise<void> {
   try {
-    await servis
-      .from("profiles")
-      .update({ reklam_izni: istektekiIzin, reklam_izni_tarihi: new Date().toISOString() })
-      .eq("id", userId);
+    const { gorevIstemcisi } = await import("@/lib/supabase/gorev");
+    const servis = gorevIstemcisi();
+    if (!servis) return;
+
+    /*
+      Okuma ve yazma servis anahtarıyla, oturumlu istemciyle değil.
+
+      Bu sütunlar katılımcının düzenleyeceği alanlar değil; profil
+      güncellemesine açık bırakılmaları, tıklama kimliğinin dışarıdan
+      yazılabilmesi demek olurdu.
+    */
+    const [baglam, { data: profil }] = await Promise.all([
+      istekBaglami(),
+      servis.from("profiles").select("reklam_izni, fbp, fbc").eq("id", userId).maybeSingle(),
+    ]);
+
+    if (!profil) return;
+
+    const yama: Guncelle<"profiles"> = {};
+
+    if (profil.reklam_izni !== baglam.izin) {
+      yama.reklam_izni = baglam.izin;
+      yama.reklam_izni_tarihi = new Date().toISOString();
+    }
+    // Tıklama kimliği boşsa doldur; doluysa dokunma.
+    if (!profil.fbp && baglam.fbp) yama.fbp = baglam.fbp;
+    if (!profil.fbc && baglam.fbc) yama.fbc = baglam.fbc;
+    if (!profil.fbp && baglam.ip) yama.ilk_ip = baglam.ip;
+    if (!profil.fbp && baglam.ua) yama.ilk_ua = baglam.ua;
+
+    if (Object.keys(yama).length === 0) return;
+
+    await servis.from("profiles").update(yama).eq("id", userId);
   } catch {
     // Yan iş.
   }
