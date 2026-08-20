@@ -27,3 +27,22 @@ export async function panelKullanicisi(): Promise<string | null> {
   } = await supabase.auth.getUser();
   return user?.id ?? null;
 }
+
+/**
+ * Giriş yapan kişi yönetici mi?
+ *
+ * Server action'lar herkese açık uç noktalar: bir düğmenin yalnızca yönetici
+ * arayüzünde çizilmesi, o eylemin yalnızca yönetici tarafından
+ * çağrılabileceği anlamına gelmiyor. Yalnızca yöneticiye ait bir işlem
+ * yapan her eylem bunu sunucuda da sormalı.
+ */
+export async function yoneticiMi(): Promise<boolean> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
+  return data?.role === "admin";
+}

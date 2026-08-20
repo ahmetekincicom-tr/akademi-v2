@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { yoneticiMi } from "@/lib/panel-kapsam";
+import { veriHatasi } from "@/lib/auth-hatalari";
 import { yoneticiBildirimi } from "@/lib/eposta";
 
 /** Bildirimlerde kullanılan görünen ad. */
@@ -106,13 +108,25 @@ export async function mesajGonder(ticketId: string, metin: string) {
   return {};
 }
 
+/**
+ * Talep durumu.
+ *
+ * Yalnızca yönetici değiştirebiliyor ve bu artık SUNUCUDA da soruluyor.
+ * Açılır liste zaten yalnızca yönetim arayüzünde çiziliyordu ama server
+ * action'lar herkese açık uç noktalar; RLS de talebin SAHİBİNE güncelleme
+ * izni veriyor (başlığını değiştirebilsin diye). İkisi birleşince katılımcı
+ * kendi talebini "kapandı" ya da "yanıtlandı" işaretleyebiliyordu — destek
+ * kuyruğu, üzerinde çalışılmamış talepleri bitmiş gösterirdi.
+ */
 export async function talepDurumDegistir(ticketId: string, durum: "acik" | "inceleniyor" | "yanitlandi" | "kapandi") {
+  if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("support_tickets")
     .update({ durum, updated_at: new Date().toISOString() })
     .eq("id", ticketId);
-  if (error) return { error: error.message };
+  if (error) return { error: veriHatasi(error) };
 
   revalidatePath("/panel/soru-cevap");
   revalidatePath("/kontrol-9f4x2k/destek");
