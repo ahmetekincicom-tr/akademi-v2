@@ -6,6 +6,7 @@ import {
   odemeEkle,
   odemeDurumDegistir,
   odemeSil,
+  odemeBildiriminiGonder,
   odemeOnlineDegistir,
 } from "@/app/kontrol-9f4x2k/(protected)/odemeler/actions";
 import { durumStil } from "@/lib/admin/shared";
@@ -109,6 +110,39 @@ export function OdemeYonetimi({
         bildir.basarili(acik ? "Kartla ödemeye açıldı." : "Kartla ödemeye kapatıldı.");
         router.refresh();
       }
+    });
+  };
+
+  /*
+    Mail göndermek geri alınamayan, dışarıya çıkan bir iş: yanlış tıklama
+    gerçek bir kişinin gelen kutusuna düşüyor. Düğme bu yüzden iki adımlı —
+    ilk tıklama onay istiyor, ikincisi gönderiyor. Onay penceresi yerine
+    satır içi: pencere, listede on satır arasında hangisine bastığını
+    unutturuyor.
+  */
+  const [onayBekleyen, setOnayBekleyen] = useState<string | null>(null);
+
+  const bildirimGonder = (id: string, isim: string) => {
+    if (onayBekleyen !== id) {
+      setOnayBekleyen(id);
+      // Onay açık kalıp sonraki tıklamada yanlışlıkla gönderilmesin.
+      window.setTimeout(() => setOnayBekleyen((mevcut) => (mevcut === id ? null : mevcut)), 5000);
+      return;
+    }
+
+    setOnayBekleyen(null);
+    startTransition(async () => {
+      const r = await odemeBildiriminiGonder(id);
+      if (r?.error) {
+        bildir.hata(r.error);
+        return;
+      }
+      bildir.basarili(
+        r?.gonderilen === "acildi"
+          ? `${isim} kişisine “ödemen tanımlandı” bildirimi gönderildi.`
+          : `${isim} kişisine “ödemen alındı” bildirimi gönderildi.`,
+      );
+      router.refresh();
     });
   };
 
@@ -363,6 +397,33 @@ export function OdemeYonetimi({
                         <Icon name="card" size={14} />
                       </button>
                     )}
+                    {/* İade edilmiş kayıt için gönderilecek bir bildirim yok. */}
+                    {o.durum !== "iade" &&
+                      (onayBekleyen === o.id ? (
+                        <button
+                          type="button"
+                          disabled={islemde}
+                          onClick={() => bildirimGonder(o.id, o.isim)}
+                          className="h-8 flex-none rounded-[7px] border border-brand bg-brand px-2.5 font-mono text-[9.5px] tracking-[0.06em] text-white uppercase transition hover:bg-ink hover:border-ink disabled:opacity-50"
+                        >
+                          Gönder?
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={islemde}
+                          onClick={() => bildirimGonder(o.id, o.isim)}
+                          title={
+                            o.durum === "bekliyor"
+                              ? "“Ödemen tanımlandı” bildirimini tekrar gönder"
+                              : "“Ödemen alındı” bildirimini tekrar gönder"
+                          }
+                          aria-label="Bildirimi tekrar gönder"
+                          className="flex h-8 w-8 flex-none items-center justify-center rounded-[7px] border border-ink/12 text-[#656B7A] transition hover:border-brand/45 hover:text-brand disabled:opacity-50"
+                        >
+                          <Icon name="mail" size={14} />
+                        </button>
+                      ))}
                     <button
                       type="button"
                       disabled={islemde}

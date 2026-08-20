@@ -6,6 +6,7 @@ import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { iyzicoAyari } from "@/lib/iyzico";
 import { denemeyiCoz } from "@/lib/odeme-sonuc";
 import { odemeAcildiBildir, odemeTamamlandiBildir } from "@/lib/odeme-eposta";
+import { yoneticiMi } from "@/lib/panel-kapsam";
 
 /**
  * Ödeme değiştiğinde tazelenmesi gereken her yer.
@@ -73,6 +74,51 @@ export async function odemeEkle(input: OdemeInput) {
 
   odemeTazele();
   return uyari ? { uyari } : {};
+}
+
+/**
+ * Bildirimi yeniden gönderir.
+ *
+ * Ödeme maili şimdiye kadar yalnızca kayıt AÇILDIĞI ANDA gidiyordu. O an
+ * gitmediyse — katılımcının profilinde adres yoktu, Resend hata verdi, akış
+ * kapalıydı — ya da kişi maili silmişse, sonradan göndermenin hiçbir yolu
+ * yoktu. Elde kalan tek seçenek kaydı silip yeniden açmaktı; o da ödeme
+ * tarihini bozuyor.
+ *
+ * Hangi mailin gideceğini KAYDIN DURUMU belirliyor, çağıran değil: bekleyen
+ * kayıtta "ödemen tanımlandı", ödenmiş kayıtta "ödemen alındı" (ve ön
+ * değerlendirme daveti). Durumu istemciden almak, ödenmiş bir kayda "ödemeni
+ * tamamla" maili göndermeyi mümkün kılardı.
+ */
+export async function odemeBildiriminiGonder(id: string) {
+  /*
+    Bu eylem dışarıya çıkan bir iş yapıyor: gerçek bir kişiye mail atıyor.
+    Düğmenin yalnızca yönetim ekranında çizilmesi yetmez, server action'lar
+    herkese açık uç noktalar.
+  */
+  if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
+
+  const supabase = await createClient();
+  const { data: kayit } = await supabase.from("payments").select("durum").eq("id", id).maybeSingle();
+
+  if (!kayit) return { error: "Ödeme kaydı bulunamadı." };
+  if (kayit.durum === "iade") {
+    // İade edilmiş kayıt için anlamlı bir bildirim yok; sessizce bir şey
+    // göndermektense söylemek doğru.
+    return { error: "İade edilmiş kayıt için gönderilecek bir bildirim yok." };
+  }
+
+  const sonuc =
+    kayit.durum === "bekliyor"
+      ? await odemeAcildiBildir(supabase, id)
+      : await odemeTamamlandiBildir(supabase, id);
+
+  if (!sonuc.gonderildi) return { error: `Bildirim gönderilemedi. ${sonuc.sebep ?? ""}`.trim() };
+
+  // Gönderim gunlugune epostaGonder içinde yazıldı; ekranı tazelemeye gerek
+  // yok ama ödemeler sayfası günlüğü de gösterebilir hale gelirse dursun.
+  odemeTazele();
+  return { gonderilen: kayit.durum === "bekliyor" ? ("acildi" as const) : ("tamamlandi" as const) };
 }
 
 /**
