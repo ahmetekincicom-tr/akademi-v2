@@ -89,6 +89,7 @@ export async function odemeAcildiBildir(
     if (!o.email) return { gonderildi: false, sebep: EPOSTA_YOK };
 
     await ogrenciBildirimi({
+      akis: "odeme-acildi",
       alici: o.email,
       konu: `Ödeme tanımlandı · ${paraBicimi.format(o.tutar)}`,
       ustEtiket: "Ödeme bilgisi",
@@ -129,6 +130,7 @@ export async function odemeTamamlandiBildir(
 
     if (o.gorusmeKonusu) {
       await ogrenciBildirimi({
+        akis: "odeme-tamamlandi",
         alici: o.email,
         konu: "Danışmanlık talebin alındı",
         ustEtiket: "Ödeme alındı",
@@ -147,6 +149,7 @@ export async function odemeTamamlandiBildir(
     }
 
     await ogrenciBildirimi({
+      akis: "odeme-tamamlandi",
       alici: o.email,
       konu: "Ödemen alındı — sıradaki adım: ön değerlendirme",
       ustEtiket: "Ödeme alındı",

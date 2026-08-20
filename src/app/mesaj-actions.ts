@@ -93,6 +93,7 @@ export async function mesajGonder(input: MesajInput): Promise<{ error?: string }
 
   // Bildirim mesaj KAYDEDİLDİKTEN sonra: postanın gitmemesi mesajı kaybetmesin.
   await yoneticiBildirimi({
+    akis: "iletisim-formu",
     konu:
       input.tur === "teklif"
         ? `Teklif talebi · ${ad}`

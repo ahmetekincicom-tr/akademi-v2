@@ -44,6 +44,7 @@ export async function kayitArsiviBildir(
     if (!kisi.email) return { gonderildi: false, sebep: EPOSTA_YOK };
 
     await ogrenciBildirimi({
+      akis: "egitim-kaydi",
       alici: kisi.email,
       konu: "Ders kayıtların panelinde",
       ustEtiket: "Eğitim kayıtları",
@@ -75,6 +76,7 @@ export async function oturumPlanlandiBildir(
     if (!kisi.email) return { gonderildi: false, sebep: EPOSTA_YOK };
 
     await ogrenciBildirimi({
+      akis: "oturum-planlandi",
       alici: kisi.email,
       konu: `Dersin planlandı · ${tarihSaatBicimi.format(new Date(bilgi.baslangic))}`,
       ustEtiket: "Birebir eğitim",

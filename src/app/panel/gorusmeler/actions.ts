@@ -67,6 +67,7 @@ export async function gorusmeTalepEt(input: {
   const isim = [profil?.ad, profil?.soyad].filter(Boolean).join(" ") || profil?.email || "Bir katılımcı";
 
   await yoneticiBildirimi({
+    akis: "danismanlik-talebi",
     konu: `Danışmanlık talebi · ${isim}`,
     ustEtiket: "Danışmanlık talebi",
     baslik: `${isim} görüşme istedi`,

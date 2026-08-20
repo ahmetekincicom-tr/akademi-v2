@@ -57,7 +57,7 @@ export async function hosgeldinGonder(): Promise<void> {
       eylem: { etiket: "Panele git", adres: await panelAdresi() },
     });
 
-    await epostaGonder({ konu: "Ahmet Ekinci Akademi üye alanına hoş geldin", metin, html, alici: user.email });
+    await epostaGonder({ akis: "hosgeldin", konu: "Ahmet Ekinci Akademi üye alanına hoş geldin", metin, html, alici: user.email });
 
     /*
       Yeni üyelik bildirimi de burada.
@@ -75,6 +75,7 @@ export async function hosgeldinGonder(): Promise<void> {
     const tamAd = [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "Yeni üye";
 
     await yoneticiBildirimi({
+      akis: "yeni-uyelik",
       konu: `Yeni üyelik · ${tamAd}`,
       ustEtiket: "Yeni üyelik",
       baslik: `${tamAd} panele katıldı`,

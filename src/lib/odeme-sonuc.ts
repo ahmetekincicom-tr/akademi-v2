@@ -206,6 +206,7 @@ async function odemeBildirimi(
   satirlar.push({ etiket: "iyzico ödeme no", deger: cevap.paymentId ?? "—" });
 
   await yoneticiBildirimi({
+    akis: "odeme-sonucu",
     konu: gorusme
       ? `Danışmanlık ödemesi · ${paraBicimi.format(tutar)} · ${isim}`
       : `Ödeme alındı · ${paraBicimi.format(tutar)} · ${isim}`,

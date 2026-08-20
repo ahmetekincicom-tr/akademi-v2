@@ -26,6 +26,7 @@ export async function testEpostasiGonder(): Promise<{ iyi: boolean; mesaj: strin
   });
 
   const { gonderildi, hata } = await epostaGonder({
+    akis: "tani-testi",
     konu: "Akademi paneli · test e-postası",
     metin,
     html,

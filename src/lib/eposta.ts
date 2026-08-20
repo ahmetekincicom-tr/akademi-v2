@@ -1,6 +1,8 @@
 import "server-only";
 
 import { bildirimSablonu, type BildirimSatiri } from "@/lib/eposta-sablon";
+import { AKISLAR, type EpostaAkisi } from "@/lib/eposta-akislari";
+import { gorevIstemcisi } from "@/lib/supabase/gorev";
 
 /**
  * E-posta gönderimi (Resend).
@@ -60,6 +62,67 @@ export function epostaYapilandirildiMi(): boolean {
   return ayarlariOku() !== null;
 }
 
+const ZORUNLU_AKISLAR = new Set<string>(
+  AKISLAR.filter((a) => "zorunlu" in a && a.zorunlu).map((a) => a.anahtar),
+);
+
+/**
+ * Akış panelden kapatılmış mı?
+ *
+ * Zorunlu akışlar tabloya hiç bakmıyor: işleyişi bozacak ya da tanılama için
+ * gereken mailler kapatılamıyor. Kapatılabilir olsalardı, kapalı oldukları
+ * unutulup "sistem bozuldu" diye aranan şey aslında bu anahtar olurdu.
+ *
+ * Sorgu başarısız olursa AÇIK varsayılıyor. Yanlış tarafa düşmek gerekiyorsa
+ * fazladan bir mail gitmesi, gitmesi gereken bir mailin sessizce kaybolmasından
+ * iyi.
+ */
+async function akisAcikMi(akis: EpostaAkisi): Promise<boolean> {
+  if (ZORUNLU_AKISLAR.has(akis)) return true;
+
+  const servis = gorevIstemcisi();
+  if (!servis) return true;
+
+  const { data, error } = await servis
+    .from("eposta_akislari")
+    .select("acik")
+    .eq("anahtar", akis)
+    .maybeSingle();
+
+  if (error) return true;
+  // Satır yoksa akış hiç kapatılmamış demek.
+  return data?.acik !== false;
+}
+
+/**
+ * Gönderim günlüğüne yaz.
+ *
+ * Başarısızlık da yazılıyor, hatta asıl işe yarayan o: "gitmedi"nin sebebi
+ * burada duruyor. Kendi hatası yutuluyor — günlük yazılamadı diye mail
+ * gönderimi bozulmamalı.
+ */
+async function gunlugeYaz(kayit: {
+  akis: string;
+  alici: string | null;
+  konu: string;
+  durum: "gonderildi" | "basarisiz" | "kapali" | "yapilandirilmadi";
+  sebep?: string | null;
+}): Promise<void> {
+  try {
+    const servis = gorevIstemcisi();
+    if (!servis) return;
+    await servis.from("eposta_gunlugu").insert({
+      akis: kayit.akis,
+      alici: kayit.alici,
+      konu: kayit.konu.slice(0, 300),
+      durum: kayit.durum,
+      sebep: kayit.sebep?.slice(0, 500) ?? null,
+    });
+  } catch {
+    // Günlük ikincil; gönderimi engellemesin.
+  }
+}
+
 /**
  * Bildirim e-postası gönderir.
  *
@@ -68,6 +131,11 @@ export function epostaYapilandirildiMi(): boolean {
  * almamalı. Sonuç boolean olarak dönüyor, isteyen bakar.
  */
 export async function epostaGonder(girdi: {
+  /**
+   * Hangi bildirim olduğu. Tek boğaz noktası burası: açık/kapalı kontrolü ve
+   * günlük kaydı bu alandan yürüyor, her çağrı yerinde ayrı ayrı değil.
+   */
+  akis: EpostaAkisi;
   konu: string;
   metin: string;
   /** Verilmezse metin satır sonlarından basit bir HTML üretilir. */
@@ -79,7 +147,32 @@ export async function epostaGonder(girdi: {
   alici?: string;
 }): Promise<{ gonderildi: boolean; hata?: string }> {
   const ayar = ayarlariOku();
-  if (!ayar) return { gonderildi: false, hata: "E-posta yapılandırılmadı." };
+  if (!ayar) {
+    await gunlugeYaz({
+      akis: girdi.akis,
+      alici: girdi.alici ?? null,
+      konu: girdi.konu,
+      durum: "yapilandirilmadi",
+      sebep: "RESEND_API_KEY / BILDIRIM_GONDEREN / BILDIRIM_EPOSTA eksik.",
+    });
+    return { gonderildi: false, hata: "E-posta yapılandırılmadı." };
+  }
+
+  if (!(await akisAcikMi(girdi.akis))) {
+    /*
+      Kapalı akış da günlüğe yazılıyor. "Neden mail gelmedi" sorusunun cevabı
+      "çünkü sen kapatmıştın" ise, o cevabın bir yerde durması gerekiyor —
+      yoksa kapatıldığı unutulup hata aranır.
+    */
+    await gunlugeYaz({
+      akis: girdi.akis,
+      alici: girdi.alici ?? null,
+      konu: girdi.konu,
+      durum: "kapali",
+      sebep: "Bu bildirim yönetim panelinden kapatılmış.",
+    });
+    return { gonderildi: false, hata: "Bu bildirim kapalı." };
+  }
 
   const alicilar = girdi.alici ? [girdi.alici] : ayar.alici;
 
@@ -102,11 +195,34 @@ export async function epostaGonder(girdi: {
 
     if (!cevap.ok) {
       const govde = await cevap.text();
-      return { gonderildi: false, hata: `HTTP ${cevap.status}: ${govde.slice(0, 200)}` };
+      const hata = `HTTP ${cevap.status}: ${govde.slice(0, 200)}`;
+      await gunlugeYaz({
+        akis: girdi.akis,
+        alici: alicilar.join(", "),
+        konu: girdi.konu,
+        durum: "basarisiz",
+        sebep: hata,
+      });
+      return { gonderildi: false, hata };
     }
+
+    await gunlugeYaz({
+      akis: girdi.akis,
+      alici: alicilar.join(", "),
+      konu: girdi.konu,
+      durum: "gonderildi",
+    });
     return { gonderildi: true };
   } catch (e) {
-    return { gonderildi: false, hata: e instanceof Error ? e.message : "Bilinmeyen hata" };
+    const hata = e instanceof Error ? e.message : "Bilinmeyen hata";
+    await gunlugeYaz({
+      akis: girdi.akis,
+      alici: alicilar.join(", "),
+      konu: girdi.konu,
+      durum: "basarisiz",
+      sebep: hata,
+    });
+    return { gonderildi: false, hata };
   }
 }
 
@@ -162,6 +278,7 @@ async function panelKoku(): Promise<string | null> {
  * iç yazışma gibi görünmeli, öğrenciye giden mail markanın yüzü.
  */
 export async function ogrenciBildirimi(girdi: {
+  akis: EpostaAkisi;
   alici: string;
   konu: string;
   ustEtiket: string;
@@ -172,9 +289,8 @@ export async function ogrenciBildirimi(girdi: {
   /** Panel içi yol: "/panel/odemelerim" gibi. Kök adres otomatik ekleniyor. */
   yol?: string;
   eylemEtiketi?: string;
-}): Promise<void> {
-  if (!epostaYapilandirildiMi()) return;
-  if (!girdi.alici) return;
+}): Promise<{ gonderildi: boolean; hata?: string }> {
+  if (!girdi.alici) return { gonderildi: false, hata: "Alıcı adresi yok." };
 
   const [kok, logo] = await Promise.all([girdi.yol ? panelKoku() : null, epostaLogosu()]);
   const { html, metin } = bildirimSablonu({
@@ -187,7 +303,7 @@ export async function ogrenciBildirimi(girdi: {
     eylem: kok && girdi.yol ? { etiket: girdi.eylemEtiketi ?? "Panele git", adres: `${kok}${girdi.yol}` } : undefined,
   });
 
-  await epostaGonder({ konu: girdi.konu, metin, html, alici: girdi.alici });
+  return epostaGonder({ akis: girdi.akis, konu: girdi.konu, metin, html, alici: girdi.alici });
 }
 
 /**
@@ -198,6 +314,7 @@ export async function ogrenciBildirimi(girdi: {
  * bakılmıyor: postanın gitmemesi o işi geçersiz kılmaz.
  */
 export async function yoneticiBildirimi(girdi: {
+  akis: EpostaAkisi;
   konu: string;
   ustEtiket: string;
   baslik: string;
@@ -207,9 +324,7 @@ export async function yoneticiBildirimi(girdi: {
   /** Panel içi yol: "/kontrol-9f4x2k/mesajlar" gibi. Kök adres otomatik ekleniyor. */
   yol?: string;
   eylemEtiketi?: string;
-}): Promise<void> {
-  if (!epostaYapilandirildiMi()) return;
-
+}): Promise<{ gonderildi: boolean; hata?: string }> {
   const [kok, logo] = await Promise.all([girdi.yol ? panelKoku() : null, epostaLogosu()]);
   const { html, metin } = bildirimSablonu({
     logo,
@@ -224,7 +339,7 @@ export async function yoneticiBildirimi(girdi: {
     eylem: kok && girdi.yol ? { etiket: girdi.eylemEtiketi ?? "Panelde aç", adres: `${kok}${girdi.yol}` } : undefined,
   });
 
-  await epostaGonder({ konu: girdi.konu, metin, html });
+  return epostaGonder({ akis: girdi.akis, konu: girdi.konu, metin, html });
 }
 
 /** Bazı posta istemcileri düz metni göstermiyor; iskelet HTML her zaman gidiyor. */

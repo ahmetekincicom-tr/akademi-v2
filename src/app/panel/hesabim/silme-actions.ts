@@ -38,6 +38,7 @@ export async function silmeTalebiOlustur() {
   const isim = [profil?.ad, profil?.soyad].filter(Boolean).join(" ") || profil?.email || "Bir katılımcı";
 
   await yoneticiBildirimi({
+    akis: "hesap-silme",
     konu: `Hesap silme talebi · ${isim}`,
     ustEtiket: "Hesap silme talebi",
     baslik: `${isim} hesabının silinmesini istedi`,

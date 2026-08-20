@@ -53,6 +53,7 @@ const groups: MenuGroup[] = [
     items: [
       { href: "/kontrol-9f4x2k/odemeler", label: "Ödemeler", icon: "card", sayac: "odeme" },
       { href: "/kontrol-9f4x2k/bildirimler", label: "Push bildirimler", icon: "bell" },
+      { href: "/kontrol-9f4x2k/e-postalar", label: "E-posta bildirimleri", icon: "mail" },
       { href: "/kontrol-9f4x2k/entegrasyonlar", label: "Entegrasyonlar", icon: "plug" },
       { href: "/kontrol-9f4x2k/ayarlar", label: "Ayarlar", icon: "sliders" },
       { href: "/kontrol-9f4x2k/tani", label: "Sistem tanılama", icon: "shield" },
@@ -67,6 +68,7 @@ const pageTitles: Record<string, string> = {
   "/kontrol-9f4x2k/egitimler": "Eğitimler",
   "/kontrol-9f4x2k/odemeler": "Ödemeler",
   "/kontrol-9f4x2k/bildirimler": "Push bildirimler",
+  "/kontrol-9f4x2k/e-postalar": "E-posta bildirimleri",
   "/kontrol-9f4x2k/destek": "Destek talepleri",
   "/kontrol-9f4x2k/mesajlar": "Gelen mesajlar",
   "/kontrol-9f4x2k/dokumanlar": "Dokümanlar",

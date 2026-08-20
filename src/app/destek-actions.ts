@@ -37,6 +37,7 @@ export async function talepAc(baslik: string, ilkMesaj: string, courseId?: strin
 
   const isim = await kisiAdi(supabase, user.id);
   await yoneticiBildirimi({
+    akis: "destek-talebi",
     konu: `Yeni destek talebi · ${isim}`,
     ustEtiket: "Destek talebi",
     baslik: baslik.trim(),
@@ -89,6 +90,7 @@ export async function mesajGonder(ticketId: string, metin: string) {
     const isim = await kisiAdi(supabase, user.id);
 
     await yoneticiBildirimi({
+      akis: "destek-yanit",
       konu: `Destek yanıtı · ${isim}`,
       ustEtiket: "Destek talebi",
       baslik: talep?.baslik ?? "Destek talebi",

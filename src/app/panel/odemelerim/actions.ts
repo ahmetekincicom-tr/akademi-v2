@@ -240,6 +240,7 @@ export async function havaleBildir(
   const tutar = Number(kayit.tutar);
 
   await yoneticiBildirimi({
+    akis: "havale-bildirimi",
     konu: `Havale bildirimi · ${paraBicimi.format(tutar)} · ${isim}`,
     ustEtiket: "Havale bildirimi",
     baslik: `${isim} havale yaptığını bildirdi`,
