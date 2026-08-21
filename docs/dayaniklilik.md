@@ -106,6 +106,35 @@ delil ve yeniden üretilemezler.
 
 ---
 
+## Zamanlanmış görevlerin anahtarı
+
+HTTP çağıran üç görev (`egitim-hatirlatma`, `odeme-mutabakat`, `meta-kuyruk`)
+`x-gorev-anahtari` başlığıyla kimlik gösteriyor. Anahtarın **iki yerde aynı**
+olması gerekiyor:
+
+| Nerede | Ne |
+|---|---|
+| Veritabanı | `private.gorev_ayarlari` → `gorev_anahtari` satırı |
+| Vercel | `GOREV_ANAHTARI` ortam değişkeni (Production) |
+
+İkisi ayrıştığında bütün HTTP görevleri **401** alır ve **hiçbir yerde hata
+görünmez**. Bu tam olarak yaşandı: anahtar veritabanı tarafında hiç
+tanımlanmamıştı ve üç görev de aylarca boşa çalıştı — ödeme mutabakatı dahil.
+Bir günde 168 çağrı, 0 başarılı.
+
+Sessiz kalmasının sebebi iki katmanın da doğru söylemesiydi: `cron.job_run_details`
+"succeeded" yazıyor (istek gerçekten gönderildi), 401 cevabı ise yalnızca
+`net._http_response` içinde duruyordu.
+
+Artık **Sistem tanılama → Zamanlanmış görevler** bölümü son 24 saatin özetini
+gösteriyor. Hepsi başarısızsa ilk bakılacak yer bu iki değerin eşitliği.
+
+Anahtar `alter database ... set` ile TUTULMUYOR: o superuser istiyor, yani
+migration kuramıyor ve kurulumun elle yapılan adımı er geç yapılmıyor —
+buradaki arızanın kök sebebi buydu.
+
+---
+
 ## Yedekleme — **denenmedi**
 
 Supabase otomatik yedek alıyor ama saklama süresi plana göre değişiyor ve

@@ -339,6 +339,53 @@ export default async function TaniPage() {
   }
 
   // --- E-posta bildirimleri ---
+  /*
+    Zamanlanmış görevler.
+
+    Bu bölüm somut bir arızadan doğdu: bütün HTTP cron görevleri aylarca 401
+    aldı ve hiçbir yerde görünmedi. cron.job_run_details "succeeded" yazıyor —
+    çünkü net.http_post'un KENDİSİ başarılı; cevabın 401 olduğunu yalnızca
+    net._http_response biliyor ve oraya kimse bakmıyordu. Ödeme mutabakatı da
+    o görevlerden biriydi.
+  */
+  const gorevler: Satir[] = [];
+  const { data: saglik, error: saglikHatasi } = await admin.rpc("gorev_sagligi");
+  const s0 = saglik?.[0];
+
+  if (saglikHatasi || !s0) {
+    gorevler.push({
+      ad: "Görev çağrıları",
+      durum: "uyari",
+      deger: saglikHatasi ? `okunamadı: ${saglikHatasi.message}` : "kayıt yok",
+      not: "gorev_sagligi() fonksiyonu kurulmamış olabilir.",
+    });
+  } else if (s0.toplam === 0) {
+    gorevler.push({
+      ad: "Son 24 saat",
+      durum: "uyari",
+      deger: "hiç çağrı yok",
+      not: "Zamanlayıcı hiç çalışmamış. cron.job listesini kontrol et.",
+    });
+  } else {
+    gorevler.push({
+      ad: "Son 24 saatteki çağrılar",
+      durum: s0.basarisiz === 0 ? "ok" : s0.basarili === 0 ? "hata" : "uyari",
+      deger: `${s0.toplam} çağrı · ${s0.basarili} başarılı · ${s0.basarisiz} başarısız`,
+      not:
+        s0.basarili === 0
+          ? "HİÇBİRİ geçmiyor. 401 ise anahtar ayrışmış: private.gorev_ayarlari ile Vercel'deki GOREV_ANAHTARI aynı olmalı."
+          : s0.basarisiz > 0
+            ? "Bir kısmı düşüyor; geçici ağ hatası ya da zaman aşımı olabilir."
+            : undefined,
+    });
+    gorevler.push({
+      ad: "Son cevap",
+      durum: s0.son_durum && s0.son_durum >= 200 && s0.son_durum < 300 ? "ok" : "hata",
+      deger: `HTTP ${s0.son_durum ?? "—"}${s0.son_zaman ? ` · ${new Date(s0.son_zaman).toLocaleString("tr-TR")}` : ""}`,
+      not: s0.son_durum === 401 ? "Görev anahtarı eşleşmiyor." : undefined,
+    });
+  }
+
   const posta: Satir[] = [
     {
       ad: "RESEND_API_KEY",
@@ -396,6 +443,7 @@ export default async function TaniPage() {
       <Bolum baslik="Eğitim verisi" satirlar={kurs} />
       <Bolum baslik="Görüşme ayarları (öğrenci panelinin okuduğu satır)" satirlar={gorusmeTani} />
       <Bolum baslik="Kartla ödeme (iyzico)" satirlar={iyzico} />
+      <Bolum baslik="Zamanlanmış görevler" satirlar={gorevler} />
       <Bolum baslik="E-posta bildirimleri" satirlar={posta} alt={<EpostaTesti />} />
       <Bolum baslik="Tablolar (hangi migration uygulanmış)" satirlar={tabloDurumu} />
       <Bolum baslik="Ortam değişkenleri" satirlar={env} />

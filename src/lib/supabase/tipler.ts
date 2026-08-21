@@ -931,6 +931,16 @@ export type Database = {
         Args: { p_aciklama?: string; p_konu: string; p_tercih_zaman?: string };
         Returns: string;
       };
+      gorev_sagligi: {
+        Args: never;
+        Returns: {
+          toplam: number;
+          basarili: number;
+          basarisiz: number;
+          son_durum: number | null;
+          son_zaman: string | null;
+        }[];
+      };
       is_admin: { Args: never; Returns: boolean };
       is_enrolled: { Args: { target_course_id: string }; Returns: boolean };
       oturum_kaydet: {
