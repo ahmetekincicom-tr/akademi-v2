@@ -7,8 +7,7 @@ import { CerezBandi } from "@/components/site/CerezBandi";
 import { ServiceWorkerKaydi } from "@/components/site/ServiceWorkerKaydi";
 import { NativeIsaretci } from "@/components/site/NativeIsaretci";
 import { MetaPixel } from "@/components/site/MetaPixel";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { nativeIstekMi } from "@/lib/native-sunucu";
+import { HizOlcumu } from "@/components/site/HizOlcumu";
 import { getMarka } from "@/lib/marka";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import { getPixelId } from "@/lib/meta/pixel";
@@ -107,11 +106,7 @@ export default async function RootLayout({
   // Panelde GA4/GTM ya da Meta pixel tanımlı değilse ne etiket ne de çerez
   // bandı basılır — izin sorulacak bir şey yokken banner göstermek ziyaretçiyi
   // boşa yorar.
-  const [olcumleme, pixelId, uygulamadan] = await Promise.all([
-    getOlcumleme(),
-    getPixelId(),
-    nativeIstekMi(),
-  ]);
+  const [olcumleme, pixelId] = await Promise.all([getOlcumleme(), getPixelId()]);
   // Google önyüklemesi yalnızca Google etiketi varken anlamlı; Consent Mode
   // Meta'yı ilgilendirmiyor.
   const googleVar = olcumlemeAcik(olcumleme);
@@ -145,20 +140,8 @@ export default async function RootLayout({
         <TopLoader />
         <BildirimSaglayici>{children}</BildirimSaglayici>
         {bantVar && <CerezBandi />}
-        {/*
-          Gerçek kullanıcı hız ölçümü (Core Web Vitals).
-
-          İzne bağlı DEĞİL, bilerek: çerez ya da benzeri bir depolama
-          kullanmıyor ve kişiyi tanımlayan bir veri toplamıyor — ölçtüğü şey
-          sayfanın kendisi. Çerez bandına eklemek, izin isteyecek bir şey
-          yokken izin istemek olurdu.
-
-          Uygulamanın içinde çizilmiyor: WebView'ın ölçümleri tarayıcıdan
-          farklı çıkıyor ve ikisi aynı havuza karışınca sitenin gerçek hız
-          rakamları bulanıklaşıyor. Vercel de veri noktası başına ücret
-          alıyor.
-        */}
-        {!uygulamadan && <SpeedInsights />}
+        {/* Gerekçesi ve uygulamada neden çizilmediği HizOlcumu.tsx'te. */}
+        <HizOlcumu />
       </body>
     </html>
   );
