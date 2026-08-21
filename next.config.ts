@@ -17,6 +17,19 @@ const GUVENLIK_BASLIKLARI = [
   // Tarayıcı içerik türünü tahmin etmesin: yüklenen bir dosyanın script
   // olarak çalıştırılmasının önündeki en ucuz engel.
   { key: "X-Content-Type-Options", value: "nosniff" },
+  /*
+    HTTPS zorunlu — yönlendirmeyle değil, tarayıcının hafızasıyla.
+
+    Vercel zaten HTTP'yi HTTPS'e çeviriyor ama o çevirme İLK isteğin şifresiz
+    gitmesi demek: açık bir kablosuz ağda o tek istek yakalanıp sahte bir
+    sayfaya çevrilebiliyor. Bu başlıktan sonra tarayıcı bu alan adına bir daha
+    hiç HTTP denemiyor.
+
+    Bir yıl (31536000) ve alt alan adları dahil. `preload` BİLEREK yok:
+    listeye girmek kolay, çıkmak aylar sürüyor ve bir alt alan adının
+    HTTPS'siz kaldığı gün geri dönüşü olmuyor.
+  */
+  { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
   // Dış sitelere adresin tamamı gitmesin; şifre sıfırlama gibi belirteç
   // taşıyan adreslerde önemli.
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
