@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { TopLoader } from "@/components/site/TopLoader";
 import { BildirimSaglayici } from "@/components/Bildirim";
 import { Olcumleme, ONYUKLEME } from "@/components/site/Olcumleme";
@@ -139,6 +140,7 @@ export default async function RootLayout({
         <TopLoader />
         <BildirimSaglayici>{children}</BildirimSaglayici>
         {bantVar && <CerezBandi />}
+        <SpeedInsights />
       </body>
     </html>
   );
