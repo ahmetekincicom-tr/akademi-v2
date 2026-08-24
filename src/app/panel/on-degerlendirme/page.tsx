@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getOnDegerlendirmeFormu, formUrlKimlikle } from "@/lib/form-ayarlari";
-import { getOdemelerim } from "@/lib/odeme";
+import { getErisim } from "@/lib/erisim";
 import { OnDegerlendirmeFormu } from "@/components/panel/OnDegerlendirmeFormu";
 import { Icon } from "@/components/Icon";
 
@@ -13,8 +13,8 @@ export default async function OnDegerlendirmePage() {
       data: { user },
     },
     formUrl,
-    odemeler,
-  ] = await Promise.all([supabase.auth.getUser(), getOnDegerlendirmeFormu(), getOdemelerim()]);
+    erisim,
+  ] = await Promise.all([supabase.auth.getUser(), getOnDegerlendirmeFormu(), getErisim()]);
 
   const { data: profil } = await supabase
     .from("profiles")
@@ -25,10 +25,14 @@ export default async function OnDegerlendirmePage() {
   const isim = [profil?.ad, profil?.soyad].filter(Boolean).join(" ") || null;
   const tamamMi = Boolean(profil?.on_degerlendirme_tarihi);
 
-  // Tamamlanan test yeniden doldurulamaz ve düzenlenemez: ikinci bir gönderim
-  // Tally'de çelişkili iki cevap bırakır. Ödeme onaylanmadan da açılmaz.
-  // Kontrol sunucuda, çünkü adres elle yazılarak da gelinebilir.
-  if (tamamMi || !odemeler.satirlar.some((s) => s.durum === "odendi")) {
+  /*
+    Tamamlanan test yeniden doldurulamaz: ikinci bir gönderim Tally'de
+    çelişkili iki cevap bırakır. Eğitim satın alınmadan da açılmaz.
+
+    Kontrol SUNUCUDA, çünkü bu adrese elle yazarak da gelinebiliyor — üç
+    kopyanın içinde gerçekten kapı görevi göreni bu.
+  */
+  if (tamamMi || !erisim.var) {
     redirect("/panel/testlerim");
   }
 

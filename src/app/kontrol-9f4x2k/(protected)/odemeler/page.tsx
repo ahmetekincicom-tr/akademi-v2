@@ -7,17 +7,35 @@ import { getAyarlar, bankaGrubu } from "@/lib/admin/ayarlar";
 export default async function OdemelerPage() {
   const supabase = await createClient();
 
-  const [{ data: payments }, { data: profiles }, { data: courses }, ayarlar] = await Promise.all([
+  const [{ data: payments }, { data: profiles }, { data: katilimciSatirlari }, { data: courses }, ayarlar] =
+    await Promise.all([
     supabase
       .from("payments")
       .select(
-        "id, tutar, yontem, durum, odeme_tarihi, fatura_no, online_odeme, havale_bildirimi_tarihi, profiles(ad, soyad, email), courses(baslik)",
+        "id, tutar, yontem, durum, odeme_tarihi, fatura_no, online_odeme, havale_bildirimi_tarihi, koltuk_sayisi, profiles(ad, soyad, email), courses(baslik)",
       )
       .order("odeme_tarihi", { ascending: false }),
     supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
+    /*
+      Kurumsal katılımcılar. Ayrı sorgu: ödemeye gömülü çekilseydi bireysel
+      kayıtların hepsinde de boş bir dizi taşınırdı ve bunlar toplam
+      ödemelerin çok küçük bir kısmı.
+    */
+    supabase.from("odeme_katilimcilari").select("payment_id, profiles(id, ad, soyad, email)"),
     supabase.from("courses").select("id, baslik").order("created_at"),
     getAyarlar(),
   ]);
+
+  // payment_id -> katılımcılar
+  const katilimciHaritasi = new Map<string, { id: string; ad: string }[]>();
+  for (const k of katilimciSatirlari ?? []) {
+    const kisi = k.profiles;
+    if (!kisi) continue;
+    const ad = [kisi.ad, kisi.soyad].filter(Boolean).join(" ") || kisi.email || "İsimsiz";
+    const mevcut = katilimciHaritasi.get(k.payment_id);
+    if (mevcut) mevcut.push({ id: kisi.id, ad });
+    else katilimciHaritasi.set(k.payment_id, [{ id: kisi.id, ad }]);
+  }
 
   const odemeler: OdemeSatir[] = (payments ?? []).map((p) => {
     const kisi = p.profiles;
@@ -33,6 +51,8 @@ export default async function OdemelerPage() {
       faturaNo: p.fatura_no ?? "",
       onlineOdeme: p.online_odeme !== false,
       havaleBildirimi: p.havale_bildirimi_tarihi ?? null,
+      koltukSayisi: p.koltuk_sayisi ?? 1,
+      katilimcilar: katilimciHaritasi.get(p.id) ?? [],
     };
   });
 

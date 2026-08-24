@@ -45,6 +45,13 @@ export type OdemeSatiri = {
   onlineOdeme: boolean;
   /** Öğrenci "havaleyi yaptım" dediyse o an. Tahsilatın kanıtı değil. */
   havaleBildirimi: string | null;
+  /**
+   * Kaç kişiyi kapsıyor. 1 ise bireysel.
+   *
+   * Ödeyene gösteriliyor: "4 koltuk için ödüyorum" bilgisi ödeme ekranında
+   * görünmezse, kurumsal alıcı tutarı tek kişilik sanıp itiraz ediyor.
+   */
+  koltukSayisi: number;
 };
 
 export type Odemelerim = {
@@ -72,7 +79,7 @@ export async function getOdemelerim(): Promise<Odemelerim> {
   const { data } = await supabase
     .from("payments")
     .select(
-      "id, tutar, durum, yontem, odeme_tarihi, fatura_no, admin_notu, online_odeme, havale_bildirimi_tarihi, courses(baslik)",
+      "id, tutar, durum, yontem, odeme_tarihi, fatura_no, admin_notu, online_odeme, havale_bildirimi_tarihi, koltuk_sayisi, courses(baslik)",
     )
     .eq("user_id", kullanici)
     .order("odeme_tarihi", { ascending: false });
@@ -88,6 +95,7 @@ export async function getOdemelerim(): Promise<Odemelerim> {
     not: p.admin_notu ?? null,
     onlineOdeme: p.online_odeme !== false,
     havaleBildirimi: p.havale_bildirimi_tarihi ?? null,
+    koltukSayisi: p.koltuk_sayisi ?? 1,
   }));
 
   const bekleyen = satirlar.filter((s) => s.durum === "bekliyor");

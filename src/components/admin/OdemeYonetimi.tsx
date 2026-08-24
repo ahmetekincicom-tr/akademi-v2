@@ -3,6 +3,8 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
+  katilimciCikar,
+  katilimciEkle,
   odemeEkle,
   odemeDurumDegistir,
   odemeSil,
@@ -26,6 +28,10 @@ export type OdemeSatir = {
   onlineOdeme: boolean;
   /** Öğrencinin "havaleyi yaptım" bildirimi. Tahsilatın kanıtı değil. */
   havaleBildirimi: string | null;
+  /** Kaç kişilik satıldı. 1 ise bireysel. */
+  koltukSayisi: number;
+  /** Ödeyen dışındaki katılımcılar. */
+  katilimcilar: { id: string; ad: string }[];
 };
 
 export type SecimOgesi = { id: string; ad: string };
@@ -63,6 +69,7 @@ export function OdemeYonetimi({
     odemeTarihi: bugun,
     faturaNo: "",
     onlineOdeme: true,
+    koltukSayisi: "1",
   });
 
   const listelenen = useMemo(
@@ -83,10 +90,38 @@ export function OdemeYonetimi({
         // Uyarı varsa onu göster: kayıt oluştu ama öğrenci haberdar edilemedi.
         if (r?.uyari) bildir.hata(r.uyari);
         else bildir.basarili("Ödeme kaydedildi, katılımcıya bildirim gönderildi.");
-        setForm({ ...form, userId: "", courseId: "", tutar: "", faturaNo: "" });
+        setForm({ ...form, userId: "", courseId: "", tutar: "", faturaNo: "", koltukSayisi: "1" });
         setFormAcik(false);
         router.refresh();
       }
+    });
+  };
+
+  const katilimciyiEkle = (paymentId: string) => {
+    const secilen = eklenecek;
+    startTransition(async () => {
+      const r = await katilimciEkle(paymentId, secilen);
+      if (r?.error) {
+        bildir.hata(r.error);
+        return;
+      }
+      // Koltuk aşıldıysa kayıt yine oluştu; uyarı engel değil, bilgi.
+      if (r?.uyari) bildir.bilgi(r.uyari);
+      else bildir.basarili("Katılımcı eklendi; testi ve eğitim erişimi açıldı.");
+      setEklenecek("");
+      router.refresh();
+    });
+  };
+
+  const katilimciyiCikar = (paymentId: string, userId: string, ad: string) => {
+    startTransition(async () => {
+      const r = await katilimciCikar(paymentId, userId);
+      if (r?.error) {
+        bildir.hata(r.error);
+        return;
+      }
+      bildir.basarili(`${ad} kurumsal kayıttan çıkarıldı.`);
+      router.refresh();
     });
   };
 
@@ -121,6 +156,9 @@ export function OdemeYonetimi({
     unutturuyor.
   */
   const [onayBekleyen, setOnayBekleyen] = useState<string | null>(null);
+  /** Katılımcı listesi açık olan ödeme. Aynı anda tek satır açılıyor. */
+  const [acikKatilimci, setAcikKatilimci] = useState<string | null>(null);
+  const [eklenecek, setEklenecek] = useState("");
 
   const bildirimGonder = (id: string, isim: string) => {
     if (onayBekleyen !== id) {
@@ -258,6 +296,21 @@ export function OdemeYonetimi({
               </select>
             </label>
             <label className="flex flex-col gap-2">
+              {/* Kurumsal alımda tek tahsilat, tek fatura, birkaç katılımcı.
+                  Sayı ödeyene "4 kişilik kurumsal kayıt" olarak gösteriliyor. */}
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
+                Koltuk sayısı
+              </span>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={form.koltukSayisi}
+                onChange={(e) => setForm({ ...form, koltukSayisi: e.target.value })}
+                className="h-[46px] rounded-[10px] border border-ink/13 bg-white px-[13px] text-sm text-ink outline-none focus:border-brand"
+              />
+            </label>
+            <label className="flex flex-col gap-2">
               <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Fatura no</span>
               <input
                 type="text"
@@ -340,9 +393,9 @@ export function OdemeYonetimi({
               const etiket = odemeDurumEtiket[o.durum];
               const st = durumStil(etiket);
               return (
+                <div key={o.id} className="border-b border-ink/7 last:border-b-0">
                 <div
-                  key={o.id}
-                  className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_190px] min-w-[940px] items-center gap-4 border-b border-ink/7 px-[22px] py-[14px] last:border-b-0 hover:bg-[#F7F9FF]"
+                  className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_190px] min-w-[940px] items-center gap-4 px-[22px] py-[14px] hover:bg-[#F7F9FF]"
                 >
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{o.isim}</div>
@@ -355,6 +408,22 @@ export function OdemeYonetimi({
                       <div className="mt-[3px] inline-flex items-center gap-[5px] rounded-full bg-[#FDF6E7] px-[7px] py-[2px] font-mono text-[9px] tracking-[0.08em] text-[#8A6210] uppercase">
                         Havale bildirildi
                       </div>
+                    )}
+                    {/*
+                      Kurumsal kayıt rozeti aynı zamanda katılımcı panelinin
+                      düğmesi. Ayrı bir sütun açılmadı: bireysel kayıtlarda
+                      sürekli boş duran bir sütun, tablonun okunmasını
+                      zorlaştırırdı.
+                    */}
+                    {(o.koltukSayisi > 1 || o.katilimcilar.length > 0) && (
+                      <button
+                        type="button"
+                        onClick={() => setAcikKatilimci(acikKatilimci === o.id ? null : o.id)}
+                        className="mt-[4px] inline-flex items-center gap-[5px] rounded-full bg-mist px-[8px] py-[2px] text-[11px] font-semibold text-[#4A5060] transition hover:text-brand"
+                      >
+                        <Icon name="users" size={12} />
+                        {o.katilimcilar.length + 1}/{o.koltukSayisi} koltuk
+                      </button>
                     )}
                   </div>
                   <div className="min-w-0 truncate text-[13.5px] text-[#3A3F4F]">{o.program}</div>
@@ -434,6 +503,70 @@ export function OdemeYonetimi({
                       <Icon name="x" size={14} />
                     </button>
                   </div>
+                </div>
+
+                {acikKatilimci === o.id && (
+                  <div className="min-w-[940px] border-t border-ink/7 bg-[#FBFCFF] px-[22px] py-4">
+                    <div className="font-mono text-[9px] tracking-[0.12em] text-[#656B7A] uppercase">
+                      Kurumsal katılımcılar
+                    </div>
+                    <p className="mt-[6px] max-w-[560px] text-[12.5px] leading-[1.55] text-[#656B7A]">
+                      Ödemeyi <strong className="font-semibold text-ink">{o.isim}</strong> yaptı; erişimi
+                      zaten var. Buraya eklenen kişilere ön değerlendirme testi ve birebir eğitim erişimi
+                      açılır — önce kendi üyeliklerini oluşturmuş olmaları gerekiyor.
+                    </p>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {o.katilimcilar.length === 0 && (
+                        <span className="text-[13px] text-[#8A90A0]">Henüz katılımcı eklenmedi.</span>
+                      )}
+                      {o.katilimcilar.map((k) => (
+                        <span
+                          key={k.id}
+                          className="inline-flex items-center gap-2 rounded-full border border-ink/12 bg-white py-[4px] pr-[6px] pl-[11px] text-[13px]"
+                        >
+                          {k.ad}
+                          <button
+                            type="button"
+                            disabled={islemde}
+                            onClick={() => katilimciyiCikar(o.id, k.id, k.ad)}
+                            aria-label={`${k.ad} katılımcılıktan çıkar`}
+                            className="flex h-[18px] w-[18px] items-center justify-center rounded-full text-[#9AA0AE] transition hover:bg-danger/10 hover:text-danger disabled:opacity-50"
+                          >
+                            <Icon name="x" size={11} />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <select
+                        value={eklenecek}
+                        onChange={(e) => setEklenecek(e.target.value)}
+                        className="h-[36px] min-w-[220px] rounded-[9px] border border-ink/13 bg-white px-[10px] text-[13px] outline-none focus:border-brand"
+                      >
+                        <option value="">Katılımcı seç…</option>
+                        {ogrenciler
+                          .filter(
+                            (g) => g.id !== o.id && !o.katilimcilar.some((k) => k.id === g.id),
+                          )
+                          .map((g) => (
+                            <option key={g.id} value={g.id}>
+                              {g.ad}
+                            </option>
+                          ))}
+                      </select>
+                      <button
+                        type="button"
+                        disabled={islemde || !eklenecek}
+                        onClick={() => katilimciyiEkle(o.id)}
+                        className="h-[36px] rounded-[9px] border border-ink/13 bg-white px-4 text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-40"
+                      >
+                        Ekle
+                      </button>
+                    </div>
+                  </div>
+                )}
                 </div>
               );
             })

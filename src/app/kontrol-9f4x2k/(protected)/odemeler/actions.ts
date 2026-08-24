@@ -7,6 +7,7 @@ import { iyzicoAyari } from "@/lib/iyzico";
 import { denemeyiCoz } from "@/lib/odeme-sonuc";
 import { odemeAcildiBildir, odemeTamamlandiBildir } from "@/lib/odeme-eposta";
 import { yoneticiMi } from "@/lib/panel-kapsam";
+import { veriHatasi } from "@/lib/auth-hatalari";
 import { satinAlmaOlayi } from "@/lib/meta/satis";
 
 /**
@@ -35,12 +36,24 @@ export type OdemeInput = {
   faturaNo: string;
   /** Öğrenci bu kaydı panelden kartla ödeyebilsin mi? */
   onlineOdeme: boolean;
+  /** Kaç kişilik. Boş ya da 1 ise bireysel kayıt. */
+  koltukSayisi?: string;
 };
 
 export async function odemeEkle(input: OdemeInput) {
   const tutar = Number(input.tutar.replace(",", "."));
   if (!input.userId) return { error: "Öğrenci seçmelisin." };
   if (!Number.isFinite(tutar) || tutar <= 0) return { error: "Geçerli bir tutar gir." };
+
+  /*
+    Koltuk sayısı: kaç kişiyi kapsıyor.
+
+    Üst sınır veritabanında da var (1-100). Buradaki kontrol onun kopyası
+    değil, kullanıcıya anlaşılır bir hata verebilmek için: kısıt ihlali
+    Postgres hatası olarak dönseydi ekranda teknik bir metin görünürdü.
+  */
+  const koltuk = Math.trunc(Number(input.koltukSayisi ?? "1")) || 1;
+  if (koltuk < 1 || koltuk > 100) return { error: "Koltuk sayısı 1 ile 100 arasında olmalı." };
 
   const supabase = await createClient();
   const { data: eklenen, error } = await supabase.from("payments").insert({
@@ -52,6 +65,7 @@ export async function odemeEkle(input: OdemeInput) {
     odeme_tarihi: input.odemeTarihi ? new Date(input.odemeTarihi).toISOString() : new Date().toISOString(),
     fatura_no: input.faturaNo.trim() || null,
     online_odeme: input.onlineOdeme,
+    koltuk_sayisi: koltuk,
   }).select("id").maybeSingle();
 
   if (error) return { error: error.message };
@@ -213,4 +227,85 @@ export async function denemeSorgula(denemeId: string) {
     belirsiz: "iyzico'ya ulaşılamadı, kayıt değiştirilmedi.",
   };
   return { sonuc, mesaj: mesaj[sonuc] };
+}
+
+/* ------------------------------------------------ kurumsal katılımcılar --- */
+
+/**
+ * Kurumsal ödemeye katılımcı ekler.
+ *
+ * Akış şöyle işliyor: ajans dört koltukluk ödemeyi yapıyor, çalışanlar
+ * kendileri üye oluyor, yönetici onları burada ödemeye bağlıyor. Bağlandıkları
+ * anda ön değerlendirme testi ve birebir eğitim erişimi açılıyor — kuralın
+ * tek yeri lib/erisim.ts.
+ *
+ * Koltuk sayısı AŞILDIĞINDA engellenmiyor, uyarılıyor. Engellemek "beşinci
+ * kişiyi de alalım" denilen gün yöneticinin önüne çıkan bir duvar olurdu;
+ * sayının işi kaydı tutmak, satışı kısıtlamak değil.
+ */
+export async function katilimciEkle(paymentId: string, userId: string) {
+  if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
+  if (!userId) return { error: "Katılımcı seçmelisin." };
+
+  const supabase = await createClient();
+
+  const { data: odeme } = await supabase
+    .from("payments")
+    .select("user_id, koltuk_sayisi")
+    .eq("id", paymentId)
+    .maybeSingle();
+
+  if (!odeme) return { error: "Ödeme kaydı bulunamadı." };
+  /*
+    Ödeyenin kendisi katılımcı olarak eklenemiyor: erişimi zaten kendi
+    payments satırından geliyor. Eklenebilseydi aynı kişi iki yoldan
+    erişebilir olurdu ve "bu kişi neden görüyor" sorusunun iki cevabı olurdu.
+  */
+  if (odeme.user_id === userId) {
+    return { error: "Ödemeyi yapan kişi zaten erişebiliyor; katılımcı olarak eklemeye gerek yok." };
+  }
+
+  const { error } = await supabase
+    .from("odeme_katilimcilari")
+    .insert({ payment_id: paymentId, user_id: userId });
+
+  // 23505 = zaten ekli. Hata değil; iki kez tıklanmış olabilir.
+  if (error && error.code !== "23505") return { error: veriHatasi(error) };
+
+  const { count } = await supabase
+    .from("odeme_katilimcilari")
+    .select("user_id", { count: "exact", head: true })
+    .eq("payment_id", paymentId);
+
+  odemeTazele();
+  revalidatePath("/panel", "layout");
+
+  // Ödeyen koltuk sayısına dahil: 4 koltuk = ödeyen + 3 katılımcı.
+  const dolu = (count ?? 0) + 1;
+  const koltuk = odeme.koltuk_sayisi ?? 1;
+  return dolu > koltuk
+    ? { uyari: `${koltuk} koltuk satıldı ama ${dolu} kişi tanımlı. Koltuk sayısını güncellemek isteyebilirsin.` }
+    : {};
+}
+
+export async function katilimciCikar(paymentId: string, userId: string) {
+  if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("odeme_katilimcilari")
+    .delete()
+    .eq("payment_id", paymentId)
+    .eq("user_id", userId);
+
+  if (error) return { error: veriHatasi(error) };
+
+  /*
+    Çıkarılan kişinin erişimi anında kapanıyor. Eğitim kaydı (enrollments) ve
+    doldurduğu test DURUYOR: yanlışlıkla çıkarılan biri geri eklendiğinde
+    süreci baştan yaşamasın. Erişimi kapatmak ile geçmişini silmek ayrı işler.
+  */
+  odemeTazele();
+  revalidatePath("/panel", "layout");
+  return {};
 }

@@ -52,7 +52,13 @@ export type OturumMetinleri = {
 type EkleSonuc = { error?: string; uyari?: string };
 
 export type OturumEylemleri = {
-  ekle: (input: Parameters<typeof seansEkle>[0]) => Promise<EkleSonuc>;
+  /*
+    Girdi tipi seansEkle'ninkinden türetiliyor ama ekstraKatilimcilar
+    eklenerek: birebir eğitim tarafı kurumsal ortak oturumu destekliyor,
+    seans takvimi desteklemiyor. Tek bir eylemin imzasına bağlanmak
+    diğerinin alanını görünmez yapıyordu — EkleSonuc'ta da aynı sorun vardı.
+  */
+  ekle: (input: Parameters<typeof seansEkle>[0] & { ekstraKatilimcilar?: string[] }) => Promise<EkleSonuc>;
   durumDegistir: typeof seansDurumDegistir;
   sil: typeof seansSil;
   kayitLinki: typeof seansKayitLinki;
@@ -76,12 +82,20 @@ const VARSAYILAN_EYLEM: OturumEylemleri = {
 export function SeansYonetimi({
   seanslar,
   ogrenciler,
+  gruplar,
   kurslar,
   metin = VARSAYILAN_METIN,
   eylem = VARSAYILAN_EYLEM,
 }: {
   seanslar: SeansSatir[];
   ogrenciler: { id: string; ad: string }[];
+  /**
+   * Kurumsal kayıt arkadaşları: userId -> aynı ödemeye bağlı diğer kişiler.
+   *
+   * Yalnızca birebir eğitim tarafı dolduruyor. Seans takvimi (eğitim sonrası
+   * görüşme hakları) kişiye özel; orada grup kavramı yok.
+   */
+  gruplar?: Record<string, { id: string; ad: string }[]>;
   kurslar: { id: string; ad: string }[];
   metin?: OturumMetinleri;
   eylem?: OturumEylemleri;
@@ -99,13 +113,15 @@ export function SeansYonetimi({
     konu: "",
     toplantiLink: "",
   });
+  /** Ortak oturuma dahil edilecek kurumsal arkadaşlar. */
+  const [ekstra, setEkstra] = useState<string[]>([]);
 
   const { yaklasan, gecmis } = seansAyir(seanslar);
 
   const kaydet = () => {
     setHata(null);
     startTransition(async () => {
-      const r = await eylem.ekle(form);
+      const r = await eylem.ekle({ ...form, ekstraKatilimcilar: ekstra });
       if (r?.error) {
         setHata(r.error);
         bildir.hata(r.error);
@@ -115,6 +131,7 @@ export function SeansYonetimi({
         // kalırsa haberi olduğu sanılır.
         if (r?.uyari) bildir.bilgi(r.uyari);
         setForm({ userId: "", courseId: "", baslangic: "", sureDk: "60", konu: "", toplantiLink: "" });
+        setEkstra([]);
         setFormAcik(false);
         router.refresh();
       }
@@ -291,7 +308,11 @@ export function SeansYonetimi({
               <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Öğrenci</span>
               <select
                 value={form.userId}
-                onChange={(e) => setForm({ ...form, userId: e.target.value })}
+                onChange={(e) => {
+                  // Öğrenci değişince önceki grubun seçimi taşınmasın.
+                  setEkstra([]);
+                  setForm({ ...form, userId: e.target.value });
+                }}
                 className="h-[46px] rounded-[10px] border border-ink/13 bg-white px-[13px] text-sm text-ink outline-none focus:border-brand"
               >
                 <option value="">Seç…</option>
@@ -356,6 +377,47 @@ export function SeansYonetimi({
               />
             </label>
           </div>
+
+          {/*
+            Kurumsal ortak oturum.
+
+            Yalnızca seçili öğrencinin bir kurumsal kaydı varsa çiziliyor —
+            bireysel katılımcıların çoğunlukta olduğu bir listede sürekli
+            duran boş bir kutu, formu uzatmaktan başka bir şey yapmazdı.
+          */}
+          {(gruplar?.[form.userId]?.length ?? 0) > 0 && (
+            <div className="mt-4 rounded-[12px] border border-ink/12 bg-mist px-4 py-3">
+              <div className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
+                Aynı kurumsal kayıttakiler
+              </div>
+              <p className="mt-[5px] text-[12.5px] leading-[1.5] text-[#656B7A]">
+                İşaretlediklerin aynı saat ve aynı bağlantıyla bu oturuma eklenir; bildirim hepsine gider.
+              </p>
+              <div className="mt-[10px] flex flex-wrap gap-2">
+                {gruplar?.[form.userId]?.map((k) => {
+                  const secili = ekstra.includes(k.id);
+                  return (
+                    <button
+                      key={k.id}
+                      type="button"
+                      aria-pressed={secili}
+                      onClick={() =>
+                        setEkstra(secili ? ekstra.filter((x) => x !== k.id) : [...ekstra, k.id])
+                      }
+                      className={`inline-flex items-center gap-[6px] rounded-full border px-[11px] py-[5px] text-[13px] font-medium transition ${
+                        secili
+                          ? "border-brand bg-brand text-white"
+                          : "border-ink/14 bg-white text-[#4A5060] hover:border-brand hover:text-brand"
+                      }`}
+                    >
+                      {secili && <Icon name="check" size={12} strokeWidth={2.6} />}
+                      {k.ad}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {hata && <div className="mt-4 text-sm text-danger-ink">{hata}</div>}
 

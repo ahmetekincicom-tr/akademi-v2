@@ -133,6 +133,7 @@ export type Database = {
           course_id: string | null;
           created_at: string;
           durum: Database["public"]["Enums"]["seans_durum"];
+          grup_id: string | null;
           id: string;
           kayit_link: string | null;
           konu: string | null;
@@ -489,6 +490,30 @@ export type Database = {
           },
         ];
       };
+      odeme_katilimcilari: {
+        Row: { created_at: string; payment_id: string; user_id: string };
+        Insert: Partial<Database["public"]["Tables"]["odeme_katilimcilari"]["Row"]> & {
+          payment_id: string;
+          user_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["odeme_katilimcilari"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "odeme_katilimcilari_payment_id_fkey";
+            columns: ["payment_id"];
+            isOneToOne: false;
+            referencedRelation: "payments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "odeme_katilimcilari_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       oturum_kayitlari: {
         Row: {
           bolge: string | null;
@@ -540,6 +565,7 @@ export type Database = {
           fatura_no: string | null;
           havale_bildirimi_tarihi: string | null;
           id: string;
+          koltuk_sayisi: number;
           odeme_tarihi: string;
           online_odeme: boolean;
           tutar: number;

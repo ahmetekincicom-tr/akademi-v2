@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getOnDegerlendirmeFormu } from "@/lib/form-ayarlari";
-import { getOdemelerim } from "@/lib/odeme";
+import { getErisim } from "@/lib/erisim";
 import { Icon } from "@/components/Icon";
 import { TR_ZAMAN } from "@/lib/zaman";
 
@@ -21,8 +21,8 @@ export default async function TestlerimPage() {
       data: { user },
     },
     formUrl,
-    odemeler,
-  ] = await Promise.all([supabase.auth.getUser(), getOnDegerlendirmeFormu(), getOdemelerim()]);
+    erisim,
+  ] = await Promise.all([supabase.auth.getUser(), getOnDegerlendirmeFormu(), getErisim()]);
 
   const { data: profil } = await supabase
     .from("profiles")
@@ -31,8 +31,14 @@ export default async function TestlerimPage() {
     .maybeSingle();
 
   const tamamTarih = profil?.on_degerlendirme_tarihi ?? null;
-  const odendi = odemeler.satirlar.some((s) => s.durum === "odendi");
-  // Ödeme onaylanmadan test açılmıyor; sıra bozulursa süreç karışıyor.
+  /*
+    Eğitim satın alınmadan test açılmıyor; sıra bozulursa süreç karışıyor.
+
+    "Satın alınmış" olmak, kişinin KENDİ ödemesi demek değil: kurumsal
+    kayıtta ödemeyi ajans yapıyor, katılımcının kendi ödeme satırı hiç
+    olmuyor. Kuralın tek yeri lib/erisim.ts.
+  */
+  const odendi = erisim.var;
   const acik = odendi && Boolean(formUrl);
 
   return (

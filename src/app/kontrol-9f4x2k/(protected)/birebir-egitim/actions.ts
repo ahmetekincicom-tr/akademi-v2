@@ -19,6 +19,17 @@ export async function oturumEkle(input: {
   /** Eğitim sonrası Drive klasörü ya da video. Baştan verilebiliyor: kayıt
    *  elde hazırken önce oturumu kaydedip sonra geri dönmek gereksiz adım. */
   kayitLink?: string;
+  /**
+   * Kurumsal ortak oturum: aynı saat, aynı bağlantı, birkaç katılımcı.
+   *
+   * Her katılımcı için AYRI satır yazılıyor ve görünürlük kuralı hiç
+   * değişmiyor — herkes yalnızca kendi user_id'sini görüyor. Alternatif tek
+   * satır yazıp "bu ödemenin katılımcısıysan görürsün" demekti; bu projede
+   * tam olarak o tür bir kural yüzünden yönetici bütün katılımcıların
+   * kayıtlarını görebiliyordu. Kapsamı gevşetmek yerine satır çoğaltmak,
+   * dört kişilik grupta bedava sayılır.
+   */
+  ekstraKatilimcilar?: string[];
 }) {
   if (!input.userId) return { error: "Öğrenci seçmelisin." };
   if (!input.baslangic) return { error: "Tarih ve saat gir." };
@@ -31,15 +42,27 @@ export async function oturumEkle(input: {
   const sure = Number(input.sureDk) || 60;
 
   const supabase = await createClient();
-  const { error } = await supabase.from("egitim_oturumlari").insert({
-    user_id: input.userId,
+
+  // Kendisi listeye girmesin; aynı kişiye iki satır yazılırdı.
+  const ekstra = [...new Set(input.ekstraKatilimcilar ?? [])].filter((id) => id && id !== input.userId);
+  const kisiler = [input.userId, ...ekstra];
+  // Grup kimliği yalnızca gerçekten grup varken: bireysel oturumlarda null
+  // kalması, "bu bir grup oturumu mu" sorusunu tek bakışta cevaplıyor.
+  const grupId = ekstra.length > 0 ? crypto.randomUUID() : null;
+
+  const ortak = {
     course_id: input.courseId || null,
     baslangic: baslangicUtc,
     sure_dk: sure,
     konu: input.konu.trim() || null,
     toplanti_link: input.toplantiLink.trim() || null,
     kayit_link: input.kayitLink?.trim() || null,
-  });
+    grup_id: grupId,
+  };
+
+  const { error } = await supabase
+    .from("egitim_oturumlari")
+    .insert(kisiler.map((id) => ({ ...ortak, user_id: id })));
 
   if (error) return { error: veriHatasi(error) };
 
@@ -51,16 +74,38 @@ export async function oturumEkle(input: {
     gitmemesi bunu geri almaz. Yönetici arayüzde uyarıyı görüyor.
   */
   const program = input.courseId ? await kursAdi(supabase, input.courseId) : null;
-  const posta = await oturumPlanlandiBildir(supabase, input.userId, {
-    baslangic: baslangicUtc,
-    sureDk: sure,
-    konu: input.konu.trim(),
-    program,
-    toplantiLink: input.toplantiLink.trim() || null,
-  });
+
+  /*
+    Grup oturumunda haber HERKESE gidiyor.
+
+    Yalnızca ilk kişiye gönderilseydi diğerleri tarihi ancak panele girdikleri
+    gün öğrenirdi — ve bu maili göndermenin sebebi tam olarak "panele her gün
+    girilmiyor" idi.
+
+    Sırayla gönderiliyor, hepsi birden değil: Resend'in oran sınırına dört
+    kişilik bir grupta takılmak zor ama sıra bozulduğunda hangi adrese
+    gidilemediğini bilmek gerekiyor.
+  */
+  const basarisiz: string[] = [];
+  for (const kisi of kisiler) {
+    const posta = await oturumPlanlandiBildir(supabase, kisi, {
+      baslangic: baslangicUtc,
+      sureDk: sure,
+      konu: input.konu.trim(),
+      program,
+      toplantiLink: input.toplantiLink.trim() || null,
+    });
+    if (!posta.gonderildi) basarisiz.push(posta.sebep ?? "bilinmeyen sebep");
+  }
 
   oturumTazele();
-  return posta.gonderildi ? {} : { uyari: `Oturum kaydedildi ama bildirim gitmedi: ${posta.sebep}` };
+  if (basarisiz.length === 0) return {};
+  return {
+    uyari:
+      kisiler.length > 1
+        ? `Oturum kaydedildi ama ${basarisiz.length}/${kisiler.length} bildirim gitmedi: ${basarisiz[0]}`
+        : `Oturum kaydedildi ama bildirim gitmedi: ${basarisiz[0]}`,
+  };
 }
 
 async function kursAdi(supabase: SupabaseClient<Database>, courseId: string): Promise<string | null> {

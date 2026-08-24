@@ -168,3 +168,23 @@ nesneleri (`http_post`, kuyruk tablosu, yardımcılar) zaten `net` şemasında;
 `public`'te duran tek şey uzantının kayıt satırı. Taşınamıyor da —
 `relocatable = false`. Tek yol düşürüp yeniden kurmak olurdu, o da iki cron
 görevini çalışırken keserdi. Uyarı bilerek açık bırakıldı.
+
+---
+
+## Kurumsal koltuk
+
+Bir kişi ödüyor, birkaç kişi katılıyor. Ödeme ile katılımcı arasındaki bağ
+`odeme_katilimcilari` tablosunda; ödeyen orada YER ALMAZ, erişimi kendi
+`payments` satırından gelir.
+
+Erişim kuralının tek yeri **`src/lib/erisim.ts`**. Daha önce aynı cümle üç
+dosyada kopyalanmıştı (`baslangic.ts`, `testlerim`, `on-degerlendirme`) ve
+kurumsal alım o cümleyi yanlış hale getirdi: üç kopyadan biri düzeltilip
+diğerleri unutulsaydı, kişi başlangıç adımlarında "test açıldı" görüp form
+sayfasında kapalı bulurdu.
+
+Ortak eğitimde her katılımcı için **ayrı satır** yazılıyor (`grup_id` ile
+bağlı), tek satır + gevşetilmiş görünürlük kuralı değil. Sebebi bu depoda
+yaşanmış: "kendi satırın veya yöneticiysen hepsi" biçimindeki bir kural
+yüzünden yönetici bütün katılımcıların ders kayıtlarını görüyordu. Kapsamı
+gevşetmek yerine satır çoğaltmak, dört kişilik bir grupta bedava.

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getOdemelerim, paraBicimi } from "@/lib/odeme";
 import { egitimPlanlandiMi } from "@/lib/egitim-oturumu";
+import { getErisim } from "@/lib/erisim";
 import type { Uyari } from "@/components/panel/PanelUyari";
 
 export type Adim = {
@@ -38,13 +39,19 @@ export async function getBaslangic(): Promise<Baslangic> {
   if (!user) return { adimlar: [], tamamlandi: true, uyari: null };
 
   // RLS hepsini kullanıcının kendi satırlarıyla sınırlıyor.
-  const [{ data: profil }, odemeler, planlandi] = await Promise.all([
+  const [{ data: profil }, odemeler, planlandi, erisim] = await Promise.all([
     supabase.from("profiles").select("on_degerlendirme_tarihi").eq("id", user.id).maybeSingle(),
     getOdemelerim(),
     egitimPlanlandiMi(),
+    getErisim(),
   ]);
 
-  const odendi = odemeler.satirlar.some((s) => s.durum === "odendi");
+  /*
+    Erişimin kaynağı iki türlü: kendi ödemesi ya da kurumsal bir koltuk.
+    Adımların geri kalanı ikisini ayırt etmiyor — testin ve planlamanın
+    açılması için eğitimin satın alınmış olması yeterli, kimin ödediği değil.
+  */
+  const odendi = erisim.var;
   const testTamam = Boolean(profil?.on_degerlendirme_tarihi);
 
   const adimlar: Adim[] = [
@@ -57,19 +64,36 @@ export async function getBaslangic(): Promise<Baslangic> {
       eylem: null,
       bekliyor: null,
     },
-    {
-      anahtar: "odeme",
-      baslik: "Ödemeni tamamla",
-      aciklama: "Eğitim ücreti bize ulaştığında burayı işaretliyoruz.",
-      tamam: odendi,
-      yol: odendi ? null : "/panel/odemelerim",
-      eylem: odendi ? null : "Ödemelerim",
-      bekliyor: odendi
-        ? null
-        : odemeler.bekleyenAdet > 0
-          ? `${paraBicimi.format(odemeler.bekleyenTutar)} tutarında ${odemeler.bekleyenAdet} ödeme bekliyor.`
-          : "Ödemeni aldıktan sonra biz onaylıyoruz.",
-    },
+    /*
+      Kurumsal katılımcıya "Ödemeni tamamla" demek yanlış: onun ödeyeceği bir
+      şey yok ve o adımı görmesi, yapması gereken bir iş varmış izlenimi
+      veriyor. Adım aynı yerde duruyor ama neyi anlattığı değişiyor.
+    */
+    erisim.kurumsal
+      ? {
+          anahtar: "odeme" as const,
+          baslik: "Eğitim ücreti karşılandı",
+          aciklama: erisim.odeyen
+            ? `${erisim.odeyen} tarafından kurumsal kayıt olarak ödendi.`
+            : "Kurumsal kayıt kapsamında ödendi.",
+          tamam: true,
+          yol: null,
+          eylem: null,
+          bekliyor: null,
+        }
+      : {
+          anahtar: "odeme" as const,
+          baslik: "Ödemeni tamamla",
+          aciklama: "Eğitim ücreti bize ulaştığında burayı işaretliyoruz.",
+          tamam: odendi,
+          yol: odendi ? null : "/panel/odemelerim",
+          eylem: odendi ? null : "Ödemelerim",
+          bekliyor: odendi
+            ? null
+            : odemeler.bekleyenAdet > 0
+              ? `${paraBicimi.format(odemeler.bekleyenTutar)} tutarında ${odemeler.bekleyenAdet} ödeme bekliyor.`
+              : "Ödemeni aldıktan sonra biz onaylıyoruz.",
+        },
     {
       anahtar: "test",
       baslik: "Ön değerlendirmeyi doldur",

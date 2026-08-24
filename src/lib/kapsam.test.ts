@@ -28,6 +28,7 @@ const KISIYE_BAGLI_TABLOLAR = [
   "gorusmeler",
   "lesson_progress",
   "odeme_denemeleri",
+  "odeme_katilimcilari",
   "oturum_kayitlari",
   "panel_gorulme",
   "payments",
@@ -54,6 +55,7 @@ const TARANAN = [
   "src/lib/odeme.ts",
   "src/lib/egitim-oturumu.ts",
   "src/lib/bildirimler.ts",
+  "src/lib/erisim.ts",
   "src/lib/baslangic.ts",
 ];
 
@@ -102,6 +104,15 @@ type Bulgu = { dosya: string; tablo: string; parca: string };
  * `{ count: "exact" }` gibi süslü parantezler giriyor. Sabit bir pencere
  * (1000 karakter) bu kod tabanındaki en uzun zinciri rahatça kapsıyor ve
  * ayrıştırıcı yazmaktan çok daha az kırılgan.
+ *
+ * AMA pencere bir sonraki `.from(` çağrısında KESİLİYOR ve bunun somut bir
+ * sebebi var: kesilmediğinde, süzgeçsiz bir sorgunun hemen ardından gelen
+ * süzgeçli bir sorgu ilkini de temiz gösteriyordu. Bekçi tam olarak bu
+ * yüzden bir kez sessizce körelmişti — lib/erisim.ts'teki süzgeç elle
+ * silinip test çalıştırıldığında hâlâ geçiyordu.
+ *
+ * Sessizce körelen bir bekçi, olmayan bir bekçiden kötüdür: koruma altında
+ * olunduğu sanılır.
  */
 function zincirler(icerik: string, tablo: string): string[] {
   const cikti: string[] = [];
@@ -112,7 +123,11 @@ function zincirler(icerik: string, tablo: string): string[] {
     // Öncesi de alınıyor: muafiyet yorumu ve "await servis.from(" gibi
     // ipuçları çağrının üstünde duruyor.
     const basla = Math.max(0, eslesme.index - 400);
-    cikti.push(icerik.slice(basla, eslesme.index + 1000));
+    const sonrasi = eslesme.index + 1;
+    const sonrakiFrom = icerik.indexOf(".from(", sonrasi);
+    const bit =
+      sonrakiFrom === -1 ? eslesme.index + 1000 : Math.min(sonrakiFrom, eslesme.index + 1000);
+    cikti.push(icerik.slice(basla, bit));
   }
   return cikti;
 }

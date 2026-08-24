@@ -6,6 +6,7 @@ import { odemeDurumEtiket } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
 import { TR_ZAMAN } from "@/lib/zaman";
 import { iyzicoAyari } from "@/lib/iyzico";
+import { getErisim } from "@/lib/erisim";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
@@ -43,10 +44,11 @@ export default async function OdemelerimPage({
 }: {
   searchParams: Promise<{ sonuc?: string }>;
 }) {
-  const [{ satirlar, bekleyenTutar, bekleyenAdet }, banka, { sonuc }] = await Promise.all([
+  const [{ satirlar, bekleyenTutar, bekleyenAdet }, banka, { sonuc }, erisim] = await Promise.all([
     getOdemelerim(),
     getBanka(),
     searchParams,
+    getErisim(),
   ]);
 
   // Ödeme sayfası artık yöntem seçtiriyor; kart kapalı olsa bile havale
@@ -105,13 +107,35 @@ export default async function OdemelerimPage({
         )}
 
         {satirlar.length === 0 ? (
+          /*
+            Kurumsal katılımcının burada hiç satırı yok ve olmayacak — ödemeyi
+            başkası yaptı, fatura da ona kesildi. "Henüz bir ödeme kaydın yok"
+            demek onu ödemesi eksikmiş gibi bırakıyordu; oysa yapması gereken
+            bir şey yok.
+          */
           <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
-              <Icon name="card" size={22} />
+            <div
+              className={`mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] ${
+                erisim.kurumsal ? "bg-[rgba(24,140,90,0.13)] text-[#15774E]" : "bg-mist text-[#656B7A]"
+              }`}
+            >
+              <Icon name={erisim.kurumsal ? "check" : "card"} size={22} strokeWidth={erisim.kurumsal ? 2.5 : 2} />
             </div>
-            <p className="mx-auto mt-4 max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
-              Henüz bir ödeme kaydın yok. Eğitim ücreti tanımlandığında burada görünecek.
-            </p>
+            {erisim.kurumsal ? (
+              <>
+                <p className="mt-4 text-[15.5px] font-semibold text-ink">Eğitim ücretin karşılandı</p>
+                <p className="mx-auto mt-[6px] max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
+                  {erisim.odeyen
+                    ? `Kaydın ${erisim.odeyen} tarafından kurumsal olarak alındı.`
+                    : "Kaydın kurumsal olarak alındı."}{" "}
+                  Senden bir ödeme beklenmiyor; fatura ödemeyi yapan tarafa kesiliyor.
+                </p>
+              </>
+            ) : (
+              <p className="mx-auto mt-4 max-w-[440px] text-[14.5px] leading-[1.6] text-[#5C6273]">
+                Henüz bir ödeme kaydın yok. Eğitim ücreti tanımlandığında burada görünecek.
+              </p>
+            )}
           </div>
         ) : (
           <div className="mt-[26px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
@@ -136,6 +160,15 @@ export default async function OdemelerimPage({
                       {s.kurs ?? "Genel"} · {tarihBicimi.format(new Date(s.tarih))}
                       {s.yontem ? ` · ${s.yontem}` : ""}
                     </div>
+                    {/* Kurumsal kayıtta tutarın neyi kapsadığı satırın kendi
+                        üstünde yazmalı: ödeme ekranına gelen kişi "bu rakam
+                        tek kişilik mi" diye sormamalı. */}
+                    {s.koltukSayisi > 1 && (
+                      <div className="mt-[6px] inline-flex items-center gap-[6px] rounded-full bg-mist px-[10px] py-[3px] text-[12px] font-semibold text-[#4A5060]">
+                        <Icon name="users" size={13} />
+                        {s.koltukSayisi} kişilik kurumsal kayıt
+                      </div>
+                    )}
                     {s.not && <div className="mt-[6px] text-[13px] text-[#5C6273]">{s.not}</div>}
                   </div>
 
