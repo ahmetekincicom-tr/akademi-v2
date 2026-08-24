@@ -109,3 +109,68 @@ comment on column public.egitim_oturumlari.grup_id is
 
 create index if not exists egitim_oturumlari_grup_idx on public.egitim_oturumlari (grup_id)
   where grup_id is not null;
+
+/* ------------------------------------------------- erişim fonksiyonu --- */
+
+/*
+  Katılımcının eğitime erişip erişmediği.
+
+  Neden fonksiyon, neden düz sorgu değil: katılımcı kendi koltuk satırını
+  görebiliyor ama BAĞLI OLDUĞU ÖDEMEYİ göremiyor — o satır ödeyene ait ve
+  payments politikası "kendi satırın veya yöneticiysen hepsi" diyor. Panel
+  gömülü okumayla sormaya çalışıyordu, RLS sessizce null döndürüyordu ve
+  koltuğu atanmış kişi "Ödemeni tamamla" ekranında kalıyordu.
+
+  Ödemeyi katılımcıya AÇMAK çözüm değil: kurumsal tutarı, fatura numarasını
+  ve ödeyenin diğer kayıtlarını görmesi gerekmiyor. Fonksiyon yalnızca cevabı
+  döndürüyor.
+
+  PARAMETRE ALMIYOR. Alsaydı herhangi biri başkasının kimliğini yazıp "bu
+  kişinin ödemesi var mı" diye sorabilirdi; bu depoda egitime_katildi_mi(p_user)
+  tam olarak böyle bir sızıntıydı ve kapatılmıştı.
+*/
+create or replace function public.egitim_erisimim()
+returns table (erisim boolean, kurumsal boolean, odeyen text)
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+begin
+  if uid is null then
+    return query select false, false, null::text;
+    return;
+  end if;
+
+  if exists (select 1 from payments where user_id = uid and durum = 'odendi') then
+    return query select true, false, null::text;
+    return;
+  end if;
+
+  -- Şirket adı varsa o daha anlamlı: katılımcı çoğu zaman ödemeyi yapan
+  -- meslektaşını değil şirketi tanıyor.
+  return query
+  select true, true,
+         coalesce(
+           nullif(trim(pr.sirket), ''),
+           nullif(trim(concat_ws(' ', pr.ad, pr.soyad)), '')
+         )
+  from odeme_katilimcilari k
+  join payments p on p.id = k.payment_id
+  join profiles pr on pr.id = p.user_id
+  where k.user_id = uid and p.durum = 'odendi'
+  limit 1;
+
+  if not found then
+    return query select false, false, null::text;
+  end if;
+end;
+$$;
+
+comment on function public.egitim_erisimim() is
+  'Oturum sahibinin eğitime erişimi. Kurumsal koltukta ödeme satırı katılımcıya kapalı olduğu için RLS''i sahibinin hakkıyla aşıyor; yalnızca cevabı döndürüyor, ödemenin kendisini değil.';
+
+revoke execute on function public.egitim_erisimim() from public, anon;
+grant execute on function public.egitim_erisimim() to authenticated;

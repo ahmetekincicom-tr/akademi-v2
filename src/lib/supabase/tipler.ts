@@ -950,6 +950,10 @@ export type Database = {
         Args: { p_aciklama?: string; p_konu: string; p_tercih_zaman?: string };
         Returns: string;
       };
+      egitim_erisimim: {
+        Args: never;
+        Returns: { erisim: boolean; kurumsal: boolean; odeyen: string | null }[];
+      };
       gorev_sagligi: {
         Args: never;
         Returns: {
