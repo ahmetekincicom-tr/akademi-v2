@@ -18,7 +18,7 @@ export default async function OnDegerlendirmePage() {
 
   const { data: profil } = await supabase
     .from("profiles")
-    .select("ad, soyad, email, on_degerlendirme_tarihi")
+    .select("ad, soyad, email, telefon, on_degerlendirme_tarihi")
     .eq("id", user?.id ?? "")
     .maybeSingle();
 
@@ -51,6 +51,7 @@ export default async function OnDegerlendirmePage() {
             src={formUrlKimlikle(formUrl, {
               email: profil?.email ?? user?.email ?? null,
               isim,
+              telefon: profil?.telefon ?? null,
               id: user?.id ?? "",
             })}
             tamamMi={tamamMi}

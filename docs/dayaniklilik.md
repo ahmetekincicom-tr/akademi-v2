@@ -215,5 +215,15 @@ işaretleme düğmesine çevirirdi. Bu durumda hiç kimse otomatik işaretlenmez
 tek belirtisi "form dolduruluyor ama adım kapanmıyor" olur; o yüzden **Sistem
 tanılama** ekranında anahtarın tanımlı olup olmadığı yazıyor.
 
-Formdaki gizli alan adı **`kullanici`** olmak zorunda — Tally tanımsız bir
-parametreyi sessizce yok sayıyor, form yine açılır ama yanıt kimliksiz gelir.
+Formda tanımlanması gereken gizli alanlar:
+
+| Alan | Zorunlu mu | Ne için |
+|---|---|---|
+| `kullanici` | **evet** | Webhook cevabı kime yazacağını bundan biliyor |
+| `eposta` | hayır | Yanıt listesinde adres de görünsün |
+| `ad` | hayır | "Adınız soyadınız" diye sormaya gerek kalmasın |
+| `telefon` | hayır | Panelde kayıtlı numara; formda yeniden sorulmasın |
+
+Adlar birebir aynı olmalı — küçük harf, Türkçe karakter yok. Tally tanımsız bir
+parametreyi **sessizce** yok sayıyor: form yine açılır, hata görünmez, ama alan
+boş gelir. `kullanici` boş gelirse hiçbir adım işaretlenmez.

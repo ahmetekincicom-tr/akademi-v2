@@ -41,16 +41,27 @@ function gommeAdresi(url: URL): URL {
  *
  * ÖNEMLİ: parametre adları Tally formundaki gizli alan adlarıyla birebir aynı
  * olmalı. Tally tanımsız bir parametreyi sessizce yok sayar — form yine açılır
- * ama alanlar boş kalır. Beklenen adlar: eposta, ad, kullanici.
+ * ama alanlar boş kalır. Beklenen adlar: eposta, ad, telefon, kullanici.
+ *
+ * `kullanici` diğerlerinden farklı: o yalnızca kolaylık değil, webhook'un
+ * cevabı kime yazacağını bilmesinin TEK yolu. Gizli alan yoksa form çalışır
+ * ama hiçbir adım işaretlenmez.
  */
 export function formUrlKimlikle(
   temel: string,
-  kisi: { email: string | null; isim: string | null; id: string },
+  kisi: { email: string | null; isim: string | null; telefon?: string | null; id: string },
 ): string {
   try {
     const url = gommeAdresi(new URL(temel));
     if (kisi.email) url.searchParams.set("eposta", kisi.email);
     if (kisi.isim) url.searchParams.set("ad", kisi.isim);
+    /*
+      Telefon panelde kayıtlı olan; forma yeniden sordurmuyoruz. Kayıtlı
+      değilse parametre hiç eklenmiyor — boş bir değer göndermek, Tally
+      cevabında "telefon: (boş)" gibi görünüp numarası olmadığı mı yoksa
+      alanın çalışmadığı mı belirsiz kalırdı.
+    */
+    if (kisi.telefon?.trim()) url.searchParams.set("telefon", kisi.telefon.trim());
     url.searchParams.set("kullanici", kisi.id);
 
     // Gömme görünümü: form sayfasının kendi başlığı ve ortalaması iframe'de
