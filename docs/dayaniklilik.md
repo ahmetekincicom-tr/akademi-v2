@@ -221,8 +221,13 @@ Formda tanımlanması gereken gizli alanlar:
 |---|---|---|
 | `kullanici` | **evet** | Webhook cevabı kime yazacağını bundan biliyor |
 | `eposta` | hayır | Yanıt listesinde adres de görünsün |
-| `ad` | hayır | "Adınız soyadınız" diye sormaya gerek kalmasın |
+| `ad` | hayır | Panelde kayıtlı ad |
+| `soyad` | hayır | Panelde kayıtlı soyad — ayrı alan |
 | `telefon` | hayır | Panelde kayıtlı numara; formda yeniden sorulmasın |
+
+Ad ve soyad **ayrı** gidiyor. Birleştirilmiş tek bir alan da olabilirdi ama
+yanıtları dışa aktarırken ya da bir listeye eklerken ikisini ayırmak gerekiyor
+ve "Ayşe Yılmaz Kara" gibi bir değeri sonradan bölmenin güvenilir bir yolu yok.
 
 Adlar birebir aynı olmalı — küçük harf, Türkçe karakter yok. Tally tanımsız bir
 parametreyi **sessizce** yok sayıyor: form yine açılır, hata görünmez, ama alan

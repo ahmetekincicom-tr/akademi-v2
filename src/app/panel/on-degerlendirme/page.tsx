@@ -22,7 +22,6 @@ export default async function OnDegerlendirmePage() {
     .eq("id", user?.id ?? "")
     .maybeSingle();
 
-  const isim = [profil?.ad, profil?.soyad].filter(Boolean).join(" ") || null;
   const tamamMi = Boolean(profil?.on_degerlendirme_tarihi);
 
   /*
@@ -50,7 +49,8 @@ export default async function OnDegerlendirmePage() {
           <OnDegerlendirmeFormu
             src={formUrlKimlikle(formUrl, {
               email: profil?.email ?? user?.email ?? null,
-              isim,
+              ad: profil?.ad ?? null,
+              soyad: profil?.soyad ?? null,
               telefon: profil?.telefon ?? null,
               id: user?.id ?? "",
             })}
