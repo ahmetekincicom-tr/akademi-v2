@@ -7,12 +7,17 @@ import { getAyarlar, bankaGrubu } from "@/lib/admin/ayarlar";
 export default async function OdemelerPage() {
   const supabase = await createClient();
 
-  const [{ data: payments }, { data: profiles }, { data: katilimciSatirlari }, { data: courses }, ayarlar] =
-    await Promise.all([
+  const [
+    { data: payments },
+    { data: profiles },
+    { data: katilimciSatirlari, error: katilimciHatasi },
+    { data: courses },
+    ayarlar,
+  ] = await Promise.all([
     supabase
       .from("payments")
       .select(
-        "id, tutar, yontem, durum, odeme_tarihi, fatura_no, online_odeme, havale_bildirimi_tarihi, koltuk_sayisi, profiles(ad, soyad, email), courses(baslik)",
+        "id, user_id, tutar, yontem, durum, odeme_tarihi, fatura_no, online_odeme, havale_bildirimi_tarihi, koltuk_sayisi, profiles(ad, soyad, email), courses(baslik)",
       )
       .order("odeme_tarihi", { ascending: false }),
     supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
@@ -25,6 +30,21 @@ export default async function OdemelerPage() {
     supabase.from("courses").select("id, baslik").order("created_at"),
     getAyarlar(),
   ]);
+
+  /*
+    Sorgu hatası artık YUTULMUYOR.
+
+    İlk hâlinde yalnızca `data` alınıyordu ve gömülü okuma başarısız olduğunda
+    (yabancı anahtar auth.users'ı gösterdiği için PostgREST profiles'ı
+    gömemiyordu) sonuç sessizce boş dönüyordu. Ekranda "katılımcı eklendi"
+    yazıyor, liste boş kalıyordu — yani ekleme çalışmıyor gibi görünüyordu.
+
+    Hata sayfayı düşürmüyor: ödemeler listesi kurumsal katılımcılardan çok
+    daha önemli. Ama sunucu günlüğüne yazılıyor, bir daha sessiz kalmasın.
+  */
+  if (katilimciHatasi) {
+    console.error("[odemeler] kurumsal katılımcılar okunamadı", katilimciHatasi.message);
+  }
 
   // payment_id -> katılımcılar
   const katilimciHaritasi = new Map<string, { id: string; ad: string }[]>();
@@ -53,6 +73,7 @@ export default async function OdemelerPage() {
       havaleBildirimi: p.havale_bildirimi_tarihi ?? null,
       koltukSayisi: p.koltuk_sayisi ?? 1,
       katilimcilar: katilimciHaritasi.get(p.id) ?? [],
+      odeyenId: p.user_id,
     };
   });
 

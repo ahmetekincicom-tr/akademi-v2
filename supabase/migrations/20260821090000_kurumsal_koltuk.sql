@@ -39,9 +39,22 @@ comment on column public.payments.koltuk_sayisi is
   giriyor — böylece "bu kişi neden erişebiliyor" sorusunun tek bir cevabı
   oluyor.
 */
+/*
+  user_id, auth.users'a DEĞİL public.profiles'a bağlanıyor.
+
+  İlk hâli auth.users'ı gösteriyordu ve sonucu şuydu: katılımcı ekleniyor,
+  satır gerçekten yazılıyor, ama yönetim ekranında hiç görünmüyordu — "kaydetmiyor"
+  gibi duruyordu. Sebep PostgREST: gömülü okuma (`profiles(...)`) yalnızca
+  yayınlanan şemadaki ilişkiler üzerinden kurulabiliyor, auth şemasına geçen
+  bir yabancı anahtar üzerinden kurulamıyor.
+
+  profiles.id zaten auth.users'a bağlı, yani bütünlük aynı. Projedeki bütün
+  diğer tablolar da (egitim_kayit_arsivi, eposta_gunlugu ...) profiles'ı
+  gösteriyor; bu satır o kuralın dışına düşmüştü.
+*/
 create table public.odeme_katilimcilari (
   payment_id uuid not null references public.payments(id) on delete cascade,
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id uuid not null references public.profiles(id) on delete cascade,
   created_at timestamptz not null default now(),
   primary key (payment_id, user_id)
 );

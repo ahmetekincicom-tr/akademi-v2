@@ -32,6 +32,8 @@ export type OdemeSatir = {
   koltukSayisi: number;
   /** Ödeyen dışındaki katılımcılar. */
   katilimcilar: { id: string; ad: string }[];
+  /** Ödemeyi yapanın kullanıcı kimliği; katılımcı listesinden elenmesi için. */
+  odeyenId: string;
 };
 
 export type SecimOgesi = { id: string; ad: string };
@@ -548,7 +550,9 @@ export function OdemeYonetimi({
                         <option value="">Katılımcı seç…</option>
                         {ogrenciler
                           .filter(
-                            (g) => g.id !== o.id && !o.katilimcilar.some((k) => k.id === g.id),
+                            // o.id ÖDEME kimliği; kişiyle karşılaştırmak
+                            // ödeyeni listeden hiç elemiyordu.
+                            (g) => g.id !== o.odeyenId && !o.katilimcilar.some((k) => k.id === g.id),
                           )
                           .map((g) => (
                             <option key={g.id} value={g.id}>
