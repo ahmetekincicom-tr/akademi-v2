@@ -40,21 +40,25 @@ comment on column public.payments.koltuk_sayisi is
   oluyor.
 */
 /*
-  user_id, auth.users'a DEĞİL public.profiles'a bağlanıyor.
+  user_id BİLEREK auth.users'ı gösteriyor, profiles'ı değil — projedeki diğer
+  tabloların aksine.
 
-  İlk hâli auth.users'ı gösteriyordu ve sonucu şuydu: katılımcı ekleniyor,
-  satır gerçekten yazılıyor, ama yönetim ekranında hiç görünmüyordu — "kaydetmiyor"
-  gibi duruyordu. Sebep PostgREST: gömülü okuma (`profiles(...)`) yalnızca
-  yayınlanan şemadaki ilişkiler üzerinden kurulabiliyor, auth şemasına geçen
-  bir yabancı anahtar üzerinden kurulamıyor.
+  profiles'a bağlamak denendi ve canlıda ödemeler ekranının tamamını boşalttı.
+  Sebep: bu tablonun payments'a da yabancı anahtarı var, dolayısıyla profiles'a
+  bağlandığı anda payments ile profiles arasında bir ARA TABLO haline geliyor.
+  PostgREST o andan itibaren `payments` üzerinden `profiles(...)` gömülü
+  okumasını belirsiz sayıp reddediyor: iki yol var — doğrudan payments.user_id
+  ve bu ara tablo. Aynı sorguyu ödemeler ekranı da, ödeme bildirim
+  e-postaları da kullanıyor.
 
-  profiles.id zaten auth.users'a bağlı, yani bütünlük aynı. Projedeki bütün
-  diğer tablolar da (egitim_kayit_arsivi, eposta_gunlugu ...) profiles'ı
-  gösteriyor; bu satır o kuralın dışına düşmüştü.
+  Bedeli: katılımcının adı gömülü okumayla gelmiyor, kodda eşleştiriliyor.
+  Ucuz bir bedel — isimler zaten aynı sayfada okunuyor.
+
+  BURAYI profiles'a ÇEVİRME.
 */
 create table public.odeme_katilimcilari (
   payment_id uuid not null references public.payments(id) on delete cascade,
-  user_id uuid not null references public.profiles(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
   created_at timestamptz not null default now(),
   primary key (payment_id, user_id)
 );

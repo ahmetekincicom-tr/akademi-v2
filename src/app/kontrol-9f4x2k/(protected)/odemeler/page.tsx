@@ -22,11 +22,21 @@ export default async function OdemelerPage() {
       .order("odeme_tarihi", { ascending: false }),
     supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
     /*
-      Kurumsal katılımcılar. Ayrı sorgu: ödemeye gömülü çekilseydi bireysel
-      kayıtların hepsinde de boş bir dizi taşınırdı ve bunlar toplam
-      ödemelerin çok küçük bir kısmı.
+      Kurumsal katılımcılar. Yalnızca kimlikler okunuyor, isimler GÖMÜLMÜYOR.
+
+      Gömülü okuma denendi ve pahalıya mal oldu: çalışması için
+      odeme_katilimcilari.user_id'nin profiles'ı göstermesi gerekiyordu, o da
+      bu tabloyu payments ile profiles arasında bir ARA TABLO haline getirdi.
+      PostgREST o andan itibaren payments üzerinden profiles'a iki yol gördü
+      (doğrudan payments.user_id ve bu ara tablo), gömülü okumayı belirsiz
+      sayıp reddetti — ödemeler ekranının tamamı boşaldı, ödeme bildirim
+      e-postaları da aynı sorguyu kullanıyor.
+
+      İsimler zaten `profiles` listesinde var; eşleştirme aşağıda, kodda.
+      Bir ilişki daha kurmadan çözülebilen bir şey için şema değiştirmeye
+      değmiyor.
     */
-    supabase.from("odeme_katilimcilari").select("payment_id, profiles(id, ad, soyad, email)"),
+    supabase.from("odeme_katilimcilari").select("payment_id, user_id"),
     supabase.from("courses").select("id, baslik").order("created_at"),
     getAyarlar(),
   ]);
@@ -46,15 +56,21 @@ export default async function OdemelerPage() {
     console.error("[odemeler] kurumsal katılımcılar okunamadı", katilimciHatasi.message);
   }
 
+  // Kimlikten isme. profiles zaten yukarıda okundu; ikinci bir sorgu gereksiz.
+  const adiyla = new Map(
+    (profiles ?? []).map((p) => [
+      p.id,
+      [p.ad, p.soyad].filter(Boolean).join(" ") || p.email || "İsimsiz",
+    ]),
+  );
+
   // payment_id -> katılımcılar
   const katilimciHaritasi = new Map<string, { id: string; ad: string }[]>();
   for (const k of katilimciSatirlari ?? []) {
-    const kisi = k.profiles;
-    if (!kisi) continue;
-    const ad = [kisi.ad, kisi.soyad].filter(Boolean).join(" ") || kisi.email || "İsimsiz";
+    const kayit = { id: k.user_id, ad: adiyla.get(k.user_id) ?? "İsimsiz" };
     const mevcut = katilimciHaritasi.get(k.payment_id);
-    if (mevcut) mevcut.push({ id: kisi.id, ad });
-    else katilimciHaritasi.set(k.payment_id, [{ id: kisi.id, ad }]);
+    if (mevcut) mevcut.push(kayit);
+    else katilimciHaritasi.set(k.payment_id, [kayit]);
   }
 
   const odemeler: OdemeSatir[] = (payments ?? []).map((p) => {

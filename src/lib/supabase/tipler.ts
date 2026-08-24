@@ -505,13 +505,6 @@ export type Database = {
             referencedRelation: "payments";
             referencedColumns: ["id"];
           },
-          {
-            foreignKeyName: "odeme_katilimcilari_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
         ];
       };
       oturum_kayitlari: {
