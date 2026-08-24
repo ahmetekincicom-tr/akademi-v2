@@ -20,6 +20,7 @@ import { konumEtiketi, cihazEtiketi } from "@/lib/oturum";
 import { TR_ZAMAN } from "@/lib/zaman";
 import type { AdminKurs, AdminOgrenci } from "@/components/admin/OgrenciYonetimi";
 import { temasiKisiyeBagla } from "@/app/kontrol-9f4x2k/(protected)/meta/actions";
+import { onDegerlendirmeIsaretle } from "@/app/panel/on-degerlendirme/actions";
 import { BAGLAM_ETIKET } from "@/lib/riza-tipleri";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
@@ -143,6 +144,59 @@ export function OgrenciDetay({
         >
           <Icon name="x" size={16} />
         </button>
+      </div>
+
+      {/* -------------------------------------------- ön değerlendirme --- */}
+      {/*
+        Elle işaretleme YÖNETİCİDE, katılımcıda değil.
+
+        Eskiden katılımcının panelinde "formu doldurdum" düğmesi vardı ve
+        formu hiç açmadan basılabiliyordu. Bu adım eğitim planlamasının
+        kapısı: yanlış işaretlendiğinde eğitmen ön değerlendirmeyi okumadan
+        tarih planlıyor.
+
+        Normal yol artık Tally webhook'u. Burası istisna için: webhook
+        kurulmadan önce doldurulmuş formlar, Tally kesintisi, telefonla
+        alınan cevap.
+      */}
+      <div className="border-b border-ink/8 px-4 py-3 sm:px-5">
+        <div className={BASLIK}>Ön değerlendirme</div>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          {ogrenci.onDegerlendirme ? (
+            <>
+              <span className="inline-flex items-center gap-[6px] rounded-full bg-[rgba(24,140,90,0.13)] px-[10px] py-[3px] text-[12.5px] font-semibold text-[#15774E]">
+                <Icon name="check" size={12} strokeWidth={2.6} />
+                {onayBicimi.format(new Date(ogrenci.onDegerlendirme))}
+              </span>
+              <button
+                type="button"
+                disabled={islemde}
+                onClick={() =>
+                  calistir("İşaret kaldırıldı.", () => onDegerlendirmeIsaretle(ogrenci.id, false))
+                }
+                className="h-[30px] rounded-[8px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-[#5C6273] transition hover:border-danger/40 hover:text-danger disabled:opacity-50"
+              >
+                İşareti kaldır
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="text-[12.5px] text-[#8A90A0]">Form henüz gelmedi.</span>
+              <button
+                type="button"
+                disabled={islemde}
+                onClick={() =>
+                  calistir("Ön değerlendirme dolduruldu olarak işaretlendi.", () =>
+                    onDegerlendirmeIsaretle(ogrenci.id, true),
+                  )
+                }
+                className="h-[30px] rounded-[8px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
+              >
+                Elle işaretle
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* ------------------------------------------------- geliş kaynağı --- */}

@@ -43,6 +43,8 @@ export type AdminOgrenci = {
   silmeTalebi: string | null;
   /** Bağlanmış WhatsApp tıklama kodu; boşsa reklam ilişkisi kurulmamış. */
   temasKodu: string | null;
+  /** Ön değerlendirme formunun doldurulduğu an; boşsa doldurulmamış. */
+  onDegerlendirme: string | null;
   /** Yöneticinin işaretlediği geliş kaynağı. */
   kaynak: string | null;
   kayitlar: {

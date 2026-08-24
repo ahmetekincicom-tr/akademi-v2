@@ -1,52 +1,47 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { onDegerlendirmeIsaretle } from "@/app/panel/on-degerlendirme/actions";
-import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
 
 /**
- * Tally formu iframe'de gömülü. Form gönderildiğinde Tally pencereye
- * "Tally.FormSubmitted" mesajı atıyor; onu yakalayıp adımı işaretliyoruz.
+ * Tally formu iframe'de gömülü.
  *
- * Yanındaki elle işaretleme düğmesi bilerek duruyor: postMessage tarayıcı
- * ayarına ya da Tally'nin ileride değişecek mesaj biçimine bağlı, tek yol
- * olarak bırakılamaz. Öğrenci formu doldurup mesaj gelmezse tıkanmaz.
+ * Form gönderildiğinde Tally pencereye "Tally.FormSubmitted" mesajı atıyor.
+ * O mesaj artık YALNIZCA EKRANI değiştiriyor — "cevabın alındı" der ve
+ * sayfayı tazeler; adımı işaretlemez.
+ *
+ * Sebebi: postMessage tarayıcıdan geliyor, yani katılımcının kendi
+ * bilgisayarından. Ona dayanarak damga atmak, katılımcının kendini
+ * işaretlemesiyle aynı şey. Damgayı Tally'nin sunucusu atıyor
+ * (app/api/formlar/tally), imzasıyla.
+ *
+ * Elle işaretleme düğmesi KALDIRILDI: formu hiç açmadan basılabiliyordu ve
+ * bu adım eğitim planlamasının kapısı. Elle düzeltme artık yönetim
+ * tarafında.
  */
 export function OnDegerlendirmeFormu({ src, tamamMi }: { src: string; tamamMi: boolean }) {
   const router = useRouter();
-  const bildir = useBildirim();
-  const [islemde, startTransition] = useTransition();
   const [gonderildi, setGonderildi] = useState(false);
-
-  const isaretle = (sessiz: boolean) => {
-    startTransition(async () => {
-      const r = await onDegerlendirmeIsaretle();
-      if (r?.error) {
-        if (!sessiz) bildir.hata(r.error);
-        return;
-      }
-      if (!sessiz) bildir.basarili("Ön değerlendirme tamamlandı olarak işaretlendi.");
-      router.refresh();
-    });
-  };
 
   useEffect(() => {
     const dinle = (e: MessageEvent) => {
       if (typeof e.origin === "string" && !e.origin.includes("tally.so")) return;
       const veri = typeof e.data === "string" ? e.data : JSON.stringify(e.data ?? "");
-      if (veri.includes("Tally.FormSubmitted")) {
-        setGonderildi(true);
-        isaretle(true);
-      }
+      if (!veri.includes("Tally.FormSubmitted")) return;
+
+      setGonderildi(true);
+      /*
+        Tazeleme, webhook'un damgayı bu arada yazmış olma ihtimali için.
+        Genelde saniyeler sürüyor ama garanti değil; ekran "alındı" diyor,
+        adım kartı damga gelince kapanıyor.
+      */
+      router.refresh();
     };
     window.addEventListener("message", dinle);
     return () => window.removeEventListener("message", dinle);
-    // isaretle her render'da yeniden kuruluyor; dinleyici bir kez bağlansın.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
 
   return (
     <>
@@ -82,20 +77,11 @@ export function OnDegerlendirmeFormu({ src, tamamMi }: { src: string; tamamMi: b
       </div>
       <Script src="https://tally.so/widgets/embed.js" strategy="afterInteractive" />
 
-      {!tamamMi && !gonderildi && (
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            disabled={islemde}
-            onClick={() => isaretle(false)}
-            className="h-10 flex-none rounded-[10px] border border-ink/13 bg-white px-4 text-[13.5px] font-semibold text-ink transition hover:border-ink disabled:opacity-50"
-          >
-            Formu doldurdum
-          </button>
-          <span className="min-w-0 grow basis-[240px] font-mono text-[11px] text-[#656B7A]">
-            Gönderdikten sonra kendiliğinden işaretlenir. İşaretlenmezse bu düğmeyi kullan.
-          </span>
-        </div>
+      {!tamamMi && (
+        <p className="mt-4 font-mono text-[11px] leading-[1.6] text-[#656B7A]">
+          Formu gönderdiğinde bu adım kendiliğinden işaretlenir; birkaç dakika sürebilir.
+          İşaretlenmezse bize yaz.
+        </p>
       )}
     </>
   );

@@ -386,6 +386,22 @@ export default async function TaniPage() {
     });
   }
 
+  /*
+    Tally webhook'u.
+
+    Sır tanımlı değilse uç nokta gelen isteği İŞLEMİYOR ve hiç kimse
+    işaretlenmiyor — üstelik bunun tek belirtisi "katılımcılar testi
+    dolduruyor ama adım kapanmıyor" şikâyeti olur. O yüzden burada duruyor.
+  */
+  gorevler.push({
+    ad: "Tally webhook anahtarı",
+    durum: process.env.TALLY_IMZA_ANAHTARI ? "ok" : "uyari",
+    deger: process.env.TALLY_IMZA_ANAHTARI ? "tanımlı" : "YOK",
+    not: process.env.TALLY_IMZA_ANAHTARI
+      ? undefined
+      : "Ön değerlendirme formu gönderildiğinde adım kendiliğinden işaretlenmez; elle işaretlemek gerekir.",
+  });
+
   const posta: Satir[] = [
     {
       ad: "RESEND_API_KEY",

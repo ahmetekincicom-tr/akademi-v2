@@ -188,3 +188,32 @@ bağlı), tek satır + gevşetilmiş görünürlük kuralı değil. Sebebi bu de
 yaşanmış: "kendi satırın veya yöneticiysen hepsi" biçimindeki bir kural
 yüzünden yönetici bütün katılımcıların ders kayıtlarını görüyordu. Kapsamı
 gevşetmek yerine satır çoğaltmak, dört kişilik bir grupta bedava.
+
+---
+
+## Ön değerlendirme: kim işaretliyor
+
+Adımı **Tally'nin sunucusu** işaretliyor, katılımcı değil.
+
+Önceden panelde "formu doldurdum" düğmesi vardı ve formu hiç açmadan
+basılabiliyordu. Eski yorum bunu "kaybedilecek bir şey yok" diye geçiştiriyordu;
+yanlıştı — bu adım eğitim planlamasının kapısı, yanlış işaretlendiğinde eğitmen
+ön değerlendirmeyi okumadan tarih planlıyor.
+
+Düğmeyi gizlemek de çözüm değildi: işaretleme bir server action'dı, yani
+herkese açık bir uç nokta.
+
+| Yol | Kim | Ne zaman |
+|---|---|---|
+| `POST /api/formlar/tally` | Tally sunucusu, imzayla | normal akış |
+| Öğrenci kartı → "Elle işaretle" | yönetici | istisna |
+| Katılımcının kendisi | **yok** | — |
+
+`TALLY_IMZA_ANAHTARI` tanımlı değilse uç nokta gelen isteği **işlemiyor** —
+"sır yoksa imzayı atla" demek, uç noktayı oturum bile gerektirmeyen bir
+işaretleme düğmesine çevirirdi. Bu durumda hiç kimse otomatik işaretlenmez ve
+tek belirtisi "form dolduruluyor ama adım kapanmıyor" olur; o yüzden **Sistem
+tanılama** ekranında anahtarın tanımlı olup olmadığı yazıyor.
+
+Formdaki gizli alan adı **`kullanici`** olmak zorunda — Tally tanımsız bir
+parametreyi sessizce yok sayıyor, form yine açılır ama yanıt kimliksiz gelir.
