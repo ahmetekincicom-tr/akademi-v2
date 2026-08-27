@@ -6,7 +6,7 @@ import { PublicFooter } from "@/components/site/PublicFooter";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
-import { HeroHizliBilgi } from "@/components/site/HeroHizliBilgi";
+import { HeroDegerler } from "@/components/site/HeroDegerler";
 import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
 import { getCourseBySlug, kutuNot, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
@@ -115,16 +115,29 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                   </span>
                 </div>
               )}
-              <h1 className="font-heading text-[38px] leading-[1.06] font-semibold tracking-[-0.04em] sm:text-[46px] lg:text-[56px] lg:leading-[1.04]">
+              {/*
+                Vurgu artık mavi değil beyaz. Hero zemini neredeyse siyah ve
+                marka mavisi orada okunurluğu düşürüyordu: başlığın ortasındaki
+                iki kelime geri çekiliyor, göz onları arka planla karıştırıyordu.
+                Vurgu görevini punto ve konum zaten yapıyor.
+              */}
+              <h1 className="font-heading text-[44px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[48px] lg:text-[56px] lg:leading-[1.04]">
                 {parca.once}
-                {parca.vurgu && <span className="text-brand">{parca.vurgu}</span>}
+                {parca.vurgu}
                 {parca.sonra}
               </h1>
               <p className="mt-6 max-w-[560px] text-[19px] leading-[1.62] text-white/68">{course.heroAciklama}</p>
-              <HeroHizliBilgi bilgiler={course.hizli} />
+              <HeroDegerler />
             </div>
+            {/*
+              Kapak görseli dar ekranda GİZLİ.
+
+              Mobilde tek sütuna düşüp başlıkla eylem arasına giriyor, ekranın
+              tamamına yakınını kaplıyor ve okuyucuyu asıl mesajdan uzaklaştırıyordu.
+              Geniş ekranda yanda durduğu için aynı sorun yok.
+            */}
             <div
-              className={`relative flex aspect-[4/3] items-end overflow-hidden rounded-2xl p-5 ${
+              className={`relative hidden aspect-[4/3] items-end overflow-hidden rounded-2xl p-5 lg:flex ${
                 course.kapak ? "bg-cover bg-center" : "placeholder-block-dark"
               }`}
               style={course.kapak ? { backgroundImage: `url(${course.kapak})` } : undefined}
