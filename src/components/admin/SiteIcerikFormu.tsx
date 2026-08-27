@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { siteIcerikKaydet } from "@/app/kontrol-9f4x2k/(protected)/site-icerik/actions";
 import { useBildirim } from "@/components/Bildirim";
+import { EgitmenGorseli } from "@/components/admin/EgitmenGorseli";
 import type { SiteIcerik, DuyuruStili } from "@/lib/site-icerik";
 
 const ALAN =
@@ -134,6 +135,13 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
         <p className="mt-1 max-w-[620px] text-[13.5px] leading-[1.6] text-[#5C6273]">
           Eğitim detay sayfasındaki eğitmen kutusunda görünür.
         </p>
+
+        <div className="mt-5 border-b border-ink/8 pb-5">
+          <span className={ETIKET}>Portre</span>
+          <div className="mt-3">
+            <EgitmenGorseli mevcut={icerik.egitmenGorsel} />
+          </div>
+        </div>
 
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-2">

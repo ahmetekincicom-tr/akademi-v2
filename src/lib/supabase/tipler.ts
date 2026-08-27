@@ -774,6 +774,7 @@ export type Database = {
           duyuru_stili: string;
           egitmen_ad: string | null;
           egitmen_biyografi: string | null;
+          egitmen_gorsel: string | null;
           egitmen_unvan: string | null;
           id: boolean;
           kayit_duyurusu: string | null;

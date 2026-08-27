@@ -44,10 +44,13 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
         ikon: "whatsapp",
       },
       {
+        // 0545 hattı WhatsApp değil, sesli görüşme hattı. İkisini de aynı
+        // ikonla WhatsApp diye listelemek arayan kişiyi yanlış hatta
+        // düşürüyordu.
         label: WHATSAPP_NUMARALAR[1].gosterim,
-        href: olculenWhatsapp("footer", 1),
+        href: `tel:+${WHATSAPP_NUMARALAR[1].numara}`,
         dis: true,
-        ikon: "whatsapp",
+        ikon: "phone",
       },
       { label: EPOSTA, href: `mailto:${EPOSTA}`, dis: true, ikon: "mail" },
       { label: INSTAGRAM_KULLANICI, href: INSTAGRAM_URL, dis: true, ikon: "instagram" },

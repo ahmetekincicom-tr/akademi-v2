@@ -229,11 +229,27 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
 
 
-          <section id="egitmen" className="mt-22">
+          {/*
+            Eğitmen bölümü YALNIZCA dar ekranda.
+
+            Geniş ekranda aynı bilgi sağdaki yapışkan kutuda duruyor; ikisi
+            birden açıkken sayfa aynı kişiyi iki kez tanıtıyordu. Mobilde yan
+            sütun olmadığı için bölüm burada kalmak zorunda.
+          */}
+          <section id="egitmen" className="mt-22 lg:hidden">
             <div className="grid grid-cols-1 overflow-hidden rounded-[18px] border border-ink/11 md:grid-cols-[260px_1fr]">
-              <div className="placeholder-block flex min-h-[200px] items-end p-4 md:min-h-[280px]">
-                <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">eğitmen portresi</span>
-              </div>
+              {icerik.egitmenGorsel ? (
+                <div
+                  className="min-h-[240px] bg-cover bg-center md:min-h-[280px]"
+                  style={{ backgroundImage: `url(${icerik.egitmenGorsel})` }}
+                />
+              ) : (
+                <div className="placeholder-block flex min-h-[200px] items-end p-4 md:min-h-[280px]">
+                  <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
+                    eğitmen portresi
+                  </span>
+                </div>
+              )}
               <div className="p-6 sm:p-9">
                 <div className="font-mono text-[10.5px] tracking-[0.16em] text-brand uppercase">Eğitmen</div>
                 <h2 className="mt-[14px] font-heading text-[24px] leading-[1.12] font-semibold tracking-[-0.03em] sm:text-[30px]">
@@ -402,32 +418,57 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             seçtirmiyor. Kararı zorlaştıran şey seçenek sayısıydı — eksik olan
             şey ise eğitimi kimin verdiğiydi.
           */}
-          <div className="mt-4 rounded-[14px] border border-ink/11 p-5">
-            <div className="flex items-center gap-[13px]">
-              <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-ink font-heading text-[15px] font-semibold text-white">
-                {basHarfler(icerik.egitmenAd)}
-              </span>
-              <div className="min-w-0">
-                <div className="text-[15px] leading-[1.25] font-semibold">{icerik.egitmenAd}</div>
-                {icerik.egitmenUnvan && (
-                  <div className="mt-[3px] truncate text-[12.5px] text-[#5C6273]">{icerik.egitmenUnvan}</div>
-                )}
+          {/*
+            Eğitmen kutusu: geniş ekranda eğitmeni tanıtan TEK yer. Aşağıdaki
+            #egitmen bölümü bu genişlikte gizli — aynı kişiyi iki kez tanıtmak
+            yerine bilgi, satın alma kararının verildiği yere taşındı.
+          */}
+          <div className="mt-4 overflow-hidden rounded-[14px] border border-ink/11">
+            {icerik.egitmenGorsel ? (
+              <div
+                className="aspect-[4/3] bg-cover bg-center"
+                style={{ backgroundImage: `url(${icerik.egitmenGorsel})` }}
+              />
+            ) : (
+              // Portre yüklenmediyse yer tutucu değil baş harfler: boş bir
+              // kutu eksik iş gibi duruyor, harfler bilinçli bir tasarım.
+              <div className="flex aspect-[4/3] items-center justify-center bg-ink">
+                <span className="font-heading text-[38px] font-semibold tracking-[-0.02em] text-white/85">
+                  {basHarfler(icerik.egitmenAd)}
+                </span>
               </div>
+            )}
+            <div className="p-5">
+              <div className="font-mono text-[10px] tracking-[0.14em] text-brand uppercase">Eğitmen</div>
+              <div className="mt-[10px] font-heading text-[19px] leading-[1.15] font-semibold tracking-[-0.025em]">
+                {icerik.egitmenAd}
+              </div>
+              {icerik.egitmenUnvan && (
+                <div className="mt-[5px] text-[13px] leading-[1.45] text-[#5C6273]">{icerik.egitmenUnvan}</div>
+              )}
+              {icerik.egitmenBiyografi && (
+                // line-clamp: biyografi panelden serbestçe yazılıyor ve uzun
+                // bir metin yapışkan kutuyu ekrandan taşırıp kaydırmayı
+                // kilitliyordu. Tamamı mobil bölümde ve hakkımızda sayfasında.
+                <p className="mt-3 line-clamp-5 text-[13.5px] leading-[1.6] text-[#3A3F4F]">
+                  {icerik.egitmenBiyografi}
+                </p>
+              )}
+              <div className="mt-4 flex flex-col gap-[9px] border-t border-ink/9 pt-4">
+                {egitmenStats.map((s) => (
+                  <div key={s.t} className="flex items-baseline justify-between gap-3 text-[13px]">
+                    <span className="text-[#5C6273]">{s.t}</span>
+                    <span className="font-semibold text-ink">{s.n}</span>
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/hakkimizda"
+                className="mt-4 inline-flex text-[13.5px] font-semibold text-brand hover:text-ink"
+              >
+                Eğitmen hakkında →
+              </Link>
             </div>
-            <div className="mt-[15px] flex flex-col gap-[9px] border-t border-ink/9 pt-[15px]">
-              {egitmenStats.map((s) => (
-                <div key={s.t} className="flex items-baseline justify-between gap-3 text-[13.5px]">
-                  <span className="text-[#5C6273]">{s.t}</span>
-                  <span className="font-semibold text-ink">{s.n}</span>
-                </div>
-              ))}
-            </div>
-            <Link
-              href="/hakkimizda"
-              className="mt-[15px] inline-flex text-[13.5px] font-semibold text-brand hover:text-ink"
-            >
-              Eğitmen hakkında →
-            </Link>
           </div>
         </aside>
       </div>

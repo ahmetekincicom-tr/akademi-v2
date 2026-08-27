@@ -3,6 +3,7 @@ import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { IletisimFormu } from "@/components/site/IletisimFormu";
+import { Icon, type IconName } from "@/components/Icon";
 import {
   WHATSAPP_NUMARALAR,
   EPOSTA,
@@ -23,21 +24,34 @@ export function generateMetadata(): Promise<Metadata> {
 });
 }
 
-// href olmayan kanallar tıklanabilir görünmesin diye link yerine kart olarak çizilir.
-const kanallar: { baslik: string; deger: string; href?: string }[] = [
+/*
+  İletişim kanalları.
+
+  İki numara eskiden "WhatsApp" ve "WhatsApp (2. hat)" diye duruyordu; oysa
+  ikisi farklı işler: 0850 hattı WhatsApp, 0545 hattı telefonla arama. Aynı
+  adla listelemek, arayan kişiyi mesaj hattına düşürüyordu.
+
+  href olmayan kanallar tıklanabilir görünmesin diye link yerine kart olarak
+  çizilir.
+*/
+const kanallar: { baslik: string; deger: string; ikon: IconName; href?: string; vurgu?: boolean }[] = [
   {
-    baslik: "WhatsApp",
+    baslik: "WhatsApp hattı",
     deger: WHATSAPP_NUMARALAR[0].gosterim,
+    ikon: "whatsapp",
     href: olculenWhatsapp("iletisim"),
+    // Tek renkli kart: en çok kullanılan kanal, listede kaybolmasın.
+    vurgu: true,
   },
   {
-    baslik: "WhatsApp (2. hat)",
+    baslik: "Sesli görüşme hattı",
     deger: WHATSAPP_NUMARALAR[1].gosterim,
-    href: olculenWhatsapp("iletisim", 1),
+    ikon: "phone",
+    href: `tel:+${WHATSAPP_NUMARALAR[1].numara}`,
   },
-  { baslik: "Instagram", deger: INSTAGRAM_KULLANICI, href: INSTAGRAM_URL },
-  { baslik: "E-posta", deger: EPOSTA, href: `mailto:${EPOSTA}` },
-  { baslik: "Ofis", deger: OFIS_ADRESI },
+  { baslik: "Instagram", deger: INSTAGRAM_KULLANICI, ikon: "instagram", href: INSTAGRAM_URL },
+  { baslik: "E-posta", deger: EPOSTA, ikon: "mail", href: `mailto:${EPOSTA}` },
+  { baslik: "Ofis", deger: OFIS_ADRESI, ikon: "pin" },
 ];
 
 export default function IletisimPage() {
@@ -51,7 +65,7 @@ export default function IletisimPage() {
           Hangi programın size uyduğunu konuşarak bulalım.
         </h1>
         <p className="mt-6 max-w-[540px] text-[16.5px] leading-[1.62] text-[#5C6273]">
-          Form doldurun ya da doğrudan WhatsApp&apos;tan yazın — genelde aynı gün içinde dönüş yapıyoruz.
+          Konuyla ilgili detaylı görüşme yapmak için formu doldurun. Genellikle aynı gün içinde dönüş sağlanır.
         </p>
       </section>
 
@@ -61,25 +75,43 @@ export default function IletisimPage() {
             <IletisimFormu />
           </div>
 
-          <div className="flex flex-col gap-4">
+          {/*
+            Kartlar formun boyuna göre esniyor (h-full + flex-1). Sabit
+            yükseklikteyken sütun formdan kısa kalıyor ve sağ tarafta boşluk
+            oluşuyordu; iki sütun aynı yerde bitmiyordu.
+          */}
+          <div className="flex h-full flex-col gap-3">
             {kanallar.map((k) => {
               const icerik = (
                 <>
-                  <span className="font-mono text-[10px] tracking-[0.14em] text-brand uppercase">{k.baslik}</span>
-                  <span className="text-[15.5px] font-semibold">{k.deger}</span>
+                  <span
+                    className={`flex h-10 w-10 flex-none items-center justify-center rounded-[11px] ${
+                      k.vurgu ? "bg-[#25D366] text-white" : "bg-[#F2F4FA] text-ink"
+                    }`}
+                  >
+                    <Icon name={k.ikon} size={19} />
+                  </span>
+                  <span className="flex min-w-0 flex-col gap-[3px]">
+                    {/* Etiket rengi mavi değil siyah: mavi, sayfadaki tek
+                        eylem olan gönder düğmesiyle yarışıyordu. */}
+                    <span className="font-mono text-[10px] tracking-[0.14em] text-ink/55 uppercase">{k.baslik}</span>
+                    <span className="truncate text-[15.5px] font-semibold">{k.deger}</span>
+                  </span>
                 </>
               );
+
+              const ortak = "flex flex-1 items-center gap-[14px] rounded-2xl border border-ink/10 bg-white px-5 py-4";
 
               return k.href ? (
                 <a
                   key={k.baslik}
                   href={k.href}
-                  className="flex flex-col gap-1 rounded-2xl border border-ink/10 bg-white p-5 transition hover:border-brand/45"
+                  className={`${ortak} transition hover:border-ink/40 hover:shadow-[0_10px_26px_rgba(10,13,24,0.07)]`}
                 >
                   {icerik}
                 </a>
               ) : (
-                <div key={k.baslik} className="flex flex-col gap-1 rounded-2xl border border-ink/10 bg-white p-5">
+                <div key={k.baslik} className={ortak}>
                   {icerik}
                 </div>
               );

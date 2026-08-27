@@ -38,3 +38,35 @@ export async function siteIcerikKaydet(input: {
   revalidatePath("/", "layout");
   return {};
 }
+
+/**
+ * Eğitmen portresini bağlar ya da kaldırır.
+ *
+ * Dosya istemciden doğrudan `kapaklar` kovasına yükleniyor (kapak görselinde
+ * olduğu gibi); burada yalnızca yol kaydediliyor. Eski dosya siliniyor, yoksa
+ * her değişiklikte kovada bir kopya birikir.
+ */
+export async function egitmenGorseliGuncelle(yol: string | null): Promise<{ error?: string }> {
+  const supabase = await createClient();
+
+  const { data: mevcut } = await supabase.from("site_icerik").select("egitmen_gorsel").eq("id", true).maybeSingle();
+
+  const { data, error } = await supabase
+    .from("site_icerik")
+    .update({ egitmen_gorsel: yol, updated_at: new Date().toISOString() })
+    .eq("id", true)
+    .select("id");
+
+  if (error) return { error: error.message };
+  if (!data || data.length === 0) {
+    return { error: "Kaydedilemedi. Yönetici yetkisi doğrulanamadı (RLS)." };
+  }
+
+  const eski = mevcut?.egitmen_gorsel;
+  if (eski && eski !== yol) {
+    await supabase.storage.from("kapaklar").remove([eski]);
+  }
+
+  revalidatePath("/", "layout");
+  return {};
+}

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createPublicClient } from "@/lib/supabase/public";
+import { kapakUrl } from "@/lib/kapak";
 
 export type DuyuruStili = "acik" | "koyu";
 
@@ -10,6 +11,8 @@ export type SiteIcerik = {
   egitmenAd: string;
   egitmenUnvan: string;
   egitmenBiyografi: string;
+  /** Portre görselinin tam adresi; yüklenmemişse null. */
+  egitmenGorsel: string | null;
 };
 
 const VARSAYILAN: SiteIcerik = {
@@ -19,6 +22,7 @@ const VARSAYILAN: SiteIcerik = {
   egitmenAd: "Ahmet Ekinci",
   egitmenUnvan: "Dijital pazarlama eğitmeni · Ankara",
   egitmenBiyografi: "",
+  egitmenGorsel: null,
 };
 
 /**
@@ -30,7 +34,7 @@ export const getSiteIcerik = cache(async (): Promise<SiteIcerik> => {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("site_icerik")
-    .select("kayit_duyurusu, kayit_duyurusu_aktif, duyuru_stili, egitmen_ad, egitmen_unvan, egitmen_biyografi")
+    .select("kayit_duyurusu, kayit_duyurusu_aktif, duyuru_stili, egitmen_ad, egitmen_unvan, egitmen_biyografi, egitmen_gorsel")
     .maybeSingle();
 
   if (error) {
@@ -46,5 +50,6 @@ export const getSiteIcerik = cache(async (): Promise<SiteIcerik> => {
     egitmenAd: data.egitmen_ad || VARSAYILAN.egitmenAd,
     egitmenUnvan: data.egitmen_unvan || VARSAYILAN.egitmenUnvan,
     egitmenBiyografi: data.egitmen_biyografi ?? "",
+    egitmenGorsel: kapakUrl(data.egitmen_gorsel),
   };
 });
