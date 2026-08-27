@@ -10,7 +10,7 @@ import { HeroDegerler } from "@/components/site/HeroDegerler";
 import { KalinMetin } from "@/components/site/KalinMetin";
 import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
 import { Icon, type IconName } from "@/components/Icon";
-import { getCourseBySlug, egitmenStats, basligiParcala } from "@/lib/courses";
+import { getCourseBySlug, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { olculenWhatsapp } from "@/lib/iletisim";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
@@ -343,9 +343,15 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           Mobilde yan sütun diye bir şey yok: kutu tek sütuna düşüp SSS'nin
           altına, sayfanın en dibine iniyordu — yani kimsenin görmediği bir
           yere. Hero'daki "Eğitim Planı Oluştur" düğmesi mobildeki eylemi
-          zaten karşılıyor. Geniş ekranda kutu yerinde ve yapışkan duruyor.
+          zaten karşılıyor.
+
+          YAPIŞKAN DEĞİL, bilerek. `sticky` yalnızca içerik ekrandan kısaysa
+          çalışıyor: sütun ekran boyunu aştığı anda tarayıcı üstünü sabitliyor
+          ve alt kısım — burada eğitmen kutusunun tamamı — ancak sayfanın en
+          dibine inildiğinde görünüyordu. Sütun normal akışta kaydığında
+          eğitmen bilgisi metnin ortasında, okunduğu yerde çıkıyor.
         */}
-        <aside id="katil" className="hidden pt-20 lg:sticky lg:top-[106px] lg:block lg:self-start">
+        <aside id="katil" className="hidden pt-20 lg:block">
           <div className="overflow-hidden rounded-[18px] border border-ink/11 bg-white shadow-[0_26px_60px_rgba(10,13,24,0.1)]">
             <div className="bg-ink px-6 pt-[26px] pb-6 text-white">
               <div className="font-mono text-[10.5px] tracking-[0.14em] text-white/50 uppercase">Kişiye özel program</div>
@@ -391,24 +397,33 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               </Link>
 
               {/*
-                İkincil iki talep forma gidiyor, WhatsApp'a değil: ikisi de
-                planlama gerektiren, yazılı bilgi istenen taleplerdir (tarih,
-                yer, kişi sayısı). Konu formda hazır seçili geliyor.
+                İkincil talepler artık düğme değil bağlantı — mobildeki
+                mantığın aynısı. Üç tam genişlikte düğme üst üste dizilince
+                hepsi eşit ağırlıkta görünüyor ve asıl istenen tıklamayı
+                zayıflatıyordu.
+
+                İkisi de forma gidiyor, WhatsApp'a değil: planlama gerektiren,
+                yazılı bilgi istenen taleplerdir (tarih, yer, kişi sayısı).
+                Konu formda hazır seçili geliyor.
               */}
-              <Link
-                href="/iletisim?konu=yuz-yuze"
-                className="mt-[10px] flex h-12 items-center justify-center gap-[9px] rounded-[11px] border border-ink text-[14.5px] font-semibold text-ink transition hover:bg-ink hover:text-white"
-              >
-                <Icon name="pin" size={16} />
-                Yüz yüze eğitim talebi oluştur
-              </Link>
-              <Link
-                href="/iletisim?konu=kurumsal"
-                className="mt-[10px] flex h-12 items-center justify-center gap-[9px] rounded-[11px] border border-ink text-[14.5px] font-semibold text-ink transition hover:bg-ink hover:text-white"
-              >
-                <Icon name="users" size={16} />
-                Kurumsal eğitim talebi
-              </Link>
+              <div className="mt-[18px] flex flex-col gap-[11px] border-t border-ink/9 pt-[18px]">
+                <Link
+                  href="/iletisim?konu=yuz-yuze"
+                  className="group/yuz flex items-center gap-[8px] text-[14px] font-medium text-[#5C6273] transition-colors hover:text-ink"
+                >
+                  <Icon name="pin" size={15} />
+                  Yüz yüze eğitim talebi oluştur
+                  <span className="transition-transform duration-200 group-hover/yuz:translate-x-[3px]">→</span>
+                </Link>
+                <Link
+                  href="/iletisim?konu=kurumsal"
+                  className="group/kurum flex items-center gap-[8px] text-[14px] font-medium text-[#5C6273] transition-colors hover:text-ink"
+                >
+                  <Icon name="users" size={15} />
+                  Grup eğitimi &amp; kurumsal talep oluştur
+                  <span className="transition-transform duration-200 group-hover/kurum:translate-x-[3px]">→</span>
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -446,22 +461,19 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               {icerik.egitmenUnvan && (
                 <div className="mt-[5px] text-[13px] leading-[1.45] text-[#5C6273]">{icerik.egitmenUnvan}</div>
               )}
+              {/*
+                Biyografi TAM basılıyor. Önce beş satırla kırpılmıştı: sütun
+                yapışkanken uzun bir metin kutuyu ekrandan taşırıyordu. Sütun
+                artık yapışkan değil, dolayısıyla kırpmanın da gerekçesi kalmadı
+                — yarıda kesilen bir tanıtım, tanıtmıyor.
+              */}
               {icerik.egitmenBiyografi && (
-                // line-clamp: biyografi panelden serbestçe yazılıyor ve uzun
-                // bir metin yapışkan kutuyu ekrandan taşırıp kaydırmayı
-                // kilitliyordu. Tamamı mobil bölümde ve hakkımızda sayfasında.
-                <p className="mt-3 line-clamp-5 text-[13.5px] leading-[1.6] text-[#3A3F4F]">
+                <p className="mt-3 text-[13.5px] leading-[1.65] whitespace-pre-line text-[#3A3F4F]">
                   {icerik.egitmenBiyografi}
                 </p>
               )}
-              <div className="mt-4 flex flex-col gap-[9px] border-t border-ink/9 pt-4">
-                {egitmenStats.map((s) => (
-                  <div key={s.t} className="flex items-baseline justify-between gap-3 text-[13px]">
-                    <span className="text-[#5C6273]">{s.t}</span>
-                    <span className="font-semibold text-ink">{s.n}</span>
-                  </div>
-                ))}
-              </div>
+              {/* "5 yıl / 400+ / Ankara" satırları kaldırıldı: aynı bilgi
+                  biyografinin içinde kendi cümlesiyle zaten geçiyor. */}
               <Link
                 href="/hakkimizda"
                 className="mt-4 inline-flex text-[13.5px] font-semibold text-brand hover:text-ink"

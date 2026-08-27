@@ -44,12 +44,6 @@ export type Course = {
   yuzYuze: boolean;
 };
 
-export const egitmenStats = [
-  { n: "5 yıl", t: "birebir eğitim" },
-  { n: "400+", t: "katılımcı" },
-  { n: "Ankara", t: "yüz yüze & online" },
-];
-
 /**
  * Eğitim başlığını üç parçaya ayırır: vurgudan önce, vurgu, vurgudan sonra.
  *
