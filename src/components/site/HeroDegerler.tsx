@@ -29,14 +29,27 @@ const DEGERLER: { ad: string; ikon: IconName }[] = [
 export function HeroDegerler() {
   return (
     <div className="mt-9">
-      <div className="flex flex-wrap gap-[10px]">
+      {/*
+        Dar ekranda TEK sütun, geniş ekranda sarmalanan satır.
+
+        Serbest sarmalama bırakıldığında telefonda 2-1-1 gibi düzensiz bir
+        merdiven oluşuyordu: etiketler çok farklı uzunlukta ("%100 Uygulamalı"
+        ile "Ömür Boyu Ücretsiz Destek" arasında iki kat fark var) ve iki
+        sütuna tek satır hâlinde sığmıyorlar.
+
+        Kısaltmak yerine tek sütun seçildi: hap içinde satır kırmak, yuvarlak
+        kenarlı bir öğeyi kart gibi gösteriyor. Tam genişlikte tek sütun hem
+        her zaman hizalı hem de alttaki tam genişlikteki düğmeyle aynı ritmi
+        tutturuyor.
+      */}
+      <div className="flex flex-col gap-[9px] sm:flex-row sm:flex-wrap sm:gap-[10px]">
         {DEGERLER.map((d) => (
           <span
             key={d.ad}
-            className="inline-flex items-center gap-[9px] rounded-full border border-white/16 bg-white/[0.07] py-[9px] pr-[16px] pl-[12px] text-[14px] leading-none font-semibold text-white/90 sm:text-[14.5px]"
+            className="inline-flex items-center gap-[10px] rounded-full border border-white/14 bg-white/[0.06] py-[10px] pr-[18px] pl-[11px] text-[14.5px] leading-none font-semibold text-white/90"
           >
-            <span className="flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full bg-brand/30 text-[#BDD0FF]">
-              <Icon name={d.ikon} size={13} />
+            <span className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-brand/30 text-[#BDD0FF]">
+              <Icon name={d.ikon} size={14} />
             </span>
             {d.ad}
           </span>
@@ -65,14 +78,6 @@ export function HeroDegerler() {
           Eğitim Planı Oluştur
           <span className="transition-transform duration-200 group-hover:translate-x-[3px]">→</span>
         </Link>
-        <p className="mt-[11px] flex flex-wrap items-center gap-x-[7px] text-[13px] leading-[1.5] text-white/50">
-          <span className="inline-flex items-center gap-[5px] font-medium text-white/70">
-            <span className="h-[6px] w-[6px] rounded-full bg-[#34D399]" />
-            Ücretsiz ön görüşme
-          </span>
-          <span aria-hidden>·</span>
-          WhatsApp&apos;tan yazın, kapsamı birlikte belirleyelim.
-        </p>
       </div>
     </div>
   );
