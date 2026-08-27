@@ -8,6 +8,7 @@ import { ServiceWorkerKaydi } from "@/components/site/ServiceWorkerKaydi";
 import { NativeIsaretci } from "@/components/site/NativeIsaretci";
 import { MetaPixel } from "@/components/site/MetaPixel";
 import { HizOlcumu } from "@/components/site/HizOlcumu";
+import { OnizlemeSeridi } from "@/components/site/OnizlemeSeridi";
 import { getMarka } from "@/lib/marka";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import { getPixelId } from "@/lib/meta/pixel";
@@ -131,6 +132,9 @@ export default async function RootLayout({
         />
       </head>
       <body className="antialiased font-body text-ink bg-white">
+        {/* Ön yüz kapalıyken, izinli kullanıcıya "bunu yalnızca sen
+            görüyorsun" diyor. Çerezden okuyor; gerekçesi bileşende. */}
+        <OnizlemeSeridi />
         <Olcumleme />
         {/* Pixel ID girilmemişse hiç çizilmiyor: kapatma düğmesi burada,
             "Pixel ID'yi boş bırak" demek pixel'i tamamen kaldırmak demek. */}

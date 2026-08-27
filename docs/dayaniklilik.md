@@ -232,3 +232,30 @@ ve "Ayşe Yılmaz Kara" gibi bir değeri sonradan bölmenin güvenilir bir yolu 
 Adlar birebir aynı olmalı — küçük harf, Türkçe karakter yok. Tally tanımsız bir
 parametreyi **sessizce** yok sayıyor: form yine açılır, hata görünmez, ama alan
 boş gelir. `kullanici` boş gelirse hiçbir adım işaretlenmez.
+
+---
+
+## Ön yüz kapalı — ama sahibine açık
+
+`src/proxy.ts` → `ON_YUZ_ACIK = false` iken tanıtım sayfaları ziyaretçiye
+sunulmuyor, hepsi `/giris`e yönlendiriliyor.
+
+**`ON_YUZ_ONIZLEME`** ortam değişkenindeki kullanıcı kimlikleri bu kuralın
+dışında: giriş yapmış hâlde sayfaları normal şekilde geziyorlar. Değişken boşsa
+kimse göremiyor — eksik tanımlanmış bir ayar yüzünden yarım bir site açılmasın.
+
+Kimlik oturumdan geliyor, rol sorgusu yapılmıyor: kontrol her istekte ara
+katmanda çalışıyor ve `profiles`e gitmek her sayfa açılışına bir sorgu eklerdi.
+
+Gizli bir önizleme adresi tercih edilmedi: paylaşılınca ya da tarayıcı
+geçmişinden sızınca geri alınamıyor. Oturuma bağlı izin, çıkış yapmakla biter.
+
+**Ön yüz kapalıyken `X-Robots-Tag: noindex` koşulsuz basılıyor.** Önizleme bir
+insana veriliyor ama sayfa yine de sunuluyor demek; arama motoru o adrese başka
+bir yerden gelen bir bağlantıyla ulaşırsa yarım siteyi indeksleyebilirdi — ön
+yüzü kapatmanın sebebi tam olarak buydu.
+
+İzinli kullanıcı sayfanın üstünde "yalnızca sen görüyorsun" şeridi görüyor.
+Şerit çerezden okuyor, sunucudan değil: sunucuda karar vermek `cookies()`
+okumak demek ve o, 13 tanıtım sayfasını statik üretimden düşürüyor — bu depoda
+bir kez yaşandı.

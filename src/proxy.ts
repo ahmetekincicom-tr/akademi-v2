@@ -125,8 +125,32 @@ const AYRICA_ACIK = [
 /** Ön yüz kapalıyken ziyaretçinin gönderildiği yer. */
 const KAPALI_HEDEF = "/giris";
 
-function suAndaSunuluyor(pathname: string): boolean {
-  if (ON_YUZ_ACIK) return true;
+/**
+ * Ön yüz kapalıyken tanıtım sayfalarını GÖREBİLEN kullanıcılar.
+ *
+ * Virgülle ayrılmış kullanıcı kimlikleri (ON_YUZ_ONIZLEME). Boşsa kimse
+ * göremiyor — varsayılan bu ve öyle olmalı: eksik tanımlanmış bir ayar
+ * yüzünden yarım bir site açılmasın.
+ *
+ * Neden rol sorgusu değil: rolü öğrenmek profiles tablosuna gitmek demek ve
+ * bu kontrol HER istekte, ara katmanda çalışıyor. Kimlik zaten oturumdan
+ * geliyor, ek sorgu gerekmiyor.
+ *
+ * Neden gizli bir adres değil: gizli adres paylaşılınca ya da tarayıcı
+ * geçmişinden sızınca geri alınamıyor. Oturuma bağlı izin, çıkış yapmakla
+ * biter.
+ */
+function onizlemeYetkisi(userId: string | undefined): boolean {
+  if (!userId) return false;
+  return (process.env.ON_YUZ_ONIZLEME ?? "")
+    .split(",")
+    .map((k) => k.trim())
+    .filter(Boolean)
+    .includes(userId);
+}
+
+function suAndaSunuluyor(pathname: string, onizleme: boolean): boolean {
+  if (ON_YUZ_ACIK || onizleme) return true;
   return AYRICA_ACIK.some((k) => pathname === k || pathname.startsWith(k + "/"));
 }
 
@@ -184,15 +208,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(ON_YUZ_ACIK ? "/" : KAPALI_HEDEF, request.url));
   }
 
-  // Ön yüz kapalı: tanıtım sayfaları sunulmuyor, panel girişine gidiliyor.
-  //
-  // 307 kullanılıyor, 301 DEĞİL: bu geçici bir durum ve kalıcı yönlendirme
-  // hem tarayıcıda hem arama motorunda önbelleğe alınıyor. Ön yüz açıldığında
-  // 301 yemiş ziyaretçiler aylarca giriş ekranına düşmeye devam ederdi.
-  if (!suAndaSunuluyor(yol)) {
-    return NextResponse.redirect(new URL(KAPALI_HEDEF, request.url), 307);
-  }
-
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -221,6 +236,42 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+
+  /*
+    Ön yüz kapalı: tanıtım sayfaları sunulmuyor, panel girişine gidiliyor.
+
+    Kontrol oturum çözüldükten SONRA: önizleme izni kullanıcı kimliğine bakıyor
+    ve o kimlik ancak buradan sonra elde. Bedeli, tanıtım sayfasına gelen bir
+    isteğin de oturum tazelemesinden geçmesi — bu sayfalar zaten yönlendirildiği
+    için hacim düşük.
+
+    307 kullanılıyor, 301 DEĞİL: bu geçici bir durum ve kalıcı yönlendirme hem
+    tarayıcıda hem arama motorunda önbelleğe alınıyor. Ön yüz açıldığında 301
+    yemiş ziyaretçiler aylarca giriş ekranına düşmeye devam ederdi.
+  */
+  const onizleme = onizlemeYetkisi(user?.id);
+  if (!suAndaSunuluyor(pathname, onizleme)) {
+    return NextResponse.redirect(new URL(KAPALI_HEDEF, request.url), 307);
+  }
+
+  /*
+    Önizlemede olduğunu tarayıcıya söyleyen çerez.
+
+    Sayfaya "bunu yalnızca sen görüyorsun" şeridini çizdiren şey bu. Neden
+    çerez: şeridi sunucuda karar verip çizmek headers() okumak demek ve o,
+    bütün tanıtım sayfalarını statiklikten düşürüyor — bu depoda bir kez
+    yapıldı ve 13 sayfa dinamik render'a düştü.
+
+    httpOnly değil: okuyan taraf tarayıcıdaki bileşen.
+  */
+  if (!ON_YUZ_ACIK) {
+    if (onizleme) {
+      response.cookies.set("aea-onizleme", "1", { path: "/", httpOnly: false, sameSite: "lax" });
+    } else if (request.cookies.has("aea-onizleme")) {
+      // İzin kalkmışsa (çıkış yapıldı, liste değişti) şerit de kalksın.
+      response.cookies.delete("aea-onizleme");
+    }
+  }
 
   // Uygulama pazarlama sitesine geçemesin.
   //
@@ -252,7 +303,14 @@ export async function proxy(request: NextRequest) {
   // engelliyor, indekslemeyi değil. Başka bir siteden bağlantı verilen adres
   // taranmadan da sonuçlarda çıkabiliyor. Asıl direktif bu başlık — ve
   // görülebilmesi için sayfanın taranabilir kalması gerekiyor.
-  if (!indekslenebilirMi(request)) {
+  /*
+    Ön yüz kapalıyken KOŞULSUZ noindex.
+
+    Önizleme izni bir insana veriliyor ama sayfa yine de sunuluyor demek; bir
+    arama motoru o adrese başka bir yerden gelen bağlantıyla ulaşırsa yarım
+    siteyi indeksleyebilir. Ön yüzü kapatmanın sebebi tam olarak buydu.
+  */
+  if (!ON_YUZ_ACIK || !indekslenebilirMi(request)) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
 
