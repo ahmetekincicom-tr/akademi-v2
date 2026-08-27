@@ -258,7 +258,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 {icerik.egitmenUnvan && <div className="mt-2 text-[15px] text-[#5C6273]">{icerik.egitmenUnvan}</div>}
                 {icerik.egitmenBiyografi && (
                   <p className="mt-5 max-w-[560px] text-[15.5px] leading-[1.68] whitespace-pre-line text-[#3A3F4F]">
-                    {icerik.egitmenBiyografi}
+                    <KalinMetin metin={icerik.egitmenBiyografi} kalinSinif="text-ink" />
                   </p>
                 )}
                 <Link href="/hakkimizda" className="mt-7 inline-flex text-[14.5px] font-semibold">
@@ -469,7 +469,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               */}
               {icerik.egitmenBiyografi && (
                 <p className="mt-3 text-[13.5px] leading-[1.65] whitespace-pre-line text-[#3A3F4F]">
-                  {icerik.egitmenBiyografi}
+                  <KalinMetin metin={icerik.egitmenBiyografi} kalinSinif="text-ink" />
                 </p>
               )}
               {/* "5 yıl / 400+ / Ankara" satırları kaldırıldı: aynı bilgi

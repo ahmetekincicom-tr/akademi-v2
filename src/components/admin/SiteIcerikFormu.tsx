@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { siteIcerikKaydet } from "@/app/kontrol-9f4x2k/(protected)/site-icerik/actions";
 import { useBildirim } from "@/components/Bildirim";
@@ -15,6 +15,7 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
   const router = useRouter();
   const bildir = useBildirim();
   const [islemde, startTransition] = useTransition();
+  const biyografiRef = useRef<HTMLTextAreaElement>(null);
   const [form, setForm] = useState({
     kayitDuyurusu: icerik.kayitDuyurusu,
     kayitDuyurusuAktif: icerik.kayitDuyurusuAktif,
@@ -23,6 +24,40 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
     egitmenUnvan: icerik.egitmenUnvan,
     egitmenBiyografi: icerik.egitmenBiyografi,
   });
+
+  /*
+    Seçili metni `**` ile sarar; zaten sarılıysa işaretleri kaldırır.
+
+    Zengin metin editörü DEĞİL, bilerek: alan düz metin olarak saklanıyor ve
+    öyle kalmalı — HTML'e açmak, panele yapıştırılan bir şeyin sayfada kod
+    olarak çalışabilmesi demek olurdu. Bu düğme yalnızca yazması zahmetli olan
+    iki yıldızı yerine koyuyor.
+  */
+  const kalinlastir = () => {
+    const alan = biyografiRef.current;
+    if (!alan) return;
+
+    const { selectionStart: bas, selectionEnd: son } = alan;
+    // Seçim yoksa yapacak bir şey yok: imlecin olduğu yere boş bir `****`
+    // bırakmak, kaydedildiğinde metinde görünen bir çöp olurdu.
+    if (bas === son) {
+      alan.focus();
+      return;
+    }
+
+    const metin = form.egitmenBiyografi;
+    const secili = metin.slice(bas, son);
+    const zatenKalin = secili.startsWith("**") && secili.endsWith("**") && secili.length > 4;
+    const yeniSecim = zatenKalin ? secili.slice(2, -2) : `**${secili}**`;
+
+    setForm({ ...form, egitmenBiyografi: metin.slice(0, bas) + yeniSecim + metin.slice(son) });
+
+    // Seçim korunuyor: düğmeye ikinci kez basınca geri alınabilsin.
+    requestAnimationFrame(() => {
+      alan.focus();
+      alan.setSelectionRange(bas, bas + yeniSecim.length);
+    });
+  };
 
   const kaydet = () => {
     startTransition(async () => {
@@ -165,15 +200,39 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
           </label>
         </div>
 
-        <label className="mt-4 flex flex-col gap-2">
-          <span className={ETIKET}>Biyografi</span>
+        <div className="mt-4 flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-4">
+            <span className={ETIKET}>Biyografi</span>
+            <button
+              type="button"
+              onClick={kalinlastir}
+              className="inline-flex h-[30px] items-center gap-[6px] rounded-[8px] border border-ink/13 bg-white px-[11px] text-[12.5px] font-semibold text-[#5C6273] transition hover:border-brand hover:text-brand"
+            >
+              <span className="font-bold text-ink">B</span>
+              Kalınlaştır
+            </button>
+          </div>
           <textarea
+            ref={biyografiRef}
             value={form.egitmenBiyografi}
             onChange={(e) => setForm({ ...form, egitmenBiyografi: e.target.value })}
+            onKeyDown={(e) => {
+              // Ctrl/⌘ + B: metin alanında tarayıcının kendi kalınlaştırması
+              // yok, tuş boşa gidiyordu.
+              if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
+                e.preventDefault();
+                kalinlastir();
+              }
+            }}
             placeholder="Kaç yıldır ne yaptığın, derslerde nasıl çalıştığın…"
             className="min-h-[140px] resize-y rounded-[10px] border border-ink/13 bg-white px-[14px] py-3 text-[15px] leading-[1.65] text-ink outline-none focus:border-brand"
           />
-        </label>
+          <p className="text-[12.5px] leading-[1.55] text-[#656B7A]">
+            Öne çıkarmak istediğiniz yeri seçip <strong className="font-semibold text-ink">Kalınlaştır</strong>&apos;a
+            basın (Ctrl/⌘ + B de çalışır). Metinde <code className="font-mono text-[12px]">**böyle**</code> görünür,
+            sitede kalın basılır.
+          </p>
+        </div>
       </section>
 
       <div>
