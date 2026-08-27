@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cerezdenOku } from "@/lib/izin";
 
@@ -21,6 +22,19 @@ import { cerezdenOku } from "@/lib/izin";
  * indirdi. Aynı hataya iki kez düşmeyelim.
  *
  * Çerezi ara katman yazıyor (src/proxy.ts) ve izin kalktığında siliyor.
+ *
+ * ————————————————————————————————————————————————————————————
+ * Şerit aynı zamanda MENÜ.
+ *
+ * PublicHeader ve PublicFooter tanıtım bağlantılarını ON_YUZ_ACIK'a bakarak
+ * çiziyor ve o bir derleme zamanı sabiti — kişiye göre değişemiyor. Kişiye
+ * göre değişsin diye sunucuda çereze bakmak, bütün tanıtım sayfalarını
+ * statiklikten düşürürdü.
+ *
+ * Bu yüzden bağlantılar buraya kondu: önizleme yapan kişi sayfalar arasında
+ * gezebiliyor, gerçek menü ise ön yüz açıldığında olduğu gibi devreye
+ * giriyor. Ayrıca doğrusu da bu — bu bir önizleme aracı, sitenin menüsü
+ * değil.
  */
 
 /** Ara katmanın yazdığı çerez. */
@@ -49,6 +63,17 @@ function sunucudaOku(): string {
   return "";
 }
 
+/** Ön yüz kapalıyken menüde görünmeyen tanıtım sayfaları. */
+const SAYFALAR = [
+  { yol: "/", ad: "Ana sayfa" },
+  { yol: "/egitimler", ad: "Eğitimler" },
+  { yol: "/kurumsal", ad: "Kurumsal" },
+  { yol: "/hakkimizda", ad: "Hakkımızda" },
+  { yol: "/referanslar", ad: "Referanslar" },
+  { yol: "/yorumlar", ad: "Yorumlar" },
+  { yol: "/iletisim", ad: "İletişim" },
+];
+
 export function OnizlemeSeridi() {
   const gorunur = useSyncExternalStore(abone, oku, sunucudaOku) === "1";
   const yol = usePathname();
@@ -65,12 +90,30 @@ export function OnizlemeSeridi() {
   return (
     <div
       role="status"
-      className="sticky top-0 z-[9999] flex flex-wrap items-center justify-center gap-x-2 gap-y-[2px] bg-ink px-4 py-[7px] text-center text-[12.5px] leading-[1.4] text-white"
+      className="sticky top-0 z-[9999] flex flex-wrap items-center justify-center gap-x-4 gap-y-[6px] bg-ink px-4 py-[8px] text-[12.5px] leading-[1.4] text-white"
     >
-      <span className="font-semibold">Ön yüz yayında değil.</span>
-      <span className="text-white/70">
-        Bu sayfayı yalnızca sen görüyorsun; ziyaretçiler giriş ekranına yönlendiriliyor.
+      <span className="flex flex-wrap items-center justify-center gap-x-[6px]">
+        <span className="font-semibold">Ön yüz yayında değil.</span>
+        <span className="text-white/60">Bu sayfaları yalnızca sen görüyorsun.</span>
       </span>
+
+      <nav className="flex flex-wrap items-center justify-center gap-x-[10px] gap-y-[4px]">
+        {SAYFALAR.map((s) => {
+          const aktif = yol === s.yol;
+          return (
+            <Link
+              key={s.yol}
+              href={s.yol}
+              aria-current={aktif ? "page" : undefined}
+              className={`rounded-[6px] px-[7px] py-[2px] transition ${
+                aktif ? "bg-white/18 font-semibold text-white" : "text-white/70 hover:text-white"
+              }`}
+            >
+              {s.ad}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

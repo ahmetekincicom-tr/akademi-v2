@@ -255,7 +255,13 @@ insana veriliyor ama sayfa yine de sunuluyor demek; arama motoru o adrese başka
 bir yerden gelen bir bağlantıyla ulaşırsa yarım siteyi indeksleyebilirdi — ön
 yüzü kapatmanın sebebi tam olarak buydu.
 
-İzinli kullanıcı sayfanın üstünde "yalnızca sen görüyorsun" şeridi görüyor.
-Şerit çerezden okuyor, sunucudan değil: sunucuda karar vermek `cookies()`
-okumak demek ve o, 13 tanıtım sayfasını statik üretimden düşürüyor — bu depoda
-bir kez yaşandı.
+İzinli kullanıcı sayfanın üstünde bir şerit görüyor: "yalnızca sen
+görüyorsun" + tanıtım sayfalarının bağlantıları.
+
+**Bağlantılar şeritte, menüde değil.** `PublicHeader` ve `PublicFooter` tanıtım
+bağlantılarını `ON_YUZ_ACIK`'a bakarak çiziyor ve o bir derleme zamanı sabiti —
+kişiye göre değişemiyor. Kişiye göre değişsin diye sunucuda çereze bakmak, 13
+tanıtım sayfasını statik üretimden düşürürdü (bu depoda bir kez yaşandı).
+
+Şerit çerezden okuyor, sunucudan değil; aynı gerekçe. Ön yüz açıldığında gerçek
+menü kendiliğinden devreye giriyor ve şerit kayboluyor.
