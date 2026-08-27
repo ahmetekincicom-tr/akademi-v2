@@ -78,6 +78,25 @@ export function HeroDegerler() {
           Eğitim Planı Oluştur
           <span className="transition-transform duration-200 group-hover:translate-x-[3px]">→</span>
         </Link>
+
+        {/*
+          İkincil yol: grup ve kurumsal talep.
+
+          Kutusuz, çerçevesiz, düğmeden küçük — bilerek. Bir düğme daha
+          koymak iki eylemi eşitler ve asıl istenen tıklamayı zayıflatırdı;
+          hiç koymamak ise böyle bir imkânın varlığını gizliyordu.
+
+          Yalnızca dar ekranda: geniş ekranda aynı talep sağdaki kutuda kendi
+          düğmesiyle duruyor, ikisi birden görünürse tekrar oluyor.
+        */}
+        <Link
+          href="/iletisim?konu=kurumsal"
+          className="group/kurumsal mt-5 flex items-center justify-center gap-[7px] text-[14.5px] font-medium text-white/70 transition-colors hover:text-white lg:hidden"
+        >
+          <Icon name="users" size={15} />
+          Grup eğitimi &amp; kurumsal talep oluştur
+          <span className="transition-transform duration-200 group-hover/kurumsal:translate-x-[3px]">→</span>
+        </Link>
       </div>
     </div>
   );
