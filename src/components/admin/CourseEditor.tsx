@@ -24,6 +24,8 @@ export type CourseEditorInitial = {
   seviye: string;
   url: string;
   aciklama: string;
+  /** Eğitim sayfasında hero'nun altında basılan serbest tanıtım metni. */
+  tanitimMetni: string;
   modules: EditorModule[];
   siteGorunur: boolean;
   satisaAcik: boolean;
@@ -40,6 +42,7 @@ const BOS_INITIAL: CourseEditorInitial = {
   seviye: "",
   url: "",
   aciklama: "",
+  tanitimMetni: "",
   modules: [],
   siteGorunur: true,
   satisaAcik: true,
@@ -61,6 +64,7 @@ export function CourseEditor({
   const [seviye, setSeviye] = useState(initial.seviye);
   const [url, setUrl] = useState(initial.url);
   const [aciklama, setAciklama] = useState(initial.aciklama);
+  const [tanitimMetni, setTanitimMetni] = useState(initial.tanitimMetni);
   const [modules, setModules] = useState<EditorModule[]>(initial.modules);
   const [yayin, setYayin] = useState({
     site: initial.siteGorunur,
@@ -83,6 +87,7 @@ export function CourseEditor({
       format,
       seviye,
       aciklama,
+      tanitimMetni,
       modules,
       siteGorunur: yayin.site,
       satisaAcik: yayin.satis,
@@ -270,6 +275,18 @@ export function CourseEditor({
                   placeholder="Sitede program kartında görünecek 1-2 cümle"
                   className="min-h-[86px] resize-y rounded-[10px] border border-ink/14 bg-white px-[14px] py-3 text-[14.5px] leading-[1.6] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
                 />
+              </label>
+              <label className="flex flex-col gap-2 sm:col-span-2">
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Tanıtım metni</span>
+                <textarea
+                  value={tanitimMetni}
+                  onChange={(e) => setTanitimMetni(e.target.value)}
+                  placeholder="Eğitim sayfasında hero'nun hemen altında görünür. Serbest metin; **iki yıldız** arasına aldığınız yer kalın basılır."
+                  className="min-h-[150px] resize-y rounded-[10px] border border-ink/14 bg-white px-[14px] py-3 text-[14.5px] leading-[1.6] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                />
+                <span className="text-[12.5px] leading-[1.5] text-[#656B7A]">
+                  Boş bırakılırsa bölüm sayfada hiç görünmez. Paragraf ayırmak için boş satır bırakın.
+                </span>
               </label>
             </div>
           </div>

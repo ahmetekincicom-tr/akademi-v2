@@ -241,10 +241,9 @@ export default async function HomePage() {
                 </span>
               </Link>
               <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
+                {/* Modül sayısı kaldırıldı; gerekçesi EgitimlerFiltre'de. */}
                 <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">
                   <span>{p.sure}</span>
-                  <span className="text-ink/20">•</span>
-                  <span>{p.modul}</span>
                 </div>
                 <h3 className="mt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
                   <Link href={p.href} className="transition-colors hover:text-brand">

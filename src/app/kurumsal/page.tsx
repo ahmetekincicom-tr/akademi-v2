@@ -136,7 +136,8 @@ export default async function KurumsalPage() {
               className="flex flex-col rounded-2xl border border-ink/11 p-6 transition hover:-translate-y-1 hover:border-brand/45 hover:shadow-[0_20px_44px_rgba(10,13,24,0.1)]"
             >
               <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#656B7A]">
-                {c.sure} · {c.modul}
+                {/* Modül sayısı kaldırıldı; gerekçesi EgitimlerFiltre'de. */}
+                {c.sure}
               </div>
               <div className="mt-3 font-heading text-lg leading-[1.25] font-semibold tracking-[-0.02em]">{c.baslik}</div>
               <p className="mt-2 flex-1 text-[14px] leading-[1.55] text-[#5C6273]">{c.aciklama}</p>

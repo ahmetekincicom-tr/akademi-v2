@@ -15,8 +15,11 @@ import { Fragment } from "react";
  *
  * Kapatılmamış bir `**` olduğu gibi yazılıyor: metni yutmaktansa işareti
  * göstermek yeğ — yazan kişi hatayı ekranda görür.
+ *
+ * `kalinSinif` varsayılanı hero için beyaz; açık zeminde kullanılırken
+ * geçilmesi ZORUNLU, yoksa kalın kısım beyaz üstüne beyaz kalır.
  */
-export function KalinMetin({ metin }: { metin: string }) {
+export function KalinMetin({ metin, kalinSinif = "text-white" }: { metin: string; kalinSinif?: string }) {
   const parcalar = metin.split(/\*\*(.+?)\*\*/g);
 
   return (
@@ -24,7 +27,7 @@ export function KalinMetin({ metin }: { metin: string }) {
       {parcalar.map((p, i) =>
         // split, yakalanan grupları TEK indekslere koyuyor: kalın olanlar onlar.
         i % 2 === 1 ? (
-          <strong key={i} className="font-semibold text-white">
+          <strong key={i} className={`font-semibold ${kalinSinif}`}>
             {p}
           </strong>
         ) : (

@@ -40,6 +40,14 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
   // Hero başlığı eğitimin tam adı; vurgulanan kısım renkli yazılıyor.
   const parca = basligiParcala(course.baslik, course.baslikVurgu);
 
+  // Panelden gelen serbest metin: boş satır paragraf ayırıcı. Yalnızca
+  // boşluktan oluşan satırlar da ayırıcı sayılıyor, aksi halde panele
+  // yapıştırılan metinde görünmez bir boşluk paragrafları birleştiriyor.
+  const tanitimParagraflari = course.tanitimMetni
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
   // Yapısal veri: eğitimi "Course" olarak işaretliyor ve arama sonucunda
   // kırıntı yolunu veriyor. İçerik bizim ürettiğimiz nesne.
   const semalar = [
@@ -166,24 +174,27 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 lg:grid-cols-[1fr_380px]">
         <main className="min-w-0 py-20 pb-24">
-          <section>
-            <SectionKicker>Kazanımlar</SectionKicker>
-            <h2 className="mt-[18px] mb-8 font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
-              Eğitim sonunda yapabilecekleriniz
-            </h2>
-            <div className="grid grid-cols-1 gap-x-7 gap-y-[14px] sm:grid-cols-2">
-              {course.kazanimlar.map((k) => (
-                <div key={k} className="flex items-start gap-3 text-[15.5px] leading-[1.55] text-[#2B303D]">
-                  <span className="mt-[2px] flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-brand/12 text-[10px] font-bold text-brand">
-                    ✓
-                  </span>
-                  <span>{k}</span>
-                </div>
-              ))}
-            </div>
-          </section>
+          {/*
+            Hero'nun hemen altında serbest tanıtım metni.
 
-          <section id="mufredat" className="mt-22">
+            Önceden burada doğrudan kazanım maddeleri başlıyordu: sayfa,
+            eğitimin ne olduğunu bir cümleyle bile anlatmadan madde listesine
+            geçiyordu. Metin panelden giriliyor, boşsa bölüm hiç basılmıyor.
+          */}
+          {tanitimParagraflari.length > 0 && (
+            <section className="mb-22 max-w-[720px]">
+              {tanitimParagraflari.map((p, i) => (
+                <p
+                  key={i}
+                  className="mt-[18px] text-[16.5px] leading-[1.75] text-[#3A3F4F] first:mt-0 sm:text-[17px]"
+                >
+                  <KalinMetin metin={p} kalinSinif="text-ink" />
+                </p>
+              ))}
+            </section>
+          )}
+
+          <section id="mufredat">
             <CurriculumAccordion modules={course.modules} />
           </section>
 
@@ -212,40 +223,60 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             </div>
           </section>
 
-          <section id="kimler" className="mt-22">
-            <SectionKicker>Uygunluk</SectionKicker>
+          {/*
+            Kazanımlar artık eğitmen bölümünden SONRA.
+
+            Sayfanın en üstündeyken vaadi, onu kimin verdiği bilinmeden
+            okunuyordu. Müfredat ve eğitmen görüldükten sonra aynı liste
+            "ne alacağım" sorusunun cevabı olarak duruyor.
+          */}
+          <section id="kazanimlar" className="mt-22">
+            <SectionKicker>Kazanımlar</SectionKicker>
             <h2 className="mt-[18px] mb-8 font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
-              Kimler için uygun
+              Hedeflenen Kazanımlar
             </h2>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <div className="rounded-[15px] border border-brand/30 bg-[#F5F8FF] p-[26px] pt-[26px] pb-7">
-                <div className="font-mono text-[10.5px] tracking-[0.14em] text-brand uppercase">Uygun</div>
-                <div className="mt-[18px] flex flex-col gap-[13px]">
-                  {course.uygun.map((u) => (
-                    <div key={u} className="flex items-start gap-[11px] text-[15px] leading-[1.55] text-[#2B303D]">
-                      <span className="mt-[2px] flex h-[17px] w-[17px] flex-none items-center justify-center rounded-[6px] bg-brand text-[10px] font-bold text-white">
-                        ✓
-                      </span>
-                      <span>{u}</span>
-                    </div>
-                  ))}
+            <div className="grid grid-cols-1 gap-x-7 gap-y-[14px] sm:grid-cols-2">
+              {course.kazanimlar.map((k) => (
+                <div key={k} className="flex items-start gap-3 text-[15.5px] leading-[1.55] text-[#2B303D]">
+                  <span className="mt-[2px] flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-brand/12 text-[10px] font-bold text-brand">
+                    ✓
+                  </span>
+                  <span>{k}</span>
                 </div>
-              </div>
-              <div className="rounded-[15px] border border-ink/11 p-[26px] pt-[26px] pb-7">
-                <div className="font-mono text-[10.5px] tracking-[0.14em] text-[#656B7A] uppercase">Bu program değil</div>
-                <div className="mt-[18px] flex flex-col gap-[13px]">
-                  {course.uygunDegil.map((u) => (
-                    <div key={u} className="flex items-start gap-[11px] text-[15px] leading-[1.55] text-[#5C6273]">
-                      <span className="mt-[2px] flex h-[17px] w-[17px] flex-none items-center justify-center rounded-[6px] bg-ink/8 text-[11px] font-bold text-[#656B7A]">
-                        —
-                      </span>
-                      <span>{u}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </section>
+
+          {/*
+            "Bu program değil" sütunu kaldırıldı: satın alma kararının hemen
+            öncesinde neden UYGUN OLMADIĞINI sayan bir liste vardı.
+
+            Kalan tek liste açılır bir bölüme alındı. `<details>` seçildi —
+            JavaScript'siz çalışıyor, `open` ile açık geliyor ve tarayıcının
+            kendi erişilebilirlik davranışını getiriyor; bunun için bir istemci
+            bileşeni yazmak gereksizdi.
+          */}
+          <details id="kimler" className="group mt-22 rounded-[15px] border border-ink/11 open:bg-[#F8FAFF]" open>
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-5 p-[26px] [&::-webkit-details-marker]:hidden">
+              <h2 className="font-heading text-[24px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[30px]">
+                Eğitime kimler katılmalı?
+              </h2>
+              <span className="flex h-8 w-8 flex-none items-center justify-center rounded-[9px] bg-[#F2F4FA] font-mono text-[16px] text-brand group-open:bg-white">
+                <span className="hidden group-open:inline">–</span>
+                <span className="group-open:hidden">+</span>
+              </span>
+            </summary>
+            <div className="flex flex-col gap-[13px] px-[26px] pb-7">
+              {course.uygun.map((u) => (
+                <div key={u} className="flex items-start gap-[11px] text-[15.5px] leading-[1.6] text-[#2B303D]">
+                  <span className="mt-[3px] flex h-[17px] w-[17px] flex-none items-center justify-center rounded-[6px] bg-brand text-[10px] font-bold text-white">
+                    ✓
+                  </span>
+                  <span>{u}</span>
+                </div>
+              ))}
+            </div>
+          </details>
 
 
           <section id="sss" className="mt-22">
@@ -257,7 +288,15 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           </section>
         </main>
 
-        <aside id="katil" className="pt-20 lg:sticky lg:top-[106px] lg:self-start">
+        {/*
+          Kayıt kutusu dar ekranda GİZLİ.
+
+          Mobilde yan sütun diye bir şey yok: kutu tek sütuna düşüp SSS'nin
+          altına, sayfanın en dibine iniyordu — yani kimsenin görmediği bir
+          yere. Hero'daki "Eğitim Planı Oluştur" düğmesi mobildeki eylemi
+          zaten karşılıyor. Geniş ekranda kutu yerinde ve yapışkan duruyor.
+        */}
+        <aside id="katil" className="hidden pt-20 lg:sticky lg:top-[106px] lg:block lg:self-start">
           <div className="overflow-hidden rounded-[18px] border border-ink/11 bg-white shadow-[0_26px_60px_rgba(10,13,24,0.1)]">
             <div className="bg-ink px-6 pt-[26px] pb-6 text-white">
               <div className="font-mono text-[10.5px] tracking-[0.14em] text-white/50 uppercase">Kişiye özel program</div>

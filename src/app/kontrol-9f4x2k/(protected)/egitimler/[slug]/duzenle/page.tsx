@@ -8,7 +8,7 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
   const { data: course } = await supabase
     .from("courses")
     .select(
-      "slug, baslik, baslik_vurgu, aciklama, sure, format, seviye, kapak_gorsel, sitede_gorunur, satisa_acik, fiyat_gorunur, modules(id, sira, baslik, lessons(id, sira, baslik, sure))",
+      "slug, baslik, baslik_vurgu, aciklama, sure, format, seviye, kapak_gorsel, sitede_gorunur, satisa_acik, fiyat_gorunur, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure))",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -33,6 +33,7 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
     seviye: course.seviye ?? "",
     url: course.slug,
     aciklama: course.aciklama ?? "",
+    tanitimMetni: (course.content as { tanitimMetni?: string } | null)?.tanitimMetni ?? "",
     modules,
     siteGorunur: course.sitede_gorunur,
     satisaAcik: course.satisa_acik,

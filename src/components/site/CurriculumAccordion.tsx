@@ -13,7 +13,14 @@ export type CurriculumModule = {
  * kişiye göre değişiyor, sabit bir rakam yazmak yanıltıcı oluyor.
  */
 export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }) {
-  const [open, setOpen] = useState<number[]>([0]);
+  /*
+    Hepsi AÇIK başlıyor.
+
+    Kapalı bir müfredat, ziyaretçiden içeriği görmek için tıklama istiyor —
+    oysa satın alma kararını en çok etkileyen şey tam olarak o içerik. Kapatma
+    hâlâ mümkün: uzun bulan kapatır.
+  */
+  const [open, setOpen] = useState<number[]>(() => modules.map((_, i) => i));
 
   const toggle = (i: number) => {
     setOpen((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : prev.concat(i)));
@@ -22,19 +29,21 @@ export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }
   const allOpen = modules.length > 0 && open.length === modules.length;
   const toggleAll = () => setOpen(allOpen ? [] : modules.map((_, i) => i));
 
-  // Başlık eskiden sabit yazılıydı ve her eğitimde aynı sayıları gösteriyordu.
-  const dersSayisi = modules.reduce((n, m) => n + m.dersler.length, 0);
-
   return (
     <>
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div>
           <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.16em] text-brand uppercase">
             <span className="h-px w-[22px] bg-brand" />
-            Eğitim içeriği
+            Müfredat
           </div>
-          <h2 className="mt-[18px] font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
-            {modules.length} modül · {dersSayisi} ders
+          {/*
+            Başlık eskiden "9 modül · 51 ders" idi. Sayı saymak eğitimi
+            uzunluğuyla tarif ediyor, oysa satılan şey kapsam — ve birebir
+            kurulan bir programda o sayı zaten kişiye göre değişiyor.
+          */}
+          <h2 className="mt-[18px] font-heading text-[30px] leading-[1.08] font-semibold tracking-[-0.03em] sm:text-[40px]">
+            Eğitim içeriği
           </h2>
         </div>
         <button
@@ -66,11 +75,10 @@ export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[15.5px] leading-[1.3] font-semibold tracking-[-0.015em] sm:text-[17.5px]">
+                  {/* Ders sayısı kaldırıldı: modül başlığının altında rakam
+                      saymak içeriği değil hacmi anlatıyordu. */}
+                  <span className="block text-[16.5px] leading-[1.3] font-semibold tracking-[-0.015em] sm:text-[18.5px]">
                     {m.baslik}
-                  </span>
-                  <span className="mt-1 block font-mono text-[11px] tracking-[0.06em] text-[#656B7A]">
-                    {m.dersler.length} ders
                   </span>
                 </span>
                 <span className="flex h-7 w-7 flex-none items-center justify-center rounded-[8px] bg-[#F2F4FA] font-mono text-[15px] text-brand">
@@ -83,7 +91,7 @@ export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }
                   {m.dersler.map((d) => (
                     <li
                       key={d.ad}
-                      className="flex items-start gap-3 border-t border-ink/7 py-[11px] text-[14.5px] leading-[1.5] text-[#3A3F4F] sm:text-[15px]"
+                      className="flex items-start gap-3 border-t border-ink/7 py-[12px] text-[15.5px] leading-[1.5] text-[#3A3F4F] sm:text-[16.5px]"
                     >
                       <span className="mt-[7px] h-[5px] w-[5px] flex-none rounded-full bg-brand" />
                       <span>{d.ad}</span>

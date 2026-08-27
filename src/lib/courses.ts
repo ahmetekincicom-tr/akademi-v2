@@ -28,6 +28,11 @@ export type Course = {
   heroAciklama: string;
   maddeler: string[];
   hizli: { etiket: string; deger: string }[];
+  /**
+   * Hero'nun hemen altındaki serbest tanıtım metni. Panelden düz metin olarak
+   * giriliyor; boşsa bölüm hiç basılmıyor (boş bir başlık bırakmıyoruz).
+   */
+  tanitimMetni: string;
   kazanimlar: string[];
   modules: CurriculumModule[];
   uygun: string[];
@@ -100,6 +105,7 @@ type CourseRow = {
     dersSayisi: number;
     maddeler: string[];
     hizli: { etiket: string; deger: string }[];
+    tanitimMetni?: string;
     kazanimlar: string[];
     uygun: string[];
     uygunDegil: string[];
@@ -143,6 +149,8 @@ function mapCourse(row: CourseRow): Course {
     heroAciklama: row.hero_aciklama ?? "",
     maddeler: row.content.maddeler,
     hizli: row.content.hizli,
+    // Alan sonradan eklendi: eski kayıtlarda yok, boş metin doğru varsayılan.
+    tanitimMetni: row.content.tanitimMetni ?? "",
     kazanimlar: row.content.kazanimlar,
     modules,
     uygun: row.content.uygun,

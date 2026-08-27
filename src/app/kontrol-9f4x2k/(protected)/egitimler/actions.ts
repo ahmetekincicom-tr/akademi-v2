@@ -21,11 +21,14 @@ export type SaveCourseInput = {
   durum: "taslak" | "yayinda";
   /** Başlıkta renkli yazılacak kısım. Verilmezse mevcut değer korunuyor. */
   baslikVurgu?: string;
+  /** Hero'nun altındaki serbest tanıtım metni. Verilmezse mevcut değer korunuyor. */
+  tanitimMetni?: string;
 };
 
 type ExistingContent = {
   etiket?: string;
   maddeler?: string[];
+  tanitimMetni?: string;
   kazanimlar?: string[];
   uygun?: string[];
   uygunDegil?: string[];
@@ -81,6 +84,9 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
       { etiket: "Modül", deger: `${modulSayisi} modül · ${dersSayisi} ders` },
       { etiket: "Seviye", deger: input.seviye },
     ],
+    // Editör alanı boş string gönderebilir ("metni sil" demek), o yüzden
+    // ?? değil undefined kontrolü: boş string geçerli bir değer.
+    tanitimMetni: input.tanitimMetni !== undefined ? input.tanitimMetni : (existingContent.tanitimMetni ?? ""),
     kazanimlar: existingContent.kazanimlar ?? [],
     uygun: existingContent.uygun ?? [],
     uygunDegil: existingContent.uygunDegil ?? [],
