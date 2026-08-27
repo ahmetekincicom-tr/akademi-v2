@@ -1,10 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { mesajGonder } from "@/app/mesaj-actions";
 import { Icon } from "@/components/Icon";
 
-const konular = ["Eğitim hakkında bilgi", "Ücretsiz ön görüşme", "Kurumsal eğitim", "Panel / teknik destek", "Diğer"];
+const konular = [
+  "Eğitim hakkında bilgi",
+  "Ücretsiz ön görüşme",
+  "Yüz yüze eğitim",
+  "Kurumsal eğitim",
+  "Panel / teknik destek",
+  "Diğer",
+];
+
+/**
+ * Eğitim sayfasındaki talep düğmeleri `?konu=` ile geliyor. Anahtar kısa ve
+ * sabit; konu metnini URL'e koymak, metin bir gün değiştiğinde bağlantıyı
+ * sessizce ilk seçeneğe düşürürdü.
+ */
+const KONU_ANAHTARLARI: Record<string, string> = {
+  "yuz-yuze": "Yüz yüze eğitim",
+  kurumsal: "Kurumsal eğitim",
+  "on-gorusme": "Ücretsiz ön görüşme",
+};
 
 const alanStil =
   "h-[48px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]";
@@ -13,12 +31,31 @@ export function IletisimFormu() {
   const [ad, setAd] = useState("");
   const [email, setEmail] = useState("");
   const [telefon, setTelefon] = useState("");
-  const [konu, setKonu] = useState(konular[0]);
+  const [secilenKonu, setKonu] = useState<string | null>(null);
   const [mesaj, setMesaj] = useState("");
   const [tuzak, setTuzak] = useState("");
   const [gonderiliyor, setGonderiliyor] = useState(false);
   const [gonderildi, setGonderildi] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
+
+  /*
+    Konu adresten okunuyor: ?konu=kurumsal gibi.
+
+    useSearchParams KULLANILMIYOR — bu sayfanın statik üretilmesini bozuyor.
+    useState başlangıç değeri de olmuyor: sunucuda adres yok, ilk çizimde
+    farklı bir seçenek seçili kalırsa hidrasyon uyuşmazlığı çıkıyor.
+
+    useSyncExternalStore ikisini de çözüyor; sunucu anlık görüntüsü null,
+    bağlandıktan sonra gerçek değerle yeniden çiziliyor. Abonelik boş: bu
+    sayfada adres kendiliğinden değişmiyor.
+  */
+  const adresKonusu = useSyncExternalStore(
+    () => () => {},
+    () => new URLSearchParams(window.location.search).get("konu"),
+    () => null,
+  );
+  // Kullanıcının kendi seçimi her zaman kazanıyor.
+  const konu = secilenKonu ?? (adresKonusu ? KONU_ANAHTARLARI[adresKonusu] : undefined) ?? konular[0];
 
   const gonder = async (e: React.FormEvent) => {
     e.preventDefault();

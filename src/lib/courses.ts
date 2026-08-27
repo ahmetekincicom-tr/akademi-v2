@@ -40,7 +40,6 @@ export type Course = {
   format: { etiket: string; deger: string; not: string }[];
   yorumlar: Testimonial[];
   sss: FaqItem[];
-  kutuSatir: { etiket: string; deger: string }[];
   online: boolean;
   yuzYuze: boolean;
 };
@@ -81,12 +80,6 @@ export function basligiParcala(baslik: string, vurgu: string) {
   };
 }
 
-export const kutuNot = [
-  "Ders kayıtları ve dokümanlar üye alanınızda",
-  "Ömür boyu soru-cevap desteği",
-  "Bireysel ve kurumsal faturalandırma",
-];
-
 const COURSE_SELECT =
   "id, slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, kapak_gorsel, content, modules(sira, baslik, meta, lessons(sira, baslik, sure))";
 
@@ -112,7 +105,6 @@ type CourseRow = {
     format: { etiket: string; deger: string; not: string }[];
     yorumlar: Testimonial[];
     sss: FaqItem[];
-    kutuSatir: { etiket: string; deger: string }[];
     online: boolean;
     yuzYuze: boolean;
   };
@@ -158,7 +150,6 @@ function mapCourse(row: CourseRow): Course {
     format: row.content.format,
     yorumlar: row.content.yorumlar,
     sss: row.content.sss,
-    kutuSatir: row.content.kutuSatir,
     online: row.content.online,
     yuzYuze: row.content.yuzYuze,
   };

@@ -9,12 +9,41 @@ import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
 import { HeroDegerler } from "@/components/site/HeroDegerler";
 import { KalinMetin } from "@/components/site/KalinMetin";
 import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
-import { getCourseBySlug, kutuNot, basligiParcala } from "@/lib/courses";
+import { Icon, type IconName } from "@/components/Icon";
+import { getCourseBySlug, egitmenStats, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
+import { olculenWhatsapp } from "@/lib/iletisim";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
 
 // Gerekçe: src/app/page.tsx
 export const revalidate = 3600;
+
+/**
+ * Yan kutuda listelenen program kapsamı.
+ *
+ * Yerini aldığı şey künye satırlarıydı (süre, format, yer, ödeme). Onlar
+ * programı TARİF ediyordu; buradakiler ne alındığını söylüyor. Süre bilgisi
+ * kaybolmuyor — hero'daki değer hapları ve müfredat zaten onu taşıyor.
+ */
+const PROGRAM_KAPSAMI: { ad: string; ikon: IconName }[] = [
+  { ad: "Kişiye Özel Eğitim", ikon: "user" },
+  { ad: "Ömür Boyu Destek", ikon: "message" },
+  { ad: "Ömür Boyu Güncelleme", ikon: "sparkle" },
+  { ad: "Doküman Desteği", ikon: "file" },
+  { ad: "Üye Paneline Erişim Hakkı", ikon: "grid" },
+  { ad: "WhatsApp Grubuna Katılım Hakkı", ikon: "whatsapp" },
+  { ad: "CRM Sistemi Kurulum Desteği", ikon: "plug" },
+];
+
+/** Eğitmen adının baş harfleri; portre alanı olmadığı için avatar yerine geçiyor. */
+function basHarfler(ad: string) {
+  return ad
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toLocaleUpperCase("tr") ?? "")
+    .join("");
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -304,59 +333,101 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           <div className="overflow-hidden rounded-[18px] border border-ink/11 bg-white shadow-[0_26px_60px_rgba(10,13,24,0.1)]">
             <div className="bg-ink px-6 pt-[26px] pb-6 text-white">
               <div className="font-mono text-[10.5px] tracking-[0.14em] text-white/50 uppercase">Kişiye özel program</div>
+              {/*
+                Başlık artık eğitimin kendi adı. Önceki "Kapsam ve süre size
+                göre kurulur" bir slogandı ve altındaki fiyat açıklamasıyla
+                birlikte kutuyu bir fiyat kutusu gibi gösteriyordu; oysa kutu
+                programın ne içerdiğini anlatıyor.
+              */}
               <div className="mt-3 font-heading text-[26px] leading-[1.15] font-semibold tracking-[-0.025em]">
-                Kapsam ve süre size göre kurulur
+                {course.baslik}
               </div>
-              <p className="mt-3 text-[14.5px] leading-[1.6] text-white/62">
-                Bu yüzden sabit bir liste fiyatı yok. Ücretsiz ön görüşmeden sonra net teklifinizi paylaşıyoruz.
-              </p>
             </div>
             <div className="px-6 pt-6 pb-[26px]">
-              <div className="flex flex-col gap-3">
-                {course.kutuSatir.map((k) => (
-                  <div key={k.etiket} className="flex items-center justify-between gap-4 text-[14.5px]">
-                    <span className="text-[#6B7080]">{k.etiket}</span>
-                    <span className="text-right font-semibold text-ink">{k.deger}</span>
-                  </div>
-                ))}
-              </div>
-              <Link
-                href={`/odeme?kurs=${course.slug}`}
-                className="mt-[22px] flex h-13 items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[16px] font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.32)] transition hover:bg-ink"
-              >
-                Ücretsiz ön görüşme talep et <span>→</span>
-              </Link>
-              <Link
-                href="/iletisim"
-                className="mt-[10px] flex h-12 items-center justify-center rounded-[11px] border border-ink/14 text-[15px] font-semibold text-ink transition hover:border-brand hover:text-brand"
-              >
-                Soru sor
-              </Link>
-              <div className="mt-[18px] flex flex-col gap-[10px] border-t border-ink/9 pt-[18px]">
-                {kutuNot.map((n) => (
-                  <div key={n} className="flex items-start gap-[10px] text-[13.5px] leading-[1.5] text-[#5C6273]">
-                    <span className="mt-[1px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-[9px] font-bold text-brand">
-                      ✓
+              {/*
+                İçerik listesi sabit: süre/format/yer gibi künye bilgileri değil,
+                programa dahil olan haklar. Hepsi her eğitimde aynı olduğu için
+                veritabanında değil burada duruyor — değişmeyen yedi satırı her
+                eğitim için yeniden doldurtmak hataya açık.
+              */}
+              <div className="flex flex-col gap-[13px]">
+                {PROGRAM_KAPSAMI.map((k) => (
+                  <div key={k.ad} className="flex items-center gap-[11px] text-[14.5px] leading-[1.35]">
+                    <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[9px] bg-brand/10 text-brand">
+                      <Icon name={k.ikon} size={15} />
                     </span>
-                    <span>{n}</span>
+                    <span className="font-medium text-ink">{k.ad}</span>
                   </div>
                 ))}
               </div>
+
+              {/*
+                Ana eylem hero'daki düğmenin aynısı: sayfayı aşağı okuyan kişi
+                yukarı dönmek zorunda kalmasın. Ölçülen uçtan gidiyor, kaynak
+                farklı ki hangi düğmenin çalıştığı ayrışsın.
+              */}
+              <Link
+                href={olculenWhatsapp("egitim-yan-kutu")}
+                className="mt-6 flex h-13 items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[15.5px] font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.32)] transition hover:bg-ink"
+              >
+                <Icon name="whatsapp" size={17} />
+                Eğitim Planı Oluştur
+              </Link>
+
+              {/*
+                İkincil iki talep forma gidiyor, WhatsApp'a değil: ikisi de
+                planlama gerektiren, yazılı bilgi istenen taleplerdir (tarih,
+                yer, kişi sayısı). Konu formda hazır seçili geliyor.
+              */}
+              <Link
+                href="/iletisim?konu=yuz-yuze"
+                className="mt-[10px] flex h-12 items-center justify-center gap-[9px] rounded-[11px] border border-ink text-[14.5px] font-semibold text-ink transition hover:bg-ink hover:text-white"
+              >
+                <Icon name="pin" size={16} />
+                Yüz yüze eğitim talebi oluştur
+              </Link>
+              <Link
+                href="/iletisim?konu=kurumsal"
+                className="mt-[10px] flex h-12 items-center justify-center gap-[9px] rounded-[11px] border border-ink text-[14.5px] font-semibold text-ink transition hover:bg-ink hover:text-white"
+              >
+                <Icon name="users" size={16} />
+                Kurumsal eğitim talebi
+              </Link>
             </div>
           </div>
-          <div className="mt-4 flex items-start gap-[14px] rounded-[14px] border border-ink/11 p-5">
-            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-[10px] bg-[#F2F4FA] text-[15px] text-brand">
-              ?
-            </span>
-            <div>
-              <div className="text-[14.5px] font-semibold">Emin değil misiniz?</div>
-              <p className="mt-[6px] mb-[10px] text-[13.5px] leading-[1.55] text-[#5C6273]">
-                Hangi programın uyduğunu 15 dakikalık görüşmede netleştirelim.
-              </p>
-              <Link href="/iletisim" className="text-[13.5px] font-semibold">
-                WhatsApp&apos;tan yazın →
-              </Link>
+
+          {/*
+            "Emin değil misiniz?" kutusunun yerinde artık eğitmen kimliği var.
+            O kutu üçüncü bir eylem öneriyordu; üst üste dört düğme, hiçbirini
+            seçtirmiyor. Kararı zorlaştıran şey seçenek sayısıydı — eksik olan
+            şey ise eğitimi kimin verdiğiydi.
+          */}
+          <div className="mt-4 rounded-[14px] border border-ink/11 p-5">
+            <div className="flex items-center gap-[13px]">
+              <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-ink font-heading text-[15px] font-semibold text-white">
+                {basHarfler(icerik.egitmenAd)}
+              </span>
+              <div className="min-w-0">
+                <div className="text-[15px] leading-[1.25] font-semibold">{icerik.egitmenAd}</div>
+                {icerik.egitmenUnvan && (
+                  <div className="mt-[3px] truncate text-[12.5px] text-[#5C6273]">{icerik.egitmenUnvan}</div>
+                )}
+              </div>
             </div>
+            <div className="mt-[15px] flex flex-col gap-[9px] border-t border-ink/9 pt-[15px]">
+              {egitmenStats.map((s) => (
+                <div key={s.t} className="flex items-baseline justify-between gap-3 text-[13.5px]">
+                  <span className="text-[#5C6273]">{s.t}</span>
+                  <span className="font-semibold text-ink">{s.n}</span>
+                </div>
+              ))}
+            </div>
+            <Link
+              href="/hakkimizda"
+              className="mt-[15px] inline-flex text-[13.5px] font-semibold text-brand hover:text-ink"
+            >
+              Eğitmen hakkında →
+            </Link>
           </div>
         </aside>
       </div>

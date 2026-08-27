@@ -10,8 +10,8 @@ import { olculenWhatsapp } from "@/lib/iletisim";
  * söylediği şey satın alma kararını taşımıyordu — üstelik "seviye" çoğu
  * programda boştu, yani kutulardan biri hep boş bir kart olarak duruyordu.
  *
- * O bilgiler KAYBOLMUYOR: sağdaki kayıt kutusunda (course.kutuSatir) satır
- * satır duruyorlar. Hero'nun işi ikna etmek, künye yazmak değil.
+ * Süre bilgisi müfredatta ve eğitim kartlarında duruyor; hero'nun işi ikna
+ * etmek, künye yazmak değil.
  *
  * Dört başlık programa göre değişmiyor çünkü akademinin çalışma biçimini
  * anlatıyorlar, tek bir eğitimi değil. Programa özel bir gün gelirse
