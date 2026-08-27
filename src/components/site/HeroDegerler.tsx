@@ -13,7 +13,7 @@ import { olculenWhatsapp } from "@/lib/iletisim";
  * O bilgiler KAYBOLMUYOR: sağdaki kayıt kutusunda (course.kutuSatir) satır
  * satır duruyorlar. Hero'nun işi ikna etmek, künye yazmak değil.
  *
- * Üç başlık programa göre değişmiyor çünkü akademinin çalışma biçimini
+ * Dört başlık programa göre değişmiyor çünkü akademinin çalışma biçimini
  * anlatıyorlar, tek bir eğitimi değil. Programa özel bir gün gelirse
  * doğru yer veritabanı olur; bugün orada tutmak, hiç değişmeyen üç satırı
  * her eğitim için yeniden doldurtmak demekti.
@@ -22,6 +22,7 @@ import { olculenWhatsapp } from "@/lib/iletisim";
 const DEGERLER: { ad: string; ikon: IconName }[] = [
   { ad: "Birebir & Kişiye Özel", ikon: "user" },
   { ad: "%100 Uygulamalı", ikon: "sparkle" },
+  { ad: "Seviyenize Özel İlerleme", ikon: "sliders" },
   { ad: "Ömür Boyu Ücretsiz Destek", ikon: "message" },
 ];
 
@@ -51,15 +52,25 @@ export function HeroDegerler() {
         tıklama kaydı yazılıyor, mesaja referans kodu gömülüyor ve Meta'ya
         Contact olayı düşüyor. Gerekçesi app/git/whatsapp/route.ts içinde.
       */}
-      <div className="mt-7 border-t border-white/10 pt-7">
+      <div className="mt-8 border-t border-white/10 pt-8">
+        {/*
+          Düğme mobilde tam genişlikte: dar ekranda sola yaslanmış bir düğme
+          "yan bilgi" gibi okunuyordu, oysa sayfanın tek eylemi bu.
+        */}
         <Link
           href={olculenWhatsapp("egitim-hero")}
-          className="inline-flex h-13 items-center justify-center gap-[10px] rounded-[12px] bg-white px-7 text-[15.5px] font-semibold text-ink shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition hover:bg-brand hover:text-white"
+          className="nabiz group flex h-14 w-full items-center justify-center gap-[11px] rounded-[14px] bg-brand px-8 text-[16.5px] font-semibold text-white shadow-[0_16px_40px_rgba(28,86,243,0.45)] transition-[background-color,box-shadow] duration-200 hover:bg-white hover:text-ink hover:shadow-[0_16px_44px_rgba(255,255,255,0.22)] sm:w-auto"
         >
-          <Icon name="whatsapp" size={18} />
+          <Icon name="whatsapp" size={19} />
           Eğitim Planı Oluştur
+          <span className="transition-transform duration-200 group-hover:translate-x-[3px]">→</span>
         </Link>
-        <p className="mt-[10px] text-[13px] leading-[1.5] text-white/45">
+        <p className="mt-[11px] flex flex-wrap items-center gap-x-[7px] text-[13px] leading-[1.5] text-white/50">
+          <span className="inline-flex items-center gap-[5px] font-medium text-white/70">
+            <span className="h-[6px] w-[6px] rounded-full bg-[#34D399]" />
+            Ücretsiz ön görüşme
+          </span>
+          <span aria-hidden>·</span>
           WhatsApp&apos;tan yazın, kapsamı birlikte belirleyelim.
         </p>
       </div>

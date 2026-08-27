@@ -229,6 +229,52 @@
     }
   }
 
+  /*
+    Ana eylemin nabzı.
+
+    Düğme sayfanın en önemli tıklanabilir öğesi ama koyu bir hero'da sabit
+    dururken gözden kaçıyordu. Kısa bir büzülme-genişleme, çevre görüşte
+    hareket olarak yakalanıyor.
+
+    Döngünün ÇOĞU durgun: hareket 2.6 saniyenin yalnızca son yarım
+    saniyesinde. Sürekli titreyen bir düğme dikkat çekmiyor, rahatsız ediyor
+    ve okunmayı bırakılan ilk şey oluyor.
+
+    scale kullanılıyor, margin ya da genişlik değil: düzen hesabı yeniden
+    yapılmıyor, yalnızca bileşik katman kayıyor.
+  */
+  @keyframes aea-nabiz {
+    0%,
+    80%,
+    100% {
+      transform: scale(1);
+    }
+    88% {
+      transform: scale(0.955);
+    }
+    94% {
+      transform: scale(1.022);
+    }
+  }
+
+  .nabiz {
+    animation: aea-nabiz 2.6s ease-in-out infinite;
+  }
+
+  /* Tıklarken ya da üzerine gelince nabız durur: kullanıcı zaten fark etti,
+     hareket artık nişan almayı zorlaştırmaktan başka bir şey yapmıyor. */
+  .nabiz:hover,
+  .nabiz:focus-visible,
+  .nabiz:active {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nabiz {
+      animation: none;
+    }
+  }
+
 
   /*
     Yorum kartlarının belirmesi.

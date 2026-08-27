@@ -7,6 +7,7 @@ import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
 import { HeroDegerler } from "@/components/site/HeroDegerler";
+import { KalinMetin } from "@/components/site/KalinMetin";
 import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
 import { getCourseBySlug, kutuNot, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
@@ -126,7 +127,18 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 {parca.vurgu}
                 {parca.sonra}
               </h1>
-              <p className="mt-6 max-w-[560px] text-[19px] leading-[1.62] text-white/68">{course.heroAciklama}</p>
+              {/*
+                19px hero başlığının hemen altında fazla iriydi: başlıkla
+                yarışıyor, ikisi arasındaki hiyerarşi kayboluyordu. 16.5/17.5
+                okunurluğu bozmadan başlığa alan bırakıyor.
+
+                `**...**` ile işaretlenen yerler kalın basılıyor; metin panelden
+                giriliyor ve satış cümlesinin bir yerini öne çıkarabilmek
+                gerekiyor.
+              */}
+              <p className="mt-5 max-w-[560px] text-[16.5px] leading-[1.62] text-white/65 sm:text-[17.5px]">
+                <KalinMetin metin={course.heroAciklama} />
+              </p>
               <HeroDegerler />
             </div>
             {/*
