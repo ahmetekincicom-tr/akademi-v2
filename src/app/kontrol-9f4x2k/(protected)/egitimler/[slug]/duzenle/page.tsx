@@ -25,6 +25,9 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
         .map((d) => ({ id: d.id, ad: d.baslik, sure: d.sure ?? "" })),
     }));
 
+  // content serbest JSON; editöre yalnızca oradan yönetilen alanlar taşınıyor.
+  const icerik = course.content as { tanitimMetni?: string; sss?: { soru: string; cevap: string }[] } | null;
+
   const initial: CourseEditorInitial = {
     ad: course.baslik,
     vurgu: course.baslik_vurgu ?? "",
@@ -33,7 +36,8 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
     seviye: course.seviye ?? "",
     url: course.slug,
     aciklama: course.aciklama ?? "",
-    tanitimMetni: (course.content as { tanitimMetni?: string } | null)?.tanitimMetni ?? "",
+    tanitimMetni: icerik?.tanitimMetni ?? "",
+    sss: icerik?.sss ?? [],
     modules,
     siteGorunur: course.sitede_gorunur,
     satisaAcik: course.satisa_acik,

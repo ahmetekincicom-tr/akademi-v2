@@ -23,6 +23,8 @@ export type SaveCourseInput = {
   baslikVurgu?: string;
   /** Hero'nun altındaki serbest tanıtım metni. Verilmezse mevcut değer korunuyor. */
   tanitimMetni?: string;
+  /** Eğitime özel sıkça sorulan sorular. Verilmezse mevcut liste korunuyor. */
+  sss?: { soru: string; cevap: string }[];
 };
 
 type ExistingContent = {
@@ -92,7 +94,18 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     uygunDegil: existingContent.uygunDegil ?? [],
     format: existingContent.format ?? [],
     yorumlar: existingContent.yorumlar ?? [],
-    sss: existingContent.sss ?? [],
+    /*
+      Yarım kalmış satırlar KAYDEDİLMİYOR: editörde "soru ekle"ye basıp
+      doldurmadan kaydeden birinin sayfada boş bir akordiyon başlığı
+      görmesini engelliyor. Aynı liste yapısal veriye (FAQPage) de gidiyor,
+      orada boş bir soru geçersiz işaretleme demek.
+    */
+    sss:
+      input.sss !== undefined
+        ? input.sss
+            .map((s) => ({ soru: s.soru.trim(), cevap: s.cevap.trim() }))
+            .filter((s) => s.soru && s.cevap)
+        : (existingContent.sss ?? []),
     kutuSatir: existingContent.kutuSatir ?? [],
     online: existingContent.online ?? true,
     yuzYuze: existingContent.yuzYuze ?? true,
@@ -178,6 +191,20 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
       if (lesErr) return { error: lesErr.message };
     }
   }
+
+  /*
+    Ön yüz sayfaları saatlik yeniden üretiliyor (revalidate = 3600). Bu satırlar
+    olmadan panelden yapılan bir düzeltme sitede bir saate kadar görünmüyordu —
+    yazan kişi de değişikliğin kaydedilmediğini sanıyordu.
+
+    Eski URL de tazeleniyor: slug değiştiyse geride kalan sayfa artık 404.
+  */
+  revalidatePath("/egitimler");
+  revalidatePath(`/egitimler/${input.slug}`);
+  if (input.originalSlug && input.originalSlug !== input.slug) {
+    revalidatePath(`/egitimler/${input.originalSlug}`);
+  }
+  revalidatePath("/");
 
   redirect("/kontrol-9f4x2k/egitimler");
 }

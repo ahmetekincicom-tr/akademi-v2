@@ -279,13 +279,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           </details>
 
 
-          <section id="sss" className="mt-22">
-            <SectionKicker>SSS</SectionKicker>
-            <h2 className="mt-[18px] mb-7 font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
-              Bu program hakkında
-            </h2>
-            <FaqAccordion items={course.sss} />
-          </section>
+          {/* Soru girilmediyse bölüm hiç basılmıyor: boş bir "Bu program
+              hakkında" başlığı sayfada eksik iş gibi duruyordu. */}
+          {course.sss.length > 0 && (
+            <section id="sss" className="mt-22">
+              <SectionKicker>SSS</SectionKicker>
+              <h2 className="mt-[18px] mb-7 font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
+                Bu program hakkında
+              </h2>
+              <FaqAccordion items={course.sss} />
+            </section>
+          )}
         </main>
 
         {/*

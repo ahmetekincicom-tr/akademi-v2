@@ -15,6 +15,10 @@ import { basligiParcala } from "@/lib/courses";
 type EditorLesson = { id?: string; ad: string; sure: string };
 type EditorModule = { id?: string; ad: string; dersler: EditorLesson[] };
 
+// SSS modüllerden farklı: kendi tablosu yok, content JSON'unda dizi olarak
+// duruyor. Bu yüzden id taşımıyor — sırası kimliği.
+type EditorSoru = { soru: string; cevap: string };
+
 export type CourseEditorInitial = {
   ad: string;
   /** Başlıkta marka rengiyle yazılacak kısım. Boşsa başlık düz görünür. */
@@ -26,6 +30,8 @@ export type CourseEditorInitial = {
   aciklama: string;
   /** Eğitim sayfasında hero'nun altında basılan serbest tanıtım metni. */
   tanitimMetni: string;
+  /** Bu eğitime özel sıkça sorulan sorular. */
+  sss: EditorSoru[];
   modules: EditorModule[];
   siteGorunur: boolean;
   satisaAcik: boolean;
@@ -43,6 +49,7 @@ const BOS_INITIAL: CourseEditorInitial = {
   url: "",
   aciklama: "",
   tanitimMetni: "",
+  sss: [],
   modules: [],
   siteGorunur: true,
   satisaAcik: true,
@@ -65,6 +72,7 @@ export function CourseEditor({
   const [url, setUrl] = useState(initial.url);
   const [aciklama, setAciklama] = useState(initial.aciklama);
   const [tanitimMetni, setTanitimMetni] = useState(initial.tanitimMetni);
+  const [sss, setSss] = useState<EditorSoru[]>(initial.sss);
   const [modules, setModules] = useState<EditorModule[]>(initial.modules);
   const [yayin, setYayin] = useState({
     site: initial.siteGorunur,
@@ -88,6 +96,7 @@ export function CourseEditor({
       seviye,
       aciklama,
       tanitimMetni,
+      sss,
       modules,
       siteGorunur: yayin.site,
       satisaAcik: yayin.satis,
@@ -116,6 +125,20 @@ export function CourseEditor({
     }
     bildir.basarili("Eğitim arşivlendi.");
   };
+
+  const soruEkle = () => setSss((prev) => prev.concat({ soru: "", cevap: "" }));
+  const soruSil = (i: number) => setSss((prev) => prev.filter((_, j) => j !== i));
+  const soruYaz = (i: number, alan: "soru" | "cevap", v: string) =>
+    setSss((prev) => prev.map((s, j) => (j === i ? { ...s, [alan]: v } : s)));
+  // Sıra sayfada göründüğü sıra: en çok sorulanı yukarı almak isteniyor.
+  const soruTasi = (i: number, yon: -1 | 1) =>
+    setSss((prev) => {
+      const hedef = i + yon;
+      if (hedef < 0 || hedef >= prev.length) return prev;
+      const kopya = prev.slice();
+      [kopya[i], kopya[hedef]] = [kopya[hedef], kopya[i]];
+      return kopya;
+    });
 
   const modulEkle = () => setModules((prev) => prev.concat({ ad: "", dersler: [] }));
   const modulSil = (mi: number) => setModules((prev) => prev.filter((_, i) => i !== mi));
@@ -382,6 +405,93 @@ export function CourseEditor({
             ))}
             {modules.length === 0 && (
               <div className="px-6 py-8 text-center text-sm text-[#656B7A]">Henüz modül eklenmedi.</div>
+            )}
+          </div>
+
+          {/*
+            SSS her eğitime ÖZEL: sorular programa göre değişiyor ("kaç saat",
+            "kimler katılabilir", "kayıtlar ne kadar açık") ve ortak bir liste
+            hepsine birden yanlış cevap veriyordu.
+
+            Liste aynı zamanda sayfadaki FAQPage yapısal verisini besliyor,
+            yani buraya yazılan soru arama sonucunda da görünebiliyor.
+          */}
+          <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
+            <div className="flex items-center justify-between gap-4 border-b border-ink/8 px-6 py-5">
+              <div>
+                <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Sıkça sorulan sorular</h2>
+                <p className="mt-[5px] text-[13px] text-[#656B7A]">
+                  {sss.length === 0
+                    ? "Bu eğitimin sayfasında görünecek sorular"
+                    : `${sss.length} soru · eğitim sayfasının altında görünür`}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={soruEkle}
+                className="inline-flex h-[38px] items-center gap-[6px] rounded-[9px] border border-brand/40 bg-brand/[0.07] px-[15px] text-[13.5px] font-semibold text-brand transition hover:bg-brand hover:text-white"
+              >
+                <Icon name="plus" size={14} />
+                Soru ekle
+              </button>
+            </div>
+            {sss.map((s, i) => (
+              <div key={i} className="flex flex-col gap-[10px] border-b border-ink/8 px-6 py-5 last:border-b-0">
+                <div className="flex items-center gap-[11px]">
+                  <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[8px] border border-ink/12 bg-mist font-mono text-[11px] font-medium text-brand">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <input
+                    type="text"
+                    value={s.soru}
+                    onChange={(e) => soruYaz(i, "soru", e.target.value)}
+                    placeholder="Soru — örn. Eğitim kaç saat sürüyor?"
+                    className="h-10 min-w-0 flex-1 rounded-[9px] border border-ink/13 bg-white px-[13px] text-[14.5px] font-semibold text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => soruTasi(i, -1)}
+                    disabled={i === 0}
+                    aria-label="Yukarı taşı"
+                    className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/13 bg-white text-[13px] text-[#656B7A] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-ink/13 disabled:hover:text-[#656B7A]"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => soruTasi(i, 1)}
+                    disabled={i === sss.length - 1}
+                    aria-label="Aşağı taşı"
+                    className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/13 bg-white text-[13px] text-[#656B7A] transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-ink/13 disabled:hover:text-[#656B7A]"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => soruSil(i)}
+                    aria-label="Soruyu sil"
+                    className="flex h-9 w-9 flex-none items-center justify-center rounded-[8px] border border-ink/13 bg-white text-[#656B7A] transition hover:border-danger/45 hover:text-danger"
+                  >
+                    <Icon name="x" size={15} />
+                  </button>
+                </div>
+                <textarea
+                  value={s.cevap}
+                  onChange={(e) => soruYaz(i, "cevap", e.target.value)}
+                  placeholder="Cevap"
+                  className="ml-[41px] min-h-[82px] resize-y rounded-[9px] border border-ink/12 bg-white px-[13px] py-[10px] text-[14px] leading-[1.6] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                />
+              </div>
+            ))}
+            {sss.length === 0 && (
+              <div className="px-6 py-8 text-center text-sm text-[#656B7A]">
+                Henüz soru eklenmedi. Soru eklenmezse bölüm eğitim sayfasında görünmez.
+              </div>
+            )}
+            {sss.length > 0 && (
+              <div className="border-t border-ink/8 bg-mist px-6 py-[13px] text-[12.5px] leading-[1.5] text-[#656B7A]">
+                Soru ya da cevabı boş bırakılan satırlar kaydedilmez.
+              </div>
             )}
           </div>
         </div>
