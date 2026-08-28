@@ -113,21 +113,27 @@ export async function PublicFooter() {
   return (
     <footer className="border-t border-white/10 bg-ink text-white/60">
       {/*
-        Dar ekranda footer ORTALANMIŞ ve daraltılmış.
+        Dar ekranda hizalama SOLA yaslı kalıyor, yalnızca listeler daralıyor.
 
-        Alt alta inen dört blok sola yaslıyken sayfanın sonu dağınık bir liste
-        gibi duruyordu; ortalanınca kapanış hissi veriyor. Bağlantı sütunları
-        ise açılır kapanır (FooterBolum) — hepsi birden açıkken footer sayfanın
+        Bir ara her şey ortalanmıştı: marka bloğu, menü başlıkları ve iletişim
+        satırları aynı eksene binince footer'ın kendi içindeki hiyerarşi
+        kayboldu — hangi metnin başlık, hangisinin bağlantı olduğu okunmuyordu.
+        Sol kenar, göz için ortak bir dayanak; premium arayüzlerin footer'ı bu
+        yüzden neredeyse her zaman sola yaslı.
+
+        Daraltma (FooterBolum) kalıyor: hepsi birden açıkken footer sayfanın
         kendisinden uzun oluyordu.
       */}
-      <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-8 px-5 sm:gap-12 sm:px-8 py-14 pb-7 sm:py-16 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
-        <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+      <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-y-2 px-5 sm:gap-12 sm:px-8 py-14 pb-7 sm:py-16 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+        {/* Marka bloğunun altındaki çizgi yalnızca dar ekranda: orada blok ile
+            menüler aynı sütuna indiği için ayrım gerekiyor. */}
+        <div className="mb-2 border-b border-white/[0.08] pb-7 sm:mb-0 sm:border-b-0 sm:pb-0">
           {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor. */}
           <Logo variant="light" yer="alt" href={ON_YUZ_ACIK ? "/" : "/giris"} />
           <p className="mt-[18px] max-w-[280px] text-[14.5px] leading-[1.65]">
             Dijital çağın dinamiklerine uygun, birebir eğitim deneyimi. Ankara ve online.
           </p>
-          <div className="mt-[22px] flex justify-center gap-[10px] sm:justify-start">
+          <div className="mt-[22px] flex gap-[10px]">
             {SOSYAL.map((s) => (
               <a
                 key={s.ad}
@@ -160,9 +166,8 @@ export async function PublicFooter() {
                     <span className="min-w-0 break-words">{l.label}</span>
                   </>
                 );
-                // Dar ekranda içerik ortalı, geniş ekranda sola yaslı.
                 const stil =
-                  "group flex items-start justify-center gap-[10px] text-[14.5px] leading-[1.4] text-white/65 transition hover:text-white sm:justify-start";
+                  "group flex items-start gap-[10px] text-[14.5px] leading-[1.4] text-white/65 transition hover:text-white";
 
                 if (!l.href) {
                   return (
@@ -191,9 +196,13 @@ export async function PublicFooter() {
           </FooterBolum>
         ))}
       </div>
-      <div className="mx-auto flex max-w-[1240px] flex-col items-center gap-5 border-t border-white/10 px-5 py-[22px] pb-10 text-center text-[13px] sm:flex-row sm:flex-wrap sm:justify-between sm:gap-6 sm:px-8 sm:text-left">
-        <span>© 2021–2026 Ahmet Ekinci Akademi. Tüm hakları saklıdır.</span>
-        <div className="flex flex-wrap justify-center gap-x-[22px] gap-y-2 sm:justify-start">
+      {/* Telif ve yasal bağlantılar da sola yaslı; dar ekranda alt alta,
+          geniş ekranda iki uca yaslanıyor. */}
+      <div className="mx-auto flex max-w-[1240px] flex-col gap-4 border-t border-white/10 px-5 py-[22px] pb-10 text-[13px] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:px-8">
+        <span className="order-2 text-white/45 sm:order-1 sm:text-inherit">
+          © 2021–2026 Ahmet Ekinci Akademi. Tüm hakları saklıdır.
+        </span>
+        <div className="order-1 flex flex-wrap gap-x-[22px] gap-y-[10px] sm:order-2">
           {YASAL_LINKLER.map((l) => (
             <Link key={l.href} href={l.href} className="text-white/55 hover:text-white">
               {l.label}

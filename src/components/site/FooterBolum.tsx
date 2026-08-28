@@ -37,18 +37,21 @@ export function FooterBolum({ baslik, children }: { baslik: string; children: Re
   return (
     <details
       open={genisEkran}
-      className="group border-b border-white/10 pb-3 last:border-b-0 sm:border-b-0 sm:pb-0"
+      className="group border-b border-white/[0.08] last:border-b-0 sm:border-b-0"
     >
-      <summary className="flex cursor-pointer list-none items-center justify-center gap-[10px] py-2 sm:pointer-events-none sm:justify-start sm:py-0 [&::-webkit-details-marker]:hidden">
+      {/*
+        Başlık SOLDA, işaret SAĞDA — dokunulacak alan satırın tamamı.
+        Ortalanmış bir akordiyon başlığı, tıklanabilir olduğunu da hangi
+        listeye ait olduğunu da belirsizleştiriyordu.
+      */}
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-[15px] sm:pointer-events-none sm:py-0 [&::-webkit-details-marker]:hidden">
         <span className="font-mono text-[10.5px] tracking-[0.16em] text-white/55 uppercase">{baslik}</span>
-        <span className="font-mono text-[15px] leading-none text-white/45 sm:hidden">
+        <span className="flex h-6 w-6 flex-none items-center justify-center rounded-[7px] border border-white/12 font-mono text-[13px] leading-none text-white/50 transition group-open:border-white/20 sm:hidden">
           <span className="hidden group-open:inline">–</span>
           <span className="group-open:hidden">+</span>
         </span>
       </summary>
-      <div className="mt-4 flex flex-col items-center gap-[11px] pb-2 sm:mt-[18px] sm:items-start sm:pb-0">
-        {children}
-      </div>
+      <div className="flex flex-col gap-[13px] pb-[18px] sm:mt-[18px] sm:gap-[11px] sm:pb-0">{children}</div>
     </details>
   );
 }
