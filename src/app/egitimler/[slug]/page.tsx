@@ -239,10 +239,34 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           <section id="egitmen" className="mt-22 lg:hidden">
             <div className="grid grid-cols-1 overflow-hidden rounded-[18px] border border-ink/11 md:grid-cols-[260px_1fr]">
               {icerik.egitmenGorsel ? (
-                <div
-                  className="min-h-[240px] bg-cover bg-center md:min-h-[280px]"
-                  style={{ backgroundImage: `url(${icerik.egitmenGorsel})` }}
-                />
+                /*
+                  Dar ekranda görsel KIRPILMIYOR.
+
+                  Tek sütuna düşen kutuda alan tam genişlik oluyor ve
+                  `bg-cover` + sabit yükseklik, yatay bir fotoğrafın üstünü ve
+                  altını kesiyordu — sahnedeki kişinin başı kadraj dışında
+                  kalıyordu. Kendi en-boy oranıyla basıldığında böyle bir
+                  karar vermek gerekmiyor.
+
+                  Geniş ekranda (md+) alan 260px'lik dar bir sütun; orada
+                  fotoğrafı olduğu gibi basmak kutuyu uzatırdı, o yüzden
+                  kırpma doğru davranış.
+
+                  next/image değil: kaynak Supabase CDN'i, yapılandırma yükü
+                  kazancından fazla.
+                */
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={icerik.egitmenGorsel}
+                    alt={`${icerik.egitmenAd} portresi`}
+                    className="h-auto w-full md:hidden"
+                  />
+                  <div
+                    className="hidden bg-cover bg-center md:block md:min-h-[280px]"
+                    style={{ backgroundImage: `url(${icerik.egitmenGorsel})` }}
+                  />
+                </>
               ) : (
                 <div className="placeholder-block flex min-h-[200px] items-end p-4 md:min-h-[280px]">
                   <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
