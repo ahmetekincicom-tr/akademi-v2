@@ -267,9 +267,12 @@ function LogoBoyutu({ marka }: { marka: MarkaGorunum }) {
     });
 
   // Site tarafındaki oranların aynısı (src/components/site/Logo.tsx).
+  // Alt bilgi iki satır: orada logo dar ekranda büyüyor, çünkü sütunlar alt
+  // alta inince tek başına en üstte kalıyor.
   const onizleme = [
     { ad: "Üst menü", oran: 1, koyu: false, url: marka.logoAcikZemin },
-    { ad: "Alt bilgi", oran: 0.88, koyu: true, url: marka.logoKoyuZemin },
+    { ad: "Alt bilgi · masaüstü", oran: 0.88, koyu: true, url: marka.logoKoyuZemin },
+    { ad: "Alt bilgi · mobil", oran: 1.2, koyu: true, url: marka.logoKoyuZemin },
     { ad: "Giriş ekranı", oran: 1.2, koyu: true, url: marka.logoKoyuZemin },
   ];
 
@@ -293,7 +296,30 @@ function LogoBoyutu({ marka }: { marka: MarkaGorunum }) {
           className="h-2 w-full max-w-[380px] accent-[#1C56F3]"
           aria-label="Logo yüksekliği"
         />
-        <span className="font-mono text-[13px] text-[#3A3F4F]">{deger} px</span>
+        {/*
+          Kaydırıcının yanında doğrudan px girişi: bilinen bir değeri
+          ("48 olsun") kaydırıcıyla tutturmak zahmetli.
+
+          Boş bırakılabiliyor ki kutu temizlenip yeni sayı yazılabilsin; boş
+          değer 0'a değil, aralığın altına düşmüyor — kaydederken zaten
+          logoYuksekligiDuzelt sınırlıyor, burada da alt sınıra çekiliyor.
+        */}
+        <label className="flex items-center gap-2">
+          <input
+            type="number"
+            min={LOGO_YUKSEKLIK_ALT}
+            max={LOGO_YUKSEKLIK_UST}
+            value={deger}
+            onChange={(e) => {
+              const sayi = Number(e.target.value);
+              if (!Number.isFinite(sayi)) return;
+              setDeger(Math.min(LOGO_YUKSEKLIK_UST, Math.max(LOGO_YUKSEKLIK_ALT, Math.round(sayi))));
+            }}
+            aria-label="Logo yüksekliği (px)"
+            className="h-9 w-[74px] rounded-[9px] border border-ink/13 bg-white px-[10px] font-mono text-[13px] text-ink outline-none focus:border-brand"
+          />
+          <span className="font-mono text-[13px] text-[#656B7A]">px</span>
+        </label>
         {deger !== VARSAYILAN_LOGO_YUKSEKLIGI && (
           <button
             type="button"
@@ -305,7 +331,7 @@ function LogoBoyutu({ marka }: { marka: MarkaGorunum }) {
         )}
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {onizleme.map((o) => {
           const y = Math.round(deger * o.oran);
           return (

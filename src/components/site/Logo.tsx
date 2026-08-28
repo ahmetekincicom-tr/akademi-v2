@@ -11,9 +11,17 @@ import { getMarka } from "@/lib/marka";
  * küçük.
  */
 const OLCEK = {
-  baslik: 1,
-  alt: 0.88,
-  giris: 1.2,
+  baslik: { dar: 1, genis: 1 },
+  /*
+    Alt bilgide logo dar ekranda BÜYÜYOR (0.88 → 1.2).
+
+    Geniş ekranda logo, yanındaki üç bağlantı sütunuyla birlikte duruyor ve
+    küçük olması doğru: sayfanın sonu, ana işaret değil. Mobilde ise sütunlar
+    alt alta iniyor, logo tek başına en üstte kalıyor ve aynı oran orada
+    kaybolup gidiyordu.
+  */
+  alt: { dar: 1.2, genis: 0.88 },
+  giris: { dar: 1.2, genis: 1.2 },
 } as const;
 
 export type LogoYeri = keyof typeof OLCEK;
@@ -43,7 +51,8 @@ export async function Logo({
   // The "light" variant sits on the dark header/footer, so it needs the logo
   // drawn for dark backgrounds.
   const logoUrl = variant === "light" ? marka.logoKoyuZemin : marka.logoAcikZemin;
-  const yukseklik = Math.round(marka.logoYuksekligi * OLCEK[yer]);
+  const yukseklik = Math.round(marka.logoYuksekligi * OLCEK[yer].genis);
+  const darYukseklik = Math.round(marka.logoYuksekligi * OLCEK[yer].dar);
 
   if (logoUrl) {
     return (
@@ -58,13 +67,26 @@ export async function Logo({
           uzun yazı logolarını yükseklikten önce kırpıyor ve logo istenenden
           küçük duruyordu.
         */}
+        {/*
+          Dar ve geniş ekran yükseklikleri ayrı ve ikisi de veritabanından
+          geliyor. Ölçüler CSS değişkenine yazılıyor, kırılımı sınıf seçiyor:
+          `h-[64px]` gibi bir sınıf üretilemezdi çünkü Tailwind sınıfları
+          derleme anında taranıyor ve çalışma anında kurulan bir ad çıktıya
+          hiç girmiyor. Değişken okuyan iki sınıf ise sabit.
+        */}
         {/* Supabase Storage host; next/image would need it in remotePatterns. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={logoUrl}
           alt="Ahmet Ekinci Akademi"
-          style={{ height: yukseklik, maxWidth: yukseklik * 7 }}
-          className="w-auto object-contain"
+          style={
+            {
+              "--h-dar": `${darYukseklik}px`,
+              "--h": `${yukseklik}px`,
+              maxWidth: Math.max(yukseklik, darYukseklik) * 7,
+            } as React.CSSProperties
+          }
+          className="h-[var(--h-dar)] w-auto object-contain sm:h-[var(--h)]"
         />
       </Link>
     );
