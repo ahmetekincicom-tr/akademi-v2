@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/tipler";
 import { createPublicClient } from "@/lib/supabase/public";
 import { kapakUrl } from "@/lib/kapak";
+import type { IconName } from "@/components/Icon";
 
 export type CurriculumModule = {
   baslik: string;
@@ -12,6 +13,85 @@ export type CurriculumModule = {
 
 export type FaqItem = { soru: string; cevap: string };
 export type Testimonial = { metin: string; isim: string; rol: string };
+
+/** Panelden yazılan, başında ikon olan tek satır. */
+export type IkonluSatir = { ad: string; ikon: IconName };
+
+/**
+ * Panelde seçilebilen ikonlar.
+ *
+ * Tüm ikon seti değil, bir alt küme: "x", "logout", "menu" gibi arayüz
+ * işaretlerinin bir eğitim maddesinin başında hiçbir anlamı yok ve listede
+ * durmaları seçimi zorlaştırıyor. Etiketler Türkçe, çünkü seçen kişi ikonun
+ * kod adını değil ne anlattığını arıyor.
+ */
+export const SECILEBILIR_IKONLAR: { ikon: IconName; etiket: string }[] = [
+  { ikon: "user", etiket: "Kişi" },
+  { ikon: "users", etiket: "Grup" },
+  { ikon: "sparkle", etiket: "Yıldız" },
+  { ikon: "check", etiket: "Onay" },
+  { ikon: "message", etiket: "Mesaj / destek" },
+  { ikon: "whatsapp", etiket: "WhatsApp" },
+  { ikon: "phone", etiket: "Telefon" },
+  { ikon: "mail", etiket: "E-posta" },
+  { ikon: "file", etiket: "Doküman" },
+  { ikon: "folder", etiket: "Klasör" },
+  { ikon: "book", etiket: "Kitap" },
+  { ikon: "grid", etiket: "Panel" },
+  { ikon: "plug", etiket: "Kurulum / entegrasyon" },
+  { ikon: "sliders", etiket: "Ayar / seviye" },
+  { ikon: "clock", etiket: "Süre" },
+  { ikon: "calendar", etiket: "Takvim" },
+  { ikon: "pin", etiket: "Konum" },
+  { ikon: "shield", etiket: "Güvence" },
+  { ikon: "card", etiket: "Ödeme" },
+  { ikon: "play", etiket: "Video" },
+  { ikon: "eye", etiket: "Görüntüleme" },
+  { ikon: "bell", etiket: "Bildirim" },
+];
+
+const IKON_ADLARI = new Set<string>(SECILEBILIR_IKONLAR.map((i) => i.ikon));
+
+/**
+ * content JSON'u serbest: elle düzenlenen ya da eski bir kayıttan gelen bir
+ * satırda ikon adı bozuk olabilir. Tanınmayan ad ekranı çökertmesin diye
+ * onay işaretine düşüyor.
+ */
+export function ikonuDuzelt(deger: unknown): IconName {
+  return typeof deger === "string" && IKON_ADLARI.has(deger) ? (deger as IconName) : "check";
+}
+
+function satirlariDuzelt(deger: unknown): IkonluSatir[] {
+  if (!Array.isArray(deger)) return [];
+  return deger
+    .map((s) => ({ ad: typeof s?.ad === "string" ? s.ad.trim() : "", ikon: ikonuDuzelt(s?.ikon) }))
+    .filter((s) => s.ad);
+}
+
+/**
+ * Eğitim özelinde doldurulmadığında kullanılan liste.
+ *
+ * Bunlar akademinin çalışma biçimini anlatıyor, tek bir eğitimi değil; yeni
+ * açılan bir program bu yüzden boş bir kutuyla değil doğru varsayılanla
+ * başlıyor. Panelden değiştirilen an bu liste devreden çıkıyor.
+ */
+export const VARSAYILAN_KAPSAM: IkonluSatir[] = [
+  { ad: "Kişiye Özel Eğitim", ikon: "user" },
+  { ad: "Ömür Boyu Destek", ikon: "message" },
+  { ad: "Ömür Boyu Güncelleme", ikon: "sparkle" },
+  { ad: "Doküman Desteği", ikon: "file" },
+  { ad: "Üye Paneline Erişim Hakkı", ikon: "grid" },
+  { ad: "WhatsApp Grubuna Katılım Hakkı", ikon: "whatsapp" },
+  { ad: "CRM Sistemi Kurulum Desteği", ikon: "plug" },
+];
+
+/** Hero'daki dört hap için varsayılan. Gerekçesi VARSAYILAN_KAPSAM ile aynı. */
+export const VARSAYILAN_HAPLAR: IkonluSatir[] = [
+  { ad: "Birebir & Kişiye Özel", ikon: "user" },
+  { ad: "%100 Uygulamalı", ikon: "sparkle" },
+  { ad: "Seviyenize Özel İlerleme", ikon: "sliders" },
+  { ad: "Ömür Boyu Ücretsiz Destek", ikon: "message" },
+];
 
 export type Course = {
   id: string;
@@ -33,6 +113,12 @@ export type Course = {
    * giriliyor; boşsa bölüm hiç basılmıyor (boş bir başlık bırakmıyoruz).
    */
   tanitimMetni: string;
+  /** Yan kutudaki program kapsamı; boşsa VARSAYILAN_KAPSAM basılıyor. */
+  kapsam: IkonluSatir[];
+  /** Hero'daki değer hapları; boşsa VARSAYILAN_HAPLAR basılıyor. */
+  haplar: IkonluSatir[];
+  /** "6 kişilik kontenjan" gibi tek satır; boşsa satır hiç görünmüyor. */
+  kontenjan: string;
   kazanimlar: string[];
   modules: CurriculumModule[];
   uygun: string[];
@@ -93,6 +179,9 @@ type CourseRow = {
     maddeler: string[];
     hizli: { etiket: string; deger: string }[];
     tanitimMetni?: string;
+    kapsam?: unknown;
+    haplar?: unknown;
+    kontenjan?: string;
     kazanimlar: string[];
     uygun: string[];
     uygunDegil: string[];
@@ -137,6 +226,15 @@ function mapCourse(row: CourseRow): Course {
     hizli: row.content.hizli,
     // Alan sonradan eklendi: eski kayıtlarda yok, boş metin doğru varsayılan.
     tanitimMetni: row.content.tanitimMetni ?? "",
+    // Boş liste = "doldurulmadı": varsayılana düşüyor. Panelden tek satır
+    // bırakmak isteyen zaten bir satır yazıyor, sıfır satır bir tercih değil.
+    kapsam: satirlariDuzelt(row.content.kapsam).length
+      ? satirlariDuzelt(row.content.kapsam)
+      : VARSAYILAN_KAPSAM,
+    haplar: satirlariDuzelt(row.content.haplar).length
+      ? satirlariDuzelt(row.content.haplar)
+      : VARSAYILAN_HAPLAR,
+    kontenjan: (row.content.kontenjan ?? "").trim(),
     kazanimlar: row.content.kazanimlar,
     modules,
     uygun: row.content.uygun,

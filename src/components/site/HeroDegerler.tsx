@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Icon, type IconName } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { olculenWhatsapp } from "@/lib/iletisim";
+import type { IkonluSatir } from "@/lib/courses";
 
 /**
  * Eğitim hero'sunun altındaki değer önermeleri ve tek eylem.
@@ -13,20 +14,12 @@ import { olculenWhatsapp } from "@/lib/iletisim";
  * Süre bilgisi müfredatta ve eğitim kartlarında duruyor; hero'nun işi ikna
  * etmek, künye yazmak değil.
  *
- * Dört başlık programa göre değişmiyor çünkü akademinin çalışma biçimini
- * anlatıyorlar, tek bir eğitimi değil. Programa özel bir gün gelirse
- * doğru yer veritabanı olur; bugün orada tutmak, hiç değişmeyen üç satırı
- * her eğitim için yeniden doldurtmak demekti.
+ * Başlıklar artık eğitim özelinde panelden yazılıyor (course.haplar).
+ * Doldurulmadıysa akademinin ortak listesi basılıyor — gerekçesi
+ * lib/courses.ts içindeki VARSAYILAN_HAPLAR'da.
  */
 
-const DEGERLER: { ad: string; ikon: IconName }[] = [
-  { ad: "Birebir & Kişiye Özel", ikon: "user" },
-  { ad: "%100 Uygulamalı", ikon: "sparkle" },
-  { ad: "Seviyenize Özel İlerleme", ikon: "sliders" },
-  { ad: "Ömür Boyu Ücretsiz Destek", ikon: "message" },
-];
-
-export function HeroDegerler() {
+export function HeroDegerler({ degerler }: { degerler: IkonluSatir[] }) {
   return (
     <div className="mt-9">
       {/*
@@ -43,7 +36,7 @@ export function HeroDegerler() {
         tutturuyor.
       */}
       <div className="flex flex-col gap-[9px] sm:flex-row sm:flex-wrap sm:gap-[10px]">
-        {DEGERLER.map((d) => (
+        {degerler.map((d) => (
           <span
             key={d.ad}
             className="inline-flex items-center gap-[10px] rounded-full border border-white/14 bg-white/[0.06] py-[10px] pr-[18px] pl-[11px] text-[14.5px] leading-none font-semibold text-white/90"
@@ -57,15 +50,21 @@ export function HeroDegerler() {
       </div>
 
       {/*
-        Eylem, haplardan AYRIŞIYOR: üstteki boşluk ve ince ayraç çizgisi
-        bilinçli. Hemen altına yapıştırılsaydı dördüncü bir hap gibi okunur
-        ve tıklanabilir olduğu kaybolurdu.
+        Eylem bloğu YALNIZCA dar ekranda.
+
+        Geniş ekranda sağdaki kutu hero ile aynı hizada, ekranın ilk görünen
+        yarısında duruyor ve aynı düğmeyi zaten taşıyor: iki "Eğitim Planı
+        Oluştur" yan yana görünüyordu. Mobilde yan kutu olmadığı için blok
+        orada tek eylem olarak kalıyor.
+
+        Ayrışma bilinçli: üstteki boşluk ve ince ayraç çizgisi olmasa düğme
+        beşinci bir hap gibi okunur, tıklanabilir olduğu kaybolurdu.
 
         WhatsApp'a doğrudan değil, ölçülen uçtan gidiyor (/git/whatsapp):
         tıklama kaydı yazılıyor, mesaja referans kodu gömülüyor ve Meta'ya
         Contact olayı düşüyor. Gerekçesi app/git/whatsapp/route.ts içinde.
       */}
-      <div className="mt-8 border-t border-white/10 pt-8">
+      <div className="mt-8 border-t border-white/10 pt-8 lg:hidden">
         {/*
           Düğme mobilde tam genişlikte: dar ekranda sola yaslanmış bir düğme
           "yan bilgi" gibi okunuyordu, oysa sayfanın tek eylemi bu.

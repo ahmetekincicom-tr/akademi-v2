@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ikonuDuzelt } from "@/lib/courses";
 
 export type SaveCourseInput = {
   originalSlug?: string;
@@ -25,12 +26,28 @@ export type SaveCourseInput = {
   tanitimMetni?: string;
   /** Eğitime özel sıkça sorulan sorular. Verilmezse mevcut liste korunuyor. */
   sss?: { soru: string; cevap: string }[];
+  /** Hero'daki değer hapları. Verilmezse mevcut liste korunuyor. */
+  haplar?: { ad: string; ikon: string }[];
+  /** Yan kutudaki program kapsamı. Verilmezse mevcut liste korunuyor. */
+  kapsam?: { ad: string; ikon: string }[];
+  /** "6 kişilik kontenjan" gibi tek satır. Verilmezse mevcut değer korunuyor. */
+  kontenjan?: string;
 };
+
+/** Boş metinli satırlar kaydedilmiyor; sayfada başsız bir ikon bırakırlardı. */
+function ikonluSatirlar(gelen: { ad: string; ikon: string }[]) {
+  return gelen
+    .map((s) => ({ ad: s.ad.trim(), ikon: ikonuDuzelt(s.ikon) }))
+    .filter((s) => s.ad);
+}
 
 type ExistingContent = {
   etiket?: string;
   maddeler?: string[];
   tanitimMetni?: string;
+  haplar?: { ad: string; ikon: string }[];
+  kapsam?: { ad: string; ikon: string }[];
+  kontenjan?: string;
   kazanimlar?: string[];
   uygun?: string[];
   uygunDegil?: string[];
@@ -89,6 +106,9 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     // Editör alanı boş string gönderebilir ("metni sil" demek), o yüzden
     // ?? değil undefined kontrolü: boş string geçerli bir değer.
     tanitimMetni: input.tanitimMetni !== undefined ? input.tanitimMetni : (existingContent.tanitimMetni ?? ""),
+    haplar: input.haplar !== undefined ? ikonluSatirlar(input.haplar) : (existingContent.haplar ?? []),
+    kapsam: input.kapsam !== undefined ? ikonluSatirlar(input.kapsam) : (existingContent.kapsam ?? []),
+    kontenjan: input.kontenjan !== undefined ? input.kontenjan.trim() : (existingContent.kontenjan ?? ""),
     kazanimlar: existingContent.kazanimlar ?? [],
     uygun: existingContent.uygun ?? [],
     uygunDegil: existingContent.uygunDegil ?? [],

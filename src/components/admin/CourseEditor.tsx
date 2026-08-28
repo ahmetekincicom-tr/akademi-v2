@@ -7,7 +7,8 @@ import { saveCourse, arsivleCourse } from "@/app/kontrol-9f4x2k/(protected)/egit
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
 import { KapakGorseli } from "@/components/admin/KapakGorseli";
-import { basligiParcala } from "@/lib/courses";
+import { basligiParcala, VARSAYILAN_HAPLAR, VARSAYILAN_KAPSAM, type IkonluSatir } from "@/lib/courses";
+import { IkonluSatirlar } from "@/components/admin/IkonluSatirlar";
 
 // Rows loaded from the database carry their id so saving updates them in place
 // instead of recreating them (which would wipe student progress). Rows added in
@@ -32,6 +33,12 @@ export type CourseEditorInitial = {
   tanitimMetni: string;
   /** Bu eğitime özel sıkça sorulan sorular. */
   sss: EditorSoru[];
+  /** Hero'daki değer hapları. */
+  haplar: IkonluSatir[];
+  /** Yan kutudaki program kapsamı. */
+  kapsam: IkonluSatir[];
+  /** "6 kişilik kontenjan" gibi tek satır. */
+  kontenjan: string;
   modules: EditorModule[];
   siteGorunur: boolean;
   satisaAcik: boolean;
@@ -50,6 +57,11 @@ const BOS_INITIAL: CourseEditorInitial = {
   aciklama: "",
   tanitimMetni: "",
   sss: [],
+  // Yeni program varsayılanla başlıyor: boş bir kutu, doldurulması gereken
+  // bir alan olduğunu göstermiyor — dolu bir liste gösteriyor.
+  haplar: VARSAYILAN_HAPLAR,
+  kapsam: VARSAYILAN_KAPSAM,
+  kontenjan: "",
   modules: [],
   siteGorunur: true,
   satisaAcik: true,
@@ -73,6 +85,9 @@ export function CourseEditor({
   const [aciklama, setAciklama] = useState(initial.aciklama);
   const [tanitimMetni, setTanitimMetni] = useState(initial.tanitimMetni);
   const [sss, setSss] = useState<EditorSoru[]>(initial.sss);
+  const [haplar, setHaplar] = useState<IkonluSatir[]>(initial.haplar);
+  const [kapsam, setKapsam] = useState<IkonluSatir[]>(initial.kapsam);
+  const [kontenjan, setKontenjan] = useState(initial.kontenjan);
   const [modules, setModules] = useState<EditorModule[]>(initial.modules);
   const [yayin, setYayin] = useState({
     site: initial.siteGorunur,
@@ -97,6 +112,9 @@ export function CourseEditor({
       aciklama,
       tanitimMetni,
       sss,
+      haplar,
+      kapsam,
+      kontenjan,
       modules,
       siteGorunur: yayin.site,
       satisaAcik: yayin.satis,
@@ -309,6 +327,66 @@ export function CourseEditor({
                 />
                 <span className="text-[12.5px] leading-[1.5] text-[#656B7A]">
                   Boş bırakılırsa bölüm sayfada hiç görünmez. Paragraf ayırmak için boş satır bırakın.
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
+            <div className="border-b border-ink/8 px-6 py-5">
+              <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Sayfa vitrini</h2>
+              <p className="mt-[5px] max-w-[620px] text-[13px] leading-[1.6] text-[#656B7A]">
+                Eğitim sayfasının en çok bakılan iki yeri: başlığın altındaki haplar ve sağdaki program kutusu.
+                Her ikisi de bu eğitime özel.
+              </p>
+            </div>
+
+            <div className="border-b border-ink/8 px-6 py-5">
+              <div className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">
+                Hero hapları
+              </div>
+              <p className="mt-[6px] mb-4 max-w-[620px] text-[13px] leading-[1.55] text-[#656B7A]">
+                Eğitim adının altında, koyu zeminde yan yana duran kısa ifadeler. Üç-dört tanesi yeterli;
+                uzun cümleler hap görünümünü bozuyor.
+              </p>
+              <IkonluSatirlar
+                satirlar={haplar}
+                degisti={setHaplar}
+                ekleEtiketi="Hap ekle"
+                yerTutucu="Birebir & Kişiye Özel"
+                bosMetin="Hiç hap eklenmedi. Boş bırakılırsa akademinin ortak listesi gösterilir."
+              />
+            </div>
+
+            <div className="border-b border-ink/8 px-6 py-5">
+              <div className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">
+                Program kapsamı
+              </div>
+              <p className="mt-[6px] mb-4 max-w-[620px] text-[13px] leading-[1.55] text-[#656B7A]">
+                Sağdaki kutuda alt alta listelenen, programa dahil olan haklar.
+              </p>
+              <IkonluSatirlar
+                satirlar={kapsam}
+                degisti={setKapsam}
+                ekleEtiketi="Satır ekle"
+                yerTutucu="Ömür Boyu Destek"
+                bosMetin="Hiç satır eklenmedi. Boş bırakılırsa akademinin ortak listesi gösterilir."
+              />
+            </div>
+
+            <div className="px-6 py-5">
+              <label className="flex flex-col gap-2">
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Kontenjan</span>
+                <input
+                  type="text"
+                  value={kontenjan}
+                  onChange={(e) => setKontenjan(e.target.value)}
+                  placeholder="Dönem başına 6 kişi"
+                  className="h-[46px] max-w-[380px] rounded-[10px] border border-ink/14 bg-white px-[14px] text-[14.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                />
+                <span className="max-w-[620px] text-[12.5px] leading-[1.55] text-[#656B7A]">
+                  Sağdaki kutunun koyu başlığında, eğitim adının altında rozet olarak görünür. Boş bırakılırsa
+                  hiç görünmez.
                 </span>
               </label>
             </div>

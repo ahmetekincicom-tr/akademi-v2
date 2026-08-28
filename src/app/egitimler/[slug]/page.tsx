@@ -9,7 +9,7 @@ import { CurriculumAccordion } from "@/components/site/CurriculumAccordion";
 import { HeroDegerler } from "@/components/site/HeroDegerler";
 import { KalinMetin } from "@/components/site/KalinMetin";
 import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
-import { Icon, type IconName } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { getCourseBySlug, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { olculenWhatsapp } from "@/lib/iletisim";
@@ -17,23 +17,6 @@ import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
 
 // Gerekçe: src/app/page.tsx
 export const revalidate = 3600;
-
-/**
- * Yan kutuda listelenen program kapsamı.
- *
- * Yerini aldığı şey künye satırlarıydı (süre, format, yer, ödeme). Onlar
- * programı TARİF ediyordu; buradakiler ne alındığını söylüyor. Süre bilgisi
- * kaybolmuyor — hero'daki değer hapları ve müfredat zaten onu taşıyor.
- */
-const PROGRAM_KAPSAMI: { ad: string; ikon: IconName }[] = [
-  { ad: "Kişiye Özel Eğitim", ikon: "user" },
-  { ad: "Ömür Boyu Destek", ikon: "message" },
-  { ad: "Ömür Boyu Güncelleme", ikon: "sparkle" },
-  { ad: "Doküman Desteği", ikon: "file" },
-  { ad: "Üye Paneline Erişim Hakkı", ikon: "grid" },
-  { ad: "WhatsApp Grubuna Katılım Hakkı", ikon: "whatsapp" },
-  { ad: "CRM Sistemi Kurulum Desteği", ikon: "plug" },
-];
 
 /** Eğitmen adının baş harfleri; portre alanı olmadığı için avatar yerine geçiyor. */
 function basHarfler(ad: string) {
@@ -176,7 +159,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               <p className="mt-5 max-w-[560px] text-[16.5px] leading-[1.62] text-white/65 sm:text-[17.5px]">
                 <KalinMetin metin={course.heroAciklama} />
               </p>
-              <HeroDegerler />
+              <HeroDegerler degerler={course.haplar} />
             </div>
             {/*
               Kapak görseli dar ekranda GİZLİ.
@@ -388,16 +371,29 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               <div className="mt-3 font-heading text-[26px] leading-[1.15] font-semibold tracking-[-0.025em]">
                 {course.baslik}
               </div>
+              {/*
+                Kontenjan koyu başlığın içinde: kapsam listesinin bir satırı
+                olsaydı "dahil olan haklar" arasında sayılırdı, oysa bu bir
+                sınır — ve aciliyeti taşıyan bilgi o.
+              */}
+              {course.kontenjan && (
+                <div className="mt-[18px] inline-flex items-center gap-[9px] rounded-full border border-white/15 bg-white/[0.07] py-[7px] pr-[15px] pl-[9px] text-[13.5px] font-semibold text-white/85">
+                  <span className="flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full bg-brand/35 text-[#BDD0FF]">
+                    <Icon name="users" size={13} />
+                  </span>
+                  {course.kontenjan}
+                </div>
+              )}
             </div>
             <div className="px-6 pt-6 pb-[26px]">
               {/*
-                İçerik listesi sabit: süre/format/yer gibi künye bilgileri değil,
-                programa dahil olan haklar. Hepsi her eğitimde aynı olduğu için
-                veritabanında değil burada duruyor — değişmeyen yedi satırı her
-                eğitim için yeniden doldurtmak hataya açık.
+                Künye bilgileri (süre, format, yer, ödeme) değil, programa dahil
+                olan haklar: kutu programı TARİF etmiyor, ne alındığını
+                söylüyor. Liste eğitim özelinde panelden yazılıyor; boş
+                bırakılırsa akademinin ortak listesi basılıyor.
               */}
               <div className="flex flex-col gap-[13px]">
-                {PROGRAM_KAPSAMI.map((k) => (
+                {course.kapsam.map((k) => (
                   <div key={k.ad} className="flex items-center gap-[11px] text-[14.5px] leading-[1.35]">
                     <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[9px] bg-brand/10 text-brand">
                       <Icon name={k.ikon} size={15} />
