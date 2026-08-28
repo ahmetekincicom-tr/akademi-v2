@@ -45,7 +45,12 @@ export function FooterBolum({ baslik, children }: { baslik: string; children: Re
         listeye ait olduğunu da belirsizleştiriyordu.
       */}
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-[15px] sm:pointer-events-none sm:py-0 [&::-webkit-details-marker]:hidden">
-        <span className="font-mono text-[10.5px] tracking-[0.16em] text-white/55 uppercase">{baslik}</span>
+        {/* Başlık, altındaki bağlantılardan belirgin şekilde ayrışıyor: daha
+            iri, daha kalın ve daha parlak. Eskiden 10.5px soluk gri bir
+            etiketti; listenin bir parçası gibi okunuyordu. */}
+        <span className="font-mono text-[12.5px] font-semibold tracking-[0.14em] text-white/85 uppercase">
+          {baslik}
+        </span>
         <span className="flex h-6 w-6 flex-none items-center justify-center rounded-[7px] border border-white/12 font-mono text-[13px] leading-none text-white/50 transition group-open:border-white/20 sm:hidden">
           <span className="hidden group-open:inline">–</span>
           <span className="group-open:hidden">+</span>

@@ -113,25 +113,33 @@ export async function PublicFooter() {
   return (
     <footer className="border-t border-white/10 bg-ink text-white/60">
       {/*
-        Dar ekranda hizalama SOLA yaslı kalıyor, yalnızca listeler daralıyor.
+        Dar ekranda hizalama: marka bloğu ortalı, LİSTELER sola yaslı.
 
-        Bir ara her şey ortalanmıştı: marka bloğu, menü başlıkları ve iletişim
-        satırları aynı eksene binince footer'ın kendi içindeki hiyerarşi
-        kayboldu — hangi metnin başlık, hangisinin bağlantı olduğu okunmuyordu.
-        Sol kenar, göz için ortak bir dayanak; premium arayüzlerin footer'ı bu
-        yüzden neredeyse her zaman sola yaslı.
+        Bir ara her şey ortalanmıştı ve footer'ın kendi içindeki hiyerarşi
+        kayboldu: menü başlıkları ile bağlantılar aynı eksene binince hangisinin
+        başlık olduğu okunmuyordu. Bir liste sol kenardan okunur — göz her
+        satırda aynı yerden başlar. Ortalanacak olan yalnızca imza bloğu.
 
         Daraltma (FooterBolum) kalıyor: hepsi birden açıkken footer sayfanın
         kendisinden uzun oluyordu.
       */}
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-y-2 px-5 sm:gap-12 sm:px-8 py-14 pb-7 sm:py-16 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
-        {/* Marka bloğunun altındaki çizgi yalnızca dar ekranda: orada blok ile
-            menüler aynı sütuna indiği için ayrım gerekiyor. */}
-        <div className="mb-2 border-b border-white/[0.08] pb-7 sm:mb-0 sm:border-b-0 sm:pb-0">
+        {/*
+          Marka bloğu dar ekranda ORTALI — footer'ın geri kalanı sola yaslı.
+
+          İstisna bilinçli: logo, tanıtım cümlesi ve sosyal ikonlar bir liste
+          değil, tek bir imza bloğu. Ortalanınca footer'a bir açılış veriyor;
+          altındaki menü ve iletişim listeleri ise sola yaslı kalıyor, çünkü
+          orada okunması gereken şey hizalı bir sütun.
+
+          Alttaki çizgi de yalnızca dar ekranda: orada blok ile menüler aynı
+          sütuna indiği için ayrım gerekiyor.
+        */}
+        <div className="mb-2 flex flex-col items-center border-b border-white/[0.08] pb-7 text-center sm:mb-0 sm:items-start sm:border-b-0 sm:pb-0 sm:text-left">
           {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor. */}
           <Logo variant="light" yer="alt" href={ON_YUZ_ACIK ? "/" : "/giris"} />
           <p className="mt-[18px] max-w-[280px] text-[14.5px] leading-[1.65]">
-            Dijital çağın dinamiklerine uygun, birebir eğitim deneyimi. Ankara ve online.
+            Dijital çağın dinamiklerine uygun, yenilikçi eğitim deneyimi.
           </p>
           <div className="mt-[22px] flex gap-[10px]">
             {SOSYAL.map((s) => (
@@ -157,7 +165,11 @@ export async function PublicFooter() {
                     name={l.ikon ?? "plus"}
                     size={l.ikon ? 15 : 13}
                     strokeWidth={l.ikon ? 1.7 : 1.5}
-                    className="mt-[3px] flex-none text-white/55 transition group-hover:text-brand"
+                    // İkon rengi SABİT. Bağlantıyla birlikte maviye dönüyordu;
+                    // iletişim sütununda beş satır birden renk değiştirince
+                    // liste, üzerinde gezinen imleci takip eden bir ışık
+                    // şeridine dönüşüyordu.
+                    className="mt-[3px] flex-none text-white/70"
                   />
                 );
                 const govde = (
@@ -199,7 +211,7 @@ export async function PublicFooter() {
       {/* Telif ve yasal bağlantılar da sola yaslı; dar ekranda alt alta,
           geniş ekranda iki uca yaslanıyor. */}
       <div className="mx-auto flex max-w-[1240px] flex-col gap-4 border-t border-white/10 px-5 py-[22px] pb-10 text-[13px] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-6 sm:px-8">
-        <span className="order-2 text-white/45 sm:order-1 sm:text-inherit">
+        <span className="order-2 text-center text-white/45 sm:order-1 sm:text-left sm:text-inherit">
           © 2021–2026 Ahmet Ekinci Akademi. Tüm hakları saklıdır.
         </span>
         <div className="order-1 flex flex-wrap gap-x-[22px] gap-y-[10px] sm:order-2">
