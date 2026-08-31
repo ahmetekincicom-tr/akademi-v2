@@ -7,7 +7,7 @@ import { TR_ZAMAN } from "@/lib/zaman";
 import type { BildirimSonuc } from "@/lib/odeme-eposta";
 
 /**
- * Birebir eğitimle ilgili katılımcı e-postaları.
+ * Eğitim ve danışmanlık ile ilgili katılımcı e-postaları.
  *
  * Panele bir şey eklendiğini kişinin kendiliğinden fark etmesini beklemek,
  * çoğu zaman hiç fark edilmemesi demek: kimse panele her gün girmiyor.
@@ -94,6 +94,120 @@ export async function oturumPlanlandiBildir(
       ],
       yol: "/panel/birebir-egitim",
       eylemEtiketi: "Takvimi görüntüle",
+    });
+    return { gonderildi: true };
+  } catch (e) {
+    return { gonderildi: false, sebep: e instanceof Error ? e.message : "Bilinmeyen hata" };
+  }
+}
+
+/**
+ * Kurumsal bir ödemeye koltuk atandığında.
+ *
+ * Bu kişi ödemeyi kendisi yapmadı: panelde erişimi bir anda açılıyor ve bunu
+ * ona söyleyen hiçbir şey yoktu. Ödemeyi yapan kurumun adı yazılıyor, çünkü
+ * "eğitime eklendin" tek başına nereden geldiği belirsiz bir mail.
+ */
+export async function koltukAtandiBildir(
+  servis: SupabaseClient<Database>,
+  userId: string,
+  bilgi: { program: string | null; odeyen: string | null; testAcik: boolean },
+): Promise<BildirimSonuc> {
+  try {
+    const kisi = await kisiyiOku(servis, userId);
+    if (!kisi.email) return { gonderildi: false, sebep: EPOSTA_YOK };
+
+    await ogrenciBildirimi({
+      akis: "koltuk-atandi",
+      alici: kisi.email,
+      konu: bilgi.program ? `${bilgi.program} eğitimine eklendin` : "Eğitime eklendin",
+      ustEtiket: "Eğitim erişimi",
+      baslik: kisi.ad ? `${kisi.ad}, eğitime eklendin` : "Eğitime eklendin",
+      ozet:
+        (bilgi.odeyen
+          ? `${bilgi.odeyen} tarafından yapılan kurumsal kayıt kapsamında eğitime eklendin. `
+          : "Kurumsal kayıt kapsamında eğitime eklendin. ") +
+        "Ödemeyle ilgili yapman gereken bir şey yok; panelin şu andan itibaren açık." +
+        (bilgi.testAcik
+          ? " Sıradaki adım kısa bir ön değerlendirme: eğitimi sana göre kurabilmemiz için onu doldurman gerekiyor."
+          : ""),
+      satirlar: [
+        ...(bilgi.program ? [{ etiket: "Program", deger: bilgi.program }] : []),
+        ...(bilgi.odeyen ? [{ etiket: "Kayıt", deger: bilgi.odeyen }] : []),
+        { etiket: "Sıradaki adım", deger: bilgi.testAcik ? "Ön değerlendirmeyi doldur" : "Panele giriş yap" },
+      ],
+      yol: bilgi.testAcik ? "/panel/testlerim" : "/panel",
+      eylemEtiketi: bilgi.testAcik ? "Ön değerlendirmeyi aç" : "Panele git",
+    });
+    return { gonderildi: true };
+  } catch (e) {
+    return { gonderildi: false, sebep: e instanceof Error ? e.message : "Bilinmeyen hata" };
+  }
+}
+
+/** Danışmanlık görüşmesine tarih ve saat verildiğinde. */
+export async function gorusmePlanlandiBildir(
+  servis: SupabaseClient<Database>,
+  userId: string,
+  bilgi: { baslangic: string; sureDk: number; konu: string | null; toplantiLink: string | null },
+): Promise<BildirimSonuc> {
+  try {
+    const kisi = await kisiyiOku(servis, userId);
+    if (!kisi.email) return { gonderildi: false, sebep: EPOSTA_YOK };
+
+    const zaman = tarihSaatBicimi.format(new Date(bilgi.baslangic));
+
+    await ogrenciBildirimi({
+      akis: "gorusme-planlandi",
+      alici: kisi.email,
+      konu: `Danışmanlık görüşmen planlandı · ${zaman}`,
+      ustEtiket: "Danışmanlık",
+      baslik: kisi.ad ? `${kisi.ad}, görüşmen planlandı` : "Görüşmen planlandı",
+      ozet:
+        "Danışmanlık talebine tarih ve saat verildi. Katılım bağlantısı panelindeki görüşmeler sayfasında " +
+        "duruyor; görüşme saatinde oradan katılabilirsin.",
+      satirlar: [
+        // Saat en üstte: mailden akılda kalması gereken tek şey bu.
+        { etiket: "Tarih ve saat", deger: zaman },
+        { etiket: "Süre", deger: `${bilgi.sureDk} dakika` },
+        ...(bilgi.konu ? [{ etiket: "Konu", deger: bilgi.konu }] : []),
+      ],
+      yol: "/panel/gorusmeler",
+      eylemEtiketi: "Görüşmeyi aç",
+    });
+    return { gonderildi: true };
+  } catch (e) {
+    return { gonderildi: false, sebep: e instanceof Error ? e.message : "Bilinmeyen hata" };
+  }
+}
+
+/**
+ * Erişimi açıldığı hâlde ön değerlendirmeyi doldurmayana hatırlatma.
+ *
+ * Kişi başına BİR KEZ: doldurmama bir tercih de olabilir ve aynı maili tekrar
+ * göndermek, ilkini de okunmaz hâle getiriyor. Tekrarı engelleyen damga
+ * profiles.on_degerlendirme_hatirlatma_tarihi.
+ */
+export async function onDegerlendirmeHatirlat(
+  servis: SupabaseClient<Database>,
+  userId: string,
+): Promise<BildirimSonuc> {
+  try {
+    const kisi = await kisiyiOku(servis, userId);
+    if (!kisi.email) return { gonderildi: false, sebep: EPOSTA_YOK };
+
+    await ogrenciBildirimi({
+      akis: "on-degerlendirme-hatirlatma",
+      alici: kisi.email,
+      konu: "Ön değerlendirmen bekliyor",
+      ustEtiket: "Ön değerlendirme",
+      baslik: kisi.ad ? `${kisi.ad}, ön değerlendirmen bekliyor` : "Ön değerlendirmen bekliyor",
+      ozet:
+        "Eğitim erişimin açık ama ön değerlendirme testin hâlâ boş görünüyor. Eğitimi senin seviyene ve " +
+        "sektörüne göre kurgulayabilmemiz için ihtiyacımız olan tek şey bu; birkaç dakika sürüyor ve " +
+        "tarih planlaması da ardından açılıyor.",
+      yol: "/panel/testlerim",
+      eylemEtiketi: "Testi doldur",
     });
     return { gonderildi: true };
   } catch (e) {

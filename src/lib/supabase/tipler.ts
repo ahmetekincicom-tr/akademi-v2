@@ -601,6 +601,7 @@ export type Database = {
           ilk_ip: string | null;
           ilk_ua: string | null;
           kaynak: string | null;
+          on_degerlendirme_hatirlatma_tarihi: string | null;
           on_degerlendirme_tarihi: string | null;
           reklam_izni: boolean | null;
           reklam_izni_tarihi: string | null;

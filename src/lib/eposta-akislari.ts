@@ -61,6 +61,25 @@ export const AKISLAR = [
     kime: "katilimci",
   },
   {
+    anahtar: "koltuk-atandi",
+    baslik: "Eğitime eklendin",
+    aciklama: "Kurumsal bir ödemede koltuk atandığında katılımcıya haber verir.",
+    kime: "katilimci",
+  },
+  {
+    anahtar: "gorusme-planlandi",
+    baslik: "Danışmanlık planlandı",
+    aciklama: "Danışmanlık görüşmesine tarih ve saat verildiğinde gönderilir.",
+    kime: "katilimci",
+  },
+  {
+    anahtar: "on-degerlendirme-hatirlatma",
+    baslik: "Ön değerlendirme hatırlatması",
+    aciklama:
+      "Erişimi açıldıktan sonra testi hâlâ doldurmayana bir kez hatırlatır. Aynı kişiye ikinci kez gitmiyor.",
+    kime: "katilimci",
+  },
+  {
     anahtar: "destek-yanit",
     baslik: "Destek talebine yanıt",
     aciklama: "Bir destek talebine cevap yazdığında katılımcıya bildirilir.",

@@ -6,6 +6,7 @@ import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { iyzicoAyari } from "@/lib/iyzico";
 import { denemeyiCoz } from "@/lib/odeme-sonuc";
 import { odemeAcildiBildir, odemeTamamlandiBildir } from "@/lib/odeme-eposta";
+import { koltukAtandiBildir } from "@/lib/egitim-eposta";
 import { yoneticiMi } from "@/lib/panel-kapsam";
 import { veriHatasi } from "@/lib/auth-hatalari";
 import { satinAlmaOlayi } from "@/lib/meta/satis";
@@ -272,6 +273,17 @@ export async function katilimciEkle(paymentId: string, userId: string) {
   // 23505 = zaten ekli. Hata değil; iki kez tıklanmış olabilir.
   if (error && error.code !== "23505") return { error: veriHatasi(error) };
 
+  /*
+    Mail YALNIZCA yeni eklemede.
+
+    23505 dönen çağrı "zaten ekliydi" demek; orada da göndermek, listeye iki
+    kez tıklayan yöneticinin katılımcıya iki mail attırması olurdu.
+
+    Gönderim kaydın ardından ve sonucu yutulmadan: postanın gitmemesi koltuk
+    atamasını geri almamalı ama yöneticinin ekranında da sessiz kalmamalı.
+  */
+  const postaSonucu = error ? null : await koltukPostasi(supabase, paymentId, userId);
+
   const { count } = await supabase
     .from("odeme_katilimcilari")
     .select("user_id", { count: "exact", head: true })
@@ -283,9 +295,53 @@ export async function katilimciEkle(paymentId: string, userId: string) {
   // Ödeyen koltuk sayısına dahil: 4 koltuk = ödeyen + 3 katılımcı.
   const dolu = (count ?? 0) + 1;
   const koltuk = odeme.koltuk_sayisi ?? 1;
-  return dolu > koltuk
-    ? { uyari: `${koltuk} koltuk satıldı ama ${dolu} kişi tanımlı. Koltuk sayısını güncellemek isteyebilirsin.` }
-    : {};
+  if (dolu > koltuk) {
+    return { uyari: `${koltuk} koltuk satıldı ama ${dolu} kişi tanımlı. Koltuk sayısını güncellemek isteyebilirsin.` };
+  }
+  if (postaSonucu && !postaSonucu.gonderildi) {
+    return { uyari: `Katılımcı eklendi ama bilgilendirme maili gönderilemedi: ${postaSonucu.sebep}` };
+  }
+  return {};
+}
+
+/**
+ * Koltuk atanan kişiye bilgilendirme maili.
+ *
+ * Program adı ve ödeyenin adı ayrı sorgularla okunuyor: ikisi de payments
+ * üzerinden gömülü alınabilirdi ama payments hem profiles hem courses ile
+ * ilişkili ve odeme_katilimcilari bu tabloyu bir bağlantı tablosuna
+ * çevirdiğinden gömme ifadeleri belirsiz kalıyor (PGRST201). Bu depoda bir
+ * kez ödemeler ekranını boşaltan hata tam olarak buydu.
+ */
+async function koltukPostasi(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  paymentId: string,
+  userId: string,
+) {
+  const { data: odeme } = await supabase
+    .from("payments")
+    .select("user_id, course_id, durum")
+    .eq("id", paymentId)
+    .maybeSingle();
+
+  const [{ data: kurs }, { data: odeyen }] = await Promise.all([
+    odeme?.course_id
+      ? supabase.from("courses").select("baslik").eq("id", odeme.course_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    odeme?.user_id
+      ? supabase.from("profiles").select("ad, sirket").eq("id", odeme.user_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+
+  return koltukAtandiBildir(supabase, userId, {
+    program: (kurs?.baslik as string) ?? null,
+    // Şirket adı varsa o: kurumsal bir kayıtta kişi, ödeyen kişiyi değil
+    // kurumu tanıyor.
+    odeyen: ((odeyen?.sirket as string) || (odeyen?.ad as string)) ?? null,
+    // Test yalnızca ödeme tamamlandıysa açılıyor (bkz. lib/baslangic.ts);
+    // açılmamışken "testini doldur" demek olmayan bir düğmeyi göstermek olurdu.
+    testAcik: odeme?.durum === "odendi",
+  });
 }
 
 export async function katilimciCikar(paymentId: string, userId: string) {

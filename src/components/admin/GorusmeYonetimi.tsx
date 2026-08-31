@@ -56,7 +56,7 @@ export function GorusmeYonetimi({
   const planli = gorusmeler.filter((g) => g.durum === "planlandi");
 
   const calistir = (
-    fn: () => Promise<{ error?: string } | void>,
+    fn: () => Promise<{ error?: string; uyari?: string } | void>,
     sonra?: () => void,
     basariMesaji = "Kaydedildi.",
   ) => {
@@ -66,11 +66,17 @@ export function GorusmeYonetimi({
       if (r && "error" in r && r.error) {
         setHata(r.error);
         bildir.hata(r.error);
-      } else {
-        sonra?.();
-        bildir.basarili(basariMesaji);
-        router.refresh();
+        return;
       }
+      sonra?.();
+      /*
+        Uyarı hata DEĞİL: kayıt oldu ama yan iş tutmadı — planlama yazıldı,
+        bilgilendirme maili gitmedi gibi. Başarı mesajının altında yutulursa
+        yönetici kişinin haberdar olduğunu sanır.
+      */
+      if (r && "uyari" in r && r.uyari) bildir.hata(r.uyari);
+      else bildir.basarili(basariMesaji);
+      router.refresh();
     });
   };
 

@@ -6,6 +6,7 @@ import { trSaatiniUtcYap } from "@/lib/zaman";
 import type { GorusmeDurum } from "@/lib/gorusme";
 import { metaOlayiKuyrukla } from "@/lib/meta/kuyruk";
 import { profildenKimlik } from "@/lib/meta/toplama";
+import { gorusmePlanlandiBildir } from "@/lib/egitim-eposta";
 
 const GECERLI_DURUMLAR: GorusmeDurum[] = ["talep", "odeme_bekliyor", "planlandi", "tamamlandi", "iptal"];
 
@@ -53,10 +54,43 @@ export async function gorusmePlanla(input: {
     durum: "planlandi",
   });
 
+  if (sonuc.error) return sonuc;
+
   // Meta'ya Schedule. Kimlik profilden: planlamayı yönetici yapıyor, istekte
   // katılımcının değil onun kimliği var.
-  if (!sonuc.error) await planlamaOlayi(input.id);
+  await planlamaOlayi(input.id);
+
+  /*
+    Kişiye tarih ve saati bildiren mail.
+
+    Buraya kadar planlama yalnızca panele yazılıyordu; kişinin bunu görmesi
+    için panele girmesi gerekiyordu ve kimse her gün girmiyor. Postanın
+    gitmemesi planlamayı geri almıyor ama yöneticinin ekranında da sessiz
+    kalmıyor: uyarı olarak dönüyor.
+  */
+  const posta = await planlamaPostasi(input.id, baslangicUtc, Number(input.sureDk) || 45, input.toplantiLink);
+  if (posta && !posta.gonderildi) {
+    return { uyari: `Görüşme planlandı ama bilgilendirme maili gönderilemedi: ${posta.sebep}` };
+  }
   return sonuc;
+}
+
+async function planlamaPostasi(
+  gorusmeId: string,
+  baslangic: string,
+  sureDk: number,
+  toplantiLink: string,
+) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("gorusmeler").select("user_id, konu").eq("id", gorusmeId).maybeSingle();
+  if (!data?.user_id) return null;
+
+  return gorusmePlanlandiBildir(supabase, data.user_id as string, {
+    baslangic,
+    sureDk,
+    konu: (data.konu as string) ?? null,
+    toplantiLink: toplantiLink.trim() || null,
+  });
 }
 
 async function planlamaOlayi(gorusmeId: string): Promise<void> {
