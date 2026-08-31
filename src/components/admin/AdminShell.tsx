@@ -46,6 +46,7 @@ const groups: MenuGroup[] = [
       { href: "/kontrol-9f4x2k/marka", label: "Logo ve favicon", icon: "sparkle" },
       { href: "/kontrol-9f4x2k/site-icerik", label: "Duyuru ve eğitmen", icon: "user" },
       { href: "/kontrol-9f4x2k/hakkimizda", label: "Hakkımızda sayfası", icon: "file" },
+      { href: "/kontrol-9f4x2k/kurumsal", label: "Kurumsal sayfası", icon: "users" },
     ],
   },
   {

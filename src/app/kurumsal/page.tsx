@@ -6,8 +6,8 @@ import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { Icon, type IconName } from "@/components/Icon";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
-import { getCourses } from "@/lib/courses";
 import { getReferanslar } from "@/lib/icerik";
+import { getKurumsalSss } from "@/lib/kurumsal";
 import { sayfaMeta } from "@/lib/seo";
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
@@ -94,19 +94,12 @@ const surec = [
   },
 ];
 
-const sss = [
-  { soru: "Kaç kişilik ekiplere uygun?", cevap: "2 kişiden büyük pazarlama ekiplerine kadar uyarlanabilir. Katılımcı sayısına göre birebir mi grup formatı mı uygun olduğunu birlikte belirleriz." },
-  { soru: "Hangi programlar kurumsal formatta sunulabilir?", cevap: "Meta Ads, sosyal medya yönetimi ve yapay zekâ eğitimlerinin üçü de kurumsal formata uyarlanır; birden fazla programı tek pakette birleştirmek de mümkün." },
-  { soru: "Yerinde eğitim sadece Ankara'da mı mümkün?", cevap: "Yerinde eğitim öncelikli olarak Ankara'da yapılır; şehir dışı için seyahat şartları ayrıca konuşulur. Uzaktan format tüm şehirlerde mümkün." },
-  { soru: "Fatura ve ödeme nasıl işliyor?", cevap: "Kurumsal fatura, e-fatura ve toplu/taksitli ödeme seçenekleri mevcut. Sözleşme ve fatura bilgileri ihtiyaç görüşmesinde netleşir." },
-  { soru: "Eğitim sonrası ekip için destek devam ediyor mu?", cevap: "Evet. Soru-cevap kanalı ekip için açık kalır; kampanya veya içerik gözden geçirme talepleri karşılanır." },
-];
 
 // Gerekçe: src/app/page.tsx
 export const revalidate = 3600;
 
 export default async function KurumsalPage() {
-  const [courses, referanslar] = await Promise.all([getCourses(), getReferanslar()]);
+  const [referanslar, sss] = await Promise.all([getReferanslar(), getKurumsalSss()]);
 
   return (
     <div className="bg-white">
@@ -191,8 +184,26 @@ export default async function KurumsalPage() {
         </div>
       </section>
 
-      <section className="border-y border-ink/8 bg-mist">
-        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
+      {/*
+        Süreç bölümü mavimsi degrade zeminde.
+
+        Düz beyaz sayfada üst üste üç bölüm aynı zeminde duruyor ve nerede
+        birinin bitip diğerinin başladığı okunmuyordu. Renk, bölümü ayıran en
+        ucuz araç: kutu, çerçeve ya da ayraç eklemeden sınırı çiziyor.
+
+        Degrade dikey ve çok dar bir aralıkta (beyaz → açık mavi → beyaz):
+        bölüm zeminden yumuşakça çıkıp yumuşakça iniyor, üstteki ve alttaki
+        beyaz bölümlerle arasında sert bir çizgi kalmıyor.
+      */}
+      <section className="relative overflow-hidden border-y border-ink/8 bg-gradient-to-b from-white via-[#EAF0FE] to-white">
+        <div
+          className="bg-grid-acik pointer-events-none absolute inset-0"
+          style={{
+            maskImage: "radial-gradient(100% 80% at 50% 50%, #000 20%, transparent 78%)",
+            WebkitMaskImage: "radial-gradient(100% 80% at 50% 50%, #000 20%, transparent 78%)",
+          }}
+        />
+        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
           <SectionKicker>Süreç</SectionKicker>
           <h2 className="mt-[18px] max-w-[620px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
             Kurumsal eğitim süreci nasıl ilerliyor?
@@ -268,36 +279,6 @@ export default async function KurumsalPage() {
             </Link>
             <span className="mt-[14px] text-[13.5px] text-[#6B7080]">Ücretsiz ihtiyaç analiziyle başlayın</span>
           </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <SectionKicker>Programlar</SectionKicker>
-            <h2 className="mt-[18px] font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
-              Kurumsal formata uyarlanabilen programlar
-            </h2>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {courses.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/egitimler/${c.slug}`}
-              className="flex flex-col rounded-2xl border border-ink/11 p-6 transition hover:-translate-y-1 hover:border-brand/45 hover:shadow-[0_20px_44px_rgba(10,13,24,0.1)]"
-            >
-              <div className="font-mono text-[10.5px] tracking-[0.08em] text-[#656B7A]">
-                {/* Modül sayısı kaldırıldı; gerekçesi EgitimlerFiltre'de. */}
-                {c.sure}
-              </div>
-              <div className="mt-3 font-heading text-lg leading-[1.25] font-semibold tracking-[-0.02em]">{c.baslik}</div>
-              <p className="mt-2 flex-1 text-[14px] leading-[1.55] text-[#5C6273]">{c.aciklama}</p>
-              <span className="mt-4 inline-flex w-fit items-center rounded-full bg-brand/12 px-[10px] py-1 font-mono text-[9.5px] tracking-[0.1em] text-brand uppercase">
-                Kurumsala uyarlanabilir
-              </span>
-            </Link>
-          ))}
         </div>
       </section>
 
