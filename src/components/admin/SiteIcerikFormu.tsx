@@ -144,19 +144,30 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
                     </div>
                     <div className="mt-1 text-[12.5px] text-[#5C6273]">{se.not}</div>
 
+                    {/* Önizleme sitedeki dizilimin aynısı: duyuru ve rozet
+                        yan yana, aynı yükseklikte. Rozet açıkken ikisini ayrı
+                        ayrı görmek, yan yana nasıl durduklarını göstermiyordu. */}
                     <div className="mt-3 rounded-[11px] bg-ink p-5">
-                      {se.deger === "koyu" ? (
-                        <div className="duyuru-koyu inline-block max-w-full">
-                          <span>{form.kayitDuyurusu}</span>
-                        </div>
-                      ) : (
-                        <div className="duyuru-parlak inline-block max-w-full rounded-[13px] px-[18px] py-[13px]">
-                          <span className="text-[14.5px] leading-[1.45] font-semibold tracking-[-0.01em] text-ink">
-                            {form.kayitDuyurusu}
+                      <div className="flex flex-wrap items-center gap-[10px]">
+                        {se.deger === "koyu" ? (
+                          <div className="duyuru-koyu max-w-full">
+                            <span>{form.kayitDuyurusu}</span>
+                          </div>
+                        ) : (
+                          <div className="duyuru-parlak max-w-full rounded-full px-[20px] py-[12px]">
+                            <span className="text-[15px] leading-none font-semibold tracking-[-0.01em] text-ink">
+                              {form.kayitDuyurusu}
+                            </span>
+                          </div>
+                        )}
+                        {form.rozetAktif && form.rozetMetni && (
+                          <span className="inline-flex items-center gap-[9px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[12px] pr-[20px] pl-[16px] text-[15px] leading-none font-semibold text-[#E7D3A1]">
+                            <Icon name="odul" size={18} />
+                            {form.rozetMetni}
                           </span>
-                        </div>
-                      )}
-                      <div className="mt-3 font-heading text-[20px] leading-[1.15] font-semibold tracking-[-0.03em] text-white">
+                        )}
+                      </div>
+                      <div className="mt-4 font-heading text-[20px] leading-[1.15] font-semibold tracking-[-0.03em] text-white">
                         Eğitim başlığı buraya gelir
                       </div>
                     </div>
@@ -203,8 +214,8 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
 
         {form.rozetMetni && (
           <div className="mt-5 rounded-[11px] bg-ink p-6">
-            <span className="inline-flex items-center gap-[10px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[9px] pr-[18px] pl-[14px] text-[14px] font-semibold text-[#E7D3A1]">
-              <Icon name="odul" size={17} />
+            <span className="inline-flex items-center gap-[9px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[12px] pr-[20px] pl-[16px] text-[15px] leading-none font-semibold text-[#E7D3A1]">
+              <Icon name="odul" size={18} />
               {form.rozetMetni}
             </span>
           </div>

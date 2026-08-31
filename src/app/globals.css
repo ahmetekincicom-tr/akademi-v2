@@ -542,9 +542,14 @@ select:focus-visible {
   position: relative;
   overflow: hidden;
   outline-offset: 4px;
-  padding: 0.8rem 1.6rem;
-  font-size: 0.95rem;
-  line-height: 1.35;
+  /*
+    Ölçüler rozetle EŞLEŞİYOR (12px/20px dolgu, 15px punto, tek satır
+    yüksekliği). İkisi eğitim hero'sunda yan yana duruyor ve birkaç piksellik
+    yükseklik farkı, aynı hizada olmayan iki hap olarak göze çarpıyordu.
+  */
+  padding: 12px 20px;
+  font-size: 15px;
+  line-height: 1;
   font-weight: 600;
   border: 1px solid transparent;
   border-radius: 360px;

@@ -115,42 +115,55 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           </div>
           <div className="mt-10 grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.15fr_0.85fr]">
             <div className="animate-rise">
-              {/* Kayıt duyurusu: beyaz kutu, çerçevesi yavaşça mavi yanıp söner.
-                  Metni ve görünürlüğü yönetim panelindeki Duyuru ve eğitmen ekranından yönetilir. */}
-              {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
-                <div
-                  className={
-                    icerik.duyuruStili === "koyu"
-                      ? "duyuru-koyu mb-7 inline-block max-w-full"
-                      : "duyuru-parlak mb-7 inline-block max-w-full rounded-[13px] px-[18px] py-[13px]"
-                  }
-                >
-                  <span
-                    className={
-                      icerik.duyuruStili === "koyu"
-                        ? ""
-                        : "text-[14px] leading-[1.45] font-semibold tracking-[-0.01em] sm:text-[15.5px]"
-                    }
-                  >
-                    {icerik.kayitDuyurusu}
-                  </span>
-                </div>
-              )}
               {/*
-                Güven rozeti başlığın HEMEN üstünde.
+                Duyuru ve rozet TEK SATIRDA, aynı geometride.
 
-                Altın rengi bilinçli: marka mavisi sayfada eylem rengi ve
-                rozet tıklanabilir bir şey değil. Ayrı bir renk ailesi, onu
-                düğmelerle karıştırmadan öne çıkarıyor.
+                Alt alta dururken iki ayrı sistem gibi okunuyorlardı: biri
+                köşeli beyaz dikdörtgen, diğeri yuvarlak altın hap, farklı
+                yükseklikte, farklı puntoda. Göz bunu "iki farklı yerden
+                gelmiş iki öğe" diye çözüyordu.
 
-                Kayıt duyurusunun üstünde değil ALTINDA: duyuru zamana bağlı
-                bir haber ("Eylül kayıtları açıldı"), rozet ise kalıcı bir
-                nitelik. Kalıcı olan başlığa daha yakın durmalı.
+                Ortaklaştırılan şey BİÇİM: ikisi de aynı yükseklikte, tam
+                yuvarlak kenarlı, aynı puntoda hap. Ayrışan şey ise ANLAM ve
+                onu taşıyan tek değişken renk — mavi ailesi zamana bağlı
+                haberi, altın ailesi kalıcı niteliği anlatıyor.
+
+                Hareket de hiyerarşi taşıyor: duyurunun çerçevesi dönüyor
+                (yeni bir bilgi, dikkat istiyor), rozet duruyor (her zaman
+                doğru olan bir şey). İkisi birden hareket etseydi ikisi de
+                fark edilmezdi.
+
+                Dar ekranda alt alta iniyorlar; iki hap yan yana sığmıyor ve
+                sıkıştırılmış hâlleri satır kırıyor.
               */}
-              {icerik.rozetAktif && icerik.rozetMetni && (
-                <div className="mb-6 inline-flex items-center gap-[10px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[10px] pr-[20px] pl-[15px] text-[14.5px] leading-none font-semibold text-[#E7D3A1] sm:text-[15.5px]">
-                  <Icon name="odul" size={19} />
-                  {icerik.rozetMetni}
+              {((icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu) || (icerik.rozetAktif && icerik.rozetMetni)) && (
+                <div className="mb-7 flex flex-wrap items-center gap-[10px]">
+                  {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
+                    <div
+                      className={
+                        icerik.duyuruStili === "koyu"
+                          ? "duyuru-koyu max-w-full"
+                          : "duyuru-parlak max-w-full rounded-full px-[20px] py-[12px]"
+                      }
+                    >
+                      <span
+                        className={
+                          icerik.duyuruStili === "koyu"
+                            ? ""
+                            : "text-[14.5px] leading-none font-semibold tracking-[-0.01em] sm:text-[15px]"
+                        }
+                      >
+                        {icerik.kayitDuyurusu}
+                      </span>
+                    </div>
+                  )}
+
+                  {icerik.rozetAktif && icerik.rozetMetni && (
+                    <div className="inline-flex items-center gap-[9px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[12px] pr-[20px] pl-[16px] text-[14.5px] leading-none font-semibold text-[#E7D3A1] sm:text-[15px]">
+                      <Icon name="odul" size={18} />
+                      {icerik.rozetMetni}
+                    </div>
+                  )}
                 </div>
               )}
               {/*
