@@ -3,6 +3,7 @@ import "server-only";
 import { bildirimSablonu, type BildirimSatiri } from "@/lib/eposta-sablon";
 import { AKISLAR, type EpostaAkisi } from "@/lib/eposta-akislari";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
+import { metniBirlestir, type AkisMetni } from "@/lib/eposta-icerik";
 
 /**
  * E-posta gönderimi (Resend).
@@ -277,6 +278,37 @@ async function panelKoku(): Promise<string | null> {
  * kimliği akademinin kendisi ("Akademi Yönetim" değil). Yönetim bildirimleri
  * iç yazışma gibi görünmeli, öğrenciye giden mail markanın yüzü.
  */
+/**
+ * Akışın panelden yazılmış metnini okur.
+ *
+ * Satır yoksa ya da alanlar boşsa null dönüyor ve koddaki varsayılan geçerli
+ * kalıyor. Sorgu başarısız olursa da null: özelleştirme okunamadı diye mail
+ * hiç gitmemesindense varsayılanla gitmesi iyi.
+ */
+async function akisMetniniOku(akis: EpostaAkisi): Promise<AkisMetni | null> {
+  try {
+    const servis = gorevIstemcisi();
+    if (!servis) return null;
+
+    const { data, error } = await servis
+      .from("eposta_akislari")
+      .select("konu, ust_etiket, baslik, ozet, eylem_etiketi")
+      .eq("anahtar", akis)
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return {
+      konu: data.konu,
+      ustEtiket: data.ust_etiket,
+      baslik: data.baslik,
+      ozet: data.ozet,
+      eylemEtiketi: data.eylem_etiketi,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function ogrenciBildirimi(girdi: {
   akis: EpostaAkisi;
   alici: string;
@@ -289,21 +321,47 @@ export async function ogrenciBildirimi(girdi: {
   /** Panel içi yol: "/panel/odemelerim" gibi. Kök adres otomatik ekleniyor. */
   yol?: string;
   eylemEtiketi?: string;
+  /**
+   * Panelden yazılan metindeki `{ad}` gibi yer tutucuların karşılıkları.
+   * Varsayılan metinler bunları kullanmıyor — onlar zaten cümleyi kendisi
+   * kuruyor; bu yalnızca özelleştirilmiş metinler için.
+   */
+  degiskenler?: Record<string, string | null | undefined>;
 }): Promise<{ gonderildi: boolean; hata?: string }> {
   if (!girdi.alici) return { gonderildi: false, hata: "Alıcı adresi yok." };
 
-  const [kok, logo] = await Promise.all([girdi.yol ? panelKoku() : null, epostaLogosu()]);
+  const [kok, logo, ozel] = await Promise.all([
+    girdi.yol ? panelKoku() : null,
+    epostaLogosu(),
+    akisMetniniOku(girdi.akis),
+  ]);
+
+  const metinler = metniBirlestir(
+    {
+      konu: girdi.konu,
+      ustEtiket: girdi.ustEtiket,
+      baslik: girdi.baslik,
+      ozet: girdi.ozet,
+      eylemEtiketi: girdi.eylemEtiketi,
+    },
+    ozel,
+    girdi.degiskenler ?? {},
+  );
+
   const { html, metin } = bildirimSablonu({
     logo,
-    ustEtiket: girdi.ustEtiket,
-    baslik: girdi.baslik,
-    ozet: girdi.ozet,
+    ustEtiket: metinler.ustEtiket,
+    baslik: metinler.baslik,
+    ozet: metinler.ozet,
     satirlar: girdi.satirlar,
     alinti: girdi.alinti,
-    eylem: kok && girdi.yol ? { etiket: girdi.eylemEtiketi ?? "Panele git", adres: `${kok}${girdi.yol}` } : undefined,
+    eylem:
+      kok && girdi.yol
+        ? { etiket: metinler.eylemEtiketi ?? "Panele git", adres: `${kok}${girdi.yol}` }
+        : undefined,
   });
 
-  return epostaGonder({ akis: girdi.akis, konu: girdi.konu, metin, html, alici: girdi.alici });
+  return epostaGonder({ akis: girdi.akis, konu: metinler.konu, metin, html, alici: girdi.alici });
 }
 
 /**

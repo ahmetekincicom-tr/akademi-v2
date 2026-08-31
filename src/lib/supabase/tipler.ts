@@ -189,7 +189,17 @@ export type Database = {
         ];
       };
       eposta_akislari: {
-        Row: { acik: boolean; anahtar: string; guncelleme: string; not_metni: string | null };
+        Row: {
+          acik: boolean;
+          anahtar: string;
+          baslik: string | null;
+          eylem_etiketi: string | null;
+          guncelleme: string;
+          konu: string | null;
+          not_metni: string | null;
+          ozet: string | null;
+          ust_etiket: string | null;
+        };
         Insert: Partial<Database["public"]["Tables"]["eposta_akislari"]["Row"]> & { anahtar: string };
         Update: Partial<Database["public"]["Tables"]["eposta_akislari"]["Row"]>;
         Relationships: [];

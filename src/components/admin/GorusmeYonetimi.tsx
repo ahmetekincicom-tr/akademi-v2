@@ -249,7 +249,7 @@ function Detay({
   ayarlar: GorusmeAyarlari;
   islemde: boolean;
   calistir: (
-    fn: () => Promise<{ error?: string } | void>,
+    fn: () => Promise<{ error?: string; uyari?: string } | void>,
     sonra?: () => void,
     basariMesaji?: string,
   ) => void;
@@ -387,7 +387,7 @@ function AyarFormu({
   ayarlar: GorusmeAyarlari;
   islemde: boolean;
   calistir: (
-    fn: () => Promise<{ error?: string } | void>,
+    fn: () => Promise<{ error?: string; uyari?: string } | void>,
     sonra?: () => void,
     basariMesaji?: string,
   ) => void;

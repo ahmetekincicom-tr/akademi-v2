@@ -4,7 +4,8 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
-import { akisDurumuDegistir } from "@/app/kontrol-9f4x2k/(protected)/e-postalar/actions";
+import { akisDurumuDegistir, akisMetniKaydet } from "@/app/kontrol-9f4x2k/(protected)/e-postalar/actions";
+import { AKIS_DEGISKENLERI } from "@/lib/eposta-icerik";
 import { AKISLAR, AKIS_ADI, DURUM_ETIKET } from "@/lib/eposta-akislari";
 import { TR_ZAMAN } from "@/lib/zaman";
 
@@ -43,10 +44,12 @@ const DURUM_STIL: Record<string, { bg: string; renk: string }> = {
  */
 export function EpostaYonetimi({
   kapaliAkislar,
+  metinler,
   gunluk,
   yapilandirildi,
 }: {
   kapaliAkislar: string[];
+  metinler: Record<string, AkisMetniFormu>;
   gunluk: GunlukSatiri[];
   yapilandirildi: boolean;
 }) {
@@ -84,11 +87,15 @@ export function EpostaYonetimi({
   const akisSatiri = (a: (typeof AKISLAR)[number]) => {
     const zorunlu = "zorunlu" in a && a.zorunlu;
     const acik = zorunlu || !kapali.has(a.anahtar);
+    const mevcutMetin = metinler[a.anahtar];
+    const ozellestirilmis = Boolean(
+      mevcutMetin && (mevcutMetin.konu || mevcutMetin.baslik || mevcutMetin.ozet || mevcutMetin.ustEtiket || mevcutMetin.eylemEtiketi),
+    );
 
     return (
+      <div key={a.anahtar} className="border-b border-ink/7 last:border-b-0">
       <div
-        key={a.anahtar}
-        className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-ink/7 px-5 py-[14px] last:border-b-0 sm:px-6"
+        className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-[14px] sm:px-6"
       >
         <div className="min-w-0 grow basis-[260px]">
           <div className="flex flex-wrap items-center gap-2">
@@ -127,6 +134,13 @@ export function EpostaYonetimi({
             />
           </button>
         )}
+      </div>
+      <MetinDuzenleyici
+        anahtar={a.anahtar}
+        baslik={a.baslik}
+        mevcut={mevcutMetin}
+        ozellestirilmis={ozellestirilmis}
+      />
       </div>
     );
   };
@@ -269,5 +283,173 @@ export function EpostaYonetimi({
         )}
       </section>
     </main>
+  );
+}
+
+
+export type AkisMetniFormu = {
+  konu: string;
+  ustEtiket: string;
+  baslik: string;
+  ozet: string;
+  eylemEtiketi: string;
+};
+
+const BOS_METIN: AkisMetniFormu = { konu: "", ustEtiket: "", baslik: "", ozet: "", eylemEtiketi: "" };
+
+const METIN_ALANI =
+  "min-h-[38px] rounded-[9px] border border-ink/13 bg-white px-[11px] py-2 text-[13.5px] leading-[1.55] text-ink outline-none focus:border-brand";
+
+/**
+ * Bir akışın metinlerini düzenleyen açılır bölüm.
+ *
+ * Kapalı başlıyor: on beş akışın hepsi açıkken ekran, aradığı anahtarı bulmaya
+ * çalışan kişi için bir metin duvarına dönüyor. Açıp kapatmak, düzenlenecek
+ * olanı seçmek demek.
+ *
+ * Boş kutu "koddaki varsayılan geçerli" anlamına geliyor ve bu ekranda açıkça
+ * yazıyor — boş bir alan görüp "metin silinmiş" diye düşünülmesin.
+ */
+function MetinDuzenleyici({
+  anahtar,
+  baslik,
+  mevcut,
+  ozellestirilmis,
+}: {
+  anahtar: string;
+  baslik: string;
+  mevcut: AkisMetniFormu | undefined;
+  ozellestirilmis: boolean;
+}) {
+  const bildir = useBildirim();
+  const [acik, setAcik] = useState(false);
+  const [form, setForm] = useState<AkisMetniFormu>(mevcut ?? BOS_METIN);
+  const [kaydediliyor, setKaydediliyor] = useState(false);
+
+  const degiskenler = AKIS_DEGISKENLERI[anahtar as keyof typeof AKIS_DEGISKENLERI] ?? [];
+
+  const kaydet = async () => {
+    setKaydediliyor(true);
+    const r = await akisMetniKaydet(anahtar, form);
+    setKaydediliyor(false);
+    if (r?.error) bildir.hata(r.error);
+    else bildir.basarili(`${baslik} metni kaydedildi.`);
+  };
+
+  const yaz = (alan: keyof AkisMetniFormu, v: string) => setForm((p) => ({ ...p, [alan]: v }));
+
+  return (
+    <div className="px-5 pb-[14px] sm:px-6">
+      <button
+        type="button"
+        onClick={() => setAcik((a) => !a)}
+        className="inline-flex items-center gap-[7px] text-[12.5px] font-semibold text-[#5C6273] transition hover:text-brand"
+      >
+        <span className="font-mono text-[13px] leading-none">{acik ? "–" : "+"}</span>
+        Metni düzenle
+        {ozellestirilmis && !acik && (
+          <span className="rounded-full bg-brand/10 px-[8px] py-[2px] font-mono text-[9px] tracking-[0.1em] text-brand uppercase">
+            özel
+          </span>
+        )}
+      </button>
+
+      {acik && (
+        <div className="mt-3 flex flex-col gap-3 rounded-[11px] border border-ink/10 bg-mist/60 p-4">
+          <p className="text-[12.5px] leading-[1.55] text-[#5C6273]">
+            Boş bıraktığın alan için hazır metin kullanılır. Tarih, süre, program gibi{" "}
+            <strong className="font-semibold text-ink">satır bilgileri</strong> otomatik ekleniyor; onlar buradan
+            yazılmıyor.
+            {degiskenler.length > 0 && (
+              <>
+                {" "}
+                Kullanabileceğin değişkenler:{" "}
+                {degiskenler.map((d, i) => (
+                  <span key={d}>
+                    {i > 0 && ", "}
+                    <code className="rounded bg-white px-[5px] py-[1px] font-mono text-[12px] text-ink">{`{${d}}`}</code>
+                  </span>
+                ))}
+              </>
+            )}
+          </p>
+
+          <label className="flex flex-col gap-[6px]">
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Konu</span>
+            <input
+              type="text"
+              value={form.konu}
+              onChange={(e) => yaz("konu", e.target.value)}
+              placeholder="Mail kutusunda görünen satır"
+              className={METIN_ALANI}
+            />
+          </label>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[160px_1fr]">
+            <label className="flex flex-col gap-[6px]">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Üst etiket</span>
+              <input
+                type="text"
+                value={form.ustEtiket}
+                onChange={(e) => yaz("ustEtiket", e.target.value)}
+                placeholder="Ödeme"
+                className={METIN_ALANI}
+              />
+            </label>
+            <label className="flex flex-col gap-[6px]">
+              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Başlık</span>
+              <input
+                type="text"
+                value={form.baslik}
+                onChange={(e) => yaz("baslik", e.target.value)}
+                placeholder="Mailin içindeki büyük başlık"
+                className={METIN_ALANI}
+              />
+            </label>
+          </div>
+
+          <label className="flex flex-col gap-[6px]">
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Metin</span>
+            <textarea
+              value={form.ozet}
+              onChange={(e) => yaz("ozet", e.target.value)}
+              placeholder="Başlığın altındaki paragraf"
+              className={`${METIN_ALANI} min-h-[110px] resize-y`}
+            />
+          </label>
+
+          <label className="flex max-w-[280px] flex-col gap-[6px]">
+            <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Düğme yazısı</span>
+            <input
+              type="text"
+              value={form.eylemEtiketi}
+              onChange={(e) => yaz("eylemEtiketi", e.target.value)}
+              placeholder="Panele git"
+              className={METIN_ALANI}
+            />
+          </label>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={kaydet}
+              disabled={kaydediliyor}
+              className="h-[38px] rounded-[9px] bg-brand px-4 text-[13.5px] font-semibold text-white transition hover:bg-ink disabled:opacity-60"
+            >
+              {kaydediliyor ? "Kaydediliyor…" : "Metni kaydet"}
+            </button>
+            {ozellestirilmis && (
+              <button
+                type="button"
+                onClick={() => setForm(BOS_METIN)}
+                className="text-[12.5px] font-semibold text-[#5C6273] underline underline-offset-2 hover:text-brand"
+              >
+                Alanları temizle (varsayılana dön)
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
