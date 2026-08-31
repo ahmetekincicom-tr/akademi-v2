@@ -205,45 +205,6 @@
 
 
   /*
-    Hero yörüngesi. Halka ileri, içindeki logo aynı sürede geri dönüyor —
-    böylece logo dik kalıyor. Kaynak bileşende logolar halkanın çocuğu olduğu
-    için onunla birlikte takla atıyor; yazı içeren marka logolarında bu bozuk
-    görünüyor.
-  */
-  .yorunge {
-    animation-name: yorunge-don;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-
-  .yorunge-ters {
-    animation-name: yorunge-don-ters;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-  }
-
-  @keyframes yorunge-don {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @keyframes yorunge-don-ters {
-    to {
-      transform: rotate(-360deg);
-    }
-  }
-
-  /* Sürekli dönen bir öğe hareket hassasiyeti olanlar için rahatsız edici;
-     halkalar duruyor, düzen aynı kalıyor. */
-  @media (prefers-reduced-motion: reduce) {
-    .yorunge,
-    .yorunge-ters {
-      animation: none;
-    }
-  }
-
-  /*
     Ana eylemin nabzı.
 
     Düğme sayfanın en önemli tıklanabilir öğesi ama koyu bir hero'da sabit

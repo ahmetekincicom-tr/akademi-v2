@@ -3,22 +3,12 @@ import { Icon } from "@/components/Icon";
 import { getCourses } from "@/lib/courses";
 import { getYorumlar, getReferanslar } from "@/lib/icerik";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
-import { HeroYorunge } from "@/components/site/HeroYorunge";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
-
-const heroStats = [
-  { n: "5 yıl", t: "kesintisiz birebir eğitim" },
-  { n: "400+", t: "eğitimi tamamlayan katılımcı" },
-  { n: "1:1", t: "her programda tek katılımcı" },
-];
-
-
-
 
 const farklar = [
   {
@@ -139,57 +129,106 @@ export default async function HomePage() {
     <div className="bg-white">
       <PublicHeader />
 
-      {/* Hero */}
+      {/*
+        Hero.
+
+        Tek sütun ve ORTALI: iki sütunluydu, sağda yörünge animasyonu ve iki
+        yüzen kart vardı. O sütun başlığın alanını yarıya indiriyordu ve
+        mobilde zaten alta düşüp uzun bir boşluk oluşturuyordu. Tek sütunda
+        başlık gerçekten büyüyebiliyor — hero'nun taşıdığı şey o cümle.
+
+        Alttaki program şeridi hero'nun işini doğrudan yapıyor: ziyaretçi
+        "hangi eğitimler var" sorusunu sayfayı kaydırmadan görüyor.
+      */}
       <section className="relative overflow-hidden bg-ink text-white">
+        {/*
+          Tek ışık kaynağı başlığın arkasında.
+
+          Izgara dokusu ve ikinci bir renk lekesi kaldırıldı: üst üste binen
+          efektler koyu zemini "ucuz" gösteriyordu. Kalan degrade yukarıdan
+          aşağı sönüyor, başlığı öne çıkarıyor.
+        */}
         <div
-          className="bg-grid-dark absolute inset-0"
+          className="pointer-events-none absolute inset-0"
           style={{
-            maskImage: "radial-gradient(120% 90% at 30% 20%, #000 30%, transparent 75%)",
-            WebkitMaskImage: "radial-gradient(120% 90% at 30% 20%, #000 30%, transparent 75%)",
+            background:
+              "radial-gradient(90% 70% at 50% -20%, rgba(28,86,243,0.20) 0%, rgba(10,13,24,0) 62%)",
           }}
         />
-        <div className="absolute -top-40 -right-30 h-[620px] w-[620px] rounded-full bg-brand opacity-20 blur-[120px]" />
-        <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 pt-24 pb-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div className="animate-rise">
-            <h1 className="font-heading text-[42px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[52px] lg:text-[66px] lg:leading-[1.02]">
-              Dijital pazarlamayı
-              <br />
-              <span className="text-brand">birebir</span> öğrenin,
-              <br />
-              işinizde uygulayın.
-            </h1>
-            <p className="mt-[26px] max-w-[540px] text-[19px] leading-[1.62] text-white/68">
-              Meta Ads, sosyal medya yönetimi ve yapay zekâ araçları. Kayıtlı kurs değil: gerçek zamanlı, tek
-              katılımcıya göre kurulan müfredat — ve ders sonrası ömür boyu destek.
-            </p>
-            <div className="mt-[38px] flex flex-wrap items-center gap-[18px]">
-              <Link
-                href="#egitimler"
-                className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-7 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] hover:bg-white hover:text-ink"
-              >
-                Eğitimleri incele <span>→</span>
-              </Link>
-            </div>
-            <div className="mt-14 flex flex-wrap gap-11">
-              {heroStats.map((s) => (
-                <div key={s.t}>
-                  <div className="font-heading text-[32px] font-semibold tracking-[-0.03em]">{s.n}</div>
-                  <div className="mt-1 text-[13px] text-white/55">{s.t}</div>
-                </div>
-              ))}
-            </div>
+
+        <div className="relative mx-auto flex max-w-[1240px] flex-col items-center px-5 pt-20 text-center sm:px-8 sm:pt-24 lg:pt-28">
+          <div className="flex items-center gap-3">
+            <span className="h-[5px] w-[5px] flex-none rounded-full bg-[#4D7BFF] shadow-[0_0_0_4px_rgba(77,123,255,0.16)]" />
+            <span className="font-mono text-[10.5px] tracking-[0.22em] text-[#8B9AC2] uppercase sm:text-[11px] sm:tracking-[0.26em]">
+              Canlı · Birebir · Uygulamalı
+            </span>
           </div>
-          <div className="relative pb-10 lg:pb-24">
-            <HeroYorunge referanslar={logos} />
-            {/* Mobilde yörüngenin altında akar; lg'de üzerine yüzer. */}
-            <div className="animate-float mt-4 rounded-[13px] bg-white px-[18px] py-4 text-ink shadow-[0_20px_44px_rgba(0,0,0,0.34)] lg:absolute lg:bottom-[130px] lg:-left-[34px] lg:mt-0">
-              <div className="font-mono text-[10px] tracking-[0.14em] text-[#6B7080] uppercase">Ders formatı</div>
-              <div className="mt-[6px] text-[15px] font-semibold">Canlı · 1 eğitmen · 1 katılımcı</div>
-            </div>
-            <div className="animate-float-delay mt-3 rounded-[13px] bg-brand px-[18px] py-4 text-white shadow-[0_20px_44px_rgba(28,86,243,0.4)] lg:absolute lg:right-[-18px] lg:bottom-[52px] lg:mt-0">
-              {/* Marka mavisi üstünde AA eşiği white/85; altındaki tonlar kalıyor. */}
-              <div className="font-mono text-[10px] tracking-[0.14em] text-white/90 uppercase">Ders sonrası</div>
-              <div className="mt-[6px] text-[15px] font-semibold">Ömür boyu soru-cevap</div>
+
+          {/*
+            Başlık satırları ELLE kırılıyor (<br />) ama yalnızca geniş
+            ekranda: verilen metnin üç satırlık ritmi tasarımın kendisi.
+            Dar ekranda aynı kırılma tek kelimelik satırlar üretiyordu, orada
+            metin kendi akışına bırakılıyor.
+          */}
+          <h1 className="mt-8 max-w-[1080px] font-heading text-[40px] leading-[1.03] font-semibold tracking-[-0.042em] text-white sm:text-[62px] lg:text-[82px] lg:leading-[0.98] xl:text-[92px]">
+            Dijital pazarlamayı<span className="hidden lg:inline">
+              <br />
+            </span>{" "}
+            izleyerek değil,<span className="hidden lg:inline">
+              <br />
+            </span>{" "}
+            uygulayarak öğrenin.
+          </h1>
+
+          <p className="mt-8 max-w-[660px] text-[16.5px] leading-[1.66] text-[#93A0B6] sm:text-[18px] sm:leading-[1.62]">
+            Meta Ads, sosyal medya yönetimi ve yapay zekâ eğitimleri; bilgi düzeyinize, hedeflerinize ve kendi
+            projelerinize göre birebir planlanır. Canlı derslerde yalnızca öğrenmez, öğrendiklerinizi doğrudan
+            uygulamaya geçirirsiniz.
+          </p>
+
+          <Link
+            href="/egitimler"
+            className="group/hero mt-10 inline-flex h-14 items-center gap-[11px] rounded-[10px] bg-brand px-8 text-[16px] font-semibold text-white transition hover:bg-white hover:text-ink"
+          >
+            Birebir Eğitimleri İnceleyin
+            <span className="transition-transform duration-200 group-hover/hero:translate-x-[3px]">→</span>
+          </Link>
+        </div>
+
+        {/*
+          Program şeridi.
+
+          Kart değil şerit: kartlar hero'nun altında ikinci bir bölüm gibi
+          duruyordu, ince çizgilerle ayrılmış sütunlar ise hero'nun parçası
+          olarak okunuyor. Liste veritabanından geliyor ve sırası panelden
+          yönetilen sırayla aynı — vitrin iki yerde ayrı ayrı tanımlanmıyor.
+        */}
+        <div className="relative mt-24 border-t border-white/[0.07] sm:mt-28">
+          <div className="mx-auto flex max-w-[1240px] items-center justify-end px-5 py-[18px] sm:px-8">
+            <Link
+              href="/egitimler"
+              className="font-mono text-[10px] tracking-[0.2em] text-[#7F9BFF] uppercase transition hover:text-white"
+            >
+              Tümü →
+            </Link>
+          </div>
+          <div className="border-t border-white/[0.07]">
+            <div className="mx-auto grid max-w-[1240px] grid-cols-1 sm:grid-cols-3">
+              {programs.map((p, i) => (
+                <Link
+                  key={p.href}
+                  href={p.href}
+                  className="flex flex-col gap-[10px] border-t border-white/[0.07] px-5 py-7 transition hover:bg-white/[0.03] sm:border-t-0 sm:border-l sm:px-8 sm:first:border-l-0"
+                >
+                  <span className="font-mono text-[10px] tracking-[0.18em] text-[#5B657B]">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="font-heading text-[19px] leading-[1.25] font-semibold tracking-[-0.02em] text-white sm:text-[20px]">
+                    {p.baslik}
+                  </span>
+                  <span className="text-[13px] leading-[1.5] text-[#7D879C]">{p.etiket}</span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
