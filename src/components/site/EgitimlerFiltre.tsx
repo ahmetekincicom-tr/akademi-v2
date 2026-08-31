@@ -5,20 +5,25 @@ import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import type { Course } from "@/lib/courses";
 
-const tabs = ["Tümü", "Online", "Yüz yüze", "Kurumsal"] as const;
+/*
+  "Yüz yüze" sekmesi kaldırıldı.
+
+  Üç eğitimin üçü de hem online hem yüz yüze veriliyor; sekme her seferinde
+  aynı üç kartı gösteriyor, yani hiçbir şeyi süzmüyordu. Format bilgisi
+  eğitim sayfasındaki kapsam listesinde zaten duruyor.
+*/
+const tabs = ["Tümü", "Online", "Kurumsal"] as const;
 type Tab = (typeof tabs)[number];
 
 export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
   const [tab, setTab] = useState<Tab>("Tümü");
 
-  const gosterilecek =
-    tab === "Kurumsal"
-      ? []
-      : courses.filter((c) => (tab === "Online" ? c.online : tab === "Yüz yüze" ? c.yuzYuze : true));
+  const gosterilecek = tab === "Kurumsal" ? [] : courses.filter((c) => (tab === "Online" ? c.online : true));
 
   return (
     <section className="mx-auto max-w-[1240px] px-5 sm:px-8 py-16 pb-24">
-      <div className="flex flex-wrap gap-2">
+      {/* Kategoriler dar ekranda ortalı; hero ile aynı eksende dursunlar. */}
+      <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
         {tabs.map((t) => {
           const secili = tab === t;
           return (
@@ -41,10 +46,27 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
 
       {tab !== "Kurumsal" && (
         <div className="mt-9 grid grid-cols-1 gap-[22px] md:grid-cols-3">
-          {gosterilecek.map((p) => (
+          {gosterilecek.map((p, i) => {
+            /*
+              Sıradaki İLK program vitrinde öne çıkıyor.
+
+              Vurgu için ayrı bir "öne çıkan" alanı açılmadı: sıra zaten
+              panelden yönetilen bir tercih ve iki ayrı yerden yönetilen bir
+              vitrin, ikisi çeliştiğinde hangisinin kazandığı belirsiz kalırdı.
+              Sırayı değiştiren, vitrini de değiştirmiş oluyor.
+
+              Vurgu yalnızca gölge ve çerçeve: kartı büyütmek ızgarayı
+              bozuyor, rengini değiştirmek diğer ikisini pasif gösteriyordu.
+            */
+            const vitrin = i === 0 && tab === "Tümü";
+            return (
             <div
               key={p.slug}
-              className="flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
+              className={`relative flex flex-col overflow-hidden rounded-2xl bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)] ${
+                vitrin
+                  ? "border-2 border-brand/35 shadow-[0_18px_44px_rgba(28,86,243,0.18)]"
+                  : "border border-ink/11"
+              }`}
             >
               {/*
                 Görsel ve başlık de detaya gidiyor: kart bir bağlantı gibi
@@ -69,40 +91,44 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
                   {p.etiket}
                 </span>
               </Link>
+              {/*
+                Süre satırı ve madde listesi kaldırıldı.
+
+                İkisi de birebir kurulan bir programda kişiye göre değişiyor;
+                karttaki sabit "15 saat" ve üç madde, ön görüşmede yeniden
+                yazılan bir kapsamı sabitmiş gibi gösteriyordu. Kart artık tek
+                iş yapıyor: hangi program olduğunu söyleyip detaya götürmek.
+              */}
               <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
-                {/* Modül sayısı kaldırıldı: birebir kurulan bir programda
-                    kapsam kişiye göre değişiyor, sabit bir rakam yanıltıcı. */}
-                <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">
-                  <span>{p.sure}</span>
-                </div>
                 {/* h2: sayfanın h1'inden sonraki ilk seviye. Önce h3'tü ve
                     başlık hiyerarşisinde h2 atlanıyordu. */}
-                <h2 className="mt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
+                <h2 className="font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
                   <Link href={`/egitimler/${p.slug}`} className="transition-colors hover:text-brand">
                     {p.baslik}
                   </Link>
                 </h2>
-                <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
-                <div className="mt-auto flex flex-col gap-[11px] border-t border-ink/8 pt-5">
-                  {p.maddeler.map((m) => (
-                    <div key={m} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
-                      <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-brand">
-                        <Icon name="check" size={11} strokeWidth={3} />
-                      </span>
-                      <span>{m}</span>
-                    </div>
-                  ))}
-                </div>
+                <p className="mt-[11px] mb-7 text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
+                {/*
+                  Düğme dolu mavi ve tam genişlikte: gri zeminli hâli kartın
+                  içinde bir bilgi satırı gibi duruyordu, tıklanabilir olduğu
+                  ancak üzerine gelince belli oluyordu. Ok işareti üzerine
+                  gelince ilerliyor.
+                */}
                 <Link
                   href={`/egitimler/${p.slug}`}
-                  className="mt-[26px] flex h-[46px] items-center justify-between rounded-[10px] bg-[#F2F4FA] px-[18px] text-[14.5px] font-semibold text-ink hover:bg-brand hover:text-white"
+                  className="group/dugme mt-auto flex h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[15px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink"
                 >
                   <span>Program detayını incele</span>
-                  <Icon name="arrowRight" size={16} />
+                  <Icon
+                    name="arrowRight"
+                    size={16}
+                    className="transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
+                  />
                 </Link>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

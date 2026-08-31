@@ -119,6 +119,15 @@ export type Course = {
   haplar: IkonluSatir[];
   /** "6 kişilik kontenjan" gibi tek satır; boşsa satır hiç görünmüyor. */
   kontenjan: string;
+  /**
+   * Listeleme sırası. Küçük olan önce.
+   *
+   * created_at'e güvenilemiyor: üç eğitim de aynı toplu ekleme ile
+   * oluşturulduğu için damgaları saniyesine kadar aynı ve veritabanı onları
+   * her sorguda farklı sırada döndürebiliyor. Vitrin sırası da bir tercih —
+   * kayıt zamanının yan etkisi olmamalı.
+   */
+  sira: number;
   kazanimlar: string[];
   modules: CurriculumModule[];
   uygun: string[];
@@ -182,6 +191,7 @@ type CourseRow = {
     kapsam?: unknown;
     haplar?: unknown;
     kontenjan?: string;
+    sira?: number;
     kazanimlar: string[];
     uygun: string[];
     uygunDegil: string[];
@@ -235,6 +245,9 @@ function mapCourse(row: CourseRow): Course {
       ? satirlariDuzelt(row.content.haplar)
       : VARSAYILAN_HAPLAR,
     kontenjan: (row.content.kontenjan ?? "").trim(),
+    // Sırası verilmemiş eğitim listenin sonuna: yeni eklenen bir program
+    // kendiliğinden vitrinin başına geçmemeli.
+    sira: typeof row.content.sira === "number" ? row.content.sira : 999,
     kazanimlar: row.content.kazanimlar,
     modules,
     uygun: row.content.uygun,
@@ -266,7 +279,16 @@ export const getCourses = cache(async function getCourses(client?: SupabaseClien
     return [];
   }
   if (!data) return [];
-  return (data as unknown as CourseRow[]).map(mapCourse);
+  /*
+    Sıralama BURADA, sorguda değil: sira content JSON'unun içinde ve
+    PostgREST'te JSON alanına göre sıralamak, alanı olmayan kayıtlarda
+    sürprizli davranıyor. Liste üç-beş kayıt; bellekte sıralamanın maliyeti
+    yok. Eşitlikte başlık: sıra verilmemiş iki program her yüklemede yer
+    değiştirmesin.
+  */
+  return (data as unknown as CourseRow[])
+    .map(mapCourse)
+    .sort((a, b) => a.sira - b.sira || a.baslik.localeCompare(b.baslik, "tr"));
 });
 
 export async function getCourseBySlug(slug: string, client?: SupabaseClient<Database>): Promise<Course | undefined> {

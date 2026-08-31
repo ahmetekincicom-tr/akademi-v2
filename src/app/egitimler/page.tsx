@@ -36,14 +36,24 @@ export default async function EgitimlerPage() {
           }}
         />
         <div className="absolute -top-40 -right-20 h-[520px] w-[520px] rounded-full bg-brand opacity-18 blur-[120px]" />
-        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-20 pb-24">
-          <SectionKicker tone="light">Eğitimler</SectionKicker>
-          <h1 className="mt-[18px] max-w-[640px] font-heading text-[38px] leading-[1.06] font-semibold tracking-[-0.035em] sm:text-[48px]">
-            Üç program. <span className="text-brand">Aynı yöntem:</span> birebir.
+        {/*
+          Dar ekranda ORTALI, geniş ekranda sola yaslı.
+
+          Mobilde tek sütuna inen hero'da başlık, açıklama ve altındaki
+          kategori düğmeleri farklı uzunlukta bitiyor ve sola yaslıyken blok
+          dağınık duruyordu. Masaüstünde satırlar zaten yan yana bir düzen
+          kuruyor, orada ortalamak gereksiz.
+        */}
+        <div className="relative mx-auto max-w-[1240px] px-5 pt-20 pb-24 text-center sm:px-8 lg:text-left">
+          <div className="flex justify-center lg:justify-start">
+            <SectionKicker tone="light">Ahmet Ekinci Akademi</SectionKicker>
+          </div>
+          <h1 className="mx-auto mt-[18px] max-w-[640px] font-heading text-[38px] leading-[1.06] font-semibold tracking-[-0.035em] sm:text-[48px] lg:mx-0">
+            Birebir Eğitimler
           </h1>
-          <p className="mt-6 max-w-[540px] text-[17px] leading-[1.62] text-white/68">
-            Her program online veya Ankara&apos;da yüz yüze ilerler. Müfredat, ön görüşmede işinize göre yeniden
-            kurulur — fiyat yerine kapsam konuşulur.
+          <p className="mx-auto mt-6 max-w-[620px] text-[17px] leading-[1.62] text-white/70 lg:mx-0">
+            Sosyal medya, reklamcılık ve dijital pazarlama alanlarında birebir, uygulamalı ve size özel eğitimlerle
+            profesyonel gelişiminize yön verin.
           </p>
         </div>
       </section>

@@ -48,6 +48,7 @@ type ExistingContent = {
   haplar?: { ad: string; ikon: string }[];
   kapsam?: { ad: string; ikon: string }[];
   kontenjan?: string;
+  sira?: number;
   kazanimlar?: string[];
   uygun?: string[];
   uygunDegil?: string[];
@@ -109,6 +110,8 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     haplar: input.haplar !== undefined ? ikonluSatirlar(input.haplar) : (existingContent.haplar ?? []),
     kapsam: input.kapsam !== undefined ? ikonluSatirlar(input.kapsam) : (existingContent.kapsam ?? []),
     kontenjan: input.kontenjan !== undefined ? input.kontenjan.trim() : (existingContent.kontenjan ?? ""),
+    // Sıra editörden yönetilmiyor; kaydederken kaybolmasın.
+    sira: existingContent.sira ?? 999,
     kazanimlar: existingContent.kazanimlar ?? [],
     uygun: existingContent.uygun ?? [],
     uygunDegil: existingContent.uygunDegil ?? [],
