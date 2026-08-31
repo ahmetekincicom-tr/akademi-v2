@@ -1,48 +1,18 @@
 "use server";
 
-import { headers } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
-import { istemciBilgisi } from "@/lib/istemci";
+import { oturumKaydiniYaz } from "@/lib/oturum-kayit";
 import { hosgeldinGonder } from "@/lib/hosgeldin";
 
 /**
- * Records a sign-in. Called right after a successful login, from the server so
- * the IP and location are read from the request rather than accepted from the
- * browser. The user is identified by the session cookie, never by an argument.
+ * Giriş formundan sonra çağrılıyor: hareketi kaydeder, sonra hoş geldin
+ * mailini tetikler.
  *
- * Failure is swallowed on purpose: a login must not be blocked because the
- * history table is missing or unreachable.
+ * Kaydın kendisi lib/oturum-kayit.ts içinde, çünkü doğrulama bağlantısıyla
+ * gelen kişi bu formdan geçmiyor ve o yol da aynı kaydı yazmak zorunda.
+ * Buradaki tek fark, mailin de gönderilmesi.
  */
 export async function oturumKaydet() {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const bilgi = istemciBilgisi(await headers());
-
-    /*
-      null yerine undefined: RPC parametrelerinin hepsi varsayılan değerli ve
-      üretilen tipler onları `string | undefined` olarak veriyor. null
-      göndermek de çalışıyordu ama tip artık bunu söylüyor — okunamayan bir
-      alan "gönderilmedi" demek, "boş" demek değil.
-    */
-    const { error } = await supabase.rpc("oturum_kaydet", {
-      p_ip: bilgi.ip ?? undefined,
-      p_ulke: bilgi.ulke ?? undefined,
-      p_sehir: bilgi.sehir ?? undefined,
-      p_bolge: bilgi.bolge ?? undefined,
-      p_tarayici: bilgi.tarayici ?? undefined,
-      p_isletim_sistemi: bilgi.isletimSistemi ?? undefined,
-      p_cihaz: bilgi.cihaz ?? undefined,
-    });
-
-    if (error) console.error("[oturum] kayıt yazılamadı:", error.message);
-  } catch (e) {
-    console.error("[oturum] kayıt sırasında beklenmeyen hata:", e);
-  }
+  await oturumKaydiniYaz();
 
   // Girişten sonra, kişiye bir kez. Kendi içinde damgaya bakıyor; buraya
   // koşul koymak aynı kontrolü iki yerde tutmak olurdu.

@@ -3,6 +3,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { guvenliYol } from "@/lib/guvenli-url";
 import { hosgeldinGonder } from "@/lib/hosgeldin";
+import { oturumKaydiniYaz } from "@/lib/oturum-kayit";
 
 /**
  * E-posta bağlantılarının indiği yer — supabase.co üzerinden geçmeden.
@@ -35,6 +36,20 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.verifyOtp({ type: tur, token_hash: tokenHash });
     if (!error) {
+      /*
+        Bu da bir GİRİŞ ve kaydedilmesi gerekiyor.
+
+        Doğrulama bağlantısıyla gelen kişi giriş formundan geçmiyor, dolayısıyla
+        oturumKaydet() çalışmıyordu; sonuç olarak yeni üyelerin ilk oturumu —
+        çoğu zaman tek oturumu — giriş hareketlerinde hiç görünmüyordu. Panelde
+        "giriş yapmış ama kayıt yok" diye görünen şey buydu.
+
+        verifyOtp'u çağıran istemcinin KENDİSİ geçiliyor: yeni oturum çerezleri
+        henüz yanıta yazılmadı, yeni bir istemci istekteki eski çerezleri okur
+        ve oturum yokmuş gibi davranırdı.
+      */
+      await oturumKaydiniYaz(supabase);
+
       // Şifre sıfırlamada hoş geldin maili gitmiyor: hesabı zaten olan birine
       // "hoş geldin" demek, sıfırlama mailinin hemen ardından alakasız bir
       // ikinci mail olarak düşüyor.
