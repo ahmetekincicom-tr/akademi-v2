@@ -23,19 +23,21 @@ export function HeroDegerler({ degerler }: { degerler: IkonluSatir[] }) {
   return (
     <div className="mt-9">
       {/*
-        Dar ekranda TEK sütun, geniş ekranda sarmalanan satır.
+        Dar ekranda TEK sütun ve ORTALI, geniş ekranda sarmalanan satır.
 
         Serbest sarmalama bırakıldığında telefonda 2-1-1 gibi düzensiz bir
         merdiven oluşuyordu: etiketler çok farklı uzunlukta ("%100 Uygulamalı"
         ile "Ömür Boyu Ücretsiz Destek" arasında iki kat fark var) ve iki
-        sütuna tek satır hâlinde sığmıyorlar.
+        sütuna tek satır hâlinde sığmıyorlar. Kısaltmak yerine tek sütun
+        seçildi: hap içinde satır kırmak, yuvarlak kenarlı bir öğeyi kart gibi
+        gösteriyor.
 
-        Kısaltmak yerine tek sütun seçildi: hap içinde satır kırmak, yuvarlak
-        kenarlı bir öğeyi kart gibi gösteriyor. Tam genişlikte tek sütun hem
-        her zaman hizalı hem de alttaki tam genişlikteki düğmeyle aynı ritmi
-        tutturuyor.
+        items-center hapları tam genişlikte esnetmek yerine içeriklerinin
+        genişliğine indiriyor. Hero mobilde ortalandığı için bu gerekli —
+        esneyen haplar o eksene uymuyor, hepsi aynı boyda görünüp anlamsız
+        bir sütuna dönüşüyordu.
       */}
-      <div className="flex flex-col gap-[9px] sm:flex-row sm:flex-wrap sm:gap-[10px]">
+      <div className="flex flex-col items-center gap-[9px] sm:flex-row sm:flex-wrap sm:justify-center sm:gap-[10px] lg:items-start lg:justify-start">
         {degerler.map((d) => (
           <span
             key={d.ad}

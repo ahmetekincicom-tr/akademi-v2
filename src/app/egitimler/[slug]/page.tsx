@@ -100,7 +100,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         />
         <div className="absolute -top-45 -right-25 h-[600px] w-[600px] rounded-full bg-brand opacity-18 blur-[120px]" />
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-9 pb-22">
-          <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.08em] text-white/45">
+          {/* Kırıntı yolu da ortalanıyor: hero'nun geri kalanı ortalıyken tek
+              başına sola yaslı bir satır, hizadan kaçmış gibi duruyor. */}
+          <div className="flex items-center justify-center gap-[10px] font-mono text-[11px] tracking-[0.08em] text-white/45 lg:justify-start">
             <Link href="/" className="text-white/45 hover:text-white">
               Ana sayfa
             </Link>
@@ -114,7 +116,19 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             <span className="text-white/80">{course.baslik}</span>
           </div>
           <div className="mt-10 grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="animate-rise">
+            {/*
+              Dar ve orta ekranda ORTALI, geniş ekranda sola yaslı.
+
+              Mobilde hero tek sütuna iniyor ve sağdaki kapak görseli zaten
+              gizli; sola yaslı bir metin bloğu ekranın sağında geniş bir
+              boşluk bırakıyordu. Aynı düzen eğitimler ve kurumsal
+              sayfalarında da böyle — bu, sola yaslı kalan son hero'ydu.
+
+              Geniş ekranda ortalamak YANLIŞ olurdu: orada metin iki sütunlu
+              düzenin sol yarısında ve ortalanınca yanındaki görselle
+              arasındaki hizayı kaybediyor.
+            */}
+            <div className="animate-rise flex flex-col items-center text-center lg:items-start lg:text-left">
               {/*
                 Duyuru ve rozet TEK SATIRDA, aynı geometride.
 
@@ -137,7 +151,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 sıkıştırılmış hâlleri satır kırıyor.
               */}
               {((icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu) || (icerik.rozetAktif && icerik.rozetMetni)) && (
-                <div className="mb-7 flex flex-wrap items-center gap-[10px]">
+                <div className="mb-7 flex flex-wrap items-center justify-center gap-[10px] lg:justify-start">
                   {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
                     <div
                       className={
