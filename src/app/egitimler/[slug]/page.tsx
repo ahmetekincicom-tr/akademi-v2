@@ -137,6 +137,23 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 </div>
               )}
               {/*
+                Güven rozeti başlığın HEMEN üstünde.
+
+                Altın rengi bilinçli: marka mavisi sayfada eylem rengi ve
+                rozet tıklanabilir bir şey değil. Ayrı bir renk ailesi, onu
+                düğmelerle karıştırmadan öne çıkarıyor.
+
+                Kayıt duyurusunun üstünde değil ALTINDA: duyuru zamana bağlı
+                bir haber ("Eylül kayıtları açıldı"), rozet ise kalıcı bir
+                nitelik. Kalıcı olan başlığa daha yakın durmalı.
+              */}
+              {icerik.rozetAktif && icerik.rozetMetni && (
+                <div className="mb-6 inline-flex items-center gap-[10px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[10px] pr-[20px] pl-[15px] text-[14.5px] leading-none font-semibold text-[#E7D3A1] sm:text-[15.5px]">
+                  <Icon name="odul" size={19} />
+                  {icerik.rozetMetni}
+                </div>
+              )}
+              {/*
                 Vurgu artık mavi değil beyaz. Hero zemini neredeyse siyah ve
                 marka mavisi orada okunurluğu düşürüyordu: başlığın ortasındaki
                 iki kelime geri çekiliyor, göz onları arka planla karıştırıyordu.

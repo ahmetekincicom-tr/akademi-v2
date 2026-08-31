@@ -13,6 +13,9 @@ export type SiteIcerik = {
   egitmenBiyografi: string;
   /** Portre görselinin tam adresi; yüklenmemişse null. */
   egitmenGorsel: string | null;
+  /** Eğitim hero'sunda başlığın üstündeki güven rozeti. */
+  rozetMetni: string;
+  rozetAktif: boolean;
 };
 
 const VARSAYILAN: SiteIcerik = {
@@ -23,6 +26,8 @@ const VARSAYILAN: SiteIcerik = {
   egitmenUnvan: "Dijital pazarlama eğitmeni · Ankara",
   egitmenBiyografi: "",
   egitmenGorsel: null,
+  rozetMetni: "",
+  rozetAktif: false,
 };
 
 /**
@@ -34,7 +39,7 @@ export const getSiteIcerik = cache(async (): Promise<SiteIcerik> => {
   const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("site_icerik")
-    .select("kayit_duyurusu, kayit_duyurusu_aktif, duyuru_stili, egitmen_ad, egitmen_unvan, egitmen_biyografi, egitmen_gorsel")
+    .select("kayit_duyurusu, kayit_duyurusu_aktif, duyuru_stili, egitmen_ad, egitmen_unvan, egitmen_biyografi, egitmen_gorsel, rozet_metni, rozet_aktif")
     .maybeSingle();
 
   if (error) {
@@ -51,5 +56,7 @@ export const getSiteIcerik = cache(async (): Promise<SiteIcerik> => {
     egitmenUnvan: data.egitmen_unvan || VARSAYILAN.egitmenUnvan,
     egitmenBiyografi: data.egitmen_biyografi ?? "",
     egitmenGorsel: kapakUrl(data.egitmen_gorsel),
+    rozetMetni: data.rozet_metni ?? "",
+    rozetAktif: data.rozet_aktif ?? false,
   };
 });

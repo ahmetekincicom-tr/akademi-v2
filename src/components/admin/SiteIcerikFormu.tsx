@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { siteIcerikKaydet } from "@/app/kontrol-9f4x2k/(protected)/site-icerik/actions";
 import { useBildirim } from "@/components/Bildirim";
 import { EgitmenGorseli } from "@/components/admin/EgitmenGorseli";
+import { Icon } from "@/components/Icon";
 import type { SiteIcerik, DuyuruStili } from "@/lib/site-icerik";
 
 const ALAN =
@@ -23,6 +24,8 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
     egitmenAd: icerik.egitmenAd,
     egitmenUnvan: icerik.egitmenUnvan,
     egitmenBiyografi: icerik.egitmenBiyografi,
+    rozetMetni: icerik.rozetMetni,
+    rozetAktif: icerik.rozetAktif,
   });
 
   /*
@@ -161,6 +164,49 @@ export function SiteIcerikFormu({ icerik }: { icerik: SiteIcerik }) {
                 );
               })}
             </div>
+          </div>
+        )}
+      </section>
+
+      {/*
+        Rozet duyuruyla aynı ekranda: ikisi de tüm eğitim sayfalarında
+        başlığın üstünde görünen tek satırlık metin. Ayrı bir ekran, aynı
+        yerde çıkan iki şeyi iki farklı yerden yönetmek olurdu.
+      */}
+      <section className="rounded-2xl border border-ink/10 bg-white p-6">
+        <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Güven rozeti</h2>
+        <p className="mt-1 max-w-[620px] text-[13.5px] leading-[1.6] text-[#5C6273]">
+          Eğitim sayfalarında eğitim adının hemen üstünde, altın renkli bir rozet olarak görünür. Bir ödül ya da
+          belge gibi doğrulanabilir bir şey yazın; süslü bir slogan burada ters etki yapıyor.
+        </p>
+
+        <label className="mt-5 flex flex-col gap-2">
+          <span className={ETIKET}>Rozet metni</span>
+          <input
+            type="text"
+            value={form.rozetMetni}
+            onChange={(e) => setForm({ ...form, rozetMetni: e.target.value })}
+            placeholder="TRT Ödüllü Uzmandan"
+            className={ALAN}
+          />
+        </label>
+
+        <label className="mt-4 flex items-center gap-[10px] text-[14px] text-[#3A3F4F]">
+          <input
+            type="checkbox"
+            checked={form.rozetAktif}
+            onChange={(e) => setForm({ ...form, rozetAktif: e.target.checked })}
+            className="h-4 w-4 accent-[#1C56F3]"
+          />
+          Rozeti eğitim sayfalarında göster
+        </label>
+
+        {form.rozetMetni && (
+          <div className="mt-5 rounded-[11px] bg-ink p-6">
+            <span className="inline-flex items-center gap-[10px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[9px] pr-[18px] pl-[14px] text-[14px] font-semibold text-[#E7D3A1]">
+              <Icon name="odul" size={17} />
+              {form.rozetMetni}
+            </span>
           </div>
         )}
       </section>

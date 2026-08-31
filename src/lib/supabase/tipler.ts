@@ -787,6 +787,8 @@ export type Database = {
           egitmen_biyografi: string | null;
           egitmen_gorsel: string | null;
           egitmen_unvan: string | null;
+          rozet_aktif: boolean;
+          rozet_metni: string | null;
           id: boolean;
           kayit_duyurusu: string | null;
           kayit_duyurusu_aktif: boolean;

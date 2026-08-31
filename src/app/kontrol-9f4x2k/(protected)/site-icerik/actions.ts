@@ -10,6 +10,8 @@ export async function siteIcerikKaydet(input: {
   egitmenAd: string;
   egitmenUnvan: string;
   egitmenBiyografi: string;
+  rozetMetni: string;
+  rozetAktif: boolean;
 }) {
   if (!input.egitmenAd.trim()) return { error: "Eğitmen adı boş olamaz." };
 
@@ -23,6 +25,10 @@ export async function siteIcerikKaydet(input: {
       egitmen_ad: input.egitmenAd.trim(),
       egitmen_unvan: input.egitmenUnvan.trim() || null,
       egitmen_biyografi: input.egitmenBiyografi.trim() || null,
+      rozet_metni: input.rozetMetni.trim() || null,
+      // Metin boşsa rozet açık kalamaz: boş bir rozet, ekranda anlamsız bir
+      // çerçeve demek.
+      rozet_aktif: input.rozetAktif && Boolean(input.rozetMetni.trim()),
       updated_at: new Date().toISOString(),
     })
     .eq("id", true)

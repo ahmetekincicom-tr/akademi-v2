@@ -22,6 +22,7 @@ export type IconName =
   | "plug"
   | "sliders"
   | "shield"
+  | "odul"
   | "alert"
   | "arrowLeft"
   | "arrowRight"
@@ -121,6 +122,23 @@ const paths: Record<IconName, React.ReactNode> = {
     </>
   ),
   shield: <path d="M12 21.5s7.5-3.7 7.5-9.3V5.6L12 2.7 4.5 5.6v6.6c0 5.6 7.5 9.3 7.5 9.3z" />,
+  /*
+    Ödül rozeti: madalya + kurdele. Yıldız DOLU çiziliyor (fill=currentColor),
+    çünkü bu ölçekte beş köşeli bir yıldızın konturu birbirine giriyor ve
+    lekeye dönüşüyor — dışarıdaki halka ile kurdele ise kontur kalıyor,
+    yoksa ikon tümüyle dolu bir damgaya benziyordu.
+  */
+  odul: (
+    <>
+      <circle cx="12" cy="9" r="6" />
+      <path d="M8.4 14.1 6.8 21.4l5.2-2.7 5.2 2.7-1.6-7.3" />
+      <path
+        d="M12 5.9l1.1 2.2 2.4.35-1.75 1.7.42 2.4L12 11.4l-2.17 1.15.42-2.4L8.5 8.45l2.4-.35z"
+        fill="currentColor"
+        stroke="none"
+      />
+    </>
+  ),
   arrowLeft: <path d="M19 12H5.5M11.5 18.5 5 12l6.5-6.5" />,
   arrowRight: <path d="M5 12h13.5M12.5 5.5 19 12l-6.5 6.5" />,
   search: (
