@@ -21,11 +21,13 @@ export type HakkimizdaIcerik = {
  * varsayılanlar burada. Migration'daki insert ile aynı metinler.
  */
 export const VARSAYILAN_HAKKIMIZDA: HakkimizdaIcerik = {
-  heroEtiket: "Hakkımızda",
-  heroBaslik: "Kurs satmıyoruz.",
-  heroVurgu: "Birlikte çalışıyoruz.",
+  // Etiket boş: başlık zaten "Hakkımızda" ve ikisi üst üste aynı kelimeyi
+  // yazıyordu.
+  heroEtiket: "",
+  heroBaslik: "Hakkımızda",
+  heroVurgu: "",
   heroMetin:
-    "Ahmet Ekinci Akademi, yeni medya temelleri üzerine kurulmuş bir eğitim programı. Kayıtlı kurs değil: gerçek zamanlı, tek katılımcıya göre kurulan müfredat.",
+    "Ahmet Ekinci Akademi; yeni medya, dijital pazarlama ve reklamcılık alanlarında uygulamaya dayalı eğitimler sunan bir eğitim platformudur.",
   kisiEtiket: "Eğitmen",
   kisiBaslik: "Ahmet Ekinci kimdir?",
   kisiUnvan: "Dijital pazarlama eğitmeni · Ankara",
@@ -39,8 +41,11 @@ Yine 2021'den bu yana birebir ve kişiye özel eğitimlerle yüzlerce katılımc
   kisiGorsel: null,
   akademiEtiket: "Akademi",
   akademiBaslik: "Ahmet Ekinci Akademi",
-  akademiMetin:
-    'Akademi "işi uzmanından öğren" mottosuyla hareket ediyor. Her katılımcının başlangıç noktası, işi ve öğrenme hızı farklı; bu yüzden programlar esnek ve kişiselleştirilebilir kuruluyor.',
+  akademiMetin: `Ahmet Ekinci Akademi; yeni medya, dijital pazarlama ve reklamcılık alanlarında uygulamaya dayalı eğitimler sunan bir eğitim platformudur.
+
+Programlarımızda yalnızca teorik bilgi aktarmayı değil, edinilen bilgilerin gerçek çalışma süreçlerinde kullanılabilmesini önemsiyoruz. Katılımcılar; güncel araçlar, gerçek örnekler ve uygulamalı çalışmalar aracılığıyla kendi projelerini yönetebilecek yetkinliğe ulaşırken, eğitim sonrasında da yararlanabilecekleri sürdürülebilir bir bilgi altyapısı kazanıyor.
+
+Ahmet Ekinci Akademi olarak amacımız; dijital dünyayı yalnızca takip eden değil, onu doğru analiz eden, strateji geliştiren ve alanında fark yaratan profesyoneller yetiştirmek.`,
 };
 
 /**
@@ -64,7 +69,14 @@ export const getHakkimizda = cache(async (): Promise<HakkimizdaIcerik> => {
 
   const v = VARSAYILAN_HAKKIMIZDA;
   return {
-    heroEtiket: data.hero_etiket || v.heroEtiket,
+    /*
+      Etiket boş bırakılabiliyor (?? değil || ile düşmüyor).
+
+      Başlık "Hakkımızda" olduğunda üstteki küçük etiket de "Hakkımızda"
+      yazıyordu — aynı kelime iki kez, üst üste. Boş bırakmak burada geçerli
+      bir tercih; hero_vurgu'da da aynı kural geçerli.
+    */
+    heroEtiket: data.hero_etiket ?? v.heroEtiket,
     heroBaslik: data.hero_baslik || v.heroBaslik,
     // Vurgu bilerek boş bırakılabiliyor: tek satırlık başlık isteyebilir.
     heroVurgu: data.hero_vurgu ?? "",

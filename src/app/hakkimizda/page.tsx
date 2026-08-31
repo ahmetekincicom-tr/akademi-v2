@@ -44,27 +44,24 @@ const SERIT_ALT = [
   "Uygulamalı Ders",
 ];
 
-/** Akademinin çalışma biçimi. Kart yığını değil, numaralı bir akış. */
-const CALISMA = [
+/**
+ * Misyon ve vizyon.
+ *
+ * Yerini aldığı şey akademinin çalışma biçimini anlatan dört kartlık numaralı
+ * bir akıştı ("işi uzmanından öğren", "kendi hesabın üzerinde"…). O metinler
+ * yukarıdaki akademi paragraflarıyla aynı şeyi ikinci kez söylüyordu; iki
+ * kart, tekrar etmeyen iki şey anlatıyor.
+ */
+const MISYON_VIZYON = [
   {
-    baslik: "İşi uzmanından öğren",
+    baslik: "Misyonumuz",
     metin:
-      "Her ders, o işi fiilen yapan biriyle yürüyor. Anlatılan her şey sahada denenmiş; kaynağı bir kurs kaydı değil, gerçek kampanyalar.",
+      "Yeni medya, dijital pazarlama ve reklamcılık alanlarında güncel, anlaşılır ve uygulamaya dönük eğitimler sunmak; her katılımcının kendi hedeflerine uygun bilgi ve yetkinlikler kazanmasını sağlamak.",
   },
   {
-    baslik: "Tek katılımcı, tek müfredat",
+    baslik: "Vizyonumuz",
     metin:
-      "Program ön görüşmede senin işine göre yeniden yazılıyor. Sıfırdan başlayanla ajansta çalışan aynı içeriği almıyor.",
-  },
-  {
-    baslik: "Kendi hesabın üzerinde",
-    metin:
-      "Slayt izlemiyorsun. Ekran paylaşılıyor, kendi reklam hesabında birlikte çalışılıyor; ders bitince elinde çalışan bir kurulum oluyor.",
-  },
-  {
-    baslik: "Ders bitince bağlantı kopmuyor",
-    metin:
-      "Soru-cevap kanalı ve birebir seans takvimi açık kalıyor. Sonraki kampanyalarında da yanındayız.",
+      "Dijital dünyanın değişen ihtiyaçlarını yakından takip eden, kişiselleştirilmiş eğitim yaklaşımıyla sektöre nitelikli profesyoneller kazandıran ve Türkiye'de dijital eğitim alanında güven duyulan öncü akademilerden biri olmak.",
   },
 ];
 
@@ -209,23 +206,18 @@ export default async function HakkimizdaPage() {
             ))}
           </div>
 
-          {/* Numaralı akış: dört kart yan yana dizmek yerine tek sütunda
-              sıralanan, numarası öne çıkan satırlar. Okuma sırası net kalıyor. */}
-          <ol className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 md:grid-cols-2">
-            {CALISMA.map((c, i) => (
-              <li key={c.baslik} className="flex gap-5 bg-white p-7 sm:p-8">
-                <span className="font-heading text-[26px] leading-none font-semibold tracking-[-0.03em] text-brand/35">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-[18px] leading-[1.3] font-semibold tracking-[-0.02em] text-ink">
-                    {c.baslik}
-                  </span>
-                  <span className="mt-[10px] block text-[15px] leading-[1.68] text-[#5C6273]">{c.metin}</span>
-                </span>
-              </li>
+          {/* İki kart yan yana. Numara kaldırıldı: misyon ve vizyon bir sıra
+              değil, aynı anda geçerli iki cümle. */}
+          <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 md:grid-cols-2">
+            {MISYON_VIZYON.map((c) => (
+              <div key={c.baslik} className="bg-white p-7 sm:p-9">
+                <h3 className="font-heading text-[21px] leading-[1.25] font-semibold tracking-[-0.025em] text-ink">
+                  {c.baslik}
+                </h3>
+                <p className="mt-[14px] text-[15.5px] leading-[1.72] text-[#5C6273]">{c.metin}</p>
+              </div>
             ))}
-          </ol>
+          </div>
         </div>
       </section>
 

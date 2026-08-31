@@ -17,7 +17,7 @@ export function ReferansBulutu({ referanslar }: { referanslar: Referans[] }) {
     <section className="border-b border-ink/8 bg-mist py-14 sm:py-16">
       <div className="mx-auto w-full max-w-[1240px] px-5 text-center sm:px-8">
         <p className="font-mono text-[10.5px] tracking-[0.16em] text-[#656B7A] uppercase">
-          Eğitimlerimizi tercih eden kuruluşlar
+          Referanslarımız
         </p>
 
         <div
