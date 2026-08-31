@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   katilimciCikar,
   katilimciEkle,
+  katilimciBildiriminiGonder,
   odemeEkle,
   odemeDurumDegistir,
   odemeSil,
@@ -112,6 +113,33 @@ export function OdemeYonetimi({
       else bildir.basarili("Katılımcı eklendi; testi ve eğitim erişimi açıldı.");
       setEklenecek("");
       router.refresh();
+    });
+  };
+
+  /*
+    Katılımcıya bildirimi yeniden gönder.
+
+    Ödeme bildirimindeki gibi iki adımlı: mail dışarıya çıkan, geri alınamayan
+    bir iş ve yanlış tıklama gerçek bir kişinin gelen kutusuna düşüyor.
+  */
+  const [katilimciOnayi, setKatilimciOnayi] = useState<string | null>(null);
+
+  const katilimciyaBildir = (paymentId: string, userId: string, ad: string) => {
+    const anahtar = `${paymentId}:${userId}`;
+    if (katilimciOnayi !== anahtar) {
+      setKatilimciOnayi(anahtar);
+      window.setTimeout(
+        () => setKatilimciOnayi((mevcut) => (mevcut === anahtar ? null : mevcut)),
+        5000,
+      );
+      return;
+    }
+
+    setKatilimciOnayi(null);
+    startTransition(async () => {
+      const r = await katilimciBildiriminiGonder(paymentId, userId);
+      if (r?.error) bildir.hata(r.error);
+      else bildir.basarili(`${ad} bilgilendirildi.`);
     });
   };
 
@@ -528,6 +556,19 @@ export function OdemeYonetimi({
                           className="inline-flex items-center gap-2 rounded-full border border-ink/12 bg-white py-[4px] pr-[6px] pl-[11px] text-[13px]"
                         >
                           {k.ad}
+                          <button
+                            type="button"
+                            disabled={islemde}
+                            onClick={() => katilimciyaBildir(o.id, k.id, k.ad)}
+                            aria-label={`${k.ad} kişisine bildirimi yeniden gönder`}
+                            className={`flex h-[18px] items-center justify-center rounded-full px-[6px] text-[10px] font-semibold transition disabled:opacity-50 ${
+                              katilimciOnayi === `${o.id}:${k.id}`
+                                ? "bg-brand text-white"
+                                : "text-[#9AA0AE] hover:bg-brand/10 hover:text-brand"
+                            }`}
+                          >
+                            {katilimciOnayi === `${o.id}:${k.id}` ? "Onayla" : "Bildir"}
+                          </button>
                           <button
                             type="button"
                             disabled={islemde}

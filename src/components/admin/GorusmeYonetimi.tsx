@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   gorusmePlanla,
+  gorusmeBildiriminiGonder,
   gorusmeOdemeOnayla,
   gorusmeDurumDegistir,
   gorusmeAyarKaydet,
@@ -256,6 +257,7 @@ function Detay({
   kapat: () => void;
 }) {
   const [baslangic, setBaslangic] = useState(yerelInput(g.baslangic));
+  const [bildirimOnayi, setBildirimOnayi] = useState(false);
   const [sureDk, setSureDk] = useState(String(g.sureDk || ayarlar.sureDk));
   const [toplantiLink, setToplantiLink] = useState(g.toplantiLink);
   const [adminNotu, setAdminNotu] = useState(g.adminNotu);
@@ -371,6 +373,37 @@ function Detay({
         >
           {islemde ? "Kaydediliyor…" : "Planla ve bildir"}
         </button>
+        {/*
+          Planlanmış bir görüşmenin bildirimini yeniden göndermek.
+
+          Ayrı düğme: "Planla ve bildir" kaydı da yeniden yazıyor ve Meta'ya
+          ikinci bir Schedule olayı düşürüyor. Yalnızca postayı tekrarlamak
+          isteyen için bu ayrım gerekiyor.
+
+          İki adımlı, çünkü mail dışarıya çıkan ve geri alınamayan bir iş.
+        */}
+        {g.baslangic && (
+          <button
+            type="button"
+            disabled={islemde}
+            onClick={() => {
+              if (!bildirimOnayi) {
+                setBildirimOnayi(true);
+                window.setTimeout(() => setBildirimOnayi(false), 5000);
+                return;
+              }
+              setBildirimOnayi(false);
+              calistir(() => gorusmeBildiriminiGonder(g.id), undefined, "Bildirim gönderildi.");
+            }}
+            className={`h-[42px] rounded-[9px] border px-4 text-[13.5px] font-semibold transition disabled:opacity-50 ${
+              bildirimOnayi
+                ? "border-brand bg-brand text-white"
+                : "border-ink/13 bg-white text-[#5C6273] hover:border-brand hover:text-brand"
+            }`}
+          >
+            {bildirimOnayi ? "Onayla: maili gönder" : "Bildirimi yeniden gönder"}
+          </button>
+        )}
         {odemeBekliyor && (
           <span className="self-center text-[12.5px] text-[#656B7A]">Önce ödemeyi onayla.</span>
         )}

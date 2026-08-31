@@ -344,6 +344,34 @@ async function koltukPostasi(
   });
 }
 
+/**
+ * Koltuk atanan kişiye bilgilendirmeyi YENİDEN gönderir.
+ *
+ * İlk gönderim ekleme anında yapılıyor ama gitmeyebiliyor: akış kapalıysa,
+ * adres yanlışsa ya da Resend o an cevap vermezse. Böyle bir durumda tek
+ * çare katılımcıyı çıkarıp yeniden eklemekti — erişimini bir anlığına
+ * kapatan, kaydı kirleten bir çözüm.
+ */
+export async function katilimciBildiriminiGonder(paymentId: string, userId: string) {
+  if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
+
+  const supabase = await createClient();
+  const { data: ekli } = await supabase
+    .from("odeme_katilimcilari")
+    .select("user_id")
+    .eq("payment_id", paymentId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  // Kayıtta olmayan kişiye "eğitime eklendin" demek, olmayan bir erişimi
+  // haber vermek olurdu.
+  if (!ekli) return { error: "Bu kişi bu ödemenin katılımcısı değil." };
+
+  const sonuc = await koltukPostasi(supabase, paymentId, userId);
+  if (!sonuc.gonderildi) return { error: `Gönderilemedi: ${sonuc.sebep}` };
+  return {};
+}
+
 export async function katilimciCikar(paymentId: string, userId: string) {
   if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
 

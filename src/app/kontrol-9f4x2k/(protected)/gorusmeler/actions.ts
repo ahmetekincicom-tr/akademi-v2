@@ -116,6 +116,37 @@ async function planlamaOlayi(gorusmeId: string): Promise<void> {
   }
 }
 
+/**
+ * Planlanmış bir görüşmenin bildirimini YENİDEN gönderir.
+ *
+ * Planlama anında gönderiliyor ama gitmeyebiliyor. Yeniden göndermek için
+ * tarihi tekrar kaydetmek gerekiyordu; o da kayda gereksiz bir güncelleme
+ * yazıyor ve Meta'ya ikinci bir Schedule olayı düşürüyordu.
+ */
+export async function gorusmeBildiriminiGonder(id: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("gorusmeler")
+    .select("user_id, konu, baslangic, sure_dk, toplanti_link, durum")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!data?.user_id) return { error: "Görüşme bulunamadı." };
+  // Tarihi olmayan bir görüşme için "planlandı" maili göndermek, olmayan bir
+  // saati haber vermek olurdu.
+  if (!data.baslangic) return { error: "Görüşmenin tarihi yok; önce planla." };
+
+  const sonuc = await gorusmePlanlandiBildir(supabase, data.user_id as string, {
+    baslangic: data.baslangic as string,
+    sureDk: (data.sure_dk as number) ?? 45,
+    konu: (data.konu as string) ?? null,
+    toplantiLink: (data.toplanti_link as string) ?? null,
+  });
+
+  if (!sonuc.gonderildi) return { error: `Gönderilemedi: ${sonuc.sebep}` };
+  return {};
+}
+
 export async function gorusmeOdemeOnayla(id: string, referans: string) {
   // Ödeme onaylanınca talep tekrar planlama kuyruğuna düşer.
   return guncelle(id, {
