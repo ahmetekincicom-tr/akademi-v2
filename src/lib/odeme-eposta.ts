@@ -131,7 +131,7 @@ export async function odemeTamamlandiBildir(
 
     if (o.gorusmeKonusu) {
       await ogrenciBildirimi({
-        akis: "odeme-tamamlandi",
+        akis: "danismanlik-odendi",
         alici: o.email,
         konu: "Danışmanlık talebin alındı",
         ustEtiket: "Ödeme alındı",
@@ -145,6 +145,7 @@ export async function odemeTamamlandiBildir(
         ],
         yol: "/panel/gorusmeler",
         eylemEtiketi: "Görüşmelerim",
+        degiskenler: { ad: o.ad, tutar: paraBicimi.format(o.tutar), konu: o.gorusmeKonusu },
       });
       return { gonderildi: true };
     }
@@ -165,6 +166,7 @@ export async function odemeTamamlandiBildir(
       ],
       yol: "/panel/on-degerlendirme",
       eylemEtiketi: "Ön değerlendirmeyi doldur",
+      degiskenler: { ad: o.ad, tutar: paraBicimi.format(o.tutar), program: o.kurs },
     });
     return { gonderildi: true };
   } catch (e) {

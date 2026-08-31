@@ -1,8 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import { epostaGonder, epostaYapilandirildiMi, yoneticiBildirimi } from "@/lib/eposta";
-import { bildirimSablonu } from "@/lib/eposta-sablon";
+import { epostaYapilandirildiMi, ogrenciBildirimi, yoneticiBildirimi } from "@/lib/eposta";
 
 /**
  * Hoş geldin e-postası — kişiye bir kez, ilk girişinde.
@@ -42,7 +41,18 @@ export async function hosgeldinGonder(): Promise<void> {
     if (!damgalanan || damgalanan.length === 0) return;
 
     const ad = damgalanan[0]?.ad?.trim();
-    const { html, metin } = bildirimSablonu({
+
+    /*
+      Şablon doğrudan değil ogrenciBildirimi üzerinden kuruluyor.
+
+      Sebebi tek: panelden yazılan metinleri (eposta_akislari) yalnızca o yol
+      okuyor. Kendi şablonunu kuran bu mail, "metni düzenle" ekranından
+      değiştirilemeyen tek katılımcı maili olarak kalırdı.
+    */
+    await ogrenciBildirimi({
+      akis: "hosgeldin",
+      alici: user.email,
+      konu: "Ahmet Ekinci Akademi üye alanına hoş geldin",
       ustEtiket: "Hoş geldin",
       baslik: ad ? `Hoş geldin ${ad}` : "Hoş geldin",
       ozet:
@@ -54,10 +64,10 @@ export async function hosgeldinGonder(): Promise<void> {
         { etiket: "Soru-cevap", deger: "Takıldığın yerde doğrudan bize yaz" },
         { etiket: "Gündem panosu", deger: "Meta ve sosyal medya tarafındaki gelişmeler" },
       ],
-      eylem: { etiket: "Panele git", adres: await panelAdresi() },
+      yol: "/panel",
+      eylemEtiketi: "Panele git",
+      degiskenler: { ad },
     });
-
-    await epostaGonder({ akis: "hosgeldin", konu: "Ahmet Ekinci Akademi üye alanına hoş geldin", metin, html, alici: user.email });
 
     /*
       Yeni üyelik bildirimi de burada.
@@ -171,10 +181,6 @@ async function kayitOlayi(
   });
 }
 
-async function panelAdresi(): Promise<string> {
-  const { headers } = await import("next/headers");
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "";
-  const sema = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  return host ? `${sema}://${host}/panel` : `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/panel`;
-}
+// panelAdresi kaldırıldı: adresi artık ogrenciBildirimi kuruyor (eposta.ts
+// içindeki panelKoku) ve aynı işi iki yerde tutmak, biri değiştiğinde
+// diğerinin sessizce eskimesi demekti.

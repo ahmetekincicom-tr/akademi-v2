@@ -27,7 +27,8 @@ export type AkisMetni = {
 export const AKIS_DEGISKENLERI: Partial<Record<EpostaAkisi, string[]>> = {
   hosgeldin: ["ad"],
   "odeme-acildi": ["ad", "tutar"],
-  "odeme-tamamlandi": ["ad", "tutar"],
+  "odeme-tamamlandi": ["ad", "tutar", "program"],
+  "danismanlik-odendi": ["ad", "tutar", "konu"],
   "egitim-kaydi": ["ad", "program", "klasor"],
   "oturum-planlandi": ["ad", "program", "tarih", "sure"],
   "koltuk-atandi": ["ad", "program", "odeyen"],
@@ -39,15 +40,32 @@ export const AKIS_DEGISKENLERI: Partial<Record<EpostaAkisi, string[]>> = {
 /**
  * `{ad}` gibi yer tutucuları doldurur.
  *
- * Karşılığı olmayan yer tutucu OLDUĞU GİBİ kalıyor. Boşa çevirmek, panele
- * yanlış yazılmış bir değişkeni sessizce yutup cümleyi bozardı; süslü
- * parantez ekranda durursa yazan kişi neyi düzelteceğini görüyor.
+ * İki durum bilerek FARKLI ele alınıyor:
+ *
+ *  - Değişken bu akışta YOK (`{urun}` gibi yanlış yazılmış bir ad): olduğu
+ *    gibi kalıyor. Sessizce yutmak, panele yanlış yazılmış bir değişkeni
+ *    gizleyip cümleyi bozardı; süslü parantez ekranda durursa yazan kişi
+ *    neyi düzelteceğini görür.
+ *
+ *  - Değişken VAR ama değeri boş (adı olmayan bir kayıt gibi): siliniyor.
+ *    "Hoş geldin {ad}" diye giden bir mail, hatanın en görünür hâli.
+ *
+ * Silme sonrası artakalan çift boşluk ve noktalama öncesi boşluk da
+ * temizleniyor: "Teşekkürler ," gibi bir cümle kalmasın.
  */
 export function degiskenleriYerlestir(metin: string, degerler: Record<string, string | null | undefined>): string {
-  return metin.replace(/\{(\w+)\}/g, (tam, ad: string) => {
+  const doldurulmus = metin.replace(/\{(\w+)\}/g, (tam, ad: string) => {
+    if (!(ad in degerler)) return tam;
     const deger = degerler[ad];
-    return deger == null || deger === "" ? tam : deger;
+    return deger == null || deger.trim() === "" ? "" : deger;
   });
+
+  return doldurulmus
+    // Satır sonlarını koruyarak yalnızca satır içi boşlukları sadeleştir.
+    .replace(/[^\S\n]{2,}/g, " ")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .replace(/[^\S\n]+\n/g, "\n")
+    .trim();
 }
 
 /**

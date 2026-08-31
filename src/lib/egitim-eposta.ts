@@ -59,6 +59,7 @@ export async function kayitArsiviBildir(
       ],
       yol: "/panel/birebir-egitim",
       eylemEtiketi: "Kayıtları aç",
+      degiskenler: { ad: kisi.ad, program: bilgi.program, klasor: bilgi.baslik },
     });
     return { gonderildi: true };
   } catch (e) {
@@ -94,6 +95,12 @@ export async function oturumPlanlandiBildir(
       ],
       yol: "/panel/birebir-egitim",
       eylemEtiketi: "Takvimi görüntüle",
+      degiskenler: {
+        ad: kisi.ad,
+        program: bilgi.program,
+        tarih: tarihSaatBicimi.format(new Date(bilgi.baslangic)),
+        sure: `${bilgi.sureDk} dakika`,
+      },
     });
     return { gonderildi: true };
   } catch (e) {
@@ -138,6 +145,7 @@ export async function koltukAtandiBildir(
       ],
       yol: bilgi.testAcik ? "/panel/testlerim" : "/panel",
       eylemEtiketi: bilgi.testAcik ? "Ön değerlendirmeyi aç" : "Panele git",
+      degiskenler: { ad: kisi.ad, program: bilgi.program, odeyen: bilgi.odeyen },
     });
     return { gonderildi: true };
   } catch (e) {
@@ -174,6 +182,7 @@ export async function gorusmePlanlandiBildir(
       ],
       yol: "/panel/gorusmeler",
       eylemEtiketi: "Görüşmeyi aç",
+      degiskenler: { ad: kisi.ad, tarih: zaman, sure: `${bilgi.sureDk} dakika`, konu: bilgi.konu },
     });
     return { gonderildi: true };
   } catch (e) {
@@ -208,6 +217,7 @@ export async function onDegerlendirmeHatirlat(
         "tarih planlaması da ardından açılıyor.",
       yol: "/panel/testlerim",
       eylemEtiketi: "Testi doldur",
+      degiskenler: { ad: kisi.ad },
     });
     return { gonderildi: true };
   } catch (e) {

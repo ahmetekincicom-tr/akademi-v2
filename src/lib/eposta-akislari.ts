@@ -49,6 +49,21 @@ export const AKISLAR = [
     kime: "katilimci",
   },
   {
+    /*
+      Danışmanlık ödemesi eğitim ödemesinden AYRI akış.
+
+      İkisi de "odeme-tamamlandi" anahtarıyla gidiyordu ama söyledikleri
+      farklı: eğitimde sıradaki adım ön değerlendirme, danışmanlıkta görüşme
+      saatinin belirlenmesi. Metinler panelden yazılabilir hâle gelince tek
+      anahtar ikisini birbirinin üstüne yazardı — danışmanlık ödeyen kişiye
+      "ön değerlendirmeni doldur" demek olurdu.
+    */
+    anahtar: "danismanlik-odendi",
+    baslik: "Danışmanlık ödemesi alındı",
+    aciklama: "Danışmanlık ücreti tahsil edildiğinde katılımcıya gönderilir.",
+    kime: "katilimci",
+  },
+  {
     anahtar: "egitim-kaydi",
     baslik: "Ders kayıtları paylaşıldı",
     aciklama: "Birebir eğitimde kayıt klasörü paylaşıldığında gönderilir.",
