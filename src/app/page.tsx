@@ -137,8 +137,9 @@ export default async function HomePage() {
         mobilde zaten alta düşüp uzun bir boşluk oluşturuyordu. Tek sütunda
         başlık gerçekten büyüyebiliyor — hero'nun taşıdığı şey o cümle.
 
-        Alttaki program şeridi hero'nun işini doğrudan yapıyor: ziyaretçi
-        "hangi eğitimler var" sorusunu sayfayı kaydırmadan görüyor.
+        Program listesi hero'da DEĞİL: eğitim adları hem hemen altındaki
+        programlar bölümünde hem eğitimler sayfasında duruyor. Hero'da üçüncü
+        kez saymak, tek bir cümleye odaklanan bu düzenin kendisini bozuyordu.
       */}
       <section className="relative overflow-hidden bg-ink text-white">
         {/*
@@ -156,7 +157,12 @@ export default async function HomePage() {
           }}
         />
 
-        <div className="relative mx-auto flex max-w-[1240px] flex-col items-center px-5 pt-20 text-center sm:px-8 sm:pt-24 lg:pt-28">
+        {/*
+          Alt boşluk burada: hero'nun altında program şeridi vardı ve dip
+          payını o veriyordu. Şerit kaldırılınca düğme doğrudan kenara
+          yapışıyordu.
+        */}
+        <div className="relative mx-auto flex max-w-[1240px] flex-col items-center px-5 pt-20 pb-24 text-center sm:px-8 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32">
           <div className="flex items-center gap-3">
             <span className="h-[5px] w-[5px] flex-none rounded-full bg-[#4D7BFF] shadow-[0_0_0_4px_rgba(77,123,255,0.16)]" />
             <span className="font-mono text-[10.5px] tracking-[0.22em] text-[#8B9AC2] uppercase sm:text-[11px] sm:tracking-[0.26em]">
@@ -195,43 +201,6 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        {/*
-          Program şeridi.
-
-          Kart değil şerit: kartlar hero'nun altında ikinci bir bölüm gibi
-          duruyordu, ince çizgilerle ayrılmış sütunlar ise hero'nun parçası
-          olarak okunuyor. Liste veritabanından geliyor ve sırası panelden
-          yönetilen sırayla aynı — vitrin iki yerde ayrı ayrı tanımlanmıyor.
-        */}
-        <div className="relative mt-24 border-t border-white/[0.07] sm:mt-28">
-          <div className="mx-auto flex max-w-[1240px] items-center justify-end px-5 py-[18px] sm:px-8">
-            <Link
-              href="/egitimler"
-              className="font-mono text-[10px] tracking-[0.2em] text-[#7F9BFF] uppercase transition hover:text-white"
-            >
-              Tümü →
-            </Link>
-          </div>
-          <div className="border-t border-white/[0.07]">
-            <div className="mx-auto grid max-w-[1240px] grid-cols-1 sm:grid-cols-3">
-              {programs.map((p, i) => (
-                <Link
-                  key={p.href}
-                  href={p.href}
-                  className="flex flex-col gap-[10px] border-t border-white/[0.07] px-5 py-7 transition hover:bg-white/[0.03] sm:border-t-0 sm:border-l sm:px-8 sm:first:border-l-0"
-                >
-                  <span className="font-mono text-[10px] tracking-[0.18em] text-[#5B657B]">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="font-heading text-[19px] leading-[1.25] font-semibold tracking-[-0.02em] text-white sm:text-[20px]">
-                    {p.baslik}
-                  </span>
-                  <span className="text-[13px] leading-[1.5] text-[#7D879C]">{p.etiket}</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
       </section>
 
       <ReferansBulutu referanslar={logos} />
