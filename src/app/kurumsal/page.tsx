@@ -2,11 +2,12 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
-import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { FaqAccordion } from "@/components/site/FaqAccordion";
 import { SectionKicker } from "@/components/site/SectionKicker";
 import { Icon, type IconName } from "@/components/Icon";
+import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { getCourses } from "@/lib/courses";
+import { getReferanslar } from "@/lib/icerik";
 import { sayfaMeta } from "@/lib/seo";
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
@@ -47,7 +48,7 @@ const farklar: { ikon: IconName; baslik: string; metin: string }[] = [
     ikon: "pin",
     baslik: "Yerinde veya online eğitim",
     metin:
-      "Eğitimi Ankara'daki ofisinizde ya da canlı online oturumlarla, ekibinize uygun formatta düzenliyoruz.",
+      "Eğitimi ofisinizde ya da canlı online oturumlarla, ekibinize uygun formatta düzenliyoruz.",
   },
   {
     ikon: "message",
@@ -105,7 +106,7 @@ const sss = [
 export const revalidate = 3600;
 
 export default async function KurumsalPage() {
-  const courses = await getCourses();
+  const [courses, referanslar] = await Promise.all([getCourses(), getReferanslar()]);
 
   return (
     <div className="bg-white">
@@ -120,19 +121,29 @@ export default async function KurumsalPage() {
           }}
         />
         <div className="absolute -top-40 -right-20 h-[520px] w-[520px] rounded-full bg-brand opacity-18 blur-[120px]" />
-        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-20 pb-24">
-          <SectionKicker tone="light">Kurumsal Eğitimler</SectionKicker>
+        {/*
+          Hero ORTALI.
+
+          Sola yaslıyken dar ekranda başlık ve açıklama sola, düğme de sola
+          dayanıyordu ama satırlar farklı uzunlukta bittiği için blok dağınık
+          duruyordu. Ortalanmış tek sütun hem mobilde hem masaüstünde derli
+          toplu; hakkımızda hero'su da aynı düzende.
+        */}
+        <div className="relative mx-auto max-w-[860px] px-5 pt-20 pb-24 text-center sm:px-8">
+          <div className="flex justify-center">
+            <SectionKicker tone="light">Kurumsal Eğitimler</SectionKicker>
+          </div>
           {/* Vurgu rengi yok: koyu zeminde marka mavisi başlığın ortasını geri
               çekiyor. Aynı karar eğitim sayfası hero'sunda da alındı. */}
-          <h1 className="mt-[18px] max-w-[700px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[48px]">
+          <h1 className="mx-auto mt-[18px] max-w-[700px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[48px]">
             Ekibinizin ihtiyaçlarına özel dijital pazarlama eğitimleri.
           </h1>
-          <p className="mt-6 max-w-[620px] text-[17px] leading-[1.62] text-white/72">
+          <p className="mx-auto mt-6 max-w-[640px] text-[17px] leading-[1.62] text-white/72">
             Eğitim içeriğini ekibinizin hedeflerine göre planlıyor; uygulamaları kendi hesaplarınız, kampanyalarınız
             ve gerçek iş süreçleriniz üzerinden gerçekleştiriyoruz. Eğitimlerimizi yerinde veya online olarak
             düzenliyoruz.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
+          <div className="mt-9 flex justify-center">
             {/* Konu formda hazır seçili geliyor; kurumsal talep eden kişi
                 açılır listede kendi konusunu aramak zorunda kalmasın. */}
             <Link
@@ -141,10 +152,13 @@ export default async function KurumsalPage() {
             >
               Ekibiniz İçin Eğitim Planlayın <span>→</span>
             </Link>
-            <span className="font-mono text-xs tracking-[0.06em] text-white/50">Ücretsiz ihtiyaç görüşmesiyle başlar</span>
           </div>
         </div>
       </section>
+
+      {/* Referanslar hero'nun hemen altında: sayfaya kurumsal bir talep için
+          gelen kişinin ilk sorduğu şey "bunu kimler aldı". */}
+      <ReferansBulutu referanslar={referanslar} />
 
       <section className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-22 pb-20">
         <SectionKicker>Neden Ahmet Ekinci Akademi?</SectionKicker>
@@ -287,17 +301,31 @@ export default async function KurumsalPage() {
         </div>
       </section>
 
-      <section className="border-t border-ink/8 bg-mist">
-        <div className="mx-auto max-w-[1240px] px-5 sm:px-8 py-20">
-          <TestimonialCard
-            metin="Ekibimizin reklam hesabı üzerinde çalışarak ilerlemesi teoriyi hemen pratiğe dökmemizi sağladı. Eğitim bitince rapor ve takip listesiyle devam ettik."
-            isim="Kurumsal Katılımcı"
-            rol="Pazarlama Direktörü"
-          />
-        </div>
-      </section>
+      {/*
+        SSS bölümü ızgaralı ve degrade zeminde.
 
-      <section className="mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 py-24 lg:grid-cols-[0.75fr_1.25fr]">
+        Sayfanın son bölümü düz beyazdı ve bir üstündeki program kartlarıyla
+        aynı zeminde durduğu için iki bölüm tek uzun blok gibi okunuyordu.
+        Degrade yukarıdan aşağı açılıyor: bölüm başlarken beyazdan ayrılıyor,
+        biterken footer'ın koyusuna hazırlıyor.
+
+        Izgara koyu hero'daki desenin açık zemin kardeşi (bg-grid-acik) ve
+        aynı maske tekniğiyle kenarlarda eritiliyor — kesilen bir ızgara
+        çizgisi sayfayı bitmemiş gösteriyor.
+      */}
+      <section className="relative overflow-hidden border-t border-ink/8 bg-gradient-to-b from-white via-mist to-[#E7ECF8]">
+        <div
+          className="bg-grid-acik pointer-events-none absolute inset-0"
+          style={{
+            maskImage: "radial-gradient(120% 100% at 50% 0%, #000 25%, transparent 80%)",
+            WebkitMaskImage: "radial-gradient(120% 100% at 50% 0%, #000 25%, transparent 80%)",
+          }}
+        />
+        {/* Marka renginden gelen yumuşak ışık; hero'daki lekenin açık zemin
+            karşılığı, çok daha düşük opaklıkta. */}
+        <div className="pointer-events-none absolute -top-32 -right-24 h-[460px] w-[460px] rounded-full bg-brand opacity-[0.07] blur-[130px]" />
+
+      <div className="relative mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 py-24 lg:grid-cols-[0.75fr_1.25fr]">
         <div>
           <SectionKicker>SSS</SectionKicker>
           <h2 className="mt-[18px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
@@ -311,6 +339,7 @@ export default async function KurumsalPage() {
           </Link>
         </div>
         <FaqAccordion items={sss} />
+      </div>
       </section>
 
       <PublicFooter />

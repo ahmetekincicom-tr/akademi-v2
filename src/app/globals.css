@@ -154,6 +154,20 @@
     background-size: 72px 72px;
   }
 
+  /*
+    Açık zemin için ızgara. Koyu sürümün kardeşi; tek farkı çizgi rengi.
+
+    Opaklık koyu sürümdekinden düşük (0.045 → 0.035): aynı değer beyaz üstünde
+    gözle çok daha belirgin çıkıyor ve arka plan olmaktan çıkıp desene
+    dönüşüyordu.
+  */
+  .bg-grid-acik {
+    background-image:
+      linear-gradient(rgba(10, 13, 24, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 13, 24, 0.035) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
 
   /*
     Kayan şerit. Liste iki kez basıldığı için %50 kaydırınca ikinci kopya
