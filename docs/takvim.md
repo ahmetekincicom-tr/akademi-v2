@@ -37,18 +37,27 @@ başkasının takvimine yazabiliyor, kişisel bir Gmail hesabında çalışmıyo
 1. <https://console.cloud.google.com> → yeni proje (ör. "Akademi Panel").
 2. **APIs & Services → Library** → "Google Calendar API" → **Enable**.
 
-### 2. OAuth izin ekranı
+### 2. İzin ekranı (Google Auth Platform)
 
-1. **APIs & Services → OAuth consent screen**.
-2. User type: **External**, uygulama adı ve destek e-postası olarak kendi
-   adresini yaz.
-3. Scopes adımında `https://www.googleapis.com/auth/calendar.events` ekle.
-4. Test users'a kendi Gmail adresini ekle.
-5. **Uygulamayı "Publish" et (Production).** Test modunda kalan bir
-   uygulamanın yenileme anahtarı **7 günde geçersiz oluyor** ve takvim
-   sessizce çalışmayı bırakıyor. Doğrulama istemiyor; yalnızca kendi
-   hesabın kullandığı için "unverified app" uyarısını bir kez geçmen
-   yeterli.
+Konsolun yeni sürümünde eski "OAuth consent screen" sayfası soldaki **Google
+Auth Platform** menüsüne bölündü:
+
+| Eski adı | Yeni menü |
+| --- | --- |
+| Uygulama adı, destek e-postası | **Branding** |
+| Kapsam (scope) ekleme | **Data Access** |
+| Test kullanıcıları, yayınlama | **Audience** |
+
+1. **Branding** → uygulama adı ve destek e-postası olarak kendi adresini yaz.
+2. **Data Access** → *Add or remove scopes* → filtreye `calendar.events` yaz
+   → `https://www.googleapis.com/auth/calendar.events` seç → Update → Save.
+3. **Audience** → durum "Testing" ise **Publish app**.
+
+Üçüncü adım atlanabilir görünüyor ama atlanmamalı: **Testing durumundaki bir
+uygulamanın yenileme anahtarı 7 günde geçersiz oluyor** ve takvim hiçbir
+uyarı vermeden çalışmayı bırakıyor. Yayınlamak doğrulama gerektirmiyor;
+yalnızca kendi hesabın kullandığı için "unverified app" uyarısını bir kez
+geçmek yeterli.
 
 ### 3. İstemci kimliği
 
@@ -59,14 +68,23 @@ başkasının takvimine yazabiliyor, kişisel bir Gmail hesabında çalışmıyo
 
 ### 4. Yenileme anahtarı
 
-1. <https://developers.google.com/oauthplayground> adresini aç.
-2. Sağ üstteki dişliden **Use your own OAuth credentials** işaretle, adım
-   3'teki client ID ve secret'ı gir.
-3. Sol listede **Calendar API v3** altından
-   `https://www.googleapis.com/auth/calendar.events` seç → **Authorize APIs**.
-4. Kendi Gmail hesabınla giriş yap, izin ver.
+1. <https://developers.google.com/oauthplayground/> adresini aç.
+2. Sayfanın **sağ üstündeki dişli ikonuna** bas (yazısız, mavi başlık
+   çubuğunun sağ ucunda) → açılan panelde **Use your own OAuth credentials**
+   kutusunu işaretle → adım 3'teki Client ID ve Client secret'ı gir. Kaydet
+   düğmesi yok, girdiğin anda geçerli.
+   *Bu kutu işaretlenmezse alınan anahtar Google'ın kendi test istemcisine
+   ait olur ve bizim uygulamada çalışmaz.*
+3. Sol sütundaki "Input your own scopes" kutusuna
+   `https://www.googleapis.com/auth/calendar.events` yapıştır →
+   **Authorize APIs**.
+4. Kendi Gmail hesabınla giriş yap. "Google hasn't verified this app"
+   çıkarsa **Advanced → Go to … (unsafe)** → izin ver.
 5. **Exchange authorization code for tokens** → çıkan **Refresh token**
-   değerini kopyala.
+   değerini kopyala (`1//0g…` ile başlar).
+   *Boş geldiyse:* dişli panelinde **Force prompt: Consent screen** seçeneğini
+   işaretleyip 3–5'i tekrarla. Google, daha önce izin verilmiş bir hesaba
+   ikinci kez yenileme anahtarı vermiyor.
 
 ### 5. Vercel ortam değişkenleri
 
