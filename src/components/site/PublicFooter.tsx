@@ -12,7 +12,7 @@ import {
   EPOSTA,
   INSTAGRAM_KULLANICI,
   INSTAGRAM_URL,
-  SEHIR,
+  OFIS_ADRESI,
   olculenWhatsapp,
 } from "@/lib/iletisim";
 
@@ -55,7 +55,11 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
       },
       { label: EPOSTA, href: `mailto:${EPOSTA}`, dis: true, ikon: "mail" },
       { label: INSTAGRAM_KULLANICI, href: INSTAGRAM_URL, dis: true, ikon: "instagram" },
-      { label: SEHIR, ikon: "pin" },
+      // Footer'da yalnızca "Ankara" yazıyordu. Açık adres hem yerel aramada
+      // (Google, harita ve yapay zekâ arama motorları aynı NAP bilgisini
+      // sitede, künyede ve schema'da görmek ister) hem de mesafeli satış
+      // mevzuatında satıcının erişilebilir adresi olarak gerekiyor.
+      { label: OFIS_ADRESI, ikon: "pin" },
     ],
   },
 ];

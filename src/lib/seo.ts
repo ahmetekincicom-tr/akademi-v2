@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { EPOSTA, INSTAGRAM_URL, LINKEDIN_URL, OFIS_ADRESI, WHATSAPP_NUMARALAR } from "@/lib/iletisim";
+import { ADRES_SOKAK, EPOSTA, INSTAGRAM_URL, LINKEDIN_URL, OFIS_BINA, WHATSAPP_NUMARALAR } from "@/lib/iletisim";
 
 /**
  * SEO'nun tek kaynağı.
@@ -140,8 +140,10 @@ export function kurumSemasi() {
     telephone: WHATSAPP_NUMARALAR[0].gosterim,
     address: {
       "@type": "PostalAddress",
-      streetAddress: OFIS_ADRESI,
-      addressLocality: "Ankara",
+      // streetAddress yalnızca sokak satırı; ilçe ve il kendi alanlarında.
+      streetAddress: `${ADRES_SOKAK} (${OFIS_BINA})`,
+      addressLocality: "Çankaya",
+      addressRegion: "Ankara",
       addressCountry: "TR",
     },
     // sameAs, arama motorlarının ve yapay zekâ arama motorlarının markayı tek

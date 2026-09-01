@@ -12,7 +12,19 @@ export const INSTAGRAM_KULLANICI = "@ahmetekincicomtr";
 export const INSTAGRAM_URL = "https://instagram.com/ahmetekincicomtr";
 export const LINKEDIN_URL = "https://www.linkedin.com/in/ahmetekinci";
 export const SEHIR = "Ankara";
-export const OFIS_ADRESI = "Next Level Tower, Ankara";
+
+/**
+ * Ofis adresi üç parçada tutuluyor.
+ *
+ * Tek bir metin olarak durduğunda schema.org'a yanlış giriliyordu:
+ * `streetAddress` yalnızca sokak satırını ister, ilçe `addressLocality`
+ * alanına aittir. Parçalanmış hâl aynı zamanda iletişim kartında adresin
+ * iki satıra bölünmesini sağlıyor — dar kartta tek uzun satır kırılıyordu.
+ */
+export const ADRES_SOKAK = "Kızılırmak Mah. Dumlupınar Bulvarı No: 3C1-160";
+export const ADRES_ILCE = "Çankaya/Ankara";
+export const OFIS_BINA = "Next Level";
+export const OFIS_ADRESI = `${ADRES_SOKAK} ${ADRES_ILCE} · ${OFIS_BINA}`;
 
 export function whatsappLink(numara: string, mesaj?: string) {
   const q = mesaj ? `?text=${encodeURIComponent(mesaj)}` : "";

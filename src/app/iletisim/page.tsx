@@ -9,7 +9,9 @@ import {
   EPOSTA,
   INSTAGRAM_KULLANICI,
   INSTAGRAM_URL,
-  OFIS_ADRESI,
+  ADRES_SOKAK,
+  ADRES_ILCE,
+  OFIS_BINA,
   olculenWhatsapp,
 } from "@/lib/iletisim";
 import { sayfaMeta } from "@/lib/seo";
@@ -34,7 +36,15 @@ export function generateMetadata(): Promise<Metadata> {
   href olmayan kanallar tıklanabilir görünmesin diye link yerine kart olarak
   çizilir.
 */
-const kanallar: { baslik: string; deger: string; ikon: IconName; href?: string; vurgu?: boolean }[] = [
+const kanallar: {
+  baslik: string;
+  deger: string;
+  /** İkinci satır: yalnızca adreste var, numara ve e-posta tek satır. */
+  altSatir?: string;
+  ikon: IconName;
+  href?: string;
+  vurgu?: boolean;
+}[] = [
   {
     baslik: "WhatsApp hattı",
     deger: WHATSAPP_NUMARALAR[0].gosterim,
@@ -51,7 +61,8 @@ const kanallar: { baslik: string; deger: string; ikon: IconName; href?: string; 
   },
   { baslik: "Instagram", deger: INSTAGRAM_KULLANICI, ikon: "instagram", href: INSTAGRAM_URL },
   { baslik: "E-posta", deger: EPOSTA, ikon: "mail", href: `mailto:${EPOSTA}` },
-  { baslik: "Ofis", deger: OFIS_ADRESI, ikon: "pin" },
+  // Adres iki satırda: sokak satırı tek satıra sığmıyor, kartta kırpılıyordu.
+  { baslik: "Ofis", deger: ADRES_SOKAK, altSatir: `${ADRES_ILCE} · ${OFIS_BINA}`, ikon: "pin" },
 ];
 
 export default function IletisimPage() {
@@ -95,7 +106,14 @@ export default function IletisimPage() {
                     {/* Etiket rengi mavi değil siyah: mavi, sayfadaki tek
                         eylem olan gönder düğmesiyle yarışıyordu. */}
                     <span className="font-mono text-[10px] tracking-[0.14em] text-ink/55 uppercase">{k.baslik}</span>
-                    <span className="truncate text-[15.5px] font-semibold">{k.deger}</span>
+                    <span
+                      className={`text-[15.5px] font-semibold ${k.altSatir ? "leading-[1.35]" : "truncate"}`}
+                    >
+                      {k.deger}
+                    </span>
+                    {k.altSatir && (
+                      <span className="text-[14px] leading-[1.35] text-[#5C6273]">{k.altSatir}</span>
+                    )}
                   </span>
                 </>
               );

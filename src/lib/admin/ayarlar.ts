@@ -105,7 +105,12 @@ export const entegrasyonGruplari: AyarGrubu[] = [
         yerTutucu: "Ankara",
         ipucu: "iyzico her işlemde fatura adresi istiyor; öğrenciden adres toplamadığımız için kurum adresi gönderiliyor.",
       },
-      { ad: "adres", etiket: "Fatura adresi", yerTutucu: "Çankaya, Ankara", genis: true },
+      {
+        ad: "adres",
+        etiket: "Fatura adresi",
+        yerTutucu: "Kızılırmak Mah. Dumlupınar Bulvarı No: 3C1-160 Çankaya/Ankara",
+        genis: true,
+      },
     ],
   },
 ];

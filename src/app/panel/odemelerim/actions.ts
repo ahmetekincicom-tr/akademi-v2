@@ -7,6 +7,7 @@ import { nativeIstekMi } from "@/lib/native-sunucu";
 import { iyzicoAyari, odemeBaslat as iyzicoBaslat, taksitleriCoz } from "@/lib/iyzico";
 import { yoneticiBildirimi } from "@/lib/eposta";
 import { paraBicimi } from "@/lib/odeme";
+import { ADRES_SOKAK, ADRES_ILCE } from "@/lib/iletisim";
 import { rizaKaydet } from "@/lib/riza";
 import { metaOlayiKuyrukla } from "@/lib/meta/kuyruk";
 import { istekBaglami, profildenKimlik } from "@/lib/meta/toplama";
@@ -152,7 +153,10 @@ export async function odemeyeGec(
         kategori: "Eğitim",
       },
       adres: {
-        adres: odemeAyari.adres?.trim() || "Ankara, Türkiye",
+        // Panelde fatura adresi boşsa ofis adresi yazılıyor: iyzico bu alanı
+        // zorunlu tutuyor ve "Ankara, Türkiye" gibi bir yer tutucu faturaya
+        // olduğu gibi basılıyordu.
+        adres: odemeAyari.adres?.trim() || `${ADRES_SOKAK} ${ADRES_ILCE}`,
         sehir: odemeAyari.sehir?.trim() || "Ankara",
         ulke: "Turkey",
       },
