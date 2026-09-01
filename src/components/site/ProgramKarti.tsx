@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
-import { basligiIkiSatir } from "@/lib/courses";
+import { kartBasligiSatirlari } from "@/lib/baslik-satiri";
 
 /**
  * Vitrin kartı: ana sayfadaki "Programlar" ile /egitimler listesi aynı kartı
@@ -49,8 +49,8 @@ export function ProgramKarti({
 }) {
   const Baslik = baslikSeviyesi;
   const href = `/egitimler/${p.slug}`;
-  // Aynı bölme kuralı eğitim sayfasının hero başlığında da kullanılıyor.
-  const ikiSatir = basligiIkiSatir(p.baslik);
+  // Kural ve gerekçesi lib/baslik-satiri.ts içinde.
+  const ikiSatir = kartBasligiSatirlari(p.baslik, p.etiket);
 
   return (
     <div
@@ -113,17 +113,13 @@ export function ProgramKarti({
         </div>
 
         {/*
-          Başlık İKİ SATIRDA: ilk kelime ("Birebir") üstte, programın adı
-          altında. Kırılma tarayıcıya bırakılmıyor.
+          Başlık İKİ SATIRDA ve kırılma yeri hesaplanıyor — tarayıcıya
+          bırakılmıyor. Satırları dengeleyen, program adını bölmeyen kural
+          lib/baslik-satiri.ts içinde; neden CSS'in kendi dengelemesinin
+          yetmediği de orada yazıyor.
 
-          Sebep iki tane. Birincisi hiza: başlıklar farklı uzunlukta ve tek
-          satıra sığan bir ad, iki satıra taşan komşusunun yanında kartın
-          geri kalanını yukarı çekiyordu. İkincisi okuma sırası — "Birebir"
-          üç programın da ortak özelliği, adın kendisi ikinci satırda tek
-          başına duruyor.
-
-          min-h iki satırı garanti ediyor: tek kelimelik bir program adı
-          eklenirse (basligiIkiSatir null döner) kart yine hizada kalıyor.
+          min-h iki satırı garanti ediyor: bölünemeyecek kadar kısa bir ad
+          eklenirse (kural null döner) kart yine hizada kalıyor.
         */}
         <Baslik className="mt-[14px] flex min-h-[54px] items-start font-heading text-[21.5px] leading-[1.22] font-semibold tracking-[-0.03em]">
           {/*
