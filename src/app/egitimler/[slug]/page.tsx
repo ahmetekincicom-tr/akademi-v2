@@ -386,59 +386,85 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           </section>
 
           {/*
-            Kazanımlar artık eğitmen bölümünden SONRA.
+            Kazanımlar ve uygunluk TEK BİR BÖLÜMDE.
 
-            Sayfanın en üstündeyken vaadi, onu kimin verdiği bilinmeden
-            okunuyordu. Müfredat ve eğitmen görüldükten sonra aynı liste
-            "ne alacağım" sorusunun cevabı olarak duruyor.
+            İkisi ayrı ayrı dururken sayfada iki farklı dil vardı: biri açık
+            bir ızgara, diğeri çerçeveli bir açılır kutu — üstelik ikisi de
+            aynı soruyu, "bu program bana ne veriyor ve bana mı?", yanıtlıyor.
+            Aynı çerçeve içinde iki satır olduklarında ilişkili oldukları
+            görülüyor ve bölüm, müfredat akordiyonuyla aynı ritmi tutuyor.
+
+            İkisi de açılır: `<details>` JavaScript'siz çalışıyor, tarayıcının
+            kendi erişilebilirlik davranışını getiriyor ve bunun için istemci
+            bileşeni yazmak gerekmiyor. Kazanımlar açık başlıyor — satın alma
+            kararını taşıyan liste o; uygunluk listesi ikinci soru olduğu için
+            kapalı duruyor.
+
+            Bölüm eğitmen tanıtımından SONRA: vaadi, onu kimin verdiği
+            bilinmeden okumak zayıf kalıyordu.
           */}
           <section id="kazanimlar" className="mt-22">
             <SectionKicker>Kazanımlar</SectionKicker>
-            <h2 className="mt-[18px] mb-8 font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
-              Hedeflenen Kazanımlar
+            <h2 className="mt-[18px] mb-7 font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[34px]">
+              Bu program size ne katıyor?
             </h2>
-            <div className="grid grid-cols-1 gap-x-7 gap-y-[14px] sm:grid-cols-2">
-              {course.kazanimlar.map((k) => (
-                <div key={k} className="flex items-start gap-3 text-[15.5px] leading-[1.55] text-[#2B303D]">
-                  <span className="mt-[2px] flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-brand/12 text-[10px] font-bold text-brand">
-                    ✓
+
+            <div className="overflow-hidden rounded-2xl border border-ink/11">
+              <details className="group border-b border-ink/9 bg-white last:border-b-0" open>
+                <summary className="flex cursor-pointer list-none items-center gap-4 px-4 py-[18px] transition hover:bg-[#F5F8FF] sm:gap-[18px] sm:px-6 sm:py-[22px] [&::-webkit-details-marker]:hidden">
+                  <h3 className="min-w-0 flex-1 font-heading text-[19px] leading-[1.2] font-semibold tracking-[-0.025em] sm:text-[23px]">
+                    Hedeflenen Kazanımlar
+                  </h3>
+                  <span className="flex h-7 w-7 flex-none items-center justify-center rounded-[8px] bg-[#F2F4FA] text-brand">
+                    <Icon
+                      name="chevronDown"
+                      size={15}
+                      className="transition-transform duration-200 group-open:rotate-180"
+                    />
                   </span>
-                  <span>{k}</span>
+                </summary>
+                <div className="grid grid-cols-1 gap-x-7 gap-y-[14px] px-4 pb-5 sm:grid-cols-2 sm:px-6 sm:pb-[26px]">
+                  {course.kazanimlar.map((k) => (
+                    <div key={k} className="flex items-start gap-3 text-[15.5px] leading-[1.55] text-[#2B303D]">
+                      <span className="mt-[2px] flex h-[18px] w-[18px] flex-none items-center justify-center rounded-[6px] bg-brand/12 text-[10px] font-bold text-brand">
+                        ✓
+                      </span>
+                      <span>{k}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </details>
+
+              {/*
+                "Bu program değil" sütunu kaldırıldı: satın alma kararının
+                hemen öncesinde neden UYGUN OLMADIĞINI sayan bir liste vardı.
+              */}
+              <details id="kimler" className="group border-b border-ink/9 bg-white last:border-b-0">
+                <summary className="flex cursor-pointer list-none items-center gap-4 px-4 py-[18px] transition hover:bg-[#F5F8FF] sm:gap-[18px] sm:px-6 sm:py-[22px] [&::-webkit-details-marker]:hidden">
+                  <h3 className="min-w-0 flex-1 font-heading text-[19px] leading-[1.2] font-semibold tracking-[-0.025em] sm:text-[23px]">
+                    Eğitime kimler katılmalı?
+                  </h3>
+                  <span className="flex h-7 w-7 flex-none items-center justify-center rounded-[8px] bg-[#F2F4FA] text-brand">
+                    <Icon
+                      name="chevronDown"
+                      size={15}
+                      className="transition-transform duration-200 group-open:rotate-180"
+                    />
+                  </span>
+                </summary>
+                <div className="flex flex-col gap-[13px] px-4 pb-5 sm:px-6 sm:pb-[26px]">
+                  {course.uygun.map((u) => (
+                    <div key={u} className="flex items-start gap-[11px] text-[15.5px] leading-[1.6] text-[#2B303D]">
+                      <span className="mt-[3px] flex h-[17px] w-[17px] flex-none items-center justify-center rounded-[6px] bg-brand text-[10px] font-bold text-white">
+                        ✓
+                      </span>
+                      <span>{u}</span>
+                    </div>
+                  ))}
+                </div>
+              </details>
             </div>
           </section>
-
-          {/*
-            "Bu program değil" sütunu kaldırıldı: satın alma kararının hemen
-            öncesinde neden UYGUN OLMADIĞINI sayan bir liste vardı.
-
-            Kalan tek liste açılır bir bölüme alındı. `<details>` seçildi —
-            JavaScript'siz çalışıyor, `open` ile açık geliyor ve tarayıcının
-            kendi erişilebilirlik davranışını getiriyor; bunun için bir istemci
-            bileşeni yazmak gereksizdi.
-          */}
-          <details id="kimler" className="group mt-22 rounded-[15px] border border-ink/11 open:bg-[#F8FAFF]" open>
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-5 p-[26px] [&::-webkit-details-marker]:hidden">
-              <h2 className="font-heading text-[24px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[30px]">
-                Eğitime kimler katılmalı?
-              </h2>
-              <span className="flex h-8 w-8 flex-none items-center justify-center rounded-[9px] bg-[#F2F4FA] font-mono text-[16px] text-brand group-open:bg-white">
-                <span className="hidden group-open:inline">–</span>
-                <span className="group-open:hidden">+</span>
-              </span>
-            </summary>
-            <div className="flex flex-col gap-[13px] px-[26px] pb-7">
-              {course.uygun.map((u) => (
-                <div key={u} className="flex items-start gap-[11px] text-[15.5px] leading-[1.6] text-[#2B303D]">
-                  <span className="mt-[3px] flex h-[17px] w-[17px] flex-none items-center justify-center rounded-[6px] bg-brand text-[10px] font-bold text-white">
-                    ✓
-                  </span>
-                  <span>{u}</span>
-                </div>
-              ))}
-            </div>
-          </details>
 
 
           {/* Soru girilmediyse bölüm hiç basılmıyor: boş bir "Bu program
