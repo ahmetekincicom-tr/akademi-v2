@@ -18,6 +18,9 @@ panel kayıtları aynen çalışır, yalnızca takvime düşmez.
 | Birebir oturum eklendi | Tek etkinlik kurulur (grup dersinde de tek) |
 | Oturum iptal edildi / silindi | Etkinliğe bağlı başka canlı oturum kalmadıysa silinir |
 
+Panel → **Takvim** ekranı ikisini tek listede gösteriyor (salt okunur);
+planlama kendi ekranlarında yapılıyor.
+
 Etkinlikte ne yazar: başlıkta konu ve katılımcı adı, açıklamada katılımcının
 adı ve e-postası, konum alanında toplantı bağlantısı. Hatırlatıcılar bir gün
 önce ve on dakika önce.

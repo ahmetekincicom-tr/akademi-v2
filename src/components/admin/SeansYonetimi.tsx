@@ -2,12 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import {
-  seansEkle,
-  seansDurumDegistir,
-  seansSil,
-  seansKayitLinki,
-} from "@/app/kontrol-9f4x2k/(protected)/seanslar/actions";
 import { durumStil } from "@/lib/admin/shared";
 import { seansDurumEtiket, saatBicimi } from "@/lib/admin/format";
 import { seansAyir } from "@/lib/seans";
@@ -28,10 +22,14 @@ export type SeansSatir = {
 };
 
 /**
- * Hem birebir eğitim oturumlarını hem eğitim sonrası seansları yönetiyor.
- * İkisi ayrı kavram ama ekran işi birebir aynı: kişi seç, tarih ver, durum
- * değiştir, kayıt bağlantısı yapıştır. İki kopya bırakmak yerine metinler ve
- * server action'lar dışarıdan veriliyor.
+ * Oturum planlama ekranı.
+ *
+ * Metinler ve server action'lar dışarıdan veriliyor: bileşen bir zamanlar
+ * iki ekrana birden hizmet ediyordu (birebir eğitim ve "seanslar"). İkinci
+ * ekran kaldırıldı — kullanılmıyordu ve oraya yazılan bir ders ne
+ * katılımcının panelinde ne de takvimde görünüyordu — ama dışarıdan
+ * verilen yapı korundu; varsayılan bir eylem kümesi taşımak, yanlış tabloya
+ * yazan bir ekranı sessizce yeniden mümkün kılardı.
  */
 export type OturumMetinleri = {
   baslik: string;
@@ -42,47 +40,34 @@ export type OturumMetinleri = {
 };
 
 /**
- * Ekleme sonucu.
+ * Eylem sonucu.
  *
- * `typeof seansEkle` yazılmıyor: bileşen iki farklı eylemle çalışıyor
- * (seanslar ve birebir eğitim) ve birebir eğitim tarafı ayrıca `uyari`
- * döndürüyor — kayıt oldu ama bildirim maili gitmedi durumu. Tek bir
- * eylemin imzasına bağlanmak diğerinin alanını görünmez yapıyordu.
+ * `uyari` hata değil: kayıt yazıldı ama yan işlerden biri tutmadı —
+ * bildirim maili gitmedi ya da takvim etkinliği kurulamadı. Alanı tipte
+ * tutmak zorunlu, yoksa arayüz onu hiç göstermez.
  */
 type EkleSonuc = { error?: string; uyari?: string };
 
 export type OturumEylemleri = {
+  ekle: (input: {
+    userId: string;
+    courseId: string;
+    baslangic: string;
+    sureDk: string;
+    konu: string;
+    toplantiLink: string;
+    kayitLink?: string;
+    /** Kurumsal ortak oturum: aynı saat, aynı bağlantı, birkaç katılımcı. */
+    ekstraKatilimcilar?: string[];
+  }) => Promise<EkleSonuc>;
   /*
-    Girdi tipi seansEkle'ninkinden türetiliyor ama ekstraKatilimcilar
-    eklenerek: birebir eğitim tarafı kurumsal ortak oturumu destekliyor,
-    seans takvimi desteklemiyor. Tek bir eylemin imzasına bağlanmak
-    diğerinin alanını görünmez yapıyordu — EkleSonuc'ta da aynı sorun vardı.
+    Dönüş tipi her eylemde ortak EkleSonuc: durum değişikliği ve silme de
+    uyarı döndürebiliyor (takvim etkinliği kaldırılamadıysa). Tipi dar
+    bırakmak o uyarıyı görünmez yapardı.
   */
-  ekle: (input: Parameters<typeof seansEkle>[0] & { ekstraKatilimcilar?: string[] }) => Promise<EkleSonuc>;
-  /*
-    Dönüş tipi eylemin kendisinden değil ortak EkleSonuc'tan: birebir eğitim
-    tarafında durum değişikliği ve silme artık uyarı da döndürebiliyor
-    (takvim etkinliği kaldırılamadıysa). Tipi dar bırakmak o uyarıyı
-    görünmez yapardı.
-  */
-  durumDegistir: (...p: Parameters<typeof seansDurumDegistir>) => Promise<EkleSonuc>;
-  sil: (...p: Parameters<typeof seansSil>) => Promise<EkleSonuc>;
-  kayitLinki: typeof seansKayitLinki;
-};
-
-const VARSAYILAN_METIN: OturumMetinleri = {
-  baslik: "Birebir seanslar",
-  birim: "seans",
-  yeniDugme: "Seans planla",
-  yeniBaslik: "Yeni seans",
-  eklendi: "Seans planlandı.",
-};
-
-const VARSAYILAN_EYLEM: OturumEylemleri = {
-  ekle: seansEkle,
-  durumDegistir: seansDurumDegistir,
-  sil: seansSil,
-  kayitLinki: seansKayitLinki,
+  durumDegistir: (id: string, durum: SeansSatir["durum"]) => Promise<EkleSonuc>;
+  sil: (id: string) => Promise<EkleSonuc>;
+  kayitLinki: (id: string, link: string) => Promise<EkleSonuc>;
 };
 
 export function SeansYonetimi({
@@ -90,8 +75,8 @@ export function SeansYonetimi({
   ogrenciler,
   gruplar,
   kurslar,
-  metin = VARSAYILAN_METIN,
-  eylem = VARSAYILAN_EYLEM,
+  metin,
+  eylem,
 }: {
   seanslar: SeansSatir[];
   ogrenciler: { id: string; ad: string }[];
@@ -103,8 +88,10 @@ export function SeansYonetimi({
    */
   gruplar?: Record<string, { id: string; ad: string }[]>;
   kurslar: { id: string; ad: string }[];
-  metin?: OturumMetinleri;
-  eylem?: OturumEylemleri;
+  /* Zorunlu: varsayılan bir eylem kümesi taşımak, ekranı yanlış tabloya
+     yazacak şekilde kurmayı sessizce mümkün kılıyordu. */
+  metin: OturumMetinleri;
+  eylem: OturumEylemleri;
 }) {
   const router = useRouter();
   const bildir = useBildirim();

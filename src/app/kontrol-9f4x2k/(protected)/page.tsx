@@ -15,7 +15,7 @@ export default async function AdminGenelBakisPage() {
     { data: progress },
     { data: payments },
     { data: tickets },
-    { data: seanslar },
+    { data: yaklasanOturumlar },
     { data: okunmamisMesajlar },
   ] = await Promise.all([
     supabase.from("profiles").select("id, ad, soyad, email, role, created_at"),
@@ -27,7 +27,16 @@ export default async function AdminGenelBakisPage() {
       .select("id, tutar, durum, yontem, odeme_tarihi, profiles(ad, soyad, email)")
       .order("odeme_tarihi", { ascending: false }),
     supabase.from("support_tickets").select("id, durum, created_at"),
-    supabase.from("seanslar").select("id, baslangic, durum").eq("durum", "planlandi"),
+    /*
+      Gündem sayacı artık "seanslar" tablosundan değil: o tabloya yazan ekran
+      kaldırıldı (bkz. seanslar/page.tsx) ve sayaç kullanılmayan bir tabloyu
+      sayıyordu — yani her zaman sıfır gösteriyordu.
+    */
+    supabase
+      .from("egitim_oturumlari")
+      .select("id, baslangic, durum")
+      .eq("durum", "planlandi")
+      .gte("baslangic", new Date().toISOString()),
     supabase.from("iletisim_mesajlari").select("id").eq("okundu", false),
   ]);
 
@@ -145,8 +154,8 @@ export default async function AdminGenelBakisPage() {
       nokta: "#A5711A",
       href: "/kontrol-9f4x2k/ogrenciler",
     },
-    (seanslar ?? []).length > 0 && {
-      baslik: `${(seanslar ?? []).length} planlı seans`,
+    (yaklasanOturumlar ?? []).length > 0 && {
+      baslik: `${(yaklasanOturumlar ?? []).length} yaklaşan oturum`,
       alt: "Takvimini kontrol et",
       nokta: "rgba(10,13,24,0.25)",
       href: "/kontrol-9f4x2k/seanslar",
