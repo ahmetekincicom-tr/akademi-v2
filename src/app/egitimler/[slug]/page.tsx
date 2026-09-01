@@ -102,21 +102,47 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         />
         <div className="absolute -top-45 -right-25 h-[600px] w-[600px] rounded-full bg-brand opacity-18 blur-[120px]" />
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-9 pb-22">
-          {/* Kırıntı yolu da ortalanıyor: hero'nun geri kalanı ortalıyken tek
-              başına sola yaslı bir satır, hizadan kaçmış gibi duruyor. */}
-          <div className="flex items-center justify-center gap-[10px] font-mono text-[11px] tracking-[0.08em] text-white/45 lg:justify-start">
-            <Link href="/" className="text-white/45 hover:text-white">
-              Ana sayfa
-            </Link>
-            <span>/</span>
-            <Link href="/egitimler" className="text-white/45 hover:text-white">
+          {/*
+            Kırıntı yolu dar ekranda TEK BASAMAĞA iniyor: geri dönülecek yer.
+
+            Üç basamak telefonda sığmıyordu; ortalanmış satır sarmalanıp "Ana /
+            sayfa" diye kelime ortasından kırılıyor ve iki satıra yayılıyordu.
+            Kısaltmak yerine gizlemek de düşünülebilirdi ama gizlemiyoruz:
+            Google mobil sürümü tarıyor ve sayfadaki BreadcrumbList yapısal
+            verisinin görünen içerikle örtüşmesini bekliyor. Tek basamak hem
+            görünür kalıyor hem de mobilde asıl işe yarayan şey — "bir üste
+            dön" — zaten o.
+
+            Yapısal veri (kirintiSemasi) DEĞİŞMİYOR: arama sonucundaki kırıntı
+            oradan geliyor ve üç basamağın tamamını taşımaya devam ediyor.
+          */}
+          <nav aria-label="Kırıntı yolu">
+            <Link
+              href="/egitimler"
+              className="group/geri inline-flex items-center gap-[7px] font-mono text-[11px] tracking-[0.08em] whitespace-nowrap text-white/50 transition-colors hover:text-white lg:hidden"
+            >
+              <Icon
+                name="arrowLeft"
+                size={13}
+                className="transition-transform duration-200 group-hover/geri:-translate-x-[2px]"
+              />
               Eğitimler
             </Link>
-            <span>/</span>
-            {/* Kırıntı yolu da eğitimin tam adını gösteriyor: vurgu alanı
-                yalnızca renklendirme içindi ve zamanla addan kopabiliyor. */}
-            <span className="text-white/80">{course.baslik}</span>
-          </div>
+
+            <div className="hidden items-center gap-[10px] font-mono text-[11px] tracking-[0.08em] whitespace-nowrap text-white/45 lg:flex">
+              <Link href="/" className="text-white/45 hover:text-white">
+                Ana sayfa
+              </Link>
+              <span>/</span>
+              <Link href="/egitimler" className="text-white/45 hover:text-white">
+                Eğitimler
+              </Link>
+              <span>/</span>
+              {/* Kırıntı yolu da eğitimin tam adını gösteriyor: vurgu alanı
+                  yalnızca renklendirme içindi ve zamanla addan kopabiliyor. */}
+              <span className="text-white/80">{course.baslik}</span>
+            </div>
+          </nav>
           <div className="mt-10 grid grid-cols-1 items-start gap-16 lg:grid-cols-[1.15fr_0.85fr]">
             {/*
               Dar ve orta ekranda ORTALI, geniş ekranda sola yaslı.
