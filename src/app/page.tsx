@@ -6,7 +6,7 @@ import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
-import { ProgramKarti } from "@/components/site/ProgramKarti";
+import { ProgramKarti, PROGRAM_IZGARA } from "@/components/site/ProgramKarti";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
@@ -303,7 +303,7 @@ export default async function HomePage() {
             />
           </Link>
         </div>
-        <div className="grid grid-cols-1 gap-[22px] md:grid-cols-3">
+        <div className={PROGRAM_IZGARA}>
           {programs.map((p, i) => (
             /* Vitrin kartı sıradaki ilk program; gerekçesi ProgramKarti'de. */
             <ProgramKarti key={p.slug} p={p} vitrin={i === 0} />

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
-import { ProgramKarti } from "@/components/site/ProgramKarti";
+import { ProgramKarti, PROGRAM_IZGARA } from "@/components/site/ProgramKarti";
 import type { Course } from "@/lib/courses";
 
 /*
@@ -46,7 +46,7 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
       </div>
 
       {tab !== "Kurumsal" && (
-        <div className="mt-9 grid grid-cols-1 gap-[22px] md:grid-cols-3">
+        <div className={`mt-9 ${PROGRAM_IZGARA}`}>
           {gosterilecek.map((p, i) => (
             /*
               Sıradaki İLK program vitrinde öne çıkıyor.
