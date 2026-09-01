@@ -402,6 +402,51 @@ export default async function TaniPage() {
       : "Ön değerlendirme formu gönderildiğinde adım kendiliğinden işaretlenmez; elle işaretlemek gerekir.",
   });
 
+  /*
+    Google Takvim.
+
+    Ayrı bir bölüm: takvim yazma sessizce başarısız olabilecek bir iş ve
+    "neden takvime düşmüyor" sorusunun cevabı çoğu zaman eksik bir ortam
+    değişkeni. Üçü birden tanımlı değilse özellik kapalı sayılıyor.
+  */
+  const takvimAcik =
+    Boolean(process.env.GOOGLE_TAKVIM_ISTEMCI_ID) &&
+    Boolean(process.env.GOOGLE_TAKVIM_ISTEMCI_SIRRI) &&
+    Boolean(process.env.GOOGLE_TAKVIM_YENILEME_ANAHTARI);
+
+  const takvim: Satir[] = [
+    {
+      ad: "Takvim entegrasyonu",
+      durum: takvimAcik ? "ok" : "uyari",
+      deger: takvimAcik ? "açık" : "kapalı",
+      not: takvimAcik
+        ? "Görüşme ve birebir oturum planlandığında etkinlik Google Takvim'e yazılıyor."
+        : "Planlamalar normal çalışır, yalnızca takvime düşmez.",
+    },
+    {
+      ad: "GOOGLE_TAKVIM_ISTEMCI_ID",
+      durum: process.env.GOOGLE_TAKVIM_ISTEMCI_ID ? "ok" : "uyari",
+      deger: process.env.GOOGLE_TAKVIM_ISTEMCI_ID ? "tanımlı" : "tanımsız",
+    },
+    {
+      ad: "GOOGLE_TAKVIM_ISTEMCI_SIRRI",
+      durum: process.env.GOOGLE_TAKVIM_ISTEMCI_SIRRI ? "ok" : "uyari",
+      deger: process.env.GOOGLE_TAKVIM_ISTEMCI_SIRRI ? "tanımlı" : "tanımsız",
+    },
+    {
+      ad: "GOOGLE_TAKVIM_YENILEME_ANAHTARI",
+      durum: process.env.GOOGLE_TAKVIM_YENILEME_ANAHTARI ? "ok" : "uyari",
+      deger: process.env.GOOGLE_TAKVIM_YENILEME_ANAHTARI ? "tanımlı" : "tanımsız",
+      not: "Google hesabının parolası değişirse ya da yetki geri çekilirse bu anahtar geçersiz olur; yeniden almak gerekir.",
+    },
+    {
+      ad: "GOOGLE_TAKVIM_ID",
+      durum: "ok",
+      deger: process.env.GOOGLE_TAKVIM_ID?.trim() || "primary (ana takvim)",
+      not: "Ayrı bir takvime yazmak istersen o takvimin kimliğini buraya yaz.",
+    },
+  ];
+
   const posta: Satir[] = [
     {
       ad: "RESEND_API_KEY",
@@ -461,6 +506,7 @@ export default async function TaniPage() {
       <Bolum baslik="Kartla ödeme (iyzico)" satirlar={iyzico} />
       <Bolum baslik="Zamanlanmış görevler" satirlar={gorevler} />
       <Bolum baslik="E-posta bildirimleri" satirlar={posta} alt={<EpostaTesti />} />
+      <Bolum baslik="Google Takvim" satirlar={takvim} />
       <Bolum baslik="Tablolar (hangi migration uygulanmış)" satirlar={tabloDurumu} />
       <Bolum baslik="Ortam değişkenleri" satirlar={env} />
     </main>

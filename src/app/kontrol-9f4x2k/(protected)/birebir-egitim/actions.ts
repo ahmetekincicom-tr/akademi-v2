@@ -8,6 +8,7 @@ import { trSaatiniUtcYap } from "@/lib/zaman";
 import { guvenliUrl } from "@/lib/guvenli-url";
 import { veriHatasi } from "@/lib/auth-hatalari";
 import { kayitArsiviBildir, oturumPlanlandiBildir } from "@/lib/egitim-eposta";
+import { takvimeYaz, takvimdenSil, uyariBirlestir } from "@/lib/takvim-kayit";
 
 export async function oturumEkle(input: {
   userId: string;
@@ -60,9 +61,15 @@ export async function oturumEkle(input: {
     grup_id: grupId,
   };
 
-  const { error } = await supabase
+  /*
+    Eklenen satırların kimlikleri geri isteniyor: takvim etkinliğinin
+    kimliği bu satırlara yazılacak ve grup oturumunda satırları başka türlü
+    tek tek bulmak gerekirdi.
+  */
+  const { data: eklenen, error } = await supabase
     .from("egitim_oturumlari")
-    .insert(kisiler.map((id) => ({ ...ortak, user_id: id })));
+    .insert(kisiler.map((id) => ({ ...ortak, user_id: id })))
+    .select("id");
 
   if (error) return { error: veriHatasi(error) };
 
@@ -98,14 +105,50 @@ export async function oturumEkle(input: {
     if (!posta.gonderildi) basarisiz.push(posta.sebep ?? "bilinmeyen sebep");
   }
 
+  /*
+    Eğitmenin takvimi. Grup oturumunda TEK etkinlik kuruluyor, katılımcı
+    sayısı kadar değil: takvimde aynı saatte dört kopya görünmesi, o saatin
+    dolu olduğunu göstermekten çok karışıklık üretirdi. Etkinliğin kimliği
+    grubun bütün satırlarına yazılıyor.
+  */
+  const katilimciAdlari = await adlariGetir(supabase, kisiler);
+  const takvimUyarisi = await takvimeYaz(
+    supabase,
+    "egitim_oturumlari",
+    (eklenen ?? []).map((o) => o.id as string),
+    {
+      baslik: [program ?? "Birebir eğitim", katilimciAdlari[0] ?? null].filter(Boolean).join(" · "),
+      aciklama: [
+        katilimciAdlari.length > 0 ? `Katılımcı: ${katilimciAdlari.join(", ")}` : null,
+        input.konu.trim() ? `Konu: ${input.konu.trim()}` : null,
+        program ? `Program: ${program}` : null,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      baslangicUtc: baslangicUtc,
+      sureDk: sure,
+      konum: input.toplantiLink.trim() || null,
+    },
+  );
+
   oturumTazele();
-  if (basarisiz.length === 0) return {};
-  return {
-    uyari:
-      kisiler.length > 1
-        ? `Oturum kaydedildi ama ${basarisiz.length}/${kisiler.length} bildirim gitmedi: ${basarisiz[0]}`
-        : `Oturum kaydedildi ama bildirim gitmedi: ${basarisiz[0]}`,
-  };
+  const postaUyarisi =
+    basarisiz.length === 0
+      ? null
+      : kisiler.length > 1
+        ? `${basarisiz.length}/${kisiler.length} bildirim gitmedi: ${basarisiz[0]}`
+        : `bildirim gitmedi: ${basarisiz[0]}`;
+
+  const uyari = uyariBirlestir(postaUyarisi, takvimUyarisi);
+  return uyari ? { uyari: `Oturum kaydedildi ama ${uyari}` } : {};
+}
+
+/** Takvim etkinliğinde görünecek katılımcı adları. */
+async function adlariGetir(supabase: SupabaseClient<Database>, kisiler: string[]): Promise<string[]> {
+  const { data } = await supabase.from("profiles").select("id, ad, soyad").in("id", kisiler);
+  return (data ?? [])
+    .map((p) => [p.ad, p.soyad].filter(Boolean).join(" ").trim())
+    .filter((ad) => ad.length > 0);
 }
 
 async function kursAdi(supabase: SupabaseClient<Database>, courseId: string): Promise<string | null> {
@@ -128,7 +171,54 @@ export async function oturumDurumDegistir(id: string, durum: "planlandi" | "tama
   revalidatePath("/kontrol-9f4x2k/birebir-egitim");
   revalidatePath("/kontrol-9f4x2k/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
+
+  /*
+    İptalde etkinlik takvimden kalkıyor; "tamamlandı"da kalıyor — geçmiş
+    ders takvimde bir kayıt olarak durmalı.
+
+    Grup oturumunda tek katılımcı iptal edildiğinde etkinlik SİLİNMİYOR:
+    ders hâlâ yapılıyor. Bunu, aynı etkinliğe bağlı iptal edilmemiş satır
+    kaldı mı diye bakarak anlıyoruz.
+  */
+  if (durum === "iptal") {
+    const uyari = await etkinligiKaldir(supabase, id);
+    if (uyari) return { uyari: `Oturum iptal edildi ama ${uyari}` };
+  }
   return {};
+}
+
+/**
+ * Satıra bağlı takvim etkinliğini, artık ona bağlı canlı bir oturum
+ * kalmadıysa siler.
+ */
+async function etkinligiKaldir(supabase: SupabaseClient<Database>, oturumId: string) {
+  const { data: satir } = await supabase
+    .from("egitim_oturumlari")
+    .select("takvim_etkinlik_id")
+    .eq("id", oturumId)
+    .maybeSingle();
+
+  const etkinlikId = satir?.takvim_etkinlik_id as string | null;
+  if (!etkinlikId) return null;
+
+  const { data: kalanlar } = await supabase
+    .from("egitim_oturumlari")
+    .select("id, durum")
+    .eq("takvim_etkinlik_id", etkinlikId);
+
+  const canli = (kalanlar ?? []).filter((o) => o.id !== oturumId && o.durum !== "iptal");
+  if (canli.length > 0) {
+    // Etkinlik duruyor; yalnızca bu satırın bağı kopuyor.
+    await supabase.from("egitim_oturumlari").update({ takvim_etkinlik_id: null }).eq("id", oturumId);
+    return null;
+  }
+
+  return takvimdenSil(
+    supabase,
+    "egitim_oturumlari",
+    (kalanlar ?? []).map((o) => o.id as string),
+    etkinlikId,
+  );
 }
 
 /**
@@ -230,10 +320,13 @@ function arsivTazele() {
 
 export async function oturumSil(id: string) {
   const supabase = await createClient();
+  // Silmeden ÖNCE: satır gittikten sonra etkinlik kimliğine ulaşmanın yolu
+  // kalmıyor ve etkinlik takvimde sahipsiz kalıyordu.
+  const takvimUyarisi = await etkinligiKaldir(supabase, id);
   const { error } = await supabase.from("egitim_oturumlari").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/kontrol-9f4x2k/birebir-egitim");
   revalidatePath("/kontrol-9f4x2k/ogrenciler");
   revalidatePath("/panel/birebir-egitim");
-  return {};
+  return takvimUyarisi ? { uyari: `Oturum silindi ama ${takvimUyarisi}` } : {};
 }

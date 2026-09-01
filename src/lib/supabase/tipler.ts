@@ -139,6 +139,7 @@ export type Database = {
           konu: string | null;
           notlar: string | null;
           sure_dk: number;
+          takvim_etkinlik_id: string | null;
           toplanti_link: string | null;
           user_id: string;
         };
@@ -259,6 +260,7 @@ export type Database = {
           odendi_at: string | null;
           payment_id: string | null;
           sure_dk: number;
+          takvim_etkinlik_id: string | null;
           tercih_zaman: string | null;
           toplanti_link: string | null;
           ucret: number | null;

@@ -59,8 +59,14 @@ export type OturumEylemleri = {
     diğerinin alanını görünmez yapıyordu — EkleSonuc'ta da aynı sorun vardı.
   */
   ekle: (input: Parameters<typeof seansEkle>[0] & { ekstraKatilimcilar?: string[] }) => Promise<EkleSonuc>;
-  durumDegistir: typeof seansDurumDegistir;
-  sil: typeof seansSil;
+  /*
+    Dönüş tipi eylemin kendisinden değil ortak EkleSonuc'tan: birebir eğitim
+    tarafında durum değişikliği ve silme artık uyarı da döndürebiliyor
+    (takvim etkinliği kaldırılamadıysa). Tipi dar bırakmak o uyarıyı
+    görünmez yapardı.
+  */
+  durumDegistir: (...p: Parameters<typeof seansDurumDegistir>) => Promise<EkleSonuc>;
+  sil: (...p: Parameters<typeof seansSil>) => Promise<EkleSonuc>;
   kayitLinki: typeof seansKayitLinki;
 };
 
@@ -144,6 +150,7 @@ export function SeansYonetimi({
       if (r?.error) bildir.hata(r.error);
       else {
         bildir.basarili("Seans durumu güncellendi.");
+        if (r?.uyari) bildir.bilgi(r.uyari);
         router.refresh();
       }
     });
@@ -172,6 +179,7 @@ export function SeansYonetimi({
       if (r?.error) bildir.hata(r.error);
       else {
         bildir.basarili("Seans silindi.");
+        if (r?.uyari) bildir.bilgi(r.uyari);
         router.refresh();
       }
     });

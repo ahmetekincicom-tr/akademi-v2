@@ -7,6 +7,7 @@ import type { GorusmeDurum } from "@/lib/gorusme";
 import { metaOlayiKuyrukla } from "@/lib/meta/kuyruk";
 import { profildenKimlik } from "@/lib/meta/toplama";
 import { gorusmePlanlandiBildir } from "@/lib/egitim-eposta";
+import { takvimeYaz, takvimdenSil, uyariBirlestir } from "@/lib/takvim-kayit";
 
 const GECERLI_DURUMLAR: GorusmeDurum[] = ["talep", "odeme_bekliyor", "planlandi", "tamamlandi", "iptal"];
 
@@ -69,10 +70,68 @@ export async function gorusmePlanla(input: {
     kalmıyor: uyarı olarak dönüyor.
   */
   const posta = await planlamaPostasi(input.id, baslangicUtc, Number(input.sureDk) || 45, input.toplantiLink);
-  if (posta && !posta.gonderildi) {
-    return { uyari: `Görüşme planlandı ama bilgilendirme maili gönderilemedi: ${posta.sebep}` };
-  }
-  return sonuc;
+  const postaUyarisi =
+    posta && !posta.gonderildi ? `Bilgilendirme maili gönderilemedi: ${posta.sebep}` : null;
+
+  // Eğitmenin kendi takvimi. Planlamayı geri almıyor; sorun olursa uyarı
+  // olarak dönüyor — gerekçesi lib/takvim-kayit.ts içinde.
+  const takvimUyarisi = await takvimeKaydet(input.id, baslangicUtc, Number(input.sureDk) || 45, input.toplantiLink);
+
+  const uyari = uyariBirlestir(postaUyarisi, takvimUyarisi);
+  return uyari ? { uyari: `Görüşme planlandı ama: ${uyari}` } : sonuc;
+}
+
+/**
+ * Görüşmeyi eğitmenin Google Takvimi'ne yazar.
+ *
+ * Katılımcı e-postası etkinliğin AÇIKLAMASINDA, davetli olarak değil:
+ * davetli eklemek Google'a kişiye kendiliğinden davet postası gönderttiriyor
+ * ve bu, panelden çıkan ikinci bir postayla üst üste binerdi. Katılımcıya
+ * ne gittiğini panel belirliyor, Google değil.
+ */
+async function takvimeKaydet(
+  gorusmeId: string,
+  baslangic: string,
+  sureDk: number,
+  toplantiLink: string,
+) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("gorusmeler")
+    .select("konu, aciklama, takvim_etkinlik_id, profiles(ad, soyad, email)")
+    .eq("id", gorusmeId)
+    .maybeSingle();
+  if (!data) return null;
+
+  const kisi = data.profiles as { ad: string | null; soyad: string | null; email: string | null } | null;
+  const adSoyad = [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ").trim();
+  const konu = (data.konu as string) || "Danışmanlık görüşmesi";
+
+  return takvimeYaz(
+    supabase,
+    "gorusmeler",
+    [gorusmeId],
+    {
+      baslik: adSoyad ? `${konu} · ${adSoyad}` : konu,
+      aciklama: [
+        adSoyad ? `Katılımcı: ${adSoyad}` : null,
+        kisi?.email ? `E-posta: ${kisi.email}` : null,
+        (data.aciklama as string | null)?.trim() || null,
+        `Panel: ${panelAdresi()}/kontrol-9f4x2k/gorusmeler`,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      baslangicUtc: baslangic,
+      sureDk,
+      konum: toplantiLink.trim() || null,
+    },
+    data.takvim_etkinlik_id as string | null,
+  );
+}
+
+/** Etkinlik açıklamasındaki panel bağlantısının kökü. */
+function panelAdresi() {
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? "https://panel.ahmetekinciakademi.com").replace(/\/$/, "");
 }
 
 async function planlamaPostasi(
@@ -160,7 +219,33 @@ export async function gorusmeOdemeOnayla(id: string, referans: string) {
 
 export async function gorusmeDurumDegistir(id: string, durum: GorusmeDurum) {
   if (!GECERLI_DURUMLAR.includes(durum)) return { error: "Geçersiz durum." };
-  return guncelle(id, { durum });
+  const sonuc = await guncelle(id, { durum });
+  if (sonuc.error) return sonuc;
+
+  /*
+    İptal edilen görüşme takvimden de kalkıyor.
+
+    Yalnızca durumu değiştirmek yetmezdi: etkinlik takvimde durmaya devam
+    eder ve o saat dolu görünürdü. "Tamamlandı" etkinliği silmiyor — geçmiş
+    bir dersin takvimde kalması doğru, o bir kayıt.
+  */
+  if (durum === "iptal") {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("gorusmeler")
+      .select("takvim_etkinlik_id")
+      .eq("id", id)
+      .maybeSingle();
+
+    const uyari = await takvimdenSil(
+      supabase,
+      "gorusmeler",
+      [id],
+      data?.takvim_etkinlik_id as string | null,
+    );
+    if (uyari) return { uyari: `Görüşme iptal edildi ama ${uyari}` };
+  }
+  return sonuc;
 }
 
 export async function gorusmeAyarKaydet(input: {
