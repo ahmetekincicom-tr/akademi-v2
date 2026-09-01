@@ -174,10 +174,23 @@ export default async function HomePage() {
           yapışıyordu.
         */}
         <div className="relative mx-auto flex max-w-[1240px] flex-col items-center px-5 pt-20 pb-24 text-center sm:px-8 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32">
-          <div className="flex items-center gap-3">
-            <span className="h-[5px] w-[5px] flex-none rounded-full bg-[#4D7BFF] shadow-[0_0_0_4px_rgba(77,123,255,0.16)]" />
-            <span className="font-mono text-[10.5px] tracking-[0.22em] text-[#8B9AC2] uppercase sm:text-[11px] sm:tracking-[0.26em]">
-              Canlı · Birebir · Uygulamalı
+          {/*
+            Hero etiketi.
+
+            Önceki hâli mono, tümü büyük harf, çok geniş harf aralıklı bir
+            "CANLI · BİREBİR · UYGULAMALI" satırıydı ve yanında ışıklı bir
+            nokta duruyordu. Üçü de bugün her yazılım sitesinde aynı yerde
+            duran işaretler; birlikte, söyledikleri şeyden çok "şablon"
+            hissi veriyorlardı.
+
+            Yerine cümle: rozetin içinde normal harflerle yazılmış, gerçek
+            bilgi taşıyan bir satır. Aynı üç kelime kalıyor ama slogan
+            olarak değil, cümlenin parçası olarak.
+          */}
+          <div className="inline-flex max-w-full items-center gap-[9px] rounded-full border border-white/12 bg-white/[0.045] py-[7px] pr-[16px] pl-[13px] text-[13px] text-[#A7B4CC] sm:text-[13.5px]">
+            <Icon name="playCircle" size={15} className="flex-none text-[#7FA0FF]" strokeWidth={1.7} />
+            <span>
+              Canlı, birebir ve <span className="font-semibold text-white">tamamen uygulamalı</span>
             </span>
           </div>
 
@@ -187,7 +200,9 @@ export default async function HomePage() {
             Dar ekranda aynı kırılma tek kelimelik satırlar üretiyordu, orada
             metin kendi akışına bırakılıyor.
           */}
-          <h1 className="mt-8 max-w-[1080px] font-heading text-[40px] leading-[1.03] font-semibold tracking-[-0.042em] text-white sm:text-[62px] lg:text-[82px] lg:leading-[0.98] xl:text-[92px]">
+          {/* Dar ekranda başlık 40 → 46px: hero'nun taşıdığı şey bu cümle,
+              alt metin ve rozet ise ona eşlik ediyor. */}
+          <h1 className="mt-7 max-w-[1080px] font-heading text-[46px] leading-[1.02] font-semibold tracking-[-0.042em] text-white sm:mt-8 sm:text-[62px] lg:text-[82px] lg:leading-[0.98] xl:text-[92px]">
             Dijital pazarlamayı<span className="hidden lg:inline">
               <br />
             </span>{" "}
@@ -197,19 +212,44 @@ export default async function HomePage() {
             uygulayarak öğrenin.
           </h1>
 
-          <p className="mt-8 max-w-[660px] text-[16.5px] leading-[1.66] text-[#93A0B6] sm:text-[18px] sm:leading-[1.62]">
+          {/* Alt metin dar ekranda küçüldü (16.5 → 15px): büyüyen başlığın
+              yanında neredeyse aynı ağırlıkta duruyordu, ikisi birbiriyle
+              yarışıyordu. */}
+          <p className="mt-6 max-w-[660px] text-[15px] leading-[1.62] text-[#93A0B6] sm:mt-8 sm:text-[18px]">
             Meta Ads, sosyal medya yönetimi ve yapay zekâ eğitimleri; bilgi düzeyinize, hedeflerinize ve kendi
             projelerinize göre birebir planlanır. Canlı derslerde yalnızca öğrenmez, öğrendiklerinizi doğrudan
             uygulamaya geçirirsiniz.
           </p>
 
-          <Link
-            href="/egitimler"
-            className="group/hero mt-10 inline-flex h-14 items-center gap-[11px] rounded-[10px] bg-brand px-8 text-[16px] font-semibold text-white transition hover:bg-white hover:text-ink"
-          >
-            Birebir Eğitimleri İnceleyin
-            <span className="transition-transform duration-200 group-hover/hero:translate-x-[3px]">→</span>
-          </Link>
+          {/*
+            İki düğme.
+
+            Sarmalanan satır: iki düğme yan yana sığdığı sürece yan yana
+            duruyor, sığmadığı an ikisi de tam genişliğe geçip alt alta
+            diziliyor. `grow basis-[190px]` tam olarak bunu yapıyor — sabit
+            bir kırılma noktası vermek, 390px'te sığan düğmeleri 400px'te
+            gereksizce alt alta atıyordu.
+
+            İkincisi çerçeveli ve ikonlu değil: iki dolu düğme iki eşit
+            eylem demek olurdu, oysa asıl istenen tıklama eğitimler.
+          */}
+          <div className="mt-9 flex w-full max-w-[420px] flex-wrap justify-center gap-[10px] sm:mt-10 sm:max-w-none sm:gap-3">
+            <Link
+              href="/egitimler"
+              className="group/hero inline-flex h-[50px] grow basis-[190px] items-center justify-center gap-[9px] rounded-[10px] bg-brand whitespace-nowrap px-6 text-[15px] font-semibold text-white transition hover:bg-white hover:text-ink sm:grow-0 sm:basis-auto sm:text-[15.5px]"
+            >
+              <Icon name="book" size={17} strokeWidth={1.8} />
+              Birebir Eğitimler
+              <span className="transition-transform duration-200 group-hover/hero:translate-x-[3px]">→</span>
+            </Link>
+            <Link
+              href="/yorumlar"
+              className="inline-flex h-[50px] grow basis-[190px] items-center justify-center gap-[9px] rounded-[10px] border whitespace-nowrap border-white/18 px-6 text-[15px] font-semibold text-white/85 transition hover:border-white hover:bg-white hover:text-ink sm:grow-0 sm:basis-auto sm:text-[15.5px]"
+            >
+              <Icon name="message" size={17} strokeWidth={1.8} />
+              Yorumlar
+            </Link>
+          </div>
         </div>
 
       </section>
