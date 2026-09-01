@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
+import { basligiIkiSatir } from "@/lib/courses";
 
 /**
  * Vitrin kartı: ana sayfadaki "Programlar" ile /egitimler listesi aynı kartı
@@ -48,6 +49,8 @@ export function ProgramKarti({
 }) {
   const Baslik = baslikSeviyesi;
   const href = `/egitimler/${p.slug}`;
+  // Aynı bölme kuralı eğitim sayfasının hero başlığında da kullanılıyor.
+  const ikiSatir = basligiIkiSatir(p.baslik);
 
   return (
     <div
@@ -110,15 +113,19 @@ export function ProgramKarti({
         </div>
 
         {/*
-          Başlık iki satırlık yer kaplıyor (min-h), tek satırlık başlıklarda
-          bile. Program adlarının uzunluğu farklı — "Yapay Zekâ Eğitimi" bir
-          satır, "Birebir Sosyal Medya Uzmanlığı Eğitimi" iki — ve altındaki
-          her şey o farkla kayıyordu.
+          Başlık İKİ SATIRDA: ilk kelime ("Birebir") üstte, programın adı
+          altında. Kırılma tarayıcıya bırakılmıyor.
 
-          Tek kural bu: kartın geri kalanı hizaya metinlerin kendi
-          uzunluğuyla geliyor, zorlanmış satır yüksekliğiyle değil.
+          Sebep iki tane. Birincisi hiza: başlıklar farklı uzunlukta ve tek
+          satıra sığan bir ad, iki satıra taşan komşusunun yanında kartın
+          geri kalanını yukarı çekiyordu. İkincisi okuma sırası — "Birebir"
+          üç programın da ortak özelliği, adın kendisi ikinci satırda tek
+          başına duruyor.
+
+          min-h iki satırı garanti ediyor: tek kelimelik bir program adı
+          eklenirse (basligiIkiSatir null döner) kart yine hizada kalıyor.
         */}
-        <Baslik className="mt-[14px] flex min-h-[56px] items-start font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
+        <Baslik className="mt-[14px] flex min-h-[54px] items-start font-heading text-[21.5px] leading-[1.22] font-semibold tracking-[-0.03em]">
           {/*
             text-ink AÇIKÇA yazılıyor: global `a { color: brand }` kuralı
             yüzünden kart başlıkları da maviydi ve yanındaki `hover:text-brand`
@@ -126,7 +133,15 @@ export function ProgramKarti({
             aynı mavideyken kartta neyin bağlantı olduğu kayboluyordu.
           */}
           <Link href={href} className="text-ink transition-colors hover:text-brand">
-            {p.baslik}
+            {ikiSatir ? (
+              <>
+                {ikiSatir.ilk}
+                <br />
+                {ikiSatir.kalan}
+              </>
+            ) : (
+              p.baslik
+            )}
           </Link>
         </Baslik>
 
