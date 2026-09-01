@@ -120,6 +120,14 @@ export type Course = {
   /** "6 kişilik kontenjan" gibi tek satır; boşsa satır hiç görünmüyor. */
   kontenjan: string;
   /**
+   * Vitrin kartında "YENİ" rozeti.
+   *
+   * Sıraya bağlanamıyor: "en çok tercih edilen" bir konum meselesi, "yeni"
+   * ise programın kendisine ait bir gerçek ve listenin kaçıncı sırasında
+   * durduğuyla ilgisi yok. Panelden tek tık.
+   */
+  yeni: boolean;
+  /**
    * Listeleme sırası. Küçük olan önce.
    *
    * created_at'e güvenilemiyor: üç eğitim de aynı toplu ekleme ile
@@ -213,6 +221,7 @@ type CourseRow = {
     kapsam?: unknown;
     haplar?: unknown;
     kontenjan?: string;
+    yeni?: boolean;
     sira?: number;
     kazanimlar: string[];
     uygun: string[];
@@ -267,6 +276,8 @@ function mapCourse(row: CourseRow): Course {
       ? satirlariDuzelt(row.content.haplar)
       : VARSAYILAN_HAPLAR,
     kontenjan: (row.content.kontenjan ?? "").trim(),
+    // Alan sonradan eklendi: eski kayıtlarda yok, rozetsiz doğru varsayılan.
+    yeni: row.content.yeni === true,
     // Sırası verilmemiş eğitim listenin sonuna: yeni eklenen bir program
     // kendiliğinden vitrinin başına geçmemeli.
     sira: typeof row.content.sira === "number" ? row.content.sira : 999,

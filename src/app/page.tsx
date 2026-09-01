@@ -134,6 +134,7 @@ export default async function HomePage() {
     aciklama: c.aciklama,
     maddeler: c.maddeler.slice(0, 3),
     kapak: c.kapak,
+    yeni: c.yeni,
   }));
 
   return (
@@ -261,10 +262,17 @@ export default async function HomePage() {
 
       {/* Programs */}
       <section id="egitimler" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
-        <div className="mb-12 flex flex-wrap items-end justify-between gap-10">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-10 sm:mb-12">
           <div>
             <SectionKicker>Programlar</SectionKicker>
-            <h2 className="mt-[18px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[44px]">
+            {/*
+              Dar ekranda 32 → 38px ve iki satır: hero başlığı 46px'e
+              çıkınca bölüm başlığı onun yanında bir alt başlık gibi
+              kalıyordu. max-w ile iki satıra zorlanıyor — "Üç program, tek
+              yöntem" tek satıra sığdığında harfler küçültülmüş bir masaüstü
+              başlığı gibi duruyor.
+            */}
+            <h2 className="mt-[18px] max-w-[260px] font-heading text-[38px] leading-[1.08] font-semibold tracking-[-0.035em] sm:max-w-none sm:text-[44px] sm:leading-[1.1]">
               Üç program, tek yöntem
             </h2>
           </div>
@@ -276,10 +284,16 @@ export default async function HomePage() {
 
             Bağlantı da düğme oldu: düz mavi bir metin olarak kart
             ızgarasının üstünde kayboluyordu.
+
+            Dar ekranda BAŞLIKTA DEĞİL, kartların altında (aşağıdaki ikinci
+            kopya). Tek sütuna inen düzende başlığın altındaki düğme,
+            programları görmeden "hepsini gör" demek oluyor; kartlardan
+            sonra ise doğal devamı. Geniş ekranda başlığın karşısında
+            duruyor, orası zaten kartların üstü değil yanı.
           */}
           <Link
             href="/egitimler"
-            className="group/tumu inline-flex h-[48px] flex-none items-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white"
+            className="group/tumu hidden h-[48px] flex-none items-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:inline-flex"
           >
             Tüm eğitimleri keşfet
             <Icon
@@ -295,6 +309,19 @@ export default async function HomePage() {
             <ProgramKarti key={p.slug} p={p} vitrin={i === 0} />
           ))}
         </div>
+
+        {/* Dar ekrandaki kopya; gerekçesi yukarıdaki düğmenin yanında. */}
+        <Link
+          href="/egitimler"
+          className="group/tumu mt-6 flex h-[50px] items-center justify-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:hidden"
+        >
+          Tüm eğitimleri keşfet
+          <Icon
+            name="arrowRight"
+            size={16}
+            className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
+          />
+        </Link>
       </section>
 
       {/*

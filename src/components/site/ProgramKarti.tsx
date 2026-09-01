@@ -18,6 +18,8 @@ export type ProgramKartiVerisi = {
   aciklama: string;
   maddeler: string[];
   kapak: string | null;
+  /** Panelden işaretleniyor; kart görselinde "YENİ" rozeti gösteriyor. */
+  yeni: boolean;
 };
 
 /**
@@ -72,20 +74,28 @@ export function ProgramKarti({
             program görseli 16:9
           </span>
         )}
-        <span className="absolute top-[14px] left-[14px] rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
-          {p.etiket}
-        </span>
         {/*
-          "En çok tercih edilen" rozeti vitrindeki karta ait ve vitrin, panelden
-          yönetilen SIRA'nın ilk programı. Ayrı bir "öne çıkan" alanı açılmadı:
-          iki ayrı yerden yönetilen bir vitrinde ikisi çeliştiğinde hangisinin
-          kazandığı belirsiz kalırdı.
+          İki rozet TEK BİR SATIRDA, iki ayrı mutlak konumda değil.
+
+          Ayrı ayrı konumlandıklarında 320px genişlikte "META ADS" ile "EN ÇOK
+          TERCİH EDİLEN" üst üste biniyordu; ikisini alt alta ya da alt köşeye
+          almak da görselin üstündeki yer tutucu yazıyla çakışıyordu. Aynı
+          satırda justify-between ile duruyorlar: kategori sabit, rozet kalan
+          yere sığıyor.
+
+          Vitrin rozeti "yeni"yi bastırıyor: iki rozet aynı anda gösterilseydi
+          hangisinin okunacağı belirsiz olurdu, ikisi de aynı köşede.
         */}
-        {vitrin && (
-          <span className="absolute top-[14px] right-[14px] rounded-[6px] bg-brand px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase shadow-[0_6px_16px_rgba(28,86,243,0.35)]">
-            En çok tercih edilen
+        <span className="absolute inset-x-[14px] top-[14px] flex items-start justify-between gap-2">
+          <span className="flex-none rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
+            {p.etiket}
           </span>
-        )}
+          {(vitrin || p.yeni) && (
+            <span className="rounded-[6px] bg-brand px-[10px] py-[6px] text-right font-mono text-[10px] leading-[1.35] tracking-[0.1em] text-white uppercase shadow-[0_6px_16px_rgba(28,86,243,0.35)]">
+              {vitrin ? "En çok tercih edilen" : "Yeni"}
+            </span>
+          )}
+        </span>
       </Link>
 
       <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
@@ -134,7 +144,12 @@ export function ProgramKarti({
         */}
         <Link
           href={href}
-          className={`group/dugme flex h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[15px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink ${
+          /*
+            Yükseklik SABİT DEĞİL (min-h + py): "Sosyal Medya Eğitimini
+            İncele" 320px'te iki satıra düşüyor ve sabit 50px'lik kutuda
+            metin dışarı taşıyordu.
+          */
+          className={`group/dugme flex min-h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand px-4 py-3 text-center text-[14.5px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink sm:text-[15px] ${
             p.maddeler.length > 0 ? "mt-[26px]" : "mt-auto"
           }`}
         >
@@ -142,7 +157,7 @@ export function ProgramKarti({
           <Icon
             name="arrowRight"
             size={16}
-            className="transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
+            className="flex-none transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
           />
         </Link>
       </div>

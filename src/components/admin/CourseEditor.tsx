@@ -39,6 +39,8 @@ export type CourseEditorInitial = {
   kapsam: IkonluSatir[];
   /** "6 kişilik kontenjan" gibi tek satır. */
   kontenjan: string;
+  /** Vitrin kartındaki "YENİ" rozeti. */
+  yeni: boolean;
   modules: EditorModule[];
   siteGorunur: boolean;
   satisaAcik: boolean;
@@ -62,6 +64,7 @@ const BOS_INITIAL: CourseEditorInitial = {
   haplar: VARSAYILAN_HAPLAR,
   kapsam: VARSAYILAN_KAPSAM,
   kontenjan: "",
+  yeni: false,
   modules: [],
   siteGorunur: true,
   satisaAcik: true,
@@ -88,6 +91,7 @@ export function CourseEditor({
   const [haplar, setHaplar] = useState<IkonluSatir[]>(initial.haplar);
   const [kapsam, setKapsam] = useState<IkonluSatir[]>(initial.kapsam);
   const [kontenjan, setKontenjan] = useState(initial.kontenjan);
+  const [yeni, setYeni] = useState(initial.yeni);
   const [modules, setModules] = useState<EditorModule[]>(initial.modules);
   const [yayin, setYayin] = useState({
     site: initial.siteGorunur,
@@ -115,6 +119,7 @@ export function CourseEditor({
       haplar,
       kapsam,
       kontenjan,
+      yeni,
       modules,
       siteGorunur: yayin.site,
       satisaAcik: yayin.satis,
@@ -387,6 +392,23 @@ export function CourseEditor({
                 <span className="max-w-[620px] text-[12.5px] leading-[1.55] text-[#656B7A]">
                   Sağdaki kutunun koyu başlığında, eğitim adının altında rozet olarak görünür. Boş bırakılırsa
                   hiç görünmez.
+                </span>
+              </label>
+
+              <label className="mt-6 flex max-w-[620px] cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={yeni}
+                  onChange={(e) => setYeni(e.target.checked)}
+                  className="mt-[3px] h-[18px] w-[18px] flex-none accent-brand"
+                />
+                <span className="flex flex-col gap-1">
+                  <span className="text-[14.5px] font-semibold text-ink">&quot;Yeni&quot; rozeti</span>
+                  <span className="text-[12.5px] leading-[1.55] text-[#656B7A]">
+                    Ana sayfadaki ve eğitimler sayfasındaki kartın görselinde &quot;YENİ&quot; rozeti gösterilir.
+                    Program artık yeni değilken işareti kaldırmayı unutmayın — kalıcı bir rozet anlamını
+                    yitirir.
+                  </span>
                 </span>
               </label>
             </div>

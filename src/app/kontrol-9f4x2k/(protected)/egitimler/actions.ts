@@ -32,6 +32,8 @@ export type SaveCourseInput = {
   kapsam?: { ad: string; ikon: string }[];
   /** "6 kişilik kontenjan" gibi tek satır. Verilmezse mevcut değer korunuyor. */
   kontenjan?: string;
+  /** Vitrin kartındaki "YENİ" rozeti. Verilmezse mevcut değer korunuyor. */
+  yeni?: boolean;
 };
 
 /** Boş metinli satırlar kaydedilmiyor; sayfada başsız bir ikon bırakırlardı. */
@@ -48,6 +50,7 @@ type ExistingContent = {
   haplar?: { ad: string; ikon: string }[];
   kapsam?: { ad: string; ikon: string }[];
   kontenjan?: string;
+  yeni?: boolean;
   sira?: number;
   kazanimlar?: string[];
   uygun?: string[];
@@ -110,6 +113,7 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     haplar: input.haplar !== undefined ? ikonluSatirlar(input.haplar) : (existingContent.haplar ?? []),
     kapsam: input.kapsam !== undefined ? ikonluSatirlar(input.kapsam) : (existingContent.kapsam ?? []),
     kontenjan: input.kontenjan !== undefined ? input.kontenjan.trim() : (existingContent.kontenjan ?? ""),
+    yeni: input.yeni !== undefined ? input.yeni : (existingContent.yeni ?? false),
     // Sıra editörden yönetilmiyor; kaydederken kaybolmasın.
     sira: existingContent.sira ?? 999,
     kazanimlar: existingContent.kazanimlar ?? [],
