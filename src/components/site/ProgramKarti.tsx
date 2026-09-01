@@ -145,10 +145,29 @@ export function ProgramKarti({
           </Link>
         </Baslik>
 
-        <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
+        {/*
+          Açıklama geniş ekranda EN AZ BEŞ SATIRLIK yer kaplıyor (8em = 5 ×
+          1.6 satır yüksekliği).
 
+          Metinler farklı uzunlukta ve olması gereken de bu — panelde ne
+          yazıldıysa o duruyor. Ama kartlar yan yanayken dört satırlık bir
+          açıklama, beş satırlık komşusunun yanında ayraç çizgisini ve madde
+          listesini bir satır yukarı çekiyordu. Ölçü metinden alınıp metne
+          dayatılmıyor: yer sabit, metin serbest.
+
+          Yalnızca md ve üstünde: dar ekranda kartlar alt alta, hizalanacak
+          bir komşu yok ve orada sabit yükseklik boşluk demek olurdu.
+        */}
+        <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273] md:min-h-[8em]">{p.aciklama}</p>
+
+        {/*
+          Madde listesi mt-auto DEĞİL: aşağı itilen bir blok olduğunda üstündeki
+          ayraç çizgisi listenin kendi yüksekliğine göre yer buluyor ve üç
+          kartta üç farklı hizaya düşüyordu. Liste artık açıklamanın hemen
+          altında; boşluğu emen ve dibe yapışan tek şey düğme.
+        */}
         {p.maddeler.length > 0 && (
-          <div className="mt-auto flex flex-col gap-[11px] border-t border-ink/8 pt-5">
+          <div className="mb-[26px] flex flex-col gap-[11px] border-t border-ink/8 pt-5">
             {p.maddeler.map((m) => (
               <div key={m} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
                 <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-brand">
@@ -173,9 +192,7 @@ export function ProgramKarti({
             İncele" 320px'te iki satıra düşüyor ve sabit 50px'lik kutuda
             metin dışarı taşıyordu.
           */
-          className={`group/dugme flex min-h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand px-4 py-3 text-center text-[14.5px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink sm:text-[15px] ${
-            p.maddeler.length > 0 ? "mt-[26px]" : "mt-auto"
-          }`}
+          className="group/dugme mt-auto flex min-h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand px-4 py-3 text-center text-[14.5px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink sm:text-[15px]"
         >
           <span>{baslikBicimi(p.etiket)} Eğitimini İncele</span>
           <Icon
