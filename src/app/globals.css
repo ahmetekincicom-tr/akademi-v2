@@ -464,6 +464,21 @@ select:focus-visible {
   }
 }
 
+/*
+  Dar ekran ölçüleri.
+
+  Rozet ile duyuru eğitim hero'sunda yan yana duruyor ve masaüstü ölçüleriyle
+  (15px punto, 12/20px dolgu) telefonda toplam genişlikleri ekranı aşıyordu:
+  ikisi de tek satır olduğu için sarmalama da kurtarmıyor, hap ekranın
+  dışına taşıyordu. Punto ve dolgu küçülünce ikisi de sığıyor.
+*/
+@media (max-width: 639px) {
+  .duyuru-koyu {
+    padding: 9px 15px;
+    font-size: 13px;
+  }
+}
+
 .duyuru-parlak {
   --duyuru-yuzde: 7%;
   position: relative;
@@ -551,6 +566,10 @@ select:focus-visible {
   font-size: 15px;
   line-height: 1;
   font-weight: 600;
+  /* Uzun bir duyuru metni hapın içinde satır kırınca yuvarlak kenarlı öğe
+     karta dönüşüyor. Dar ekranda punto zaten küçülüyor, metin tek satırda
+     kalmalı. */
+  white-space: nowrap;
   border: 1px solid transparent;
   border-radius: 360px;
   color: #ffffff;

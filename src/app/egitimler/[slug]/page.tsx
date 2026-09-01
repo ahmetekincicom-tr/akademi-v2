@@ -151,20 +151,20 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 sıkıştırılmış hâlleri satır kırıyor.
               */}
               {((icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu) || (icerik.rozetAktif && icerik.rozetMetni)) && (
-                <div className="mb-7 flex flex-wrap items-center justify-center gap-[10px] lg:justify-start">
+                <div className="mb-7 flex flex-col items-center gap-[9px] sm:flex-row sm:flex-wrap sm:justify-center sm:gap-[10px] lg:justify-start">
                   {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
                     <div
                       className={
                         icerik.duyuruStili === "koyu"
                           ? "duyuru-koyu max-w-full"
-                          : "duyuru-parlak max-w-full rounded-full px-[20px] py-[12px]"
+                          : "duyuru-parlak max-w-full rounded-full px-[15px] py-[9px] sm:px-[20px] sm:py-[12px]"
                       }
                     >
                       <span
                         className={
                           icerik.duyuruStili === "koyu"
                             ? ""
-                            : "text-[14.5px] leading-none font-semibold tracking-[-0.01em] sm:text-[15px]"
+                            : "text-[13px] leading-none font-semibold tracking-[-0.01em] sm:text-[15px]"
                         }
                       >
                         {icerik.kayitDuyurusu}
@@ -173,8 +173,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                   )}
 
                   {icerik.rozetAktif && icerik.rozetMetni && (
-                    <div className="inline-flex items-center gap-[9px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[12px] pr-[20px] pl-[16px] text-[14.5px] leading-none font-semibold text-[#E7D3A1] sm:text-[15px]">
-                      <Icon name="odul" size={18} />
+                    <div className="inline-flex items-center gap-[8px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[9px] pr-[15px] pl-[12px] text-[13px] leading-none font-semibold whitespace-nowrap text-[#E7D3A1] sm:gap-[9px] sm:py-[12px] sm:pr-[20px] sm:pl-[16px] sm:text-[15px]">
+                      <Icon name="odul" size={16} className="sm:hidden" />
+                      <Icon name="odul" size={18} className="hidden sm:block" />
                       {icerik.rozetMetni}
                     </div>
                   )}
@@ -186,7 +187,15 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 iki kelime geri çekiliyor, göz onları arka planla karıştırıyordu.
                 Vurgu görevini punto ve konum zaten yapıyor.
               */}
-              <h1 className="font-heading text-[44px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[48px] lg:text-[56px] lg:leading-[1.04]">
+              {/*
+                Mobilde 44px'ten 34px'e indi ve satır kırılması dengelendi.
+
+                44px'te "Birebir Meta Ads Eğitimi" ikinci satırda tek başına
+                "Eğitimi" bırakıyordu — ortalanmış bir başlıkta o tek kelime
+                düşmüş gibi duruyor. text-balance satırları eşit uzunlukta
+                bölüyor, punto da ikinci satırın dolmasına izin veriyor.
+              */}
+              <h1 className="font-heading text-[34px] leading-[1.08] font-semibold tracking-[-0.035em] text-balance sm:text-[46px] sm:leading-[1.05] sm:tracking-[-0.04em] lg:text-[56px] lg:leading-[1.04]">
                 {parca.once}
                 {parca.vurgu}
                 {parca.sonra}
@@ -200,7 +209,13 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 giriliyor ve satış cümlesinin bir yerini öne çıkarabilmek
                 gerekiyor.
               */}
-              <p className="mt-5 max-w-[560px] text-[16.5px] leading-[1.62] text-white/65 sm:text-[17.5px]">
+              {/*
+                text-pretty: ortalanmış bir paragrafta son satırda tek kelime
+                kalması en çok göze batan şey. Genişlik de daraltıldı — dar
+                ekranda tam genişliğe yayılan ortalı metin, her satırı farklı
+                uzunlukta bitirip tırtıklı bir blok üretiyordu.
+              */}
+              <p className="mt-5 max-w-[420px] text-[15.5px] leading-[1.65] text-pretty text-white/65 sm:max-w-[560px] sm:text-[17.5px] sm:leading-[1.62]">
                 <KalinMetin metin={course.heroAciklama} />
               </p>
               <HeroDegerler degerler={course.haplar} />

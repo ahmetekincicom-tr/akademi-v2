@@ -21,27 +21,28 @@ import type { IkonluSatir } from "@/lib/courses";
 
 export function HeroDegerler({ degerler }: { degerler: IkonluSatir[] }) {
   return (
-    <div className="mt-9">
+    <div className="mt-8 sm:mt-9">
       {/*
-        Dar ekranda TEK sütun ve ORTALI, geniş ekranda sarmalanan satır.
+        Dar ekranda TAM GENİŞLİKTE tek sütun, geniş ekranda içeriğe göre
+        daralan sarmalanan satır.
 
-        Serbest sarmalama bırakıldığında telefonda 2-1-1 gibi düzensiz bir
-        merdiven oluşuyordu: etiketler çok farklı uzunlukta ("%100 Uygulamalı"
-        ile "Ömür Boyu Ücretsiz Destek" arasında iki kat fark var) ve iki
-        sütuna tek satır hâlinde sığmıyorlar. Kısaltmak yerine tek sütun
-        seçildi: hap içinde satır kırmak, yuvarlak kenarlı bir öğeyi kart gibi
-        gösteriyor.
+        Ortalanmış ve içerik genişliğinde haplar telefonda bir merdiven
+        üretiyordu: "%100 Uygulamalı" ile "Ömür Boyu Ücretsiz Destek" arasında
+        iki kat genişlik farkı var ve dördü de farklı yerde başlayıp farklı
+        yerde bitiyordu. Göz her satırda yeni bir kenar arıyor.
 
-        items-center hapları tam genişlikte esnetmek yerine içeriklerinin
-        genişliğine indiriyor. Hero mobilde ortalandığı için bu gerekli —
-        esneyen haplar o eksene uymuyor, hepsi aynı boyda görünüp anlamsız
-        bir sütuna dönüşüyordu.
+        Çözüm hapları KISALTMAK değil eşitlemek: dar ekranda hepsi tam
+        genişlikte, içerik ortalı. Dört kenar aynı hizada ve blok, hemen
+        altındaki tam genişlikteki düğmeyle aynı ritmi tutturuyor.
+
+        İkon sola sabit değil metnin yanında: tam genişlikte bir hapta sola
+        yapışan ikon, sağında kocaman bir boşluk bırakıyordu.
       */}
-      <div className="flex flex-col items-center gap-[9px] sm:flex-row sm:flex-wrap sm:justify-center sm:gap-[10px] lg:items-start lg:justify-start">
+      <div className="flex flex-col gap-[9px] sm:flex-row sm:flex-wrap sm:justify-center sm:gap-[10px] lg:justify-start">
         {degerler.map((d) => (
           <span
             key={d.ad}
-            className="inline-flex items-center gap-[10px] rounded-full border border-white/14 bg-white/[0.06] py-[10px] pr-[18px] pl-[11px] text-[14.5px] leading-none font-semibold text-white/90"
+            className="inline-flex w-full items-center justify-center gap-[10px] rounded-full border border-white/14 bg-white/[0.06] px-[16px] py-[11px] text-[14.5px] leading-none font-semibold text-white/90 sm:w-auto sm:justify-start sm:pr-[18px] sm:pl-[11px]"
           >
             <span className="flex h-[26px] w-[26px] flex-none items-center justify-center rounded-full bg-brand/30 text-[#BDD0FF]">
               <Icon name={d.ikon} size={14} />
@@ -66,7 +67,7 @@ export function HeroDegerler({ degerler }: { degerler: IkonluSatir[] }) {
         tıklama kaydı yazılıyor, mesaja referans kodu gömülüyor ve Meta'ya
         Contact olayı düşüyor. Gerekçesi app/git/whatsapp/route.ts içinde.
       */}
-      <div className="mt-8 border-t border-white/10 pt-8 lg:hidden">
+      <div className="mt-7 border-t border-white/10 pt-7 sm:mt-8 sm:pt-8 lg:hidden">
         {/*
           Düğme mobilde tam genişlikte: dar ekranda sola yaslanmış bir düğme
           "yan bilgi" gibi okunuyordu, oysa sayfanın tek eylemi bu.
