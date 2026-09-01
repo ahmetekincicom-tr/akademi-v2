@@ -6,6 +6,7 @@ import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
+import { ProgramKarti } from "@/components/site/ProgramKarti";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
@@ -126,14 +127,13 @@ export default async function HomePage() {
   const [courses, logos, siteYorumlari] = await Promise.all([getCourses(), getReferanslar(), getYorumlar()]);
   const yorumlar = siteYorumlari.slice(0, 6).map((y) => ({ metin: y.metin, isim: y.isim, rol: y.rol }));
   const programs = courses.slice(0, 3).map((c) => ({
+    slug: c.slug,
     etiket: c.etiket,
     sure: c.sure,
-    modul: c.modul,
     baslik: c.baslik,
     aciklama: c.aciklama,
     maddeler: c.maddeler.slice(0, 3),
     kapak: c.kapak,
-    href: `/egitimler/${c.slug}`,
   }));
 
   return (
@@ -238,9 +238,12 @@ export default async function HomePage() {
               href="/egitimler"
               className="group/hero inline-flex h-[50px] grow basis-[190px] items-center justify-center gap-[9px] rounded-[10px] bg-brand whitespace-nowrap px-6 text-[15px] font-semibold text-white transition hover:bg-white hover:text-ink sm:grow-0 sm:basis-auto sm:text-[15.5px]"
             >
-              <Icon name="book" size={17} strokeWidth={1.8} />
               Birebir Eğitimler
-              <span className="transition-transform duration-200 group-hover/hero:translate-x-[3px]">→</span>
+              <Icon
+                name="arrowRight"
+                size={17}
+                className="transition-transform duration-200 group-hover/hero:translate-x-[3px]"
+              />
             </Link>
             <Link
               href="/yorumlar"
@@ -265,70 +268,31 @@ export default async function HomePage() {
               Üç program, tek yöntem
             </h2>
           </div>
-          <div className="text-left lg:text-right">
-            <p className="mb-[14px] max-w-[380px] text-[15.5px] leading-[1.6] text-[#5C6273]">
-              Her program online veya Ankara&apos;da yüz yüze ilerler. Müfredat, ön görüşmede işinize göre yeniden
-              düzenlenir.
-            </p>
-            <Link href="/egitimler" className="text-[14.5px] font-semibold">
-              Tüm eğitimleri keşfet →
-            </Link>
-          </div>
+          {/*
+            Açıklama paragrafı kaldırıldı: format ve müfredat bilgisi hemen
+            altındaki kartlarda ve eğitim sayfalarında zaten duruyor. Bölüm
+            başlığının karşısına konan üçüncü bir metin, oradaki tek eylemi
+            — tüm eğitimlere gitmek — bastırıyordu.
+
+            Bağlantı da düğme oldu: düz mavi bir metin olarak kart
+            ızgarasının üstünde kayboluyordu.
+          */}
+          <Link
+            href="/egitimler"
+            className="group/tumu inline-flex h-[48px] flex-none items-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white"
+          >
+            Tüm eğitimleri keşfet
+            <Icon
+              name="arrowRight"
+              size={16}
+              className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
+            />
+          </Link>
         </div>
         <div className="grid grid-cols-1 gap-[22px] md:grid-cols-3">
-          {programs.map((p) => (
-            <div
-              key={p.baslik}
-              className="flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
-            >
-              {/* Görsel ve başlık da detaya gidiyor; /egitimler kartlarıyla aynı. */}
-              <Link
-                href={p.href}
-                aria-label={`${p.baslik} detayına git`}
-                className={`relative flex aspect-video items-end border-b border-ink/8 p-[14px] ${
-                  p.kapak ? "bg-cover bg-center" : "placeholder-block"
-                }`}
-                style={p.kapak ? { backgroundImage: `url(${p.kapak})` } : undefined}
-              >
-                {!p.kapak && (
-                  <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
-                    program görseli 16:9
-                  </span>
-                )}
-                <span className="absolute top-[14px] left-[14px] rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
-                  {p.etiket}
-                </span>
-              </Link>
-              <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
-                {/* Modül sayısı kaldırıldı; gerekçesi EgitimlerFiltre'de. */}
-                <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">
-                  <span>{p.sure}</span>
-                </div>
-                <h3 className="mt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
-                  <Link href={p.href} className="transition-colors hover:text-brand">
-                    {p.baslik}
-                  </Link>
-                </h3>
-                <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
-                <div className="mt-auto flex flex-col gap-[11px] border-t border-ink/8 pt-5">
-                  {p.maddeler.map((m) => (
-                    <div key={m} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
-                      <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-brand">
-                        <Icon name="check" size={11} strokeWidth={3} />
-                      </span>
-                      <span>{m}</span>
-                    </div>
-                  ))}
-                </div>
-                <Link
-                  href={p.href}
-                  className="mt-[26px] flex h-[46px] items-center justify-between rounded-[10px] bg-[#F2F4FA] px-[18px] text-[14.5px] font-semibold text-ink hover:bg-brand hover:text-white"
-                >
-                  <span>Program detayını incele</span>
-                  <Icon name="arrowRight" size={16} />
-                </Link>
-              </div>
-            </div>
+          {programs.map((p, i) => (
+            /* Vitrin kartı sıradaki ilk program; gerekçesi ProgramKarti'de. */
+            <ProgramKarti key={p.slug} p={p} vitrin={i === 0} />
           ))}
         </div>
       </section>

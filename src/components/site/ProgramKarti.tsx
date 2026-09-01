@@ -1,0 +1,151 @@
+import Link from "next/link";
+import { Icon } from "@/components/Icon";
+
+/**
+ * Vitrin kartı: ana sayfadaki "Programlar" ile /egitimler listesi aynı kartı
+ * kullanıyor.
+ *
+ * Önceden iki sayfada iki ayrı kopya vardı ve çoktan ayrışmışlardı — birinde
+ * süre satırı ve madde listesi duruyor, diğerinde durmuyordu. Aynı şeyi iki
+ * yerde güncellemek zorunda kalmak, ikisinin farklı görünmesinin sebebiydi.
+ */
+
+export type ProgramKartiVerisi = {
+  slug: string;
+  etiket: string;
+  sure: string;
+  baslik: string;
+  aciklama: string;
+  maddeler: string[];
+  kapak: string | null;
+};
+
+/**
+ * "Meta Ads" → "Meta Ads Eğitimini İncele", "sosyal medya" → "Sosyal Medya…".
+ *
+ * Türkçe yerel ayarıyla: toUpperCase() "i" harfini "I" yapıyor, oysa burada
+ * "İ" gerekiyor ("içerik" → "İçerik").
+ */
+function baslikBicimi(metin: string) {
+  return metin
+    .trim()
+    .split(/\s+/)
+    .map((k) => k.charAt(0).toLocaleUpperCase("tr") + k.slice(1))
+    .join(" ");
+}
+
+export function ProgramKarti({
+  p,
+  vitrin = false,
+  /** Kart başlığının HTML seviyesi: liste sayfasında h2, ana sayfada h3. */
+  baslikSeviyesi = "h3",
+}: {
+  p: ProgramKartiVerisi;
+  vitrin?: boolean;
+  baslikSeviyesi?: "h2" | "h3";
+}) {
+  const Baslik = baslikSeviyesi;
+  const href = `/egitimler/${p.slug}`;
+
+  return (
+    <div
+      className={`relative flex flex-col overflow-hidden rounded-2xl bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)] ${
+        vitrin ? "border-2 border-brand/35 shadow-[0_18px_44px_rgba(28,86,243,0.18)]" : "border border-ink/11"
+      }`}
+    >
+      {/*
+        Görsel ve başlık da detaya gidiyor: kart bir bağlantı gibi görünüyordu
+        ama yalnızca alttaki düğme tıklanabiliyordu. Kartın tamamını tek bir
+        <a> yapmak seçenek değil — içindeki düğme de bağlantı ve iç içe <a>
+        geçersiz.
+      */}
+      <Link
+        href={href}
+        aria-label={`${p.baslik} detayına git`}
+        className={`relative flex aspect-video items-end border-b border-ink/8 p-[14px] ${
+          p.kapak ? "bg-cover bg-center" : "placeholder-block"
+        }`}
+        style={p.kapak ? { backgroundImage: `url(${p.kapak})` } : undefined}
+      >
+        {!p.kapak && (
+          <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
+            program görseli 16:9
+          </span>
+        )}
+        <span className="absolute top-[14px] left-[14px] rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
+          {p.etiket}
+        </span>
+        {/*
+          "En çok tercih edilen" rozeti vitrindeki karta ait ve vitrin, panelden
+          yönetilen SIRA'nın ilk programı. Ayrı bir "öne çıkan" alanı açılmadı:
+          iki ayrı yerden yönetilen bir vitrinde ikisi çeliştiğinde hangisinin
+          kazandığı belirsiz kalırdı.
+        */}
+        {vitrin && (
+          <span className="absolute top-[14px] right-[14px] rounded-[6px] bg-brand px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase shadow-[0_6px_16px_rgba(28,86,243,0.35)]">
+            En çok tercih edilen
+          </span>
+        )}
+      </Link>
+
+      <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
+        {/*
+          Süre satırı: saat bilgisi tek başına "ne kadar sürer" sorusunu
+          yanıtlıyor ama biçimi söylemiyordu. Canlı ve birebir olması bu
+          programların ayırt edici yanı, süreyle aynı satırda duruyor.
+        */}
+        <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">
+          <Icon name="clock" size={13} className="text-brand" strokeWidth={1.8} />
+          <span>{p.sure ? `${p.sure} · ` : ""}Canlı · Birebir</span>
+        </div>
+
+        <Baslik className="mt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
+          {/*
+            text-ink AÇIKÇA yazılıyor: global `a { color: brand }` kuralı
+            yüzünden kart başlıkları da maviydi ve yanındaki `hover:text-brand`
+            hiçbir şey yapmıyordu — üç kart başlığı, madde işaretleri ve düğme
+            aynı mavideyken kartta neyin bağlantı olduğu kayboluyordu.
+          */}
+          <Link href={href} className="text-ink transition-colors hover:text-brand">
+            {p.baslik}
+          </Link>
+        </Baslik>
+
+        <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
+
+        {p.maddeler.length > 0 && (
+          <div className="mt-auto flex flex-col gap-[11px] border-t border-ink/8 pt-5">
+            {p.maddeler.map((m) => (
+              <div key={m} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
+                <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-brand">
+                  <Icon name="check" size={11} strokeWidth={3} />
+                </span>
+                <span>{m}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/*
+          Düğme programın ADINI söylüyor: "Program detayını incele" üç kartta
+          da aynıydı ve hangi programa gittiği ancak kartın geri kalanından
+          anlaşılıyordu. Metin etiketten kuruluyor, elle yazılmıyor — panelde
+          etiket değişince düğme de değişiyor.
+        */}
+        <Link
+          href={href}
+          className={`group/dugme flex h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[15px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink ${
+            p.maddeler.length > 0 ? "mt-[26px]" : "mt-auto"
+          }`}
+        >
+          <span>{baslikBicimi(p.etiket)} Eğitimini İncele</span>
+          <Icon
+            name="arrowRight"
+            size={16}
+            className="transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
+          />
+        </Link>
+      </div>
+    </div>
+  );
+}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
+import { ProgramKarti } from "@/components/site/ProgramKarti";
 import type { Course } from "@/lib/courses";
 
 /*
@@ -46,7 +47,7 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
 
       {tab !== "Kurumsal" && (
         <div className="mt-9 grid grid-cols-1 gap-[22px] md:grid-cols-3">
-          {gosterilecek.map((p, i) => {
+          {gosterilecek.map((p, i) => (
             /*
               Sıradaki İLK program vitrinde öne çıkıyor.
 
@@ -54,81 +55,22 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
               panelden yönetilen bir tercih ve iki ayrı yerden yönetilen bir
               vitrin, ikisi çeliştiğinde hangisinin kazandığı belirsiz kalırdı.
               Sırayı değiştiren, vitrini de değiştirmiş oluyor.
-
-              Vurgu yalnızca gölge ve çerçeve: kartı büyütmek ızgarayı
-              bozuyor, rengini değiştirmek diğer ikisini pasif gösteriyordu.
             */
-            const vitrin = i === 0 && tab === "Tümü";
-            return (
-            <div
+            <ProgramKarti
               key={p.slug}
-              className={`relative flex flex-col overflow-hidden rounded-2xl bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)] ${
-                vitrin
-                  ? "border-2 border-brand/35 shadow-[0_18px_44px_rgba(28,86,243,0.18)]"
-                  : "border border-ink/11"
-              }`}
-            >
-              {/*
-                Görsel ve başlık de detaya gidiyor: kart bir bağlantı gibi
-                görünüyordu ama yalnızca alttaki düğme tıklanabiliyordu.
-                Kartın tamamını tek bir <a> yapmak seçenek değil — içindeki
-                düğme de bağlantı ve iç içe <a> geçersiz.
-              */}
-              <Link
-                href={`/egitimler/${p.slug}`}
-                aria-label={`${p.baslik} detayına git`}
-                className={`relative flex aspect-video items-end border-b border-ink/8 p-[14px] ${
-                  p.kapak ? "bg-cover bg-center" : "placeholder-block"
-                }`}
-                style={p.kapak ? { backgroundImage: `url(${p.kapak})` } : undefined}
-              >
-                {!p.kapak && (
-                  <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
-                    program görseli 16:9
-                  </span>
-                )}
-                <span className="absolute top-[14px] left-[14px] rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
-                  {p.etiket}
-                </span>
-              </Link>
-              {/*
-                Süre satırı ve madde listesi kaldırıldı.
-
-                İkisi de birebir kurulan bir programda kişiye göre değişiyor;
-                karttaki sabit "15 saat" ve üç madde, ön görüşmede yeniden
-                yazılan bir kapsamı sabitmiş gibi gösteriyordu. Kart artık tek
-                iş yapıyor: hangi program olduğunu söyleyip detaya götürmek.
-              */}
-              <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
-                {/* h2: sayfanın h1'inden sonraki ilk seviye. Önce h3'tü ve
-                    başlık hiyerarşisinde h2 atlanıyordu. */}
-                <h2 className="font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
-                  <Link href={`/egitimler/${p.slug}`} className="transition-colors hover:text-brand">
-                    {p.baslik}
-                  </Link>
-                </h2>
-                <p className="mt-[11px] mb-7 text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
-                {/*
-                  Düğme dolu mavi ve tam genişlikte: gri zeminli hâli kartın
-                  içinde bir bilgi satırı gibi duruyordu, tıklanabilir olduğu
-                  ancak üzerine gelince belli oluyordu. Ok işareti üzerine
-                  gelince ilerliyor.
-                */}
-                <Link
-                  href={`/egitimler/${p.slug}`}
-                  className="group/dugme mt-auto flex h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[15px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink"
-                >
-                  <span>Program detayını incele</span>
-                  <Icon
-                    name="arrowRight"
-                    size={16}
-                    className="transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
-                  />
-                </Link>
-              </div>
-            </div>
-            );
-          })}
+              p={{
+                slug: p.slug,
+                etiket: p.etiket,
+                sure: p.sure,
+                baslik: p.baslik,
+                aciklama: p.aciklama,
+                maddeler: p.maddeler.slice(0, 3),
+                kapak: p.kapak,
+              }}
+              vitrin={i === 0 && tab === "Tümü"}
+              baslikSeviyesi="h2"
+            />
+          ))}
         </div>
       )}
 
