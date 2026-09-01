@@ -10,7 +10,7 @@ import { HeroDegerler } from "@/components/site/HeroDegerler";
 import { KalinMetin } from "@/components/site/KalinMetin";
 import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
 import { Icon } from "@/components/Icon";
-import { getCourseBySlug, basligiParcala } from "@/lib/courses";
+import { getCourseBySlug, basligiIkiSatir, basligiParcala } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { olculenWhatsapp } from "@/lib/iletisim";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
@@ -51,6 +51,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
 
   // Hero başlığı eğitimin tam adı; vurgulanan kısım renkli yazılıyor.
   const parca = basligiParcala(course.baslik, course.baslikVurgu);
+  // Dar ekranda ilk kelime kendi satırında; gerekçesi lib/courses.ts içinde.
+  const ikiSatir = basligiIkiSatir(course.baslik);
 
   // Panelden gelen serbest metin: boş satır paragraf ayırıcı. Yalnızca
   // boşluktan oluşan satırlar da ayırıcı sayılıyor, aksi halde panele
@@ -157,14 +159,14 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                       className={
                         icerik.duyuruStili === "koyu"
                           ? "duyuru-koyu max-w-full"
-                          : "duyuru-parlak max-w-full rounded-full px-[15px] py-[9px] sm:px-[20px] sm:py-[12px]"
+                          : "duyuru-parlak max-w-full rounded-full px-[17px] py-[10px] sm:px-[20px] sm:py-[12px]"
                       }
                     >
                       <span
                         className={
                           icerik.duyuruStili === "koyu"
                             ? ""
-                            : "text-[13px] leading-none font-semibold tracking-[-0.01em] sm:text-[15px]"
+                            : "text-[14px] leading-none font-semibold tracking-[-0.01em] sm:text-[15px]"
                         }
                       >
                         {icerik.kayitDuyurusu}
@@ -173,8 +175,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                   )}
 
                   {icerik.rozetAktif && icerik.rozetMetni && (
-                    <div className="inline-flex items-center gap-[8px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[9px] pr-[15px] pl-[12px] text-[13px] leading-none font-semibold whitespace-nowrap text-[#E7D3A1] sm:gap-[9px] sm:py-[12px] sm:pr-[20px] sm:pl-[16px] sm:text-[15px]">
-                      <Icon name="odul" size={16} className="sm:hidden" />
+                    <div className="inline-flex items-center gap-[8px] rounded-full border border-[#E7D3A1]/30 bg-[#E7D3A1]/[0.07] py-[10px] pr-[17px] pl-[13px] text-[14px] leading-none font-semibold whitespace-nowrap text-[#E7D3A1] sm:gap-[9px] sm:py-[12px] sm:pr-[20px] sm:pl-[16px] sm:text-[15px]">
+                      <Icon name="odul" size={17} className="sm:hidden" />
                       <Icon name="odul" size={18} className="hidden sm:block" />
                       {icerik.rozetMetni}
                     </div>
@@ -188,17 +190,39 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 Vurgu görevini punto ve konum zaten yapıyor.
               */}
               {/*
-                Mobilde 44px'ten 34px'e indi ve satır kırılması dengelendi.
+                Dar ekranda satır kırılması SERBEST DEĞİL.
 
-                44px'te "Birebir Meta Ads Eğitimi" ikinci satırda tek başına
-                "Eğitimi" bırakıyordu — ortalanmış bir başlıkta o tek kelime
-                düşmüş gibi duruyor. text-balance satırları eşit uzunlukta
-                bölüyor, punto da ikinci satırın dolmasına izin veriyor.
+                Serbest bırakıldığında punto büyüdükçe "Birebir Meta Ads" /
+                "Eğitimi" gibi son satırda tek kelime bırakan kırılmalar
+                çıkıyordu; ortalanmış bir başlıkta o tek kelime düşmüş gibi
+                duruyor. İlk kelime kendi satırına alınınca hem sorun bitiyor
+                hem de bir ritim kuruluyor: üstte yöntem, altta konu.
+
+                Sabit kırılma yalnızca dar ekranda; geniş ekranda başlık iki
+                sütunlu düzenin sol yarısında ve orada kendi akışına
+                bırakılması daha doğru.
               */}
-              <h1 className="font-heading text-[34px] leading-[1.08] font-semibold tracking-[-0.035em] text-balance sm:text-[46px] sm:leading-[1.05] sm:tracking-[-0.04em] lg:text-[56px] lg:leading-[1.04]">
-                {parca.once}
-                {parca.vurgu}
-                {parca.sonra}
+              <h1 className="font-heading text-[42px] leading-[1.06] font-semibold tracking-[-0.038em] text-balance sm:text-[46px] sm:leading-[1.05] sm:tracking-[-0.04em] lg:text-[56px] lg:leading-[1.04]">
+                {ikiSatir ? (
+                  <>
+                    <span className="sm:hidden">
+                      {ikiSatir.ilk}
+                      <br />
+                      {ikiSatir.kalan}
+                    </span>
+                    <span className="hidden sm:inline">
+                      {parca.once}
+                      {parca.vurgu}
+                      {parca.sonra}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    {parca.once}
+                    {parca.vurgu}
+                    {parca.sonra}
+                  </>
+                )}
               </h1>
               {/*
                 19px hero başlığının hemen altında fazla iriydi: başlıkla
@@ -215,7 +239,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 ekranda tam genişliğe yayılan ortalı metin, her satırı farklı
                 uzunlukta bitirip tırtıklı bir blok üretiyordu.
               */}
-              <p className="mt-5 max-w-[420px] text-[15.5px] leading-[1.65] text-pretty text-white/65 sm:max-w-[560px] sm:text-[17.5px] sm:leading-[1.62]">
+              <p className="mt-5 max-w-[400px] text-[14.5px] leading-[1.6] text-pretty text-white/60 sm:max-w-[560px] sm:text-[17.5px] sm:leading-[1.62] sm:text-white/65">
                 <KalinMetin metin={course.heroAciklama} />
               </p>
               <HeroDegerler degerler={course.haplar} />

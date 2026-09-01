@@ -169,6 +169,28 @@ export function basligiParcala(baslik: string, vurgu: string) {
   };
 }
 
+/**
+ * Başlığı dar ekranda iki satıra böler: ilk kelime üstte, kalanı altta.
+ *
+ * "Birebir Meta Ads Eğitimi" dört kelime ve serbest bırakıldığında punto
+ * büyüdükçe "Birebir Meta Ads" / "Eğitimi" gibi son satırda tek kelime
+ * bırakan kırılmalar üretiyor. İlk kelimeyi ayırmak bunu çözüyor ve
+ * "Birebir" / "Meta Ads Eğitimi" gibi kendiliğinden bir ritim kuruyor:
+ * üstte yöntem, altta konu.
+ *
+ * ÜÇ kelimeden azsa bölünmüyor: "Yapay Zekâ" başlığını "Yapay" / "Zekâ" diye
+ * kırmak, düzelttiğinden fazlasını bozar. Kalan kısım ilk kelimeden kısaysa
+ * da bölünmüyor — o durumda ters bir merdiven oluşuyor.
+ */
+export function basligiIkiSatir(baslik: string): { ilk: string; kalan: string } | null {
+  const kelimeler = baslik.trim().split(/\s+/);
+  if (kelimeler.length < 3) return null;
+
+  const ilk = kelimeler[0];
+  const kalan = kelimeler.slice(1).join(" ");
+  return kalan.length > ilk.length ? { ilk, kalan } : null;
+}
+
 const COURSE_SELECT =
   "id, slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, kapak_gorsel, content, modules(sira, baslik, meta, lessons(sira, baslik, sure))";
 

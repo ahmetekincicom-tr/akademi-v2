@@ -474,8 +474,8 @@ select:focus-visible {
 */
 @media (max-width: 639px) {
   .duyuru-koyu {
-    padding: 9px 15px;
-    font-size: 13px;
+    padding: 10px 17px;
+    font-size: 14px;
   }
 }
 
