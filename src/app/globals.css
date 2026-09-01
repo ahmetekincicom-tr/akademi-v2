@@ -170,6 +170,22 @@
 
 
   /*
+    Koyu zeminde nokta dokusu.
+
+    Çizgili ızgaranın (bg-grid-dark) kardeşi değil, alternatifi: çizgi ızgara
+    bölümü kutulara böler, nokta dokusu ise yüzeye derinlik verip kutuları
+    öne çıkarır. "Fark" bölümü kart ızgarası olduğu için orada çizgi üstüne
+    çizgi biniyordu.
+
+    Nokta aralığı 28px, tek nokta 1px: daha büyük aralıkta desen "benek"
+    olarak fark ediliyor, daha sıksa gri bir sis oluşturuyor.
+  */
+  .bg-nokta-koyu {
+    background-image: radial-gradient(circle, rgba(140, 165, 255, 0.16) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  /*
     Kayan şerit. Liste iki kez basıldığı için %50 kaydırınca ikinci kopya
     birincinin yerine oturuyor ve döngü dikişsiz oluyor.
   */

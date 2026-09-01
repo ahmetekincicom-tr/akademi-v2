@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
 import { getCourses } from "@/lib/courses";
 import { getYorumlar, getReferanslar } from "@/lib/icerik";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
@@ -10,26 +10,37 @@ import { TestimonialCard } from "@/components/site/TestimonialCard";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
 
-const farklar = [
+/*
+  Yöntem kartları.
+
+  Sıra numarası (01–04) yerine ikon: numara bir SIRA vaat ediyordu — sanki
+  önce birebir ders, sonra destek, sonra kayıt geliyormuş gibi. Oysa bunlar
+  aynı anda geçerli dört özellik; sıralanan süreç bir alttaki "Süreç"
+  bölümünde zaten var ve numarayı orası kullanıyor.
+*/
+const farklar: { ikon: IconName; baslik: string; metin: string }[] = [
   {
-    no: "01",
-    baslik: "Gerçek zamanlı birebir",
-    metin: "Kalabalık sınıf yok. Ekranınızı paylaşır, kendi hesabınız üzerinde birlikte çalışırız.",
+    ikon: "playCircle",
+    baslik: "Canlı ve birebir eğitim",
+    metin:
+      "Her oturumu yalnızca sizinle gerçekleştiriyor; sorularınızı anında yanıtlıyor, uygulamaları kendi hesabınız üzerinden birlikte yapıyoruz.",
   },
   {
-    no: "02",
-    baslik: "Ömür boyu destek",
-    metin: "Program bittiğinde bağlantı kopmaz. Sonraki kampanyalarınızda da sorularınızı yanıtlıyoruz.",
+    ikon: "message",
+    baslik: "Eğitim sonrası destek",
+    metin:
+      "Program tamamlandıktan sonra da iletişim devam eder; uygulama sürecinde karşılaştığınız sorularda yalnız kalmazsınız.",
   },
   {
-    no: "03",
-    baslik: "Doküman & video desteği",
-    metin: "Her ders sonrası şablonlar, kontrol listeleri ve ders kaydı üye alanınıza eklenir.",
+    ikon: "folder",
+    baslik: "Ders kayıtları ve kaynaklar",
+    metin: "Ders kayıtları, şablonlar, kontrol listeleri ve yardımcı dokümanlar kişisel panelinize eklenir.",
   },
   {
-    no: "04",
-    baslik: "Kişiye özel müfredat",
-    metin: "Ön görüşmede işinizi dinleriz; program sektörünüze, seviyenize ve hedefinize göre yazılır.",
+    ikon: "sliders",
+    baslik: "Size özel eğitim planı",
+    metin:
+      "Eğitim içeriği; seviyenize, hedeflerinize, sektörünüze ve geliştirmek istediğiniz yetkinliklere göre hazırlanır.",
   },
 ];
 
@@ -282,36 +293,78 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Neden birebir */}
-      <section id="neden" className="relative overflow-hidden bg-ink text-white">
-        <div className="absolute -bottom-55 -left-35 h-[560px] w-[560px] rounded-full bg-brand opacity-16 blur-[130px]" />
+      {/*
+        Yöntem ("1A" tasarımı).
+
+        Zemin düz koyu renk değil, sol üstten gelen bir radyal degrade; bölüm
+        böylece hero ile aynı aileden ama aynısı değil. Üstündeki ince ışık
+        çizgisi bölümü açıyor, nokta dokusu yüzeye derinlik veriyor.
+
+        Nokta dokusu HAREKETSİZ: tasarımda yavaşça kayıyordu, ama bu bölüm
+        sayfanın ortasında ve arka planda süren bir hareket, okunan metnin
+        arkasında kıpırdayan bir doku olarak dikkat çekiyor.
+      */}
+      <section
+        id="neden"
+        className="relative overflow-hidden bg-ink text-white"
+        style={{
+          backgroundImage:
+            "radial-gradient(120% 90% at 8% 0%, #101a3a 0%, #080b16 45%, #05070d 100%)",
+        }}
+      >
+        {/* Üst kenardaki ışık çizgisi: bölümün başladığı yeri işaretliyor. */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(103,142,255,0.7)_30%,rgba(103,142,255,0.15)_70%,transparent)]" />
+        <div className="bg-nokta-koyu pointer-events-none absolute inset-0 opacity-70" />
+        {/* Başlığın arkasındaki tek ışık lekesi. */}
+        <div className="pointer-events-none absolute -top-[260px] left-[34%] h-[620px] w-[900px] rounded-full bg-[radial-gradient(closest-side,rgba(61,101,255,0.28),transparent)] blur-[20px]" />
+
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 py-26">
           <div className="flex flex-wrap items-end justify-between gap-12">
             <div className="max-w-[620px]">
-              <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.16em] text-[#7FA0FF] uppercase">
-                <span className="h-px w-[22px] bg-brand" />
-                Fark
+              {/*
+                Etiketin yanındaki yanıp sönen nokta kaldırıldı: bölüm
+                başlığında sürekli çalışan bir animasyon, "canlı yayın"
+                işareti gibi okunuyordu.
+              */}
+              <div className="flex items-center gap-[14px] font-mono text-[11px] tracking-[0.26em] text-[#7F9BFF] uppercase">
+                <span className="h-px w-[44px] bg-brand" />
+                Yöntem
               </div>
-              <h2 className="mt-[18px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[46px]">
-                Kurs satmıyoruz.
-                <br />
-                <span className="text-brand">Birlikte çalışıyoruz.</span>
+              {/*
+                Başlık iki renkte: tasarımda ikinci satır degrade dolguydu.
+                Tek cümlelik başlıkta aynı etkiyi vurgulanan kelimeye
+                taşıyoruz — cümlenin tamamı degrade olduğunda koyu zeminde
+                okunurluk düşüyor.
+              */}
+              <h2 className="mt-[30px] font-heading text-[36px] leading-[1.04] font-semibold tracking-[-0.035em] sm:text-[52px]">
+                Size özel{" "}
+                <span className="bg-[linear-gradient(100deg,#3d65ff_0%,#7f9bff_60%,#b9c8ff_100%)] bg-clip-text text-transparent">
+                  bir süreç.
+                </span>
               </h2>
             </div>
-            <p className="max-w-[360px] text-[15.5px] leading-[1.65] text-white/60">
-              Aynı içeriği herkese anlatan bir platform değiliz. Program, sizin hesabınız ve sizin hedefiniz üzerine
-              kurulur.
+            <p className="max-w-[420px] text-[16px] leading-[1.68] text-white/60 sm:text-[17px]">
+              Aynı içeriği herkese uygulamıyoruz. Eğitim programını mevcut seviyenize, hedeflerinize ve kendi çalışma
+              alanınıza göre oluşturuyoruz.
             </p>
           </div>
+
           <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {farklar.map((f) => (
               <div
-                key={f.no}
-                className="rounded-[15px] border border-white/12 bg-white/3 p-6 px-6 pt-7 pb-[30px] transition hover:-translate-y-1 hover:border-brand/50 hover:bg-brand/12"
+                key={f.baslik}
+                className="group/fark relative overflow-hidden rounded-[20px] border border-white/12 bg-[linear-gradient(180deg,rgba(19,25,44,0.9),rgba(10,13,24,0.9))] px-7 pt-8 pb-9 transition duration-300 hover:-translate-y-[10px] hover:border-brand/50 hover:shadow-[0_30px_70px_-30px_rgba(61,101,255,0.55)]"
               >
-                <div className="font-heading text-[34px] font-semibold tracking-[-0.03em] text-brand">{f.no}</div>
-                <h3 className="mt-[22px] text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{f.baslik}</h3>
-                <p className="mt-[11px] text-[14.5px] leading-[1.65] text-white/60">{f.metin}</p>
+                {/* Kart üstündeki ince ışık ve alt köşedeki leke: tasarımın
+                    ::before / ::after katmanları. */}
+                <span className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,transparent,#3d65ff,transparent)] opacity-35 transition-opacity duration-300 group-hover/fark:opacity-100" />
+                <span className="pointer-events-none absolute -right-[110px] -bottom-[140px] h-[260px] w-[260px] rounded-full bg-[radial-gradient(closest-side,rgba(61,101,255,0.35),transparent)] opacity-50" />
+
+                <span className="relative flex h-[46px] w-[46px] items-center justify-center rounded-[13px] border border-brand/35 bg-brand/15 text-[#9DB3FF] transition group-hover/fark:border-brand/60 group-hover/fark:text-white">
+                  <Icon name={f.ikon} size={21} strokeWidth={1.7} />
+                </span>
+                <h3 className="relative mt-7 text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{f.baslik}</h3>
+                <p className="relative mt-[11px] text-[14.5px] leading-[1.65] text-white/60">{f.metin}</p>
               </div>
             ))}
           </div>
