@@ -10,25 +10,6 @@ import { Icon } from "@/components/Icon";
  * yerde güncellemek zorunda kalmak, ikisinin farklı görünmesinin sebebiydi.
  */
 
-/**
- * Kartların dizildiği ızgara.
- *
- * Geniş ekranda ALT IZGARA (subgrid): kartın altı satırı — görsel, süre,
- * başlık, açıklama, maddeler, düğme — kendi içeriğine göre değil, üç kartın
- * ORTAK satır yüksekliğine göre kuruluyor. Metinler farklı uzunlukta olduğu
- * için başlıklar, ayraç çizgileri ve madde listeleri farklı yüksekliklerde
- * başlıyordu; kartlar aynı boyda olsa bile içleri hizasızdı.
- *
- * Yükseklikleri elle sabitlemek (min-h) aynı işi yapmaz: panelden bir cümle
- * uzatıldığı anda ya metin taşar ya da kartta boşluk kalır. Alt ızgara
- * ölçüyü metinden alıyor, ölçüyü metne dayatmıyor.
- *
- * Dar ekranda kartlar zaten alt alta ve tek sütunda hizalanacak bir şey yok;
- * orada kart normal bir dikey akış (flex) olarak duruyor.
- */
-export const PROGRAM_IZGARA =
-  "grid grid-cols-1 gap-[22px] md:grid-cols-3 md:grid-rows-[auto_auto_auto_auto_1fr_auto]";
-
 export type ProgramKartiVerisi = {
   slug: string;
   etiket: string;
@@ -70,7 +51,7 @@ export function ProgramKarti({
 
   return (
     <div
-      className={`relative flex flex-col overflow-hidden rounded-2xl bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)] md:row-span-6 md:grid md:grid-rows-subgrid ${
+      className={`relative flex flex-col overflow-hidden rounded-2xl bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)] ${
         vitrin ? "border-2 border-brand/35 shadow-[0_18px_44px_rgba(28,86,243,0.18)]" : "border border-ink/11"
       }`}
     >
@@ -117,75 +98,78 @@ export function ProgramKarti({
         </span>
       </Link>
 
-      {/*
-        Süre satırı: saat bilgisi tek başına "ne kadar sürer" sorusunu
-        yanıtlıyor ama biçimi söylemiyordu. Canlı ve birebir olması bu
-        programların ayırt edici yanı, süreyle aynı satırda duruyor.
-      */}
-      <div className="flex items-center gap-2 px-[26px] pt-[26px] font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">
-        <Icon name="clock" size={13} className="text-brand" strokeWidth={1.8} />
-        <span>{p.sure ? `${p.sure} · ` : ""}Canlı · Birebir</span>
-      </div>
-
-      <Baslik className="px-[26px] pt-[14px] font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
+      <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
         {/*
-          text-ink AÇIKÇA yazılıyor: global `a { color: brand }` kuralı
-          yüzünden kart başlıkları da maviydi ve yanındaki `hover:text-brand`
-          hiçbir şey yapmıyordu — üç kart başlığı, madde işaretleri ve düğme
-          aynı mavideyken kartta neyin bağlantı olduğu kayboluyordu.
+          Süre satırı: saat bilgisi tek başına "ne kadar sürer" sorusunu
+          yanıtlıyor ama biçimi söylemiyordu. Canlı ve birebir olması bu
+          programların ayırt edici yanı, süreyle aynı satırda duruyor.
         */}
-        <Link href={href} className="text-ink transition-colors hover:text-brand">
-          {p.baslik}
-        </Link>
-      </Baslik>
-
-      <p className="px-[26px] pt-[11px] pb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
-
-      {/*
-        Boş <div>: madde girilmemiş bir programda bile satır DURUYOR.
-
-        Alt ızgarada satırlar karta göre değil, ızgaraya göre kuruluyor;
-        satırı hiç basmamak o kartın sonraki satırını bir üste kaydırır ve
-        hizalama tam da düzeltmeye çalıştığımız yerde bozulurdu.
-      */}
-      <div className="mt-auto px-[26px] md:mt-0">
-        {/* Ayraç çizgisi İÇ kutuda: dış kutuya konduğunda kartın iki kenarına
-            kadar uzuyor, oysa kart içindeki tüm metin 26px içeriden başlıyor. */}
-        <div
-          className={`flex flex-col gap-[11px] ${p.maddeler.length > 0 ? "border-t border-ink/8 pt-5" : ""}`}
-        >
-          {p.maddeler.map((m) => (
-            <div key={m} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
-              <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-brand">
-                <Icon name="check" size={11} strokeWidth={3} />
-              </span>
-              <span>{m}</span>
-            </div>
-          ))}
+        <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">
+          <Icon name="clock" size={13} className="text-brand" strokeWidth={1.8} />
+          <span>{p.sure ? `${p.sure} · ` : ""}Canlı · Birebir</span>
         </div>
+
+        {/*
+          Başlık iki satırlık yer kaplıyor (min-h), tek satırlık başlıklarda
+          bile. Program adlarının uzunluğu farklı — "Yapay Zekâ Eğitimi" bir
+          satır, "Birebir Sosyal Medya Uzmanlığı Eğitimi" iki — ve altındaki
+          her şey o farkla kayıyordu.
+
+          Tek kural bu: kartın geri kalanı hizaya metinlerin kendi
+          uzunluğuyla geliyor, zorlanmış satır yüksekliğiyle değil.
+        */}
+        <Baslik className="mt-[14px] flex min-h-[56px] items-start font-heading text-[23px] leading-[1.2] font-semibold tracking-[-0.025em]">
+          {/*
+            text-ink AÇIKÇA yazılıyor: global `a { color: brand }` kuralı
+            yüzünden kart başlıkları da maviydi ve yanındaki `hover:text-brand`
+            hiçbir şey yapmıyordu — üç kart başlığı, madde işaretleri ve düğme
+            aynı mavideyken kartta neyin bağlantı olduğu kayboluyordu.
+          */}
+          <Link href={href} className="text-ink transition-colors hover:text-brand">
+            {p.baslik}
+          </Link>
+        </Baslik>
+
+        <p className="mt-[11px] mb-[22px] text-[15px] leading-[1.6] text-[#5C6273]">{p.aciklama}</p>
+
+        {p.maddeler.length > 0 && (
+          <div className="mt-auto flex flex-col gap-[11px] border-t border-ink/8 pt-5">
+            {p.maddeler.map((m) => (
+              <div key={m} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
+                <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-brand">
+                  <Icon name="check" size={11} strokeWidth={3} />
+                </span>
+                <span>{m}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/*
+          Düğme programın ADINI söylüyor: "Program detayını incele" üç kartta
+          da aynıydı ve hangi programa gittiği ancak kartın geri kalanından
+          anlaşılıyordu. Metin etiketten kuruluyor, elle yazılmıyor — panelde
+          etiket değişince düğme de değişiyor.
+        */}
+        <Link
+          href={href}
+          /*
+            Yükseklik SABİT DEĞİL (min-h + py): "Sosyal Medya Eğitimini
+            İncele" 320px'te iki satıra düşüyor ve sabit 50px'lik kutuda
+            metin dışarı taşıyordu.
+          */
+          className={`group/dugme flex min-h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand px-4 py-3 text-center text-[14.5px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink sm:text-[15px] ${
+            p.maddeler.length > 0 ? "mt-[26px]" : "mt-auto"
+          }`}
+        >
+          <span>{baslikBicimi(p.etiket)} Eğitimini İncele</span>
+          <Icon
+            name="arrowRight"
+            size={16}
+            className="flex-none transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
+          />
+        </Link>
       </div>
-
-      {/*
-        Düğme programın ADINI söylüyor: "Program detayını incele" üç kartta
-        da aynıydı ve hangi programa gittiği ancak kartın geri kalanından
-        anlaşılıyordu. Metin etiketten kuruluyor, elle yazılmıyor — panelde
-        etiket değişince düğme de değişiyor.
-
-        Yükseklik SABİT DEĞİL (min-h + py): "Sosyal Medya Eğitimini İncele"
-        320px'te iki satıra düşüyor ve sabit 50px'lik kutuda metin dışarı
-        taşıyordu.
-      */}
-      <Link
-        href={href}
-        className="group/dugme mx-[26px] mt-[26px] mb-7 flex min-h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand px-4 py-3 text-center text-[14.5px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink sm:text-[15px]"
-      >
-        <span>{baslikBicimi(p.etiket)} Eğitimini İncele</span>
-        <Icon
-          name="arrowRight"
-          size={16}
-          className="flex-none transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
-        />
-      </Link>
     </div>
   );
 }
