@@ -124,7 +124,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             oradan geliyor ve üç basamağın tamamını taşımaya devam ediyor.
           */}
           <nav aria-label="Kırıntı yolu">
-            <div className="truncate font-mono text-[10px] tracking-[0.08em] text-white/30 lg:hidden">
+            {/* Ortalı: hero'nun geri kalanı dar ekranda ortalanıyor ve tek
+                başına sola yaslı bir satır hizadan kaçmış gibi duruyor. */}
+            <div className="truncate text-center font-mono text-[10px] tracking-[0.08em] text-white/30 lg:hidden">
               Ana sayfa / Eğitimler / {course.baslik}
             </div>
 
