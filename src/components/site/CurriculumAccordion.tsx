@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Icon } from "@/components/Icon";
 
 export type CurriculumModule = {
   baslik: string;
@@ -14,13 +15,20 @@ export type CurriculumModule = {
  */
 export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }) {
   /*
-    Hepsi AÇIK başlıyor.
+    YALNIZCA İLK modül açık başlıyor.
 
-    Kapalı bir müfredat, ziyaretçiden içeriği görmek için tıklama istiyor —
-    oysa satın alma kararını en çok etkileyen şey tam olarak o içerik. Kapatma
-    hâlâ mümkün: uzun bulan kapatır.
+    İki uç da yanlıştı. Hepsi kapalıyken ziyaretçi içeriği görmek için tıklamak
+    zorunda kalıyor, oysa satın alma kararını en çok etkileyen şey tam olarak o
+    içerik — tıklamayan hiç görmüyor. Hepsi açıkken ise Meta Ads eğitiminde 9
+    modül ve 51 ders aynı anda listeleniyor: sayfa üç metre uzuyor, eğitmen
+    tanıtımı, kazanımlar ve SSS o yığının altına gömülüyor.
+
+    Açık ilk modül üçünü birden çözüyor: derinlik hemen görünüyor (ilk modülün
+    ders başlıkları kapsamı zaten anlatıyor), kalan modüller taranabilir bir
+    liste olarak duruyor ve açık olan bir tanesi, diğerlerinin de
+    açılabildiğini öğretiyor.
   */
-  const [open, setOpen] = useState<number[]>(() => modules.map((_, i) => i));
+  const [open, setOpen] = useState<number[]>([0]);
 
   const toggle = (i: number) => {
     setOpen((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : prev.concat(i)));
@@ -46,12 +54,30 @@ export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }
             Eğitim içeriği
           </h2>
         </div>
+        {/*
+          Düğme artık düz bir yazı değil.
+
+          Mono, büyük harf, altı çizgisiz bir metin olarak başlığın sağında
+          duruyordu; tıklanabilir olduğu ancak deneyerek anlaşılıyordu ve
+          bölüm başlığının yanında bir etiket gibi okunuyordu. Çerçeve,
+          dolgu ve durumu gösteren bir işaret onu düğme yapıyor.
+
+          İşaret dönüyor, değişmiyor: aynı ok aşağı bakarken "aç", yukarı
+          bakarken "kapat" demek. İki farklı ikon arasında geçiş yapmak, aynı
+          düğmenin iki farklı düğme gibi görünmesine yol açıyordu.
+        */}
         <button
           type="button"
           onClick={toggleAll}
-          className="py-[6px] font-mono text-[11px] tracking-[0.1em] text-brand uppercase hover:text-ink"
+          aria-expanded={allOpen}
+          className="inline-flex h-[38px] flex-none items-center gap-[8px] rounded-full border border-ink/13 bg-white pr-[14px] pl-[16px] text-[13.5px] font-semibold text-[#3A3F4F] transition hover:border-brand/45 hover:text-brand"
         >
           {allOpen ? "Tümünü kapat" : "Tümünü aç"}
+          <Icon
+            name="chevronDown"
+            size={15}
+            className={`transition-transform duration-200 ${allOpen ? "rotate-180" : ""}`}
+          />
         </button>
       </div>
 
@@ -81,8 +107,17 @@ export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }
                     {m.baslik}
                   </span>
                 </span>
-                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-[8px] bg-[#F2F4FA] font-mono text-[15px] text-brand">
-                  {isOpen ? "–" : "+"}
+                {/*
+                  Modül işareti de dönen ok: üstteki "Tümünü aç" düğmesi
+                  chevron kullanınca aynı bloktaki +/- kutusu ikinci bir dil
+                  oluyordu. Aynı hareket, aynı anlam.
+                */}
+                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-[8px] bg-[#F2F4FA] text-brand">
+                  <Icon
+                    name="chevronDown"
+                    size={15}
+                    className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                  />
                 </span>
               </button>
 
