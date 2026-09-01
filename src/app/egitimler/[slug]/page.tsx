@@ -103,31 +103,30 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         <div className="absolute -top-45 -right-25 h-[600px] w-[600px] rounded-full bg-brand opacity-18 blur-[120px]" />
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 pt-9 pb-22">
           {/*
-            Kırıntı yolu dar ekranda TEK BASAMAĞA iniyor: geri dönülecek yer.
+            Kırıntı yolu dar ekranda TIKLANAMIYOR.
 
-            Üç basamak telefonda sığmıyordu; ortalanmış satır sarmalanıp "Ana /
-            sayfa" diye kelime ortasından kırılıyor ve iki satıra yayılıyordu.
-            Kısaltmak yerine gizlemek de düşünülebilirdi ama gizlemiyoruz:
-            Google mobil sürümü tarıyor ve sayfadaki BreadcrumbList yapısal
-            verisinin görünen içerikle örtüşmesini bekliyor. Tek basamak hem
-            görünür kalıyor hem de mobilde asıl işe yarayan şey — "bir üste
-            dön" — zaten o.
+            Bu sayfa bir dönüşüm sayfası: telefonda ekranın en üstünde duran
+            "Eğitimler" bağlantısı, henüz hiçbir şey okumamış ziyaretçiye
+            sunulan bir çıkış kapısıydı. Buradan gidilecek tek yer WhatsApp
+            düğmesi olmalı.
+
+            Gizlemek yerine METİN olarak kalıyor. Gizlemek düşük ama sıfır
+            olmayan bir risk: Google mobil sürümü tarıyor ve sayfadaki
+            BreadcrumbList yapısal verisinin görünen içerikle örtüşmesini
+            bekliyor. Tıklanamayan bir satır o beklentiyi karşılıyor ama
+            kimseyi götürmüyor — konum bildiriyor, gezinme sunmuyor.
+
+            Tek satır ve taşarsa üç noktayla kesiliyor: sarmalanan hâli "Ana /
+            sayfa" diye kelime ortasından kırılıyordu. Punto ve opaklık da
+            düşük; bu satırın okunması değil, orada olması gerekiyor.
 
             Yapısal veri (kirintiSemasi) DEĞİŞMİYOR: arama sonucundaki kırıntı
             oradan geliyor ve üç basamağın tamamını taşımaya devam ediyor.
           */}
           <nav aria-label="Kırıntı yolu">
-            <Link
-              href="/egitimler"
-              className="group/geri inline-flex items-center gap-[7px] font-mono text-[11px] tracking-[0.08em] whitespace-nowrap text-white/50 transition-colors hover:text-white lg:hidden"
-            >
-              <Icon
-                name="arrowLeft"
-                size={13}
-                className="transition-transform duration-200 group-hover/geri:-translate-x-[2px]"
-              />
-              Eğitimler
-            </Link>
+            <div className="truncate font-mono text-[10px] tracking-[0.08em] text-white/30 lg:hidden">
+              Ana sayfa / Eğitimler / {course.baslik}
+            </div>
 
             <div className="hidden items-center gap-[10px] font-mono text-[11px] tracking-[0.08em] whitespace-nowrap text-white/45 lg:flex">
               <Link href="/" className="text-white/45 hover:text-white">
