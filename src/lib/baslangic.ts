@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getOdemelerim, paraBicimi } from "@/lib/odeme";
 import { egitimPlanlandiMi } from "@/lib/egitim-oturumu";
 import { getErisim } from "@/lib/erisim";
+import { danismanlikOdemeKumesi, egitimOdemeleri } from "@/lib/egitim-odemesi";
 import type { Uyari } from "@/components/panel/PanelUyari";
 
 export type Adim = {
@@ -39,12 +40,34 @@ export async function getBaslangic(): Promise<Baslangic> {
   if (!user) return { adimlar: [], tamamlandi: true, uyari: null };
 
   // RLS hepsini kullanıcının kendi satırlarıyla sınırlıyor.
-  const [{ data: profil }, odemeler, planlandi, erisim] = await Promise.all([
-    supabase.from("profiles").select("on_degerlendirme_tarihi").eq("id", user.id).maybeSingle(),
-    getOdemelerim(),
-    egitimPlanlandiMi(),
-    getErisim(),
-  ]);
+  const [{ data: profil }, odemeler, planlandi, erisim, { data: kayitlar }, { data: gorusmeOdemeleri }] =
+    await Promise.all([
+      supabase.from("profiles").select("on_degerlendirme_tarihi").eq("id", user.id).maybeSingle(),
+      getOdemelerim(),
+      egitimPlanlandiMi(),
+      getErisim(),
+      supabase.from("enrollments").select("course_id").eq("user_id", user.id).limit(1),
+      supabase.from("gorusmeler").select("payment_id").eq("user_id", user.id).not("payment_id", "is", null),
+    ]);
+
+  /*
+    DANIŞMANLIK MÜŞTERİSİNE EĞİTİM ADIMLARI GÖSTERİLMİYOR.
+
+    Bu liste birebir eğitimin karşılama akışı: ödeme → ön değerlendirme →
+    takvim. Yalnızca danışmanlık görüşmesi alan birinde üçü de yanlış —
+    "Ödemeni tamamla" diyor (oysa ödemesini yapmış), ön değerlendirme
+    istiyor (o adım eğitimin kapsamını kurmak için var) ve planlanacak bir
+    eğitim takvimi yok.
+
+    Daha önce bu kişilerde adımlar AÇIK görünüyordu: erişim "ödenmiş ödemesi
+    var mı" diye soruyordu ve danışmanlık ücreti de payments'a yazılıyor.
+    Erişim kuralı düzeltildi (bkz. egitim_erisimim migration'ı); burada da
+    ekranın kendisi susuyor.
+  */
+  const egitimOdemesi = egitimOdemeleri(odemeler.satirlar, danismanlikOdemeKumesi(gorusmeOdemeleri)).length > 0;
+  const egitimIliskisi = erisim.var || (kayitlar ?? []).length > 0 || egitimOdemesi;
+
+  if (!egitimIliskisi) return { adimlar: [], tamamlandi: true, uyari: null };
 
   /*
     Erişimin kaynağı iki türlü: kendi ödemesi ya da kurumsal bir koltuk.

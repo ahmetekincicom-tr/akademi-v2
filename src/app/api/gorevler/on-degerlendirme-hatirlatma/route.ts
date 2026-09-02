@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { onDegerlendirmeHatirlat } from "@/lib/egitim-eposta";
+import { danismanlikOdemeKumesi, egitimOdemeleri } from "@/lib/egitim-odemesi";
 
 // node:crypto gerekiyor; edge çalışma zamanında yok.
 export const runtime = "nodejs";
@@ -59,24 +60,46 @@ export async function POST(istek: Request) {
     gömme ifadeleri belirsiz kalıyor (PGRST201). Bu depoda bir kez ödemeler
     ekranını boşaltan hata tam olarak buydu.
   */
-  const [{ data: odemeler, error: odemeHata }, { data: koltuklar, error: koltukHata }] = await Promise.all([
+  const [
+    { data: odemeler, error: odemeHata },
+    { data: koltuklar, error: koltukHata },
+    { data: gorusmeOdemeleri, error: gorusmeHata },
+  ] = await Promise.all([
     supabase
       .from("payments")
-      .select("user_id, odeme_tarihi, created_at")
+      .select("id, user_id, odeme_tarihi, created_at")
       .eq("durum", "odendi")
       .lte("created_at", esik),
     supabase.from("odeme_katilimcilari").select("user_id, payment_id").lte("created_at", esik),
+    /*
+      DANIŞMANLIK ÖDEMELERİ LİSTE DIŞI.
+
+      Görüşme ücreti de payments'a yazılıyor; "ödenmiş ödemesi olan" diye
+      sorulduğunda yalnızca danışmanlık alan, hiçbir eğitime katılmayan kişi
+      de aday oluyordu ve ona "ön değerlendirmeni doldur" maili gidiyordu.
+      Ön değerlendirme birebir EĞİTİMİN kapsamını kurmak için var;
+      danışmanlık görüşmesinin böyle bir adımı yok.
+
+      Ayrım course_id'ye değil görüşme bağına bakıyor — gerekçesi
+      egitim_erisimim() işlevinin migration'ında.
+    */
+    supabase.from("gorusmeler").select("payment_id").not("payment_id", "is", null),
   ]);
 
-  if (odemeHata || koltukHata) {
-    return NextResponse.json({ hata: (odemeHata ?? koltukHata)!.message }, { status: 500 });
+  if (odemeHata || koltukHata || gorusmeHata) {
+    return NextResponse.json({ hata: (odemeHata ?? koltukHata ?? gorusmeHata)!.message }, { status: 500 });
   }
+
+  const danismanlik = danismanlikOdemeKumesi(gorusmeOdemeleri);
+
+  const odenmisOdemeler = new Set(
+    egitimOdemeleri(odemeler ?? [], danismanlik).map((o) => o.user_id as string),
+  );
 
   // Ödemesi tamamlanmamış bir koltuk erişim vermiyor (bkz. egitim_erisimim);
   // o kişiye "testin açıldı" demek olmayan bir kapıyı göstermek olurdu.
-  const odenmisOdemeler = new Set((odemeler ?? []).map((o) => o.user_id as string));
   const { data: odenmisIdler } = await supabase.from("payments").select("id").eq("durum", "odendi");
-  const odenmisSet = new Set((odenmisIdler ?? []).map((p) => p.id as string));
+  const odenmisSet = new Set(egitimOdemeleri(odenmisIdler ?? [], danismanlik).map((p) => p.id as string));
 
   const adaylar = new Set<string>(odenmisOdemeler);
   for (const k of koltuklar ?? []) {
