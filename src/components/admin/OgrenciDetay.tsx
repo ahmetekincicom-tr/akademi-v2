@@ -51,16 +51,6 @@ const ALAN =
   "h-[34px] rounded-[8px] border border-ink/13 bg-white px-[10px] text-[13px] text-ink outline-none focus:border-brand";
 const BASLIK = "font-mono text-[9px] tracking-[0.12em] text-[#656B7A] uppercase";
 
-function basHarfler(isim: string) {
-  return isim
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase();
-}
-
 /**
  * Bir öğrencinin tüm yönetimi: eğitim kayıtları, birebir eğitim takvimi ve
  * giriş hareketleri.
@@ -73,11 +63,9 @@ function basHarfler(isim: string) {
 export function OgrenciDetay({
   ogrenci,
   kurslar,
-  kapat,
 }: {
   ogrenci: AdminOgrenci;
   kurslar: AdminKurs[];
-  kapat: () => void;
 }) {
   const router = useRouter();
   const bildir = useBildirim();
@@ -126,25 +114,14 @@ export function OgrenciDetay({
     });
   };
 
+  /*
+    BAŞLIK BURADA DEĞİL: ad, e-posta, durum ve kapatma düğmesi paneli açan
+    ekranda (OgrenciYonetimi) duruyor. Panel kaydırılırken başlığın sabit
+    kalması gerekiyor; burada olsaydı içerikle birlikte yukarı kayardı ve
+    uzun bir detayda kimin sayfasında olunduğu kaybolurdu.
+  */
   return (
-    <div className="border-y-2 border-brand/30 bg-[#FBFCFF]">
-      <div className="flex flex-wrap items-center gap-3 border-b border-ink/8 px-4 py-3 sm:px-5">
-        <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-white font-mono text-[11px] font-medium text-[#5C6273]">
-          {basHarfler(ogrenci.isim)}
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="font-heading text-[16px] font-semibold tracking-[-0.02em]">{ogrenci.isim}</div>
-          <div className="mt-[3px] truncate font-mono text-[10.5px] text-[#656B7A]">{ogrenci.eposta}</div>
-        </div>
-        <button
-          type="button"
-          onClick={kapat}
-          aria-label="Kapat"
-          className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[8px] border border-ink/13 bg-white text-[#5C6273] transition hover:border-ink hover:text-ink"
-        >
-          <Icon name="x" size={16} />
-        </button>
-      </div>
+    <div className="bg-white">
 
       {/* -------------------------------------------- ön değerlendirme --- */}
       {/*
