@@ -40,6 +40,14 @@ export type AdminOgrenci = {
   id: string;
   isim: string;
   eposta: string;
+  /**
+   * Kayıt sırasında alınan telefon (E.164).
+   *
+   * Panelde hiçbir yerde gösterilmiyordu: 313 kaydın 312'sinde dolu olan bir
+   * alan, katılımcıya ulaşmanın en hızlı yolu ve yönetici onu görmek için
+   * veritabanına bakmak zorundaydı.
+   */
+  telefon: string;
   admin: boolean;
   kayitTarihi: string;
   /** Öğrenci uygulamadan hesap silme talebi açtıysa dolu (App Store 5.1.1v). */
@@ -163,12 +171,20 @@ export function OgrenciYonetimi({
 
   const listelenen = useMemo(() => {
     const q = arama.trim().toLocaleLowerCase("tr");
+    /*
+      Telefon aramasında boşluk, parantez ve tire ATILIYOR: numara veritabanında
+      +905321234567 olarak duruyor ama insan "0532 123 45 67" diye arıyor.
+      Ham karşılaştırma bu yüzden hiçbir zaman tutmuyordu.
+    */
+    const rakamlar = q.replace(/\D/g, "");
     return ogrenciler.filter((o) => {
       if (suzgec === "egitimsiz" && o.kayitlar.length > 0) return false;
       if (suzgec === "onDegerlendirme" && (o.kayitlar.length === 0 || o.onDegerlendirme)) return false;
       if (suzgec === "dikkat" && !o.silmeTalebi && !o.sinyal.supheli) return false;
       if (!q) return true;
-      return `${o.isim} ${o.eposta}`.toLocaleLowerCase("tr").includes(q);
+      if (`${o.isim} ${o.eposta}`.toLocaleLowerCase("tr").includes(q)) return true;
+      // "0532…" ile aranırken baştaki sıfır numarada yok: sondan eşleştiriyoruz.
+      return rakamlar.length >= 3 && o.telefon.replace(/\D/g, "").endsWith(rakamlar.replace(/^0+/, ""));
     });
   }, [arama, suzgec, ogrenciler]);
 
@@ -305,7 +321,7 @@ export function OgrenciYonetimi({
             <Icon name="search" size={14} className="flex-none text-[#8B97AA]" />
             <input
               type="text"
-              placeholder="İsim veya e-posta ara"
+              placeholder="İsim, e-posta veya telefon ara"
               value={arama}
               onChange={(e) => {
                 setArama(e.target.value);
@@ -450,7 +466,10 @@ export function OgrenciYonetimi({
                         </span>
                       )}
                     </span>
-                    <span className="block truncate font-mono text-[10.5px] text-[#8B97AA]">{o.eposta}</span>
+                    <span className="block truncate font-mono text-[10.5px] text-[#8B97AA]">
+                      {o.eposta}
+                      {o.telefon && <span className="ml-2 text-[#A6B0C0]">· {o.telefon}</span>}
+                    </span>
                   </span>
                 </div>
 
@@ -585,7 +604,9 @@ export function OgrenciYonetimi({
                   })()}
                 </div>
                 <div className="mt-[5px] truncate font-mono text-[11.5px] text-[#8B97AA]">
-                  {secili.eposta} · Kayıt {tarihBicimi.format(new Date(secili.kayitTarihi))}
+                  {secili.eposta}
+                  {secili.telefon ? ` · ${secili.telefon}` : ""} · Kayıt{" "}
+                  {tarihBicimi.format(new Date(secili.kayitTarihi))}
                   {secili.oturumlar[0] &&
                     ` · Son giriş ${anBicimi.format(new Date(secili.oturumlar[0].tarih))}`}
                 </div>

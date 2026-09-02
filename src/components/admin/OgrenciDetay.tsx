@@ -136,6 +136,52 @@ export function OgrenciDetay({
         kurulmadan önce doldurulmuş formlar, Tally kesintisi, telefonla
         alınan cevap.
       */}
+      {/*
+        İletişim en üstte: paneldeki bir kişiye bakma sebeplerinin en yaygını
+        ona ulaşmak. Telefon kayıt sırasında alınıyor ve 313 kaydın 312'sinde
+        dolu ama panelde hiçbir yerde görünmüyordu — yönetici numarayı
+        görmek için veritabanına bakmak zorundaydı.
+
+        Bağlantılar tıklanabilir: WhatsApp'a yazmak ya da aramak için numarayı
+        elle kopyalamak gerekmesin.
+      */}
+      <div className="border-b border-ink/8 px-4 py-3 sm:px-5">
+        <div className={BASLIK}>İletişim</div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <a
+            href={`mailto:${ogrenci.eposta}`}
+            className="inline-flex h-[32px] items-center gap-2 rounded-[9px] border border-ink/12 bg-white px-3 font-mono text-[12px] text-ink transition hover:border-brand hover:text-brand"
+          >
+            <Icon name="mail" size={14} />
+            {ogrenci.eposta}
+          </a>
+          {ogrenci.telefon ? (
+            <>
+              <a
+                href={`tel:${ogrenci.telefon.replace(/\s/g, "")}`}
+                className="inline-flex h-[32px] items-center gap-2 rounded-[9px] border border-ink/12 bg-white px-3 font-mono text-[12px] text-ink transition hover:border-brand hover:text-brand"
+              >
+                <Icon name="phone" size={14} />
+                {ogrenci.telefon}
+              </a>
+              <a
+                href={`https://wa.me/${ogrenci.telefon.replace(/\D/g, "")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-[32px] items-center gap-2 rounded-[9px] border border-ink/12 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-[#25D366] hover:text-[#1F9F52]"
+              >
+                <Icon name="whatsapp" size={14} />
+                WhatsApp
+              </a>
+            </>
+          ) : (
+            <span className="inline-flex h-[32px] items-center rounded-[9px] border border-dashed border-ink/14 px-3 text-[12.5px] text-[#8A90A0]">
+              Telefon kayıtlı değil
+            </span>
+          )}
+        </div>
+      </div>
+
       <div className="border-b border-ink/8 px-4 py-3 sm:px-5">
         <div className={BASLIK}>Ön değerlendirme</div>
         <div className="mt-2 flex flex-wrap items-center gap-2">
