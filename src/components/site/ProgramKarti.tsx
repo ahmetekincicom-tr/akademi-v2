@@ -121,7 +121,7 @@ export function ProgramKarti({
           min-h iki satırı garanti ediyor: bölünemeyecek kadar kısa bir ad
           eklenirse (kural null döner) kart yine hizada kalıyor.
         */}
-        <Baslik className="mt-[14px] flex min-h-[54px] items-start font-heading text-[21.5px] leading-[1.22] font-semibold tracking-[-0.03em]">
+        <Baslik className="mt-[14px] flex min-h-[62px] items-start font-heading text-[25px] leading-[1.22] font-semibold tracking-[-0.03em]">
           {/*
             text-ink AÇIKÇA yazılıyor: global `a { color: brand }` kuralı
             yüzünden kart başlıkları da maviydi ve yanındaki `hover:text-brand`
