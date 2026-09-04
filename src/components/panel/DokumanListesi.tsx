@@ -1,10 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { dokumanIndirmeLinki } from "@/app/kontrol-9f4x2k/(protected)/dokumanlar/actions";
 import { baytBoyut, tarihBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
-import { useBildirim } from "@/components/Bildirim";
 
 export type OgrenciDokuman = {
   id: string;
@@ -17,22 +14,14 @@ export type OgrenciDokuman = {
 };
 
 export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] }) {
-  const [hata, setHata] = useState<string | null>(null);
-  const [islemde, startTransition] = useTransition();
-  const bildir = useBildirim();
+  /*
+    İndirme adresi ARTIK KENDİ ALAN ADIMIZDA: /indir/<doküman kimliği>.
 
-  const indir = (yol: string) => {
-    setHata(null);
-    startTransition(async () => {
-      const r = await dokumanIndirmeLinki(yol);
-      if (r.url) window.open(r.url, "_blank");
-      else {
-        const m = r.error ?? "Bağlantı alınamadı.";
-        setHata(m);
-        bildir.hata(m);
-      }
-    });
-  };
+    Önceden sunucudan 60 saniyelik imzalı bir Supabase adresi alınıp yeni
+    sekmede açılıyordu; kullanıcı supabase.co adresini görüyor, kopyaladığı
+    bağlantı bir dakika sonra ölüyordu. Yetki kontrolü ve imzalı adres artık
+    o uçta, sunucuda kalıyor (app/indir/[id]/route.ts).
+  */
 
   return (
     <main className="p-4 pb-14 sm:p-[34px]">
@@ -42,8 +31,6 @@ export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] })
       <p className="mt-2 max-w-[620px] text-[15px] text-[#5C6273]">
         Eğitimlerinde paylaşılan şablonlar, kontrol listeleri ve kaynaklar.
       </p>
-
-      {hata && <div className="mt-4 text-sm text-danger-ink">{hata}</div>}
 
       {dokumanlar.length === 0 ? (
         <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
@@ -71,15 +58,15 @@ export function DokumanListesi({ dokumanlar }: { dokumanlar: OgrenciDokuman[] })
                   {d.program} · {baytBoyut(d.boyut)} · {tarihBicimi.format(new Date(d.tarih))}
                 </div>
               </div>
-              <button
-                type="button"
-                disabled={islemde}
-                onClick={() => indir(d.dosyaYolu)}
-                className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold whitespace-nowrap text-ink transition hover:border-brand hover:text-brand disabled:opacity-50 sm:px-[15px] sm:text-[13.5px]"
+              <a
+                href={`/indir/${d.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold whitespace-nowrap text-ink transition hover:border-brand hover:text-brand sm:px-[15px] sm:text-[13.5px]"
               >
                 <Icon name="download" size={14} />
                 İndir
-              </button>
+              </a>
             </div>
           ))}
         </div>

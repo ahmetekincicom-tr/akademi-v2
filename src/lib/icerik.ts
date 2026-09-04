@@ -1,6 +1,7 @@
 import { createPublicClient } from "@/lib/supabase/public";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/tipler";
+import { depoUrl } from "@/lib/depo";
 
 export type Yorum = {
   id: string;
@@ -22,10 +23,9 @@ export type Referans = {
   yayinda: boolean;
 };
 
-/** Public bucket, so the path maps straight to a stable CDN URL. */
+/** Referans logosu — kendi alan adımızdan (bkz. lib/depo.ts). */
 export function logoUrl(yol: string | null): string | null {
-  if (!yol) return null;
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/logolar/${yol}`;
+  return depoUrl("logolar", yol);
 }
 
 export async function getYorumlar(client?: SupabaseClient<Database>): Promise<Yorum[]> {

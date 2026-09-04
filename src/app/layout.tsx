@@ -10,6 +10,7 @@ import { MetaPixel } from "@/components/site/MetaPixel";
 import { HizOlcumu } from "@/components/site/HizOlcumu";
 import { OnizlemeSeridi } from "@/components/site/OnizlemeSeridi";
 import { getMarka } from "@/lib/marka";
+import { mutlakDepoUrl } from "@/lib/depo";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import { getPixelId } from "@/lib/meta/pixel";
 import "./globals.css";
@@ -37,6 +38,14 @@ const mono = IBM_Plex_Mono({
 // yüklenmemişse app/favicon.ico devreye girer.
 export async function generateMetadata(): Promise<Metadata> {
   const marka = await getMarka();
+  /*
+    Paylaşım görselinin adresi MUTLAK olmak zorunda: kartı üreten robot
+    (WhatsApp, LinkedIn) sayfayı bizim alan adımızdan okumuyor, göreli
+    "/dosya/..." onun için bir yere işaret etmiyor. Görseller artık kendi
+    ucumuzdan geçtiği için adres göreli üretiliyor; burada başına site kökü
+    ekleniyor.
+  */
+  const ogGorselMutlak = mutlakDepoUrl(marka.ogGorsel);
 
   return {
     // metadataBase olmadan göreli adresler (paylaşım görseli, kanonik)
@@ -54,11 +63,11 @@ export async function generateMetadata(): Promise<Metadata> {
       // Paylaşım görseli panelden geliyor; yüklenmemişse hiç basılmıyor.
       // Ölçüler de basılıyor: bazı istemciler (özellikle WhatsApp) boyutu
       // bilmeden görseli hiç indirmiyor.
-      ...(marka.ogGorsel
+      ...(ogGorselMutlak
         ? {
             images: [
               {
-                url: marka.ogGorsel,
+                url: ogGorselMutlak,
                 ...(marka.ogGenislik ? { width: marka.ogGenislik } : {}),
                 ...(marka.ogYukseklik ? { height: marka.ogYukseklik } : {}),
               },
@@ -66,8 +75,8 @@ export async function generateMetadata(): Promise<Metadata> {
           }
         : {}),
     },
-    twitter: marka.ogGorsel
-      ? { card: "summary_large_image", images: [marka.ogGorsel] }
+    twitter: ogGorselMutlak
+      ? { card: "summary_large_image", images: [ogGorselMutlak] }
       : { card: "summary" },
     /*
       İkonlar tek kaynaktan.

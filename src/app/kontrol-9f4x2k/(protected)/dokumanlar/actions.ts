@@ -41,10 +41,11 @@ export async function dokumanSil(id: string, dosyaYolu: string) {
   return {};
 }
 
-/** Private bucket, so downloads go through a short-lived signed URL. */
-export async function dokumanIndirmeLinki(dosyaYolu: string) {
-  const supabase = await createClient();
-  const { data, error } = await supabase.storage.from("dokumanlar").createSignedUrl(dosyaYolu, 60);
-  if (error || !data) return { error: error?.message ?? "Bağlantı oluşturulamadı." };
-  return { url: data.signedUrl };
-}
+/*
+  İndirme bağlantısı üreten eylem KALDIRILDI.
+
+  İmzalı Supabase adresini istemciye verip tarayıcıyı oraya göndermek iki şeyi
+  bozuyordu: kullanıcı supabase.co adresini görüyordu ve kopyaladığı bağlantı
+  60 saniye sonra ölüyordu. İndirme artık /indir/<doküman kimliği> ucundan
+  geçiyor; yetki kontrolü ve imzalı adres orada, sunucuda kalıyor.
+*/

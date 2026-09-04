@@ -71,7 +71,32 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
-    return [{ source: "/:yol*", headers: GUVENLIK_BASLIKLARI }];
+    return [
+      { source: "/:yol*", headers: GUVENLIK_BASLIKLARI },
+      /*
+        Yüklenen dosyalar artık BİZİM alan adımızdan çıkıyor (/dosya ucu).
+        Supabase'ten servis edilirken ayrı bir kaynaktı; bugün adrese doğrudan
+        gidilen bir SVG, içindeki script'i panelin kaynağında çalıştırabilirdi.
+
+        default-src 'none' script-src'e de düşüyor, yani o script çalışmıyor.
+        style-src açık: SVG'lerin kendi <style> bloğu var, kapatmak logoyu
+        bozardı. Bu kural yalnızca dosyanın kendi adresine gidildiğinde
+        geçerli; sayfadaki <img> zaten script çalıştırmıyor, görüntülemeye
+        etkisi yok.
+
+        Aynı anahtar iki kez veriliyor: sonraki kural öncekini eziyor, o
+        yüzden frame-ancestors da burada tekrar yazılı.
+      */
+      {
+        source: "/dosya/:yol*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'",
+          },
+        ],
+      },
+    ];
   },
 };
 

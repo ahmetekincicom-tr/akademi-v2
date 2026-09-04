@@ -52,6 +52,11 @@ const ACIK_KOKLER = [
   "/sifre-belirle",
   "/auth",
   "/api",
+  // Yüklenen dosyalar: görseller (/dosya) ve doküman indirmeleri (/indir).
+  // Bunlar Supabase adresini gizlemek için kendi ucumuzdan geçiyor; kapalı
+  // kalsalardı panelde tek bir görsel bile yüklenmezdi.
+  "/dosya",
+  "/indir",
   "/cevrimdisi",
   "/gizlilik-politikasi",
   "/kisisel-verilerin-islenmesi",
@@ -96,6 +101,10 @@ const AYRICA_ACIK = [
   "/sifre-belirle",
   "/auth",
   "/api",
+  // Ön yüz kapalıyken de şart: panel ve e-postalar bu uçtan görsel ve
+  // doküman alıyor.
+  "/dosya",
+  "/indir",
   "/cevrimdisi",
   /*
     Dışarı çıkan yönlendirmeler (WhatsApp).

@@ -240,8 +240,14 @@ export async function epostaGonder(girdi: {
 async function epostaLogosu(): Promise<string | null> {
   try {
     const { getMarka } = await import("@/lib/marka");
+    const { mutlakDepoUrl } = await import("@/lib/depo");
     const marka = await getMarka();
-    return marka.epostaLogo;
+    /*
+      MUTLAK adres: posta istemcisinin göreli bir adresi çözecek kökü yok,
+      "/dosya/marka/..." maili açan kişide kırık görsel olurdu. Görseller
+      kendi ucumuzdan geçtiği için adres göreli üretiliyor.
+    */
+    return mutlakDepoUrl(marka.epostaLogo, await panelKoku());
   } catch {
     return null;
   }

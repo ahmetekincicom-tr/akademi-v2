@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { mutlakDepoUrl } from "@/lib/depo";
 import { ADRES_SOKAK, EPOSTA, INSTAGRAM_URL, LINKEDIN_URL, OFIS_BINA, WHATSAPP_NUMARALAR } from "@/lib/iletisim";
 
 /**
@@ -53,7 +54,8 @@ async function ogGorseli(): Promise<
   const tip = uzanti === "jpg" || uzanti === "jpeg" ? "image/jpeg" : uzanti === "webp" ? "image/webp" : "image/png";
 
   return {
-    url: marka.ogGorsel,
+    // Mutlak adres şart; gerekçesi lib/depo.ts içinde.
+    url: mutlakDepoUrl(marka.ogGorsel) ?? marka.ogGorsel,
     ...(marka.ogGenislik ? { width: marka.ogGenislik } : {}),
     ...(marka.ogYukseklik ? { height: marka.ogYukseklik } : {}),
     type: tip,
@@ -171,7 +173,10 @@ export function kisiSemasi(kisi: { ad: string; unvan: string; aciklama: string; 
     name: kisi.ad,
     jobTitle: kisi.unvan,
     description: kisi.aciklama,
-    ...(kisi.gorsel ? { image: kisi.gorsel } : {}),
+    // JSON-LD'de göreli adres işe yaramıyor: şemayı okuyan robot sayfanın
+    // kökünü varsaymıyor. Görseller kendi ucumuzdan geçtiği için adres
+    // göreli üretiliyor, burada mutlaklaştırılıyor.
+    ...(mutlakDepoUrl(kisi.gorsel) ? { image: mutlakDepoUrl(kisi.gorsel) } : {}),
     url: `${SITE_URL}/hakkimizda`,
     sameAs: [INSTAGRAM_URL, LINKEDIN_URL],
     worksFor: { "@id": `${SITE_URL}/#kurum` },

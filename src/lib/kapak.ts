@@ -1,5 +1,11 @@
-/** Kapak kovası herkese açık, bu yüzden saklanan yol doğrudan CDN adresine karşılık geliyor. */
+import { depoUrl } from "@/lib/depo";
+
+/**
+ * Kapak görselinin adresi — kendi alan adımızdan.
+ *
+ * Eskiden doğrudan Supabase CDN adresini döndürüyordu; gerekçesi ve yeni yolu
+ * lib/depo.ts içinde.
+ */
 export function kapakUrl(yol: string | null): string | null {
-  if (!yol) return null;
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/kapaklar/${yol}`;
+  return depoUrl("kapaklar", yol);
 }

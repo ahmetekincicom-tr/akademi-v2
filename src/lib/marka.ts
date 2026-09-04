@@ -1,6 +1,7 @@
 import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/tipler";
+import { depoUrl } from "@/lib/depo";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export type Marka = {
@@ -40,10 +41,9 @@ export function logoYuksekligiDuzelt(deger: unknown): number {
   return Math.min(LOGO_YUKSEKLIK_UST, Math.max(LOGO_YUKSEKLIK_ALT, Math.round(sayi)));
 }
 
-/** Public bucket, so the stored path maps straight to a CDN URL. */
+/** Logo, favicon ve paylaşım görseli — kendi alan adımızdan (bkz. lib/depo.ts). */
 export function markaUrl(yol: string | null): string | null {
-  if (!yol) return null;
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/marka/${yol}`;
+  return depoUrl("marka", yol);
 }
 
 const BOS: Marka = {

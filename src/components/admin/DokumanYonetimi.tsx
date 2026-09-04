@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { dokumanKaydet, dokumanSil, dokumanIndirmeLinki } from "@/app/kontrol-9f4x2k/(protected)/dokumanlar/actions";
+import { dokumanKaydet, dokumanSil } from "@/app/kontrol-9f4x2k/(protected)/dokumanlar/actions";
 import { baytBoyut, tarihBicimi } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
@@ -74,18 +74,6 @@ export function DokumanYonetimi({
     setCourseId("");
     bildir.basarili("Doküman yüklendi.");
     router.refresh();
-  };
-
-  const indir = (yol: string) => {
-    startTransition(async () => {
-      const r = await dokumanIndirmeLinki(yol);
-      if (r.url) window.open(r.url, "_blank");
-      else {
-        const m = r.error ?? "Bağlantı alınamadı.";
-        setHata(m);
-        bildir.hata(m);
-      }
-    });
   };
 
   const sil = (id: string, yol: string) => {
@@ -199,15 +187,17 @@ export function DokumanYonetimi({
                 <div className="font-mono text-[11px] text-[#5C6273]">{baytBoyut(d.boyut)}</div>
                 <div className="font-mono text-[11px] text-[#5C6273]">{tarihBicimi.format(new Date(d.tarih))}</div>
                 <div className="flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    disabled={islemde}
-                    onClick={() => indir(d.dosyaYolu)}
-                    className="inline-flex h-8 items-center gap-[6px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
+                  {/* İndirme kendi alan adımızdan; imzalı Supabase adresi
+                      sunucuda kalıyor (app/indir/[id]/route.ts). */}
+                  <a
+                    href={`/indir/${d.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-8 items-center gap-[6px] rounded-[7px] border border-ink/13 bg-white px-3 text-[12.5px] font-semibold text-ink transition hover:border-brand hover:text-brand"
                   >
                     <Icon name="download" size={13} />
                     İndir
-                  </button>
+                  </a>
                   <button
                     type="button"
                     disabled={islemde}
