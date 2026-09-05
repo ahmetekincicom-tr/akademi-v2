@@ -52,8 +52,16 @@ export function ReferansLogo({
   */
   const olcek = izgara ? Math.min(Math.max((referans.olcek ?? 100) / 100, 0.5), 2) : 1;
 
+  /*
+    Genişlik freni yüzdeyle veriliyor ve kart genişliğine göre değişiyor: mobilde
+    kart dar olduğu için aynı yüzde çok küçük piksele denk geliyordu (geniş
+    logolar 15–19px'e düşüyordu). Bu yüzden mobilde fren gevşek (%86), masaüstünde
+    kartlar geniş olduğu için sıkı (%58) — ikisinde de logo kutuya oturuyor ama
+    optik boyu benzer kalıyor. Ölçek (var --olcek) her iki değeri de çarpıyor;
+    min(...) tavanı büyük ölçekte taşmayı önlüyor.
+  */
   const olcu = izgara
-    ? "w-auto object-contain max-h-[calc(34px*var(--olcek))] max-w-[min(88%,calc(58%*var(--olcek)))] sm:max-h-[calc(38px*var(--olcek))]"
+    ? "w-auto object-contain max-h-[calc(40px*var(--olcek))] max-w-[min(92%,calc(86%*var(--olcek)))] sm:max-h-[calc(38px*var(--olcek))] sm:max-w-[min(88%,calc(58%*var(--olcek)))]"
     : "max-h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:max-h-[30px] sm:max-w-[min(210px,100%)]";
   const renk = gri
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"

@@ -50,7 +50,7 @@ export default async function ReferanslarPage() {
               referans={r}
               gri
               boyut="izgara"
-              className="h-[112px] rounded-[14px] border border-ink/10 bg-white px-6 transition hover:border-brand/35 sm:h-[132px]"
+              className="h-[112px] rounded-[14px] border border-ink/10 bg-white px-4 transition hover:border-brand/35 sm:h-[132px] sm:px-6"
             />
           ))}
         </div>
