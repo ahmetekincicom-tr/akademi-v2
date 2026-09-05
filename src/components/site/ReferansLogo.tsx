@@ -26,22 +26,21 @@ export function ReferansLogo({
   boyut?: "serit" | "izgara";
 }) {
   /*
-    Logolar SABİT YÜKSEKLİĞE göre hizalanıyor; genişlik yalnızca emniyet freni.
+    Logolar kartın içinde, kartından belirgin küçük bir KUTUYA sınırlanıyor —
+    çerçeveye dayanmıyor, dört yanında boşluk kalıyor. Profesyonel logo
+    duvarının görünümü budur: küçük, ortalanmış, bol nefesli.
 
-    Yüklenen logolar iç boyutu (intrinsic width/height) tanımsız SVG'ler
-    olabiliyor. Böyle bir SVG'ye max-yükseklik verildiğinde tarayıcı en-boy
-    oranını kestiremiyor ve boy tutarsız çıkıyordu — kimi 24px kimi 52px.
-    Sabit yükseklik (h-, max-h değil) hepsini kesin olarak aynı boya getiriyor;
-    en-boy oranı viewBox'tan geldiği için genişlik ona göre oluşuyor. max-w
-    yalnızca aşırı geniş bir logonun dar ızgara hücresinden taşmasını önlüyor.
+    Hem max-yükseklik hem max-genişlik: kompakt logo yüksekliğe, geniş kelime
+    logosu genişliğe dayanıyor; ikisi de kutuyu aşmıyor, dolayısıyla hiçbiri
+    kartın kenarına gelmiyor. Genişlik yüzdeyle (kart genişliğine göre) veriliyor
+    ki dar ızgara hücresinde de bağlayıcı olan hücre olsun.
 
-    Kaynak SVG'lerin farklı iç boşlukları (padding) olabilir; bunu CSS bir yere
-    kadar düzeltir. Tam tutarlılık için logolar yüklenmeden önce kırpılıp aynı
-    en-boy oranına oturtulmalı (aşağıdaki nota bkz.).
+    Yüklemede logolar kırpıldığı için (icerik-actions.ts › logoyuKirp) içerik =
+    kutu; bu sınır hepsine aynı optik boyu ve aynı boşluğu veriyor.
   */
   const olcu =
     boyut === "izgara"
-      ? "h-[34px] w-auto max-w-[90%] object-contain sm:h-[40px]"
+      ? "max-h-[34px] w-auto max-w-[58%] object-contain sm:max-h-[38px]"
       : "max-h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:max-h-[30px] sm:max-w-[min(210px,100%)]";
   const renk = gri
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"

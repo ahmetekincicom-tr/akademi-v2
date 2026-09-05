@@ -43,14 +43,14 @@ export default async function ReferanslarPage() {
         indiriyor; üzerine gelince kendi rengine dönüyor.
       */}
       <section className="mx-auto max-w-[1240px] px-5 pb-24 sm:px-8">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5">
           {referanslar.map((r) => (
             <ReferansLogo
               key={r.id}
               referans={r}
               gri
               boyut="izgara"
-              className="h-[104px] rounded-[14px] border border-ink/10 bg-white px-6 transition hover:border-brand/35"
+              className="h-[112px] rounded-[14px] border border-ink/10 bg-white px-6 transition hover:border-brand/35 sm:h-[132px]"
             />
           ))}
         </div>
