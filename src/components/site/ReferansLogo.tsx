@@ -10,6 +10,7 @@ export function ReferansLogo({
   className,
   ariaGizli,
   gri,
+  boyut = "serit",
 }: {
   referans: Referans;
   className?: string;
@@ -17,18 +18,31 @@ export function ReferansLogo({
   ariaGizli?: boolean;
   /** Ana sayfa şeridinde logolar gri; üzerine gelince kendi rengine döner. */
   gri?: boolean;
+  /**
+   * Nerede kullanıldığı. "serit" ana sayfadaki ince kayan şerit (~30px);
+   * "izgara" /referanslar sayfasındaki büyük kutular. Tek ölçü ikisine birden
+   * uymuyordu: şeride göre ayarlı 30px, 104px'lik ızgara kutusunda kayboluyordu.
+   */
+  boyut?: "serit" | "izgara";
 }) {
-  // Logolar yüksekliğe göre hizalanıyor, kutuya sığdırılarak değil. Eskiden hem
-  // yükseklik hem genişlik yüzdeyle sınırlıydı; TRT gibi kısa/kalın markalar
-  // yüksekliğe dayanıp tam boy çizilirken, Mustela gibi uzun yazı logoları önce
-  // genişliğe dayanıp belirgin biçimde küçük kalıyordu. Sabit yükseklik +
-  // object-contain ikisini de aynı optik boya getiriyor; max-w yalnızca aşırı
-  // geniş (oranı ~5'ten büyük) logolar taşmasın diye emniyet freni.
-  // min(...) ikinci bir iş yapıyor: /referanslar sayfasındaki dar ızgara
-  // hücrelerinde piksel değeri değil hücre genişliği bağlayıcı oluyor, logo
-  // kutusundan taşmıyor.
+  /*
+    Logolar TEK boyuta göre değil, ortak bir KUTUYA göre sınırlanıyor.
+
+    Eskiden yalnızca yükseklik sabitti (30px) + 210px'lik bir genişlik freni
+    vardı. Bu ikisi birlikte oranı bozuyordu: YTU, Mustela gibi geniş kelime
+    logoları 30px'te 210px'i aşınca genişlik frenine takılıp aşağı ölçekleniyor,
+    yükseklikleri 30px'in altına düşüyor ve KÜÇÜK görünüyordu; TRT, RE/MAX gibi
+    kompakt logolar frene takılmadan tam boyda kalıp BÜYÜK görünüyordu.
+
+    Çözüm: hem max-yükseklik hem max-genişlik. Geniş olan genişliğe, uzun olan
+    yüksekliğe dayanıyor ama hepsi aynı çerçeveyi dolduruyor — optik ağırlık
+    eşitleniyor. Genişlik yüzdeyle veriliyor ki dar ızgara hücresinde hücre
+    bağlayıcı olsun, logo kutudan taşmasın.
+  */
   const olcu =
-    "h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:h-[30px] sm:max-w-[min(210px,100%)]";
+    boyut === "izgara"
+      ? "max-h-[48px] w-auto max-w-[88%] object-contain sm:max-h-[52px]"
+      : "max-h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:max-h-[30px] sm:max-w-[min(210px,100%)]";
   const renk = gri
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"
     : "opacity-85 group-hover:opacity-100";

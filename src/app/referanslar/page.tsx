@@ -49,6 +49,7 @@ export default async function ReferanslarPage() {
               key={r.id}
               referans={r}
               gri
+              boyut="izgara"
               className="h-[104px] rounded-[14px] border border-ink/10 bg-white px-6 transition hover:border-brand/35"
             />
           ))}
