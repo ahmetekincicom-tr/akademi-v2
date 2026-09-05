@@ -21,9 +21,10 @@ export type AdminReferans = {
   siteUrl: string;
   sira: number;
   yayinda: boolean;
+  olcek: number;
 };
 
-const BOS = { ad: "", sektor: "", siteUrl: "", sira: "0", yayinda: true };
+const BOS = { ad: "", sektor: "", siteUrl: "", sira: "0", yayinda: true, olcek: "100" };
 
 export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[] }) {
   const router = useRouter();
@@ -44,7 +45,14 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
 
   const duzenle = (r: AdminReferans) => {
     setDuzenlenen(r.id);
-    setForm({ ad: r.ad, sektor: r.sektor, siteUrl: r.siteUrl, sira: String(r.sira), yayinda: r.yayinda });
+    setForm({
+      ad: r.ad,
+      sektor: r.sektor,
+      siteUrl: r.siteUrl,
+      sira: String(r.sira),
+      yayinda: r.yayinda,
+      olcek: String(r.olcek ?? 100),
+    });
     setDosya(null);
     setHata(null);
   };
@@ -319,6 +327,21 @@ function ReferansFormu({
             onChange={(e) => setForm({ ...form, sira: e.target.value })}
             className={alan}
           />
+        </label>
+        <label className="flex flex-col gap-2">
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Ölçek (%)</span>
+          <input
+            type="number"
+            min={50}
+            max={200}
+            step={5}
+            value={form.olcek}
+            onChange={(e) => setForm({ ...form, olcek: e.target.value })}
+            className={alan}
+          />
+          <span className="text-[11.5px] leading-[1.5] text-[#656B7A]">
+            100 = varsayılan. Amblem+ince yazı gibi seyrek duran logoları 120–140’a çekip diğerlerine yaklaştır.
+          </span>
         </label>
         <div className="flex flex-col gap-2 sm:col-span-2">
           <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Logo</span>

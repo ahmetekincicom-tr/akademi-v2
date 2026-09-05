@@ -21,6 +21,8 @@ export type Referans = {
   siteUrl: string;
   sira: number;
   yayinda: boolean;
+  /** Izgaradaki görünüm ölçeği (yüzde, 100 = varsayılan). Seyrek logoları eşitlemek için. */
+  olcek: number;
 };
 
 /** Referans logosu — kendi alan adımızdan (bkz. lib/depo.ts). */
@@ -51,7 +53,7 @@ export async function getReferanslar(client?: SupabaseClient<Database>): Promise
   const supabase = client ?? createPublicClient();
   const { data } = await supabase
     .from("referanslar")
-    .select("id, ad, sektor, logo_yolu, site_url, sira, yayinda")
+    .select("id, ad, sektor, logo_yolu, site_url, sira, yayinda, logo_olcek")
     .order("sira", { ascending: true })
     .order("created_at", { ascending: true });
 
@@ -63,5 +65,6 @@ export async function getReferanslar(client?: SupabaseClient<Database>): Promise
     siteUrl: r.site_url ?? "",
     sira: r.sira,
     yayinda: r.yayinda,
+    olcek: r.logo_olcek ?? 100,
   }));
 }

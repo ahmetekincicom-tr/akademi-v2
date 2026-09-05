@@ -63,6 +63,7 @@ export type ReferansInput = {
   sira: string;
   yayinda: boolean;
   logoYolu?: string;
+  olcek?: string;
 };
 
 export async function referansKaydet(input: ReferansInput) {
@@ -78,6 +79,12 @@ export async function referansKaydet(input: ReferansInput) {
     sira: Number(input.sira) || 0,
     yayinda: input.yayinda,
   };
+  // Ölçek yalnızca geçerli bir sayıysa yazılıyor; veritabanı 50–200 aralığını
+  // ayrıca zorluyor (check kısıtı), burada da makul aralığa çekiliyor.
+  if (input.olcek !== undefined) {
+    const s = Math.round(Number(input.olcek));
+    satir.logo_olcek = Number.isFinite(s) ? Math.min(Math.max(s, 50), 200) : 100;
+  }
   // Only overwrite the logo when a new one was uploaded in this save.
   if (input.logoYolu !== undefined) satir.logo_yolu = input.logoYolu || null;
 

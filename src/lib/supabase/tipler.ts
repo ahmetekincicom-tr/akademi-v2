@@ -693,6 +693,7 @@ export type Database = {
           ad: string;
           created_at: string;
           id: string;
+          logo_olcek: number;
           logo_yolu: string | null;
           sektor: string | null;
           sira: number;

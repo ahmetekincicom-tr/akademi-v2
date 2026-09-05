@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Referans } from "@/lib/icerik";
 import { guvenliUrl } from "@/lib/guvenli-url";
 
@@ -38,10 +39,22 @@ export function ReferansLogo({
     Yüklemede logolar kırpıldığı için (icerik-actions.ts › logoyuKirp) içerik =
     kutu; bu sınır hepsine aynı optik boyu ve aynı boşluğu veriyor.
   */
-  const olcu =
-    boyut === "izgara"
-      ? "max-h-[34px] w-auto max-w-[58%] object-contain sm:max-h-[38px]"
-      : "max-h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:max-h-[30px] sm:max-w-[min(210px,100%)]";
+  const izgara = boyut === "izgara";
+
+  /*
+    Izgarada logo başına ÖLÇEK (yüzde). Kutuya-sığdır ve kırpma tüm logoları aynı
+    boya getiriyor ama boy her şey değil: bir amblem+ince yazı logosu (TTK gibi)
+    kalın bir wordmark'la (TRT) aynı kutuda bile daha "seyrek" göründüğü için
+    küçük algılanıyor. Bunu ancak o logoyu elle biraz büyütmek eşitliyor.
+
+    Ölçek CSS değişkeniyle taban sınıra çarpılıyor; max-w bir tavanla (%88)
+    sınırlı ki büyük ölçekte bile logo karttan taşmasın.
+  */
+  const olcek = izgara ? Math.min(Math.max((referans.olcek ?? 100) / 100, 0.5), 2) : 1;
+
+  const olcu = izgara
+    ? "w-auto object-contain max-h-[calc(34px*var(--olcek))] max-w-[min(88%,calc(58%*var(--olcek)))] sm:max-h-[calc(38px*var(--olcek))]"
+    : "max-h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:max-h-[30px] sm:max-w-[min(210px,100%)]";
   const renk = gri
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"
     : "opacity-85 group-hover:opacity-100";
@@ -49,7 +62,13 @@ export function ReferansLogo({
   const icerik = referans.logoUrl ? (
     // Supabase Storage host; next/image would need it added to remotePatterns.
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={referans.logoUrl} alt={referans.ad} loading="lazy" className={`${olcu} transition ${renk}`} />
+    <img
+      src={referans.logoUrl}
+      alt={referans.ad}
+      loading="lazy"
+      className={`${olcu} transition ${renk}`}
+      style={izgara ? ({ "--olcek": String(olcek) } as CSSProperties) : undefined}
+    />
   ) : (
     <span className="truncate px-3 text-center text-[12.5px] font-semibold text-[#5C6273]">{referans.ad}</span>
   );
