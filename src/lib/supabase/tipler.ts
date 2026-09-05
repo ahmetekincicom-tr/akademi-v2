@@ -694,6 +694,7 @@ export type Database = {
           created_at: string;
           id: string;
           logo_olcek: number;
+          logo_olcek_mobil: number;
           logo_yolu: string | null;
           sektor: string | null;
           sira: number;

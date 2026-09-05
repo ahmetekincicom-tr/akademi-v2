@@ -22,9 +22,10 @@ export type AdminReferans = {
   sira: number;
   yayinda: boolean;
   olcek: number;
+  olcekMobil: number;
 };
 
-const BOS = { ad: "", sektor: "", siteUrl: "", sira: "0", yayinda: true, olcek: "100" };
+const BOS = { ad: "", sektor: "", siteUrl: "", sira: "0", yayinda: true, olcek: "100", olcekMobil: "100" };
 
 export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[] }) {
   const router = useRouter();
@@ -52,6 +53,7 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
       sira: String(r.sira),
       yayinda: r.yayinda,
       olcek: String(r.olcek ?? 100),
+      olcekMobil: String(r.olcekMobil ?? 100),
     });
     setDosya(null);
     setHata(null);
@@ -329,7 +331,7 @@ function ReferansFormu({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Ölçek (%)</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Web ölçeği (%)</span>
           <input
             type="number"
             min={50}
@@ -340,7 +342,22 @@ function ReferansFormu({
             className={alan}
           />
           <span className="text-[11.5px] leading-[1.5] text-[#656B7A]">
-            100 = varsayılan. Amblem+ince yazı gibi seyrek duran logoları 120–140’a çekip diğerlerine yaklaştır.
+            Masaüstü görünümü. 100 = varsayılan; seyrek logoları 120–140’a çek.
+          </span>
+        </label>
+        <label className="flex flex-col gap-2">
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Mobil ölçeği (%)</span>
+          <input
+            type="number"
+            min={50}
+            max={200}
+            step={5}
+            value={form.olcekMobil}
+            onChange={(e) => setForm({ ...form, olcekMobil: e.target.value })}
+            className={alan}
+          />
+          <span className="text-[11.5px] leading-[1.5] text-[#656B7A]">
+            Yalnızca mobili etkiler; web ölçeğinden bağımsız. 100 = varsayılan.
           </span>
         </label>
         <div className="flex flex-col gap-2 sm:col-span-2">

@@ -50,18 +50,23 @@ export function ReferansLogo({
     Ölçek CSS değişkeniyle taban sınıra çarpılıyor; max-w bir tavanla (%88)
     sınırlı ki büyük ölçekte bile logo karttan taşmasın.
   */
-  const olcek = izgara ? Math.min(Math.max((referans.olcek ?? 100) / 100, 0.5), 2) : 1;
+  const sinirla = (deger: number) => Math.min(Math.max(deger / 100, 0.5), 2);
+  const olcek = izgara ? sinirla(referans.olcek ?? 100) : 1;
+  const olcekMobil = izgara ? sinirla(referans.olcekMobil ?? 100) : 1;
 
   /*
     Genişlik freni yüzdeyle veriliyor ve kart genişliğine göre değişiyor: mobilde
     kart dar olduğu için aynı yüzde çok küçük piksele denk geliyordu (geniş
     logolar 15–19px'e düşüyordu). Bu yüzden mobilde fren gevşek (%86), masaüstünde
     kartlar geniş olduğu için sıkı (%58) — ikisinde de logo kutuya oturuyor ama
-    optik boyu benzer kalıyor. Ölçek (var --olcek) her iki değeri de çarpıyor;
-    min(...) tavanı büyük ölçekte taşmayı önlüyor.
+    optik boyu benzer kalıyor.
+
+    Ölçek İKİ AYRI değişken: mobil sınıflar --olcek-mobil, sm: sınıfları --olcek
+    kullanıyor. Böylece panelde mobil ölçek yalnızca mobili, masaüstü ölçek
+    yalnızca masaüstünü etkiliyor. min(...) tavanı büyük ölçekte taşmayı önlüyor.
   */
   const olcu = izgara
-    ? "w-auto object-contain max-h-[calc(40px*var(--olcek))] max-w-[min(92%,calc(86%*var(--olcek)))] sm:max-h-[calc(38px*var(--olcek))] sm:max-w-[min(88%,calc(58%*var(--olcek)))]"
+    ? "w-auto object-contain max-h-[calc(40px*var(--olcek-mobil))] max-w-[min(100%,calc(86%*var(--olcek-mobil)))] sm:max-h-[calc(38px*var(--olcek))] sm:max-w-[min(88%,calc(58%*var(--olcek)))]"
     : "max-h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:max-h-[30px] sm:max-w-[min(210px,100%)]";
   const renk = gri
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"
@@ -75,7 +80,11 @@ export function ReferansLogo({
       alt={referans.ad}
       loading="lazy"
       className={`${olcu} transition ${renk}`}
-      style={izgara ? ({ "--olcek": String(olcek) } as CSSProperties) : undefined}
+      style={
+        izgara
+          ? ({ "--olcek": String(olcek), "--olcek-mobil": String(olcekMobil) } as CSSProperties)
+          : undefined
+      }
     />
   ) : (
     <span className="truncate px-3 text-center text-[12.5px] font-semibold text-[#5C6273]">{referans.ad}</span>
