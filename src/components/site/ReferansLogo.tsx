@@ -26,22 +26,22 @@ export function ReferansLogo({
   boyut?: "serit" | "izgara";
 }) {
   /*
-    Logolar TEK boyuta göre değil, ortak bir KUTUYA göre sınırlanıyor.
+    Logolar SABİT YÜKSEKLİĞE göre hizalanıyor; genişlik yalnızca emniyet freni.
 
-    Eskiden yalnızca yükseklik sabitti (30px) + 210px'lik bir genişlik freni
-    vardı. Bu ikisi birlikte oranı bozuyordu: YTU, Mustela gibi geniş kelime
-    logoları 30px'te 210px'i aşınca genişlik frenine takılıp aşağı ölçekleniyor,
-    yükseklikleri 30px'in altına düşüyor ve KÜÇÜK görünüyordu; TRT, RE/MAX gibi
-    kompakt logolar frene takılmadan tam boyda kalıp BÜYÜK görünüyordu.
+    Yüklenen logolar iç boyutu (intrinsic width/height) tanımsız SVG'ler
+    olabiliyor. Böyle bir SVG'ye max-yükseklik verildiğinde tarayıcı en-boy
+    oranını kestiremiyor ve boy tutarsız çıkıyordu — kimi 24px kimi 52px.
+    Sabit yükseklik (h-, max-h değil) hepsini kesin olarak aynı boya getiriyor;
+    en-boy oranı viewBox'tan geldiği için genişlik ona göre oluşuyor. max-w
+    yalnızca aşırı geniş bir logonun dar ızgara hücresinden taşmasını önlüyor.
 
-    Çözüm: hem max-yükseklik hem max-genişlik. Geniş olan genişliğe, uzun olan
-    yüksekliğe dayanıyor ama hepsi aynı çerçeveyi dolduruyor — optik ağırlık
-    eşitleniyor. Genişlik yüzdeyle veriliyor ki dar ızgara hücresinde hücre
-    bağlayıcı olsun, logo kutudan taşmasın.
+    Kaynak SVG'lerin farklı iç boşlukları (padding) olabilir; bunu CSS bir yere
+    kadar düzeltir. Tam tutarlılık için logolar yüklenmeden önce kırpılıp aynı
+    en-boy oranına oturtulmalı (aşağıdaki nota bkz.).
   */
   const olcu =
     boyut === "izgara"
-      ? "max-h-[48px] w-auto max-w-[88%] object-contain sm:max-h-[52px]"
+      ? "h-[34px] w-auto max-w-[90%] object-contain sm:h-[40px]"
       : "max-h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:max-h-[30px] sm:max-w-[min(210px,100%)]";
   const renk = gri
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"
