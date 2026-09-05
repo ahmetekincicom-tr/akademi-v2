@@ -2,8 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { referansKaydet, referansSil } from "@/app/kontrol-9f4x2k/(protected)/icerik-actions";
+import {
+  logoYukle,
+  mevcutLogolariNormalizeEt,
+  referansKaydet,
+  referansSil,
+} from "@/app/kontrol-9f4x2k/(protected)/icerik-actions";
 import { Icon } from "@/components/Icon";
 import { Toggle } from "./Toggle";
 import { useBildirim } from "@/components/Bildirim";
@@ -51,17 +55,18 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
 
     let logoYolu: string | undefined;
     if (dosya) {
-      const temizAd = dosya.name.replace(/[^\w.\-]/g, "_");
-      const yol = `${Date.now()}-${temizAd}`;
-      const supabase = createClient();
-      const { error } = await supabase.storage.from("logolar").upload(yol, dosya);
-      if (error) {
+      // Yükleme artık sunucuda: sharp şeffaf kenarları kırpıp bütün logoları
+      // aynı boya getiriyor (gerekçe: icerik-actions.ts › logoyuKirp).
+      const fd = new FormData();
+      fd.append("dosya", dosya);
+      const up = await logoYukle(fd);
+      if (up.error || !up.yol) {
         setYukleniyor(false);
-        setHata(error.message);
-        bildir.hata(`Logo yüklenemedi: ${error.message}`);
+        setHata(up.error ?? "Logo yüklenemedi.");
+        bildir.hata(`Logo yüklenemedi: ${up.error ?? "bilinmeyen hata"}`);
         return;
       }
-      logoYolu = yol;
+      logoYolu = up.yol;
     }
 
     const r = await referansKaydet({
@@ -96,6 +101,18 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
     });
   };
 
+  const duzelt = () => {
+    startTransition(async () => {
+      const r = await mevcutLogolariNormalizeEt();
+      if (r?.error) {
+        bildir.hata(r.error);
+      } else {
+        bildir.basarili(`${r.islenen ?? 0}/${r.toplam ?? 0} logo düzeltildi.`);
+        router.refresh();
+      }
+    });
+  };
+
   const yayindaSayisi = referanslar.filter((r) => r.yayinda).length;
   const mesgul = yukleniyor || islemde;
 
@@ -111,14 +128,28 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
             çıkar.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => (duzenlenen === "yeni" ? setDuzenlenen(null) : yeniAc())}
-          className="inline-flex h-10 items-center gap-[6px] rounded-[10px] bg-brand px-4 text-[13.5px] font-semibold text-white transition hover:bg-ink"
-        >
-          {duzenlenen !== "yeni" && <Icon name="plus" size={15} />}
-          {duzenlenen === "yeni" ? "Vazgeç" : "Yeni referans"}
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          {referanslar.some((r) => r.logoYolu) && (
+            <button
+              type="button"
+              onClick={duzelt}
+              disabled={mesgul}
+              title="Eskiden yüklenmiş logoların şeffaf kenar boşluklarını kırpar; hepsi aynı boya gelir."
+              className="inline-flex h-10 items-center gap-[6px] rounded-[10px] border border-ink/13 bg-white px-3.5 text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-50"
+            >
+              <Icon name="sparkle" size={14} />
+              Logoları düzelt
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => (duzenlenen === "yeni" ? setDuzenlenen(null) : yeniAc())}
+            className="inline-flex h-10 items-center gap-[6px] rounded-[10px] bg-brand px-4 text-[13.5px] font-semibold text-white transition hover:bg-ink"
+          >
+            {duzenlenen !== "yeni" && <Icon name="plus" size={15} />}
+            {duzenlenen === "yeni" ? "Vazgeç" : "Yeni referans"}
+          </button>
+        </div>
       </div>
 
       {duzenlenen === "yeni" && (
@@ -307,7 +338,8 @@ function ReferansFormu({
             </span>
           </div>
           <span className="text-[12px] text-[#656B7A]">
-            {logoNotu ?? "Şeffaf zeminli PNG veya SVG en iyi sonucu verir."}
+            {logoNotu ??
+              "Şeffaf zeminli PNG veya SVG yükle. Sistem kenar boşluklarını otomatik kırpıp tüm logoları aynı boya getirir — tuval boyutuyla uğraşmana gerek yok."}
           </span>
         </div>
       </div>
