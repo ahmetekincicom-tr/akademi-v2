@@ -10,7 +10,7 @@ export const WHATSAPP_NUMARALAR = [
 export const EPOSTA = "iletisim@ahmetekinciakademi.com";
 export const INSTAGRAM_KULLANICI = "@ahmetekincicomtr";
 export const INSTAGRAM_URL = "https://instagram.com/ahmetekincicomtr";
-export const LINKEDIN_URL = "https://www.linkedin.com/in/ahmetekinci";
+export const LINKEDIN_URL = "https://www.linkedin.com/in/ahmet-ekinci/";
 export const SEHIR = "Ankara";
 
 /**
