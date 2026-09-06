@@ -5,8 +5,10 @@ import { revalidatePath } from "next/cache";
 import type { Ekle } from "@/lib/supabase/tipler";
 import { createClient } from "@/lib/supabase/server";
 
-// Public pages that surface testimonials or logos.
-const HERKESE_ACIK = ["/", "/yorumlar", "/referanslar", "/kurumsal", "/egitimler"];
+// Yorum ya da logo (referans şeridi/ızgarası) gösteren herkese açık sayfalar.
+// Kayan şerit /, /hakkimizda ve /kurumsal'da; /hakkimizda unutulursa oradaki
+// şerit kayıttan sonra ~1 saat eski ölçekte kalıyordu.
+const HERKESE_ACIK = ["/", "/hakkimizda", "/yorumlar", "/referanslar", "/kurumsal", "/egitimler"];
 
 function tazele() {
   for (const yol of HERKESE_ACIK) revalidatePath(yol);
