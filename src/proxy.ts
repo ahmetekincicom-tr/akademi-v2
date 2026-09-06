@@ -105,6 +105,17 @@ const AYRICA_ACIK = [
   // doküman alıyor.
   "/dosya",
   "/indir",
+  /*
+    Google Ads reklamı için Meta Ads detay sayfası tek başına açık.
+
+    Ana domaindeki (ahmetekinciakademi.com/meta-ads-egitimi-2026-2) reklam
+    adresi, Cloudflare Worker ile bu sayfayı buradan çekiyor. Ön yüz genel
+    olarak kapalı kalırken yalnızca BU eğitim sayfası 200 dönmeli; yoksa Worker
+    giriş ekranına düşen bir yönlendirme çeker. Sayfa noindex kalıyor (ön yüz
+    kapalı) — paralı trafik için sorun değil, ikiz içerik de oluşmuyor.
+    WhatsApp dönüşümü /git üzerinden gidiyor; o zaten aşağıda listede.
+  */
+  "/egitimler/birebir-meta-ads-egitimi",
   "/cevrimdisi",
   /*
     Dışarı çıkan yönlendirmeler (WhatsApp).
