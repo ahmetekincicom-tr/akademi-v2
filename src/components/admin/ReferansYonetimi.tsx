@@ -6,6 +6,7 @@ import {
   logoYukle,
   mevcutLogolariNormalizeEt,
   referansKaydet,
+  referanslariSirala,
   referansSil,
 } from "@/app/kontrol-9f4x2k/(protected)/icerik-actions";
 import { Icon } from "@/components/Icon";
@@ -25,7 +26,7 @@ export type AdminReferans = {
   olcekMobil: number;
 };
 
-const BOS = { ad: "", sektor: "", siteUrl: "", sira: "0", yayinda: true, olcek: "100", olcekMobil: "100" };
+const BOS = { ad: "", sektor: "", siteUrl: "", yayinda: true, olcek: "100", olcekMobil: "100" };
 
 export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[] }) {
   const router = useRouter();
@@ -37,9 +38,22 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
   const [yukleniyor, setYukleniyor] = useState(false);
   const [islemde, startTransition] = useTransition();
 
+  // Sürükle-bırak sırası. Yerel bir kimlik dizisinde tutuluyor; sunucudan yeni
+  // veri geldiğinde (ekleme/silme/sıra kaydı sonrası refresh) render sırasında
+  // eşitleniyor — useEffect yerine bu desen, gereksiz bir tur render önlüyor.
+  const [siraliIdler, setSiraliIdler] = useState<string[]>(() => referanslar.map((r) => r.id));
+  const [suruklenen, setSuruklenen] = useState<string | null>(null);
+  const gelenImza = referanslar.map((r) => r.id).join(",");
+  const [oncekiImza, setOncekiImza] = useState(gelenImza);
+  if (gelenImza !== oncekiImza) {
+    setOncekiImza(gelenImza);
+    setSiraliIdler(referanslar.map((r) => r.id));
+  }
+  const harita = new Map(referanslar.map((r) => [r.id, r] as const));
+
   const yeniAc = () => {
     setDuzenlenen("yeni");
-    setForm({ ...BOS, sira: String(referanslar.length + 1) });
+    setForm({ ...BOS });
     setDosya(null);
     setHata(null);
   };
@@ -50,13 +64,37 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
       ad: r.ad,
       sektor: r.sektor,
       siteUrl: r.siteUrl,
-      sira: String(r.sira),
       yayinda: r.yayinda,
       olcek: String(r.olcek ?? 100),
       olcekMobil: String(r.olcekMobil ?? 100),
     });
     setDosya(null);
     setHata(null);
+  };
+
+  const uzerineGel = (hedefId: string) => {
+    if (!suruklenen || suruklenen === hedefId) return;
+    setSiraliIdler((onceki) => {
+      const dizi = [...onceki];
+      const nereden = dizi.indexOf(suruklenen);
+      const nereye = dizi.indexOf(hedefId);
+      if (nereden < 0 || nereye < 0) return onceki;
+      dizi.splice(nereden, 1);
+      dizi.splice(nereye, 0, suruklenen);
+      return dizi;
+    });
+  };
+
+  const birak = () => {
+    const vardi = suruklenen;
+    setSuruklenen(null);
+    if (!vardi) return;
+    startTransition(async () => {
+      const r = await referanslariSirala(siraliIdler);
+      if (r?.error) bildir.hata(r.error);
+      else bildir.basarili("Sıralama güncellendi.");
+      router.refresh();
+    });
   };
 
   const kaydet = async () => {
@@ -176,17 +214,43 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
         />
       )}
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-ink/10 bg-white">
+      {referanslar.length > 1 && (
+        <p className="mt-4 text-[12.5px] text-[#656B7A]">
+          Sırayı değiştirmek için satırları <span className="font-semibold text-ink">tutamaçtan sürükleyip</span> bırak.
+        </p>
+      )}
+
+      <div className="mt-3 overflow-hidden rounded-2xl border border-ink/10 bg-white">
         {referanslar.length === 0 ? (
           <div className="px-[22px] py-12 text-center text-sm text-[#656B7A]">
             Henüz referans eklenmemiş. Sağ üstten ekleyebilirsin.
           </div>
         ) : (
-          referanslar.map((r) => (
-            <div key={r.id} className="border-b border-ink/7 last:border-b-0">
+          siraliIdler.map((id) => {
+            const r = harita.get(id);
+            if (!r) return null;
+            return (
+            <div
+              key={r.id}
+              onDragOver={(e) => {
+                e.preventDefault();
+                uzerineGel(r.id);
+              }}
+              className={`border-b border-ink/7 last:border-b-0 ${suruklenen === r.id ? "opacity-40" : ""}`}
+            >
               <div className="flex flex-wrap items-center gap-4 px-[22px] py-[14px] hover:bg-[#F7F9FF]">
-                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-[8px] bg-mist font-mono text-[11px] text-[#5C6273]">
-                  {r.sira}
+                <span
+                  draggable
+                  onDragStart={(e) => {
+                    setSuruklenen(r.id);
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
+                  onDragEnd={birak}
+                  aria-label="Sürükleyerek sırala"
+                  title="Sürükleyerek sırala"
+                  className="flex h-7 w-7 flex-none cursor-grab touch-none items-center justify-center rounded-[8px] bg-mist text-[#5C6273] transition hover:bg-ink/10 hover:text-ink active:cursor-grabbing"
+                >
+                  <Icon name="menu" size={15} />
                 </span>
                 <span className="flex h-11 w-[110px] flex-none items-center justify-center rounded-[9px] border border-ink/10 bg-mist px-2">
                   {r.logoUrl ? (
@@ -246,7 +310,8 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
                 />
               )}
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </main>
@@ -318,15 +383,6 @@ function ReferansFormu({
             value={form.siteUrl}
             onChange={(e) => setForm({ ...form, siteUrl: e.target.value })}
             placeholder="https://…"
-            className={alan}
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Sıra</span>
-          <input
-            type="number"
-            value={form.sira}
-            onChange={(e) => setForm({ ...form, sira: e.target.value })}
             className={alan}
           />
         </label>

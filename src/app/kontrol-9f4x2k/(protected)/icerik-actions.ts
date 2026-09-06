@@ -60,7 +60,6 @@ export type ReferansInput = {
   ad: string;
   sektor: string;
   siteUrl: string;
-  sira: string;
   yayinda: boolean;
   logoYolu?: string;
   olcek?: string;
@@ -77,9 +76,19 @@ export async function referansKaydet(input: ReferansInput) {
     ad: input.ad.trim(),
     sektor: input.sektor.trim() || null,
     site_url: input.siteUrl.trim() || null,
-    sira: Number(input.sira) || 0,
     yayinda: input.yayinda,
   };
+  // Sıra artık sürükle-bırakla yönetiliyor (referanslariSirala). Düzenlemede
+  // mevcut sıraya DOKUNULMUYOR; yeni kayıt listenin SONUNA ekleniyor.
+  if (!input.id) {
+    const { data: enSon } = await supabase
+      .from("referanslar")
+      .select("sira")
+      .order("sira", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    satir.sira = (enSon?.sira ?? 0) + 1;
+  }
   // Ölçek yalnızca geçerli bir sayıysa yazılıyor; veritabanı 50–200 aralığını
   // ayrıca zorluyor (check kısıtı), burada da makul aralığa çekiliyor.
   const olceklendir = (deger: string) => {
@@ -233,6 +242,23 @@ export async function mevcutLogolariNormalizeEt(): Promise<{
 
   tazele();
   return { islenen, toplam: (kayitlar ?? []).length };
+}
+
+/**
+ * Referansların sırasını verilen kimlik dizisine göre yeniden yazar.
+ *
+ * Sıra artık panelde sürükle-bırakla belirleniyor; elle sayı girilmiyor. Her
+ * satırın `sira` değeri yeni indeksine (1..N) yazılıyor. Liste birkaç düzine
+ * satır olduğu için tek tek update yeterli; RLS is_admin'i zaten zorluyor.
+ */
+export async function referanslariSirala(idler: string[]) {
+  const supabase = await createClient();
+  for (let i = 0; i < idler.length; i += 1) {
+    const { error } = await supabase.from("referanslar").update({ sira: i + 1 }).eq("id", idler[i]);
+    if (error) return { error: error.message };
+  }
+  tazele();
+  return {};
 }
 
 export async function referansSil(id: string, logoYolu: string | null) {
