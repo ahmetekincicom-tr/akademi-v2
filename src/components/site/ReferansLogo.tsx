@@ -72,13 +72,22 @@ export function ReferansLogo({
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"
     : "opacity-85 group-hover:opacity-100";
 
+  /*
+    Kayan şeritte (serit) EAGER yükleme: şerit ekrandan taşıyor ve logoların
+    çoğu başlangıçta görünür alanın dışında. loading="lazy" bunları hiç
+    yüklemiyor — CSS animasyonuyla kayarken de tembel yükleme tetiklenmediği
+    için şeritte boşluklar geçiyordu. Izgarada lazy kalıyor: orada logolar tek
+    tek ve çoğu ilk ekranda.
+  */
+  const yukleme = izgara ? "lazy" : "eager";
+
   const icerik = referans.logoUrl ? (
     // Supabase Storage host; next/image would need it added to remotePatterns.
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={referans.logoUrl}
       alt={referans.ad}
-      loading="lazy"
+      loading={yukleme}
       className={`${olcu} transition ${renk}`}
       style={
         izgara

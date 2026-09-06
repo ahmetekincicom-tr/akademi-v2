@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { CorporateStrip } from "@/components/site/CorporateStrip";
-import { SectionKicker } from "@/components/site/SectionKicker";
 import { getReferanslar } from "@/lib/icerik";
 import { ReferansLogo } from "@/components/site/ReferansLogo";
 import { sayfaMeta } from "@/lib/seo";
@@ -28,8 +27,7 @@ export default async function ReferanslarPage() {
       <PublicHeader />
 
       <section className="mx-auto max-w-[1240px] px-5 pt-16 pb-12 sm:px-8">
-        <SectionKicker>Referanslar</SectionKicker>
-        <h1 className="mt-[18px] font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[46px]">
+        <h1 className="font-heading text-[36px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[46px]">
           Referanslar
         </h1>
         <p className="mt-6 max-w-[560px] text-[16.5px] leading-[1.62] text-[#5C6273]">
