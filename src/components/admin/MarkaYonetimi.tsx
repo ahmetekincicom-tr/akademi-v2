@@ -6,9 +6,17 @@ import { createClient } from "@/lib/supabase/client";
 import {
   markaGuncelle,
   logoYuksekligiKaydet,
+  footerOlcekKaydet,
   type MarkaAlan,
 } from "@/app/kontrol-9f4x2k/(protected)/marka/actions";
-import { LOGO_YUKSEKLIK_ALT, LOGO_YUKSEKLIK_UST, VARSAYILAN_LOGO_YUKSEKLIGI } from "@/lib/marka";
+import {
+  LOGO_YUKSEKLIK_ALT,
+  LOGO_YUKSEKLIK_UST,
+  VARSAYILAN_LOGO_YUKSEKLIGI,
+  FOOTER_OLCEK_ALT,
+  FOOTER_OLCEK_UST,
+  VARSAYILAN_FOOTER_OLCEK,
+} from "@/lib/marka";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
 
@@ -18,6 +26,7 @@ export type MarkaGorunum = {
   favicon: string | null;
   ogGorsel: string | null;
   logoYuksekligi: number;
+  logoFooterOlcek: number;
   epostaLogo: string | null;
 };
 
@@ -96,6 +105,7 @@ export function MarkaYonetimi({ marka }: { marka: MarkaGorunum }) {
           <MarkaKarti key={k.alan} kart={k} url={mevcut[k.alan]} />
         ))}
         <LogoBoyutu marka={marka} />
+        <FooterLogoBoyutu marka={marka} />
       </div>
     </main>
   );
@@ -347,6 +357,130 @@ function LogoBoyutu({ marka }: { marka: MarkaGorunum }) {
                   /* eslint-disable-next-line @next/next/no-img-element -- önizleme */
                   <img
                     src={o.url}
+                    alt=""
+                    style={{ height: y, maxWidth: y * 7 }}
+                    className="w-auto object-contain"
+                  />
+                ) : (
+                  <span
+                    style={{ height: y, fontSize: Math.round(y * 0.38) }}
+                    className="flex items-center rounded-[9px] bg-brand px-3 font-heading font-bold text-white"
+                  >
+                    AE
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={kaydet}
+        disabled={!degisti || islemde}
+        className="mt-5 h-[44px] rounded-[10px] bg-brand px-6 text-[15px] font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"
+      >
+        {islemde ? "Kaydediliyor…" : degisti ? "Boyutu kaydet" : "Kaydedildi"}
+      </button>
+    </section>
+  );
+}
+
+/**
+ * Footer logo boyutu.
+ *
+ * Üstteki "Logo boyutu" tüm yerleşimleri birlikte ölçekliyor; bu ise yalnızca
+ * alt bilgideki logoyu, üstteki oranların üzerine bir yüzdeyle büyütüp
+ * küçültüyor. Footer logosu çoğu zaman başlıktakiyle aynı dosya ama koyu
+ * zeminde ve dört sütunun yanında farklı bir denge istiyor.
+ */
+function FooterLogoBoyutu({ marka }: { marka: MarkaGorunum }) {
+  const router = useRouter();
+  const bildir = useBildirim();
+  const [deger, setDeger] = useState(marka.logoFooterOlcek);
+  const [islemde, startTransition] = useTransition();
+
+  const degisti = deger !== marka.logoFooterOlcek;
+
+  const kaydet = () =>
+    startTransition(async () => {
+      const r = await footerOlcekKaydet(deger);
+      if (r?.error) bildir.hata(r.error);
+      else {
+        bildir.basarili("Footer logo boyutu güncellendi.");
+        router.refresh();
+      }
+    });
+
+  // Footer'daki gerçek oranlar (src/components/site/Logo.tsx · OLCEK.alt):
+  // masaüstü 0.88, mobil 1.2 — ikisi de başlık yüksekliğinden, sonra bu yüzde.
+  const kat = deger / 100;
+  const onizleme = [
+    { ad: "Alt bilgi · masaüstü", oran: 0.88 },
+    { ad: "Alt bilgi · mobil", oran: 1.2 },
+  ];
+
+  return (
+    <section className="rounded-2xl border border-ink/10 bg-white p-6">
+      <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Footer logo boyutu</h2>
+      <p className="mt-1 max-w-[640px] text-[13.5px] leading-[1.6] text-[#5C6273]">
+        Yalnızca alt bilgideki (footer) logoyu ölçekler. Başlık yüksekliğine dokunmaz; onun üzerine bir yüzde
+        uygular. %100 = dokunma. Footer logosu üst menüdekiyle aynı boyda duruyorsa buradan biraz büyütüp
+        küçültebilirsin.
+      </p>
+
+      <div className="mt-5 flex flex-wrap items-center gap-4">
+        <input
+          type="range"
+          min={FOOTER_OLCEK_ALT}
+          max={FOOTER_OLCEK_UST}
+          step={1}
+          value={deger}
+          onChange={(e) => setDeger(Number(e.target.value))}
+          className="h-2 w-full max-w-[380px] accent-[#1C56F3]"
+          aria-label="Footer logo ölçeği"
+        />
+        <label className="flex items-center gap-2">
+          <input
+            type="number"
+            min={FOOTER_OLCEK_ALT}
+            max={FOOTER_OLCEK_UST}
+            value={deger}
+            onChange={(e) => {
+              const sayi = Number(e.target.value);
+              if (!Number.isFinite(sayi)) return;
+              setDeger(Math.min(FOOTER_OLCEK_UST, Math.max(FOOTER_OLCEK_ALT, Math.round(sayi))));
+            }}
+            aria-label="Footer logo ölçeği (%)"
+            className="h-9 w-[74px] rounded-[9px] border border-ink/13 bg-white px-[10px] font-mono text-[13px] text-ink outline-none focus:border-brand"
+          />
+          <span className="font-mono text-[13px] text-[#656B7A]">%</span>
+        </label>
+        {deger !== VARSAYILAN_FOOTER_OLCEK && (
+          <button
+            type="button"
+            onClick={() => setDeger(VARSAYILAN_FOOTER_OLCEK)}
+            className="text-[13px] font-semibold text-[#5C6273] underline underline-offset-2 hover:text-brand"
+          >
+            Varsayılana dön (%{VARSAYILAN_FOOTER_OLCEK})
+          </button>
+        )}
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {onizleme.map((o) => {
+          const y = Math.round(marka.logoYuksekligi * o.oran * kat);
+          return (
+            <div key={o.ad} className="overflow-hidden rounded-[12px] border border-ink/10">
+              <div className="border-b border-ink/8 px-3 py-2 font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
+                {o.ad} · {y} px
+              </div>
+              <div className="flex items-center px-4 py-5" style={{ background: "#0A0D18" }}>
+                {marka.logoKoyuZemin ? (
+                  /* eslint-disable-next-line @next/next/no-img-element -- önizleme */
+                  <img
+                    src={marka.logoKoyuZemin}
                     alt=""
                     style={{ height: y, maxWidth: y * 7 }}
                     className="w-auto object-contain"

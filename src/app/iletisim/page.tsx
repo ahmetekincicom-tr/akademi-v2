@@ -36,6 +36,19 @@ export function generateMetadata(): Promise<Metadata> {
   href olmayan kanallar tıklanabilir görünmesin diye link yerine kart olarak
   çizilir.
 */
+/*
+  Kart için adres: kapı numarası kopmasın diye "No:" sonrasındaki boşluk ve
+  numaradaki tire bölünmez karakterlere çevriliyor (NBSP + non-breaking hyphen).
+  Yalnızca gösterim için; paylaşılan ADRES_SOKAK sabiti fatura ve schema'da düz
+  metin kalıyor.
+*/
+const NBSP = String.fromCharCode(0x00a0); // bölünmez boşluk
+const NBHYPHEN = String.fromCharCode(0x2011); // bölünmez tire
+const ADRES_KART = ADRES_SOKAK.replace(
+  /No:\s*(\S+)/,
+  (_esles, numara: string) => `No:${NBSP}${numara.replace(/-/g, NBHYPHEN)}`,
+);
+
 const kanallar: {
   baslik: string;
   deger: string;
@@ -62,7 +75,10 @@ const kanallar: {
   { baslik: "Instagram", deger: INSTAGRAM_KULLANICI, ikon: "instagram", href: INSTAGRAM_URL },
   { baslik: "E-posta", deger: EPOSTA, ikon: "mail", href: `mailto:${EPOSTA}` },
   // Adres iki satırda: sokak satırı tek satıra sığmıyor, kartta kırpılıyordu.
-  { baslik: "Ofis", deger: ADRES_SOKAK, altSatir: `${ADRES_ILCE} · ${OFIS_BINA}`, ikon: "pin" },
+  // Kapı numarası ("No: 3C1-160") tek parça: aksi hâlde satır "No:" ile bitip
+  // numara alt satıra düşüyor, adres yanlış yerden bölünmüş gibi duruyordu.
+  // Bölünme artık yalnızca sokak adının kelime aralarından oluyor.
+  { baslik: "Ofis", deger: ADRES_KART, altSatir: `${ADRES_ILCE} · ${OFIS_BINA}`, ikon: "pin" },
 ];
 
 export default function IletisimPage() {
@@ -107,7 +123,9 @@ export default function IletisimPage() {
                         eylem olan gönder düğmesiyle yarışıyordu. */}
                     <span className="font-mono text-[10px] tracking-[0.14em] text-ink/55 uppercase">{k.baslik}</span>
                     <span
-                      className={`text-[15.5px] font-semibold ${k.altSatir ? "leading-[1.35]" : "truncate"}`}
+                      /* text-ink AÇIKÇA: global `a { color: brand }` yüzünden
+                         kart bir bağlantı olunca numara/e-posta maviye dönüyordu. */
+                      className={`text-[15.5px] font-semibold text-ink ${k.altSatir ? "leading-[1.35]" : "truncate"}`}
                     >
                       {k.deger}
                     </span>

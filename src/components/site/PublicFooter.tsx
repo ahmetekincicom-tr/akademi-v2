@@ -142,7 +142,7 @@ export async function PublicFooter() {
         <div className="mb-2 flex flex-col items-center border-b border-white/[0.08] pb-7 text-center sm:mb-0 sm:items-start sm:border-b-0 sm:pb-0 sm:text-left">
           {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor. */}
           <Logo variant="light" yer="alt" href={ON_YUZ_ACIK ? "/" : "/giris"} />
-          <p className="mt-[18px] max-w-[280px] text-[14.5px] leading-[1.65]">
+          <p className="mt-5 max-w-[300px] text-[16px] leading-[1.7] text-white/70">
             Dijital çağın dinamiklerine uygun, yenilikçi eğitim deneyimi.
           </p>
           <div className="mt-[22px] flex gap-[10px]">

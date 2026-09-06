@@ -91,10 +91,7 @@ const panelKart = [
 
 function SectionKicker({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.16em] text-brand uppercase">
-      <span className="h-px w-[22px] bg-brand" />
-      {children}
-    </div>
+    <div className="font-mono text-[11px] tracking-[0.16em] text-brand uppercase">{children}</div>
   );
 }
 
@@ -344,8 +341,6 @@ export default async function HomePage() {
             "radial-gradient(120% 90% at 8% 0%, #101a3a 0%, #080b16 45%, #05070d 100%)",
         }}
       >
-        {/* Üst kenardaki ışık çizgisi: bölümün başladığı yeri işaretliyor. */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(103,142,255,0.7)_30%,rgba(103,142,255,0.15)_70%,transparent)]" />
         <div className="bg-nokta-koyu pointer-events-none absolute inset-0 opacity-70" />
         {/* Başlığın arkasındaki tek ışık lekesi. */}
         <div className="pointer-events-none absolute -top-[260px] left-[34%] h-[620px] w-[900px] rounded-full bg-[radial-gradient(closest-side,rgba(61,101,255,0.28),transparent)] blur-[20px]" />
@@ -358,10 +353,7 @@ export default async function HomePage() {
                 başlığında sürekli çalışan bir animasyon, "canlı yayın"
                 işareti gibi okunuyordu.
               */}
-              <div className="flex items-center gap-[14px] font-mono text-[11px] tracking-[0.26em] text-[#7F9BFF] uppercase">
-                <span className="h-px w-[44px] bg-brand" />
-                Yöntem
-              </div>
+              <div className="font-mono text-[11px] tracking-[0.26em] text-[#7F9BFF] uppercase">Yöntem</div>
               {/*
                 Başlık iki renkte: tasarımda ikinci satır degrade dolguydu.
                 Tek cümlelik başlıkta aynı etkiyi vurgulanan kelimeye
@@ -387,9 +379,7 @@ export default async function HomePage() {
                 key={f.baslik}
                 className="group/fark relative overflow-hidden rounded-[20px] border border-white/12 bg-[linear-gradient(180deg,rgba(19,25,44,0.9),rgba(10,13,24,0.9))] px-7 pt-8 pb-9 transition duration-300 hover:-translate-y-[10px] hover:border-brand/50 hover:shadow-[0_30px_70px_-30px_rgba(61,101,255,0.55)]"
               >
-                {/* Kart üstündeki ince ışık ve alt köşedeki leke: tasarımın
-                    ::before / ::after katmanları. */}
-                <span className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,transparent,#3d65ff,transparent)] opacity-35 transition-opacity duration-300 group-hover/fark:opacity-100" />
+                {/* Alt köşedeki yumuşak leke; üstteki parlayan çizgi kaldırıldı. */}
                 <span className="pointer-events-none absolute -right-[110px] -bottom-[140px] h-[260px] w-[260px] rounded-full bg-[radial-gradient(closest-side,rgba(61,101,255,0.35),transparent)] opacity-50" />
 
                 <span className="relative flex h-[46px] w-[46px] items-center justify-center rounded-[13px] border border-brand/35 bg-brand/15 text-[#9DB3FF] transition group-hover/fark:border-brand/60 group-hover/fark:text-white">

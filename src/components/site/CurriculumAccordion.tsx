@@ -41,10 +41,7 @@ export function CurriculumAccordion({ modules }: { modules: CurriculumModule[] }
     <>
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
         <div>
-          <div className="flex items-center gap-[10px] font-mono text-[11px] tracking-[0.16em] text-brand uppercase">
-            <span className="h-px w-[22px] bg-brand" />
-            Müfredat
-          </div>
+          <div className="font-mono text-[11px] tracking-[0.16em] text-brand uppercase">Müfredat</div>
           {/*
             Başlık eskiden "9 modül · 51 ders" idi. Sayı saymak eğitimi
             uzunluğuyla tarif ediyor, oysa satılan şey kapsam — ve birebir

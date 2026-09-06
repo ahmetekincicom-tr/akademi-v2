@@ -51,8 +51,11 @@ export async function Logo({
   // The "light" variant sits on the dark header/footer, so it needs the logo
   // drawn for dark backgrounds.
   const logoUrl = variant === "light" ? marka.logoKoyuZemin : marka.logoAcikZemin;
-  const yukseklik = Math.round(marka.logoYuksekligi * OLCEK[yer].genis);
-  const darYukseklik = Math.round(marka.logoYuksekligi * OLCEK[yer].dar);
+  // Footer logosunun panelden ayarlanan ek ölçeği yalnızca alt bilgide geçerli;
+  // başlık ve giriş ekranı yalnızca logoYuksekligi'ni izliyor.
+  const footerKat = yer === "alt" ? marka.logoFooterOlcek / 100 : 1;
+  const yukseklik = Math.round(marka.logoYuksekligi * OLCEK[yer].genis * footerKat);
+  const darYukseklik = Math.round(marka.logoYuksekligi * OLCEK[yer].dar * footerKat);
 
   if (logoUrl) {
     return (
