@@ -9,6 +9,7 @@ import { KayanSerit } from "@/components/site/KayanSerit";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { Icon } from "@/components/Icon";
 import { getHakkimizda, paragraflar } from "@/lib/hakkimizda";
+import { kalinVurgula, kalinsiz } from "@/lib/kalin";
 import { kapakUrl } from "@/lib/kapak";
 import { getReferanslar } from "@/lib/icerik";
 import { sayfaMeta, kisiSemasi } from "@/lib/seo";
@@ -84,7 +85,8 @@ export default async function HakkimizdaPage() {
             kisiSemasi({
               ad: icerik.kisiBaslik.replace(/\s*kimdir\?*\s*$/i, "").trim(),
               unvan: icerik.kisiUnvan,
-              aciklama: metin[0] ?? icerik.heroMetin,
+              // Şemada düz metin: ** işaretleri açıklamaya sızmasın.
+              aciklama: kalinsiz(metin[0] ?? icerik.heroMetin),
               gorsel: fotograf,
             }),
           ),
@@ -119,7 +121,7 @@ export default async function HakkimizdaPage() {
           </h1>
           {icerik.heroMetin && (
             <p className="mx-auto mt-7 max-w-[620px] text-[17.5px] leading-[1.62] text-white/68">
-              {icerik.heroMetin}
+              {kalinVurgula(icerik.heroMetin)}
             </p>
           )}
         </div>
@@ -143,7 +145,7 @@ export default async function HakkimizdaPage() {
             <div className="mt-7 flex flex-col gap-[18px]">
               {metin.map((p, i) => (
                 <p key={i} className="text-[16.5px] leading-[1.72] text-[#3A3F4F]">
-                  {p}
+                  {kalinVurgula(p)}
                 </p>
               ))}
             </div>
@@ -201,7 +203,7 @@ export default async function HakkimizdaPage() {
             </h2>
             {paragraflar(icerik.akademiMetin).map((p, i) => (
               <p key={i} className="mt-7 text-[16.5px] leading-[1.72] text-[#3A3F4F]">
-                {p}
+                {kalinVurgula(p)}
               </p>
             ))}
           </div>

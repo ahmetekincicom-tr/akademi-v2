@@ -9,6 +9,8 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { useBildirim } from "@/components/Bildirim";
 import { Icon } from "@/components/Icon";
+import { KalinTextarea } from "@/components/admin/KalinTextarea";
+import { kalinVurgula } from "@/lib/kalin";
 import { kapakUrl } from "@/lib/kapak";
 import type { HakkimizdaIcerik } from "@/lib/hakkimizda";
 
@@ -41,6 +43,9 @@ export function HakkimizdaFormu({ icerik }: { icerik: HakkimizdaIcerik }) {
 
   const degistir = (ad: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [ad]: e.target.value }));
+
+  // KalinTextarea doğrudan yeni değeri veriyor (event değil).
+  const degisVal = (ad: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [ad]: v }));
 
   const kaydet = () => {
     startTransition(async () => {
@@ -80,7 +85,7 @@ export function HakkimizdaFormu({ icerik }: { icerik: HakkimizdaIcerik }) {
 
         <label className="mt-4 flex flex-col gap-2">
           <span className={ETIKET}>Açıklama</span>
-          <textarea value={form.heroMetin} onChange={degistir("heroMetin")} className={`${METIN} min-h-[100px]`} />
+          <KalinTextarea value={form.heroMetin} onDegis={degisVal("heroMetin")} className={`${METIN} min-h-[100px]`} />
         </label>
 
         {/* Önizleme: metinler koyu zeminde okunuyor, düzenlerken sonucu görmek
@@ -99,7 +104,9 @@ export function HakkimizdaFormu({ icerik }: { icerik: HakkimizdaIcerik }) {
             )}
           </div>
           {form.heroMetin && (
-            <p className="mx-auto mt-4 max-w-[520px] text-[14px] leading-[1.6] text-white/65">{form.heroMetin}</p>
+            <p className="mx-auto mt-4 max-w-[520px] text-[14px] leading-[1.6] text-white/65">
+              {kalinVurgula(form.heroMetin)}
+            </p>
           )}
         </div>
       </section>
@@ -135,9 +142,9 @@ export function HakkimizdaFormu({ icerik }: { icerik: HakkimizdaIcerik }) {
 
         <label className="mt-4 flex flex-col gap-2">
           <span className={ETIKET}>Tanıtım metni</span>
-          <textarea
+          <KalinTextarea
             value={form.kisiMetin}
-            onChange={degistir("kisiMetin")}
+            onDegis={degisVal("kisiMetin")}
             className={`${METIN} min-h-[300px]`}
             placeholder="Kaç yıldır ne yaptığın, hangi projelerde çalıştığın, ödüller, çalışma biçimin…"
           />
@@ -175,7 +182,7 @@ export function HakkimizdaFormu({ icerik }: { icerik: HakkimizdaIcerik }) {
 
         <label className="mt-4 flex flex-col gap-2">
           <span className={ETIKET}>Metin</span>
-          <textarea value={form.akademiMetin} onChange={degistir("akademiMetin")} className={`${METIN} min-h-[140px]`} />
+          <KalinTextarea value={form.akademiMetin} onDegis={degisVal("akademiMetin")} className={`${METIN} min-h-[140px]`} />
         </label>
       </section>
 
