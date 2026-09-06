@@ -67,7 +67,9 @@ export function ReferansLogo({
   */
   const olcu = izgara
     ? "w-auto object-contain max-h-[calc(40px*var(--olcek-mobil))] max-w-[min(100%,calc(86%*var(--olcek-mobil)))] sm:max-h-[calc(38px*var(--olcek))] sm:max-w-[min(88%,calc(58%*var(--olcek)))]"
-    : "max-h-[28px] w-auto max-w-[min(190px,100%)] object-contain sm:max-h-[30px] sm:max-w-[min(210px,100%)]";
+    : // Kayan şerit: geniş eşit kartta ortalanmış, YATAY BOŞLUKLU. max-w %80 ile
+      // sınırlı ki YTU gibi geniş logolar kartın kenarına dayanmasın.
+      "max-h-[30px] w-auto max-w-[80%] object-contain sm:max-h-[32px]";
   const renk = gri
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"
     : "opacity-85 group-hover:opacity-100";

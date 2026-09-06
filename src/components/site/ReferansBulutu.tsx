@@ -32,7 +32,13 @@ export function ReferansBulutu({ referanslar }: { referanslar: Referans[] }) {
               <ReferansLogo
                 key={`${r.id}-${i}`}
                 referans={r}
-                className="h-[62px] min-w-[148px] flex-none px-7 sm:h-[66px] sm:px-8"
+                /*
+                  SABİT GENİŞLİK: eşit kartlar. Eskiden min-w + içeriğe göre
+                  büyüyordu; YTU gibi çok geniş bir logo kartı baştan sona
+                  doldurup "yataya uzamış" görünüyordu. Eşit kartta her logo
+                  ortada, dört yanında boşlukla duruyor.
+                */
+                className="h-[64px] w-[200px] flex-none px-5 sm:h-[70px] sm:w-[236px] sm:px-6"
                 ariaGizli={i >= referanslar.length}
                 gri
               />
