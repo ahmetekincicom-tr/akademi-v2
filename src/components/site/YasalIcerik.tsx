@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { kalinVurgula, kalinsiz } from "@/lib/kalin";
 
 /**
  * Minimal Markdown-ish renderer for legal documents. They only ever need
@@ -98,23 +99,24 @@ export function YasalIcerik({ icerik }: { icerik: string }) {
           {b.tip === "baslik" &&
             (b.seviye === 2 ? (
               <h2 className="mt-4 font-heading text-[22px] leading-[1.25] font-semibold tracking-[-0.025em] text-ink">
-                {b.metin}
+                {/* Başlık zaten kalın; olası ** işaretleri metne sızmasın diye ayıklanıyor. */}
+                {kalinsiz(b.metin)}
               </h2>
             ) : (
               <h3 className="mt-3 font-heading text-[17px] leading-[1.3] font-semibold tracking-[-0.02em] text-ink">
-                {b.metin}
+                {kalinsiz(b.metin)}
               </h3>
             ))}
 
           {b.tip === "paragraf" && (
-            <p className="text-[15.5px] leading-[1.75] text-[#3A3F4F]">{b.metin}</p>
+            <p className="text-[15.5px] leading-[1.75] text-[#3A3F4F]">{kalinVurgula(b.metin)}</p>
           )}
 
           {b.tip === "liste" &&
             (b.sirali ? (
               <ol className="flex list-decimal flex-col gap-[9px] pl-5 text-[15.5px] leading-[1.7] text-[#3A3F4F]">
                 {b.maddeler.map((m, j) => (
-                  <li key={j}>{m}</li>
+                  <li key={j}>{kalinVurgula(m)}</li>
                 ))}
               </ol>
             ) : (
@@ -122,7 +124,7 @@ export function YasalIcerik({ icerik }: { icerik: string }) {
                 {b.maddeler.map((m, j) => (
                   <li key={j} className="flex gap-[11px]">
                     <span className="mt-[9px] h-[5px] w-[5px] flex-none rounded-full bg-brand" />
-                    <span>{m}</span>
+                    <span>{kalinVurgula(m)}</span>
                   </li>
                 ))}
               </ul>

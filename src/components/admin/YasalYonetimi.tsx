@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { yasalKaydet } from "@/app/kontrol-9f4x2k/(protected)/yasal/actions";
 import { Icon } from "@/components/Icon";
+import { KalinTextarea } from "@/components/admin/KalinTextarea";
 import { Toggle } from "./Toggle";
 import type { YasalSayfa } from "@/lib/yasal";
 import { useBildirim } from "@/components/Bildirim";
@@ -146,16 +147,17 @@ function YasalKarti({
 
           <label className="mt-4 flex flex-col gap-2">
             <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Belge metni</span>
-            <textarea
+            <KalinTextarea
               value={icerik}
-              onChange={(e) => setIcerik(e.target.value)}
+              onDegis={setIcerik}
               placeholder="Metni buraya yapıştır."
               className="min-h-[420px] resize-y rounded-[10px] border border-ink/13 bg-white px-[14px] py-3 font-mono text-[13px] leading-[1.7] text-ink outline-none focus:border-brand"
             />
             <span className="text-[12px] leading-[1.6] text-[#656B7A]">
               Düz metin yapıştırabilirsin. Biçimlendirme için: <code>##</code> ile başlayan satır başlık olur,{" "}
               <code>-</code> ile başlayan satır madde olur, <code>1.</code> ile başlayan satır numaralı madde olur.
-              &ldquo;MADDE 5&rdquo; gibi satırlar otomatik başlık sayılır. Boş satır paragrafları ayırır.
+              &ldquo;MADDE 5&rdquo; gibi satırlar otomatik başlık sayılır. Boş satır paragrafları ayırır. Kalın için
+              metni seçip &quot;Kalın&quot;a bas (ya da <code>**metin**</code> yaz).
             </span>
           </label>
 
