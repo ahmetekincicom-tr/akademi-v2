@@ -46,6 +46,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
   if (!course) notFound();
+  // "Çok yakında" programın detay sayfası kapalı: kartı zaten tıklanmıyor, ama
+  // adres elle yazılırsa da açılmasın — panelden aktifleşince erişilebilir olur.
+  if (course.cokYakinda) notFound();
 
   const icerik = await getSiteIcerik();
 

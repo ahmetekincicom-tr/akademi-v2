@@ -34,6 +34,7 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
     kapsam?: unknown;
     kontenjan?: string;
     yeni?: boolean;
+    cokYakinda?: boolean;
   } | null;
 
   // Kayıtta liste yoksa editöre VARSAYILAN geliyor — sayfada basılan da o.
@@ -59,6 +60,7 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
     kapsam: satirlar(icerik?.kapsam, VARSAYILAN_KAPSAM),
     kontenjan: icerik?.kontenjan ?? "",
     yeni: icerik?.yeni === true,
+    cokYakinda: icerik?.cokYakinda === true,
     modules,
     siteGorunur: course.sitede_gorunur,
     satisaAcik: course.satisa_acik,

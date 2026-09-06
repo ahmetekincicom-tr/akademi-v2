@@ -135,6 +135,7 @@ export default async function HomePage() {
     maddeler: c.maddeler.slice(0, 3),
     kapak: c.kapak,
     yeni: c.yeni,
+    cokYakinda: c.cokYakinda,
   }));
 
   return (

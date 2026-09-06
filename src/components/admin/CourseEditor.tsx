@@ -41,6 +41,8 @@ export type CourseEditorInitial = {
   kontenjan: string;
   /** Vitrin kartındaki "YENİ" rozeti. */
   yeni: boolean;
+  /** "Çok yakında": kart sönük ve tıklanamaz kalır. */
+  cokYakinda: boolean;
   modules: EditorModule[];
   siteGorunur: boolean;
   satisaAcik: boolean;
@@ -65,6 +67,7 @@ const BOS_INITIAL: CourseEditorInitial = {
   kapsam: VARSAYILAN_KAPSAM,
   kontenjan: "",
   yeni: false,
+  cokYakinda: false,
   modules: [],
   siteGorunur: true,
   satisaAcik: true,
@@ -92,6 +95,7 @@ export function CourseEditor({
   const [kapsam, setKapsam] = useState<IkonluSatir[]>(initial.kapsam);
   const [kontenjan, setKontenjan] = useState(initial.kontenjan);
   const [yeni, setYeni] = useState(initial.yeni);
+  const [cokYakinda, setCokYakinda] = useState(initial.cokYakinda);
   const [modules, setModules] = useState<EditorModule[]>(initial.modules);
   const [yayin, setYayin] = useState({
     site: initial.siteGorunur,
@@ -120,6 +124,7 @@ export function CourseEditor({
       kapsam,
       kontenjan,
       yeni,
+      cokYakinda,
       modules,
       siteGorunur: yayin.site,
       satisaAcik: yayin.satis,
@@ -408,6 +413,24 @@ export function CourseEditor({
                     Ana sayfadaki ve eğitimler sayfasındaki kartın görselinde &quot;YENİ&quot; rozeti gösterilir.
                     Program artık yeni değilken işareti kaldırmayı unutmayın — kalıcı bir rozet anlamını
                     yitirir.
+                  </span>
+                </span>
+              </label>
+
+              <label className="mt-6 flex max-w-[620px] cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={cokYakinda}
+                  onChange={(e) => setCokYakinda(e.target.checked)}
+                  className="mt-[3px] h-[18px] w-[18px] flex-none accent-brand"
+                />
+                <span className="flex flex-col gap-1">
+                  <span className="text-[14.5px] font-semibold text-ink">&quot;Çok yakında&quot;</span>
+                  <span className="text-[12.5px] leading-[1.55] text-[#656B7A]">
+                    Program eğitimler listesinde sönük ve tıklanamaz durur; düğmesinde &quot;Çok yakında&quot;
+                    yazar ve detay sayfası kapalı kalır. Hazır olunca bu işareti kaldır — program normal,
+                    tıklanabilir hale gelir. (Site görünürlüğü açık olmalı; kapalıyken program hiç
+                    görünmez.)
                   </span>
                 </span>
               </label>

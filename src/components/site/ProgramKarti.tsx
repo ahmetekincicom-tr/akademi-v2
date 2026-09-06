@@ -21,6 +21,8 @@ export type ProgramKartiVerisi = {
   kapak: string | null;
   /** Panelden işaretleniyor; kart görselinde "YENİ" rozeti gösteriyor. */
   yeni: boolean;
+  /** "Çok yakında": kart sönük ve tıklanamaz, düğmede "Çok yakında" yazar. */
+  cokYakinda: boolean;
 };
 
 /**
@@ -52,54 +54,76 @@ export function ProgramKarti({
   // Kural ve gerekçesi lib/baslik-satiri.ts içinde.
   const ikiSatir = kartBasligiSatirlari(p.baslik, p.etiket);
 
-  return (
-    <div
-      className={`relative flex flex-col overflow-hidden rounded-2xl bg-white transition hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)] ${
-        vitrin ? "border-2 border-brand/35 shadow-[0_18px_44px_rgba(28,86,243,0.18)]" : "border border-ink/11"
-      }`}
-    >
-      {/*
-        Görsel ve başlık da detaya gidiyor: kart bir bağlantı gibi görünüyordu
-        ama yalnızca alttaki düğme tıklanabiliyordu. Kartın tamamını tek bir
-        <a> yapmak seçenek değil — içindeki düğme de bağlantı ve iç içe <a>
-        geçersiz.
-      */}
-      <Link
-        href={href}
-        aria-label={`${p.baslik} detayına git`}
-        className={`relative flex aspect-video items-end border-b border-ink/8 p-[14px] ${
-          p.kapak ? "bg-cover bg-center" : "placeholder-block"
-        }`}
-        style={p.kapak ? { backgroundImage: `url(${p.kapak})` } : undefined}
-      >
-        {!p.kapak && (
-          <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
-            program görseli 16:9
-          </span>
-        )}
-        {/*
-          İki rozet TEK BİR SATIRDA, iki ayrı mutlak konumda değil.
+  // "Çok yakında" programı: hiçbir yere gitmiyor (görsel, başlık, düğme). Kart
+  // vitrinde sönük duruyor; işaret panelden kaldırılınca normale dönüyor.
+  const tiklanabilir = !p.cokYakinda;
+  const baslikIcerik = ikiSatir ? (
+    <>
+      {ikiSatir.ilk}
+      <br />
+      {ikiSatir.kalan}
+    </>
+  ) : (
+    p.baslik
+  );
 
-          Ayrı ayrı konumlandıklarında 320px genişlikte "META ADS" ile "EN ÇOK
-          TERCİH EDİLEN" üst üste biniyordu; ikisini alt alta ya da alt köşeye
-          almak da görselin üstündeki yer tutucu yazıyla çakışıyordu. Aynı
-          satırda justify-between ile duruyorlar: kategori sabit, rozet kalan
-          yere sığıyor.
-
-          Vitrin rozeti "yeni"yi bastırıyor: iki rozet aynı anda gösterilseydi
-          hangisinin okunacağı belirsiz olurdu, ikisi de aynı köşede.
-        */}
-        <span className="absolute inset-x-[14px] top-[14px] flex items-start justify-between gap-2">
-          <span className="flex-none rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
-            {p.etiket}
+  // Görselin iç içeriği (yer tutucu + rozetler); Link ya da düz div ile sarılıyor.
+  const gorselSinif = `relative flex aspect-video items-end border-b border-ink/8 p-[14px] ${
+    p.kapak ? "bg-cover bg-center" : "placeholder-block"
+  }`;
+  const gorselStil = p.kapak ? { backgroundImage: `url(${p.kapak})` } : undefined;
+  const gorselIcerik = (
+    <>
+      {!p.kapak && (
+        <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
+          program görseli 16:9
+        </span>
+      )}
+      <span className="absolute inset-x-[14px] top-[14px] flex items-start justify-between gap-2">
+        <span className="flex-none rounded-[6px] bg-ink px-[10px] py-[6px] font-mono text-[10px] tracking-[0.1em] text-white uppercase">
+          {p.etiket}
+        </span>
+        {p.cokYakinda ? (
+          <span className="rounded-[6px] bg-ink/70 px-[10px] py-[6px] text-right font-mono text-[10px] leading-[1.35] tracking-[0.1em] text-white uppercase backdrop-blur-sm">
+            Çok yakında
           </span>
-          {(vitrin || p.yeni) && (
+        ) : (
+          (vitrin || p.yeni) && (
             <span className="rounded-[6px] bg-brand px-[10px] py-[6px] text-right font-mono text-[10px] leading-[1.35] tracking-[0.1em] text-white uppercase shadow-[0_6px_16px_rgba(28,86,243,0.35)]">
               {vitrin ? "En çok tercih edilen" : "Yeni"}
             </span>
-          )}
-        </span>
-      </Link>
+          )
+        )}
+      </span>
+    </>
+  );
+
+  return (
+    <div
+      className={`relative flex flex-col overflow-hidden rounded-2xl bg-white transition ${
+        p.cokYakinda
+          ? "border border-ink/11 opacity-65"
+          : `hover:-translate-y-[5px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)] ${
+              vitrin
+                ? "border-2 border-brand/35 shadow-[0_18px_44px_rgba(28,86,243,0.18)]"
+                : "border border-ink/11"
+            }`
+      }`}
+    >
+      {/*
+        Görsel ve başlık da detaya gidiyor. "Çok yakında" iken hiçbiri
+        tıklanmıyor: Link yerine düz div/span basılıyor, sayfa hazır olmadan
+        kimse detaya düşmesin.
+      */}
+      {tiklanabilir ? (
+        <Link href={href} aria-label={`${p.baslik} detayına git`} className={gorselSinif} style={gorselStil}>
+          {gorselIcerik}
+        </Link>
+      ) : (
+        <div className={gorselSinif} style={gorselStil}>
+          {gorselIcerik}
+        </div>
+      )}
 
       <div className="flex flex-1 flex-col p-[26px] pt-[26px] pb-7">
         {/*
@@ -128,17 +152,13 @@ export function ProgramKarti({
             hiçbir şey yapmıyordu — üç kart başlığı, madde işaretleri ve düğme
             aynı mavideyken kartta neyin bağlantı olduğu kayboluyordu.
           */}
-          <Link href={href} className="text-ink transition-colors hover:text-brand">
-            {ikiSatir ? (
-              <>
-                {ikiSatir.ilk}
-                <br />
-                {ikiSatir.kalan}
-              </>
-            ) : (
-              p.baslik
-            )}
-          </Link>
+          {tiklanabilir ? (
+            <Link href={href} className="text-ink transition-colors hover:text-brand">
+              {baslikIcerik}
+            </Link>
+          ) : (
+            <span className="text-ink">{baslikIcerik}</span>
+          )}
         </Baslik>
 
         {/*
@@ -181,22 +201,34 @@ export function ProgramKarti({
           anlaşılıyordu. Metin etiketten kuruluyor, elle yazılmıyor — panelde
           etiket değişince düğme de değişiyor.
         */}
-        <Link
-          href={href}
-          /*
-            Yükseklik SABİT DEĞİL (min-h + py): "Sosyal Medya Eğitimini
-            İncele" 320px'te iki satıra düşüyor ve sabit 50px'lik kutuda
-            metin dışarı taşıyordu.
-          */
-          className="group/dugme mt-auto flex min-h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand px-4 py-3 text-center text-[14.5px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink sm:text-[15px]"
-        >
-          <span>{baslikBicimi(p.etiket)} Eğitimini İncele</span>
-          <Icon
-            name="arrowRight"
-            size={16}
-            className="flex-none transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
-          />
-        </Link>
+        {/*
+          Yükseklik SABİT DEĞİL (min-h + py): "Sosyal Medya Eğitimini İncele"
+          320px'te iki satıra düşüyor ve sabit 50px'lik kutuda metin taşıyordu.
+
+          "Çok yakında" iken düğme bağlantı değil düz bir kutu: tıklanmıyor,
+          nötr renkte ve "Çok yakında" yazıyor.
+        */}
+        {tiklanabilir ? (
+          <Link
+            href={href}
+            className="group/dugme mt-auto flex min-h-[50px] items-center justify-center gap-[9px] rounded-[11px] bg-brand px-4 py-3 text-center text-[14.5px] font-semibold text-white shadow-[0_10px_24px_rgba(28,86,243,0.25)] transition hover:bg-ink sm:text-[15px]"
+          >
+            <span>{baslikBicimi(p.etiket)} Eğitimini İncele</span>
+            <Icon
+              name="arrowRight"
+              size={16}
+              className="flex-none transition-transform duration-200 group-hover/dugme:translate-x-[3px]"
+            />
+          </Link>
+        ) : (
+          <div
+            aria-disabled="true"
+            className="mt-auto flex min-h-[50px] cursor-default items-center justify-center gap-[8px] rounded-[11px] border border-ink/12 bg-mist px-4 py-3 text-center text-[14.5px] font-semibold text-[#656B7A] sm:text-[15px]"
+          >
+            <Icon name="clock" size={15} className="flex-none" strokeWidth={1.8} />
+            <span>Çok yakında</span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -67,6 +67,7 @@ export function EgitimlerFiltre({ courses }: { courses: Course[] }) {
                 maddeler: p.maddeler.slice(0, 3),
                 kapak: p.kapak,
                 yeni: p.yeni,
+                cokYakinda: p.cokYakinda,
               }}
               vitrin={i === 0 && tab === "Tümü"}
               baslikSeviyesi="h2"

@@ -128,6 +128,13 @@ export type Course = {
    */
   yeni: boolean;
   /**
+   * "Çok yakında" programı: listede sönük durur, kartı tıklanamaz ve düğmesinde
+   * "Çok yakında" yazar. Panelden işaret kaldırılınca normal, tıklanabilir bir
+   * programa dönüyor. Yayından kaldırmaktan farkı: kaldırılan hiç görünmez,
+   * bu ise "geliyor" mesajıyla vitrinde kalıyor.
+   */
+  cokYakinda: boolean;
+  /**
    * Listeleme sırası. Küçük olan önce.
    *
    * created_at'e güvenilemiyor: üç eğitim de aynı toplu ekleme ile
@@ -222,6 +229,7 @@ type CourseRow = {
     haplar?: unknown;
     kontenjan?: string;
     yeni?: boolean;
+    cokYakinda?: boolean;
     sira?: number;
     kazanimlar: string[];
     uygun: string[];
@@ -278,6 +286,8 @@ function mapCourse(row: CourseRow): Course {
     kontenjan: (row.content.kontenjan ?? "").trim(),
     // Alan sonradan eklendi: eski kayıtlarda yok, rozetsiz doğru varsayılan.
     yeni: row.content.yeni === true,
+    // Sonradan eklendi: eski kayıtlarda yok, "çok yakında değil" doğru varsayılan.
+    cokYakinda: row.content.cokYakinda === true,
     // Sırası verilmemiş eğitim listenin sonuna: yeni eklenen bir program
     // kendiliğinden vitrinin başına geçmemeli.
     sira: typeof row.content.sira === "number" ? row.content.sira : 999,
