@@ -11,6 +11,7 @@ import { Icon } from "@/components/Icon";
 import { getHakkimizda, paragraflar } from "@/lib/hakkimizda";
 import { kalinVurgula, kalinsiz } from "@/lib/kalin";
 import { kapakUrl } from "@/lib/kapak";
+import { LINKEDIN_URL } from "@/lib/iletisim";
 import { getReferanslar } from "@/lib/icerik";
 import { sayfaMeta, kisiSemasi } from "@/lib/seo";
 
@@ -149,13 +150,25 @@ export default async function HakkimizdaPage() {
                 </p>
               ))}
             </div>
-            <Link
-              href="/egitimler"
-              className="mt-9 inline-flex h-[50px] items-center gap-[9px] rounded-[11px] bg-ink px-6 text-[15px] font-semibold text-white transition hover:bg-brand"
-            >
-              Eğitimleri incele
-              <Icon name="arrowRight" size={16} />
-            </Link>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              {/* Eğitmenin LinkedIn profili; logolu ve yeni sekmede. */}
+              <a
+                href={LINKEDIN_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-[50px] items-center gap-[9px] rounded-[11px] bg-[#0A66C2] px-6 text-[15px] font-semibold text-white transition hover:bg-[#08528f]"
+              >
+                <Icon name="linkedin" size={18} />
+                LinkedIn
+              </a>
+              <Link
+                href="/referanslar"
+                className="inline-flex h-[50px] items-center gap-[9px] rounded-[11px] border border-ink/15 bg-white px-6 text-[15px] font-semibold text-ink transition hover:border-brand hover:text-brand"
+              >
+                <Icon name="users" size={17} />
+                Referanslar
+              </Link>
+            </div>
           </div>
 
           {/*
