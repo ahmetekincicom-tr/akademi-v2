@@ -25,6 +25,10 @@ export type Referans = {
   olcek: number;
   /** Mobil ızgaradaki görünüm ölçeği (yüzde, 100 = varsayılan). Yalnızca mobili etkiler. */
   olcekMobil: number;
+  /** Masaüstü kayan şeritteki görünüm ölçeği (yüzde, 100 = varsayılan). */
+  seritOlcek: number;
+  /** Mobil kayan şeritteki görünüm ölçeği (yüzde, 100 = varsayılan). */
+  seritOlcekMobil: number;
 };
 
 /** Referans logosu — kendi alan adımızdan (bkz. lib/depo.ts). */
@@ -55,7 +59,9 @@ export async function getReferanslar(client?: SupabaseClient<Database>): Promise
   const supabase = client ?? createPublicClient();
   const { data } = await supabase
     .from("referanslar")
-    .select("id, ad, sektor, logo_yolu, site_url, sira, yayinda, logo_olcek, logo_olcek_mobil")
+    .select(
+      "id, ad, sektor, logo_yolu, site_url, sira, yayinda, logo_olcek, logo_olcek_mobil, logo_olcek_serit, logo_olcek_serit_mobil",
+    )
     .order("sira", { ascending: true })
     .order("created_at", { ascending: true });
 
@@ -69,5 +75,7 @@ export async function getReferanslar(client?: SupabaseClient<Database>): Promise
     yayinda: r.yayinda,
     olcek: r.logo_olcek ?? 100,
     olcekMobil: r.logo_olcek_mobil ?? 100,
+    seritOlcek: r.logo_olcek_serit ?? 100,
+    seritOlcekMobil: r.logo_olcek_serit_mobil ?? 100,
   }));
 }

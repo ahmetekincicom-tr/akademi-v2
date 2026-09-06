@@ -51,8 +51,11 @@ export function ReferansLogo({
     sınırlı ki büyük ölçekte bile logo karttan taşmasın.
   */
   const sinirla = (deger: number) => Math.min(Math.max(deger / 100, 0.5), 2);
-  const olcek = izgara ? sinirla(referans.olcek ?? 100) : 1;
-  const olcekMobil = izgara ? sinirla(referans.olcekMobil ?? 100) : 1;
+  // Izgara ile şerit AYRI ölçekler kullanıyor (kartlar ve oranlar farklı). Aktif
+  // olan bağlama göre seçilip aynı --olcek / --olcek-mobil değişkenlerine
+  // basılıyor; böylece iki boyut da tek CSS kalıbını paylaşıyor.
+  const olcek = sinirla((izgara ? referans.olcek : referans.seritOlcek) ?? 100);
+  const olcekMobil = sinirla((izgara ? referans.olcekMobil : referans.seritOlcekMobil) ?? 100);
 
   /*
     Genişlik freni yüzdeyle veriliyor ve kart genişliğine göre değişiyor: mobilde
@@ -67,9 +70,9 @@ export function ReferansLogo({
   */
   const olcu = izgara
     ? "w-auto object-contain max-h-[calc(40px*var(--olcek-mobil))] max-w-[min(100%,calc(86%*var(--olcek-mobil)))] sm:max-h-[calc(38px*var(--olcek))] sm:max-w-[min(88%,calc(58%*var(--olcek)))]"
-    : // Kayan şerit: geniş eşit kartta ortalanmış, YATAY BOŞLUKLU. max-w %80 ile
-      // sınırlı ki YTU gibi geniş logolar kartın kenarına dayanmasın.
-      "max-h-[30px] w-auto max-w-[80%] object-contain sm:max-h-[32px]";
+    : // Kayan şerit: geniş eşit kartta ortalanmış, YATAY BOŞLUKLU. max-w %80 taban;
+      // logo başına ölçek (var) ile büyüyüp küçülüyor, %96 tavanı taşmayı önlüyor.
+      "w-auto object-contain max-h-[calc(30px*var(--olcek-mobil))] max-w-[min(96%,calc(80%*var(--olcek-mobil)))] sm:max-h-[calc(32px*var(--olcek))] sm:max-w-[min(96%,calc(80%*var(--olcek)))]";
   const renk = gri
     ? "grayscale opacity-65 group-hover:grayscale-0 group-hover:opacity-100"
     : "opacity-85 group-hover:opacity-100";
@@ -91,11 +94,7 @@ export function ReferansLogo({
       alt={referans.ad}
       loading={yukleme}
       className={`${olcu} transition ${renk}`}
-      style={
-        izgara
-          ? ({ "--olcek": String(olcek), "--olcek-mobil": String(olcekMobil) } as CSSProperties)
-          : undefined
-      }
+      style={{ "--olcek": String(olcek), "--olcek-mobil": String(olcekMobil) } as CSSProperties}
     />
   ) : (
     <span className="truncate px-3 text-center text-[12.5px] font-semibold text-[#5C6273]">{referans.ad}</span>

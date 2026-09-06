@@ -64,6 +64,8 @@ export type ReferansInput = {
   logoYolu?: string;
   olcek?: string;
   olcekMobil?: string;
+  seritOlcek?: string;
+  seritOlcekMobil?: string;
 };
 
 export async function referansKaydet(input: ReferansInput) {
@@ -97,6 +99,8 @@ export async function referansKaydet(input: ReferansInput) {
   };
   if (input.olcek !== undefined) satir.logo_olcek = olceklendir(input.olcek);
   if (input.olcekMobil !== undefined) satir.logo_olcek_mobil = olceklendir(input.olcekMobil);
+  if (input.seritOlcek !== undefined) satir.logo_olcek_serit = olceklendir(input.seritOlcek);
+  if (input.seritOlcekMobil !== undefined) satir.logo_olcek_serit_mobil = olceklendir(input.seritOlcekMobil);
   // Only overwrite the logo when a new one was uploaded in this save.
   if (input.logoYolu !== undefined) satir.logo_yolu = input.logoYolu || null;
 

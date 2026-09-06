@@ -24,9 +24,20 @@ export type AdminReferans = {
   yayinda: boolean;
   olcek: number;
   olcekMobil: number;
+  seritOlcek: number;
+  seritOlcekMobil: number;
 };
 
-const BOS = { ad: "", sektor: "", siteUrl: "", yayinda: true, olcek: "100", olcekMobil: "100" };
+const BOS = {
+  ad: "",
+  sektor: "",
+  siteUrl: "",
+  yayinda: true,
+  olcek: "100",
+  olcekMobil: "100",
+  seritOlcek: "100",
+  seritOlcekMobil: "100",
+};
 
 export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[] }) {
   const router = useRouter();
@@ -67,6 +78,8 @@ export function ReferansYonetimi({ referanslar }: { referanslar: AdminReferans[]
       yayinda: r.yayinda,
       olcek: String(r.olcek ?? 100),
       olcekMobil: String(r.olcekMobil ?? 100),
+      seritOlcek: String(r.seritOlcek ?? 100),
+      seritOlcekMobil: String(r.seritOlcekMobil ?? 100),
     });
     setDosya(null);
     setHata(null);
@@ -387,7 +400,7 @@ function ReferansFormu({
           />
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Web ölçeği (%)</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Sayfa · web (%)</span>
           <input
             type="number"
             min={50}
@@ -398,11 +411,11 @@ function ReferansFormu({
             className={alan}
           />
           <span className="text-[11.5px] leading-[1.5] text-[#656B7A]">
-            Masaüstü görünümü. 100 = varsayılan; seyrek logoları 120–140’a çek.
+            /referanslar ızgarası, masaüstü. 100 = varsayılan.
           </span>
         </label>
         <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Mobil ölçeği (%)</span>
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Sayfa · mobil (%)</span>
           <input
             type="number"
             min={50}
@@ -413,7 +426,37 @@ function ReferansFormu({
             className={alan}
           />
           <span className="text-[11.5px] leading-[1.5] text-[#656B7A]">
-            Yalnızca mobili etkiler; web ölçeğinden bağımsız. 100 = varsayılan.
+            /referanslar ızgarası, mobil. 100 = varsayılan.
+          </span>
+        </label>
+        <label className="flex flex-col gap-2">
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Şerit · web (%)</span>
+          <input
+            type="number"
+            min={50}
+            max={200}
+            step={5}
+            value={form.seritOlcek}
+            onChange={(e) => setForm({ ...form, seritOlcek: e.target.value })}
+            className={alan}
+          />
+          <span className="text-[11.5px] leading-[1.5] text-[#656B7A]">
+            Kayan şerit (ana sayfa vb.), masaüstü. 100 = varsayılan.
+          </span>
+        </label>
+        <label className="flex flex-col gap-2">
+          <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Şerit · mobil (%)</span>
+          <input
+            type="number"
+            min={50}
+            max={200}
+            step={5}
+            value={form.seritOlcekMobil}
+            onChange={(e) => setForm({ ...form, seritOlcekMobil: e.target.value })}
+            className={alan}
+          />
+          <span className="text-[11.5px] leading-[1.5] text-[#656B7A]">
+            Kayan şerit, mobil. 100 = varsayılan.
           </span>
         </label>
         <div className="flex flex-col gap-2 sm:col-span-2">
