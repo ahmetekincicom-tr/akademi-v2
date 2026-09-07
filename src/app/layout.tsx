@@ -9,6 +9,7 @@ import { NativeIsaretci } from "@/components/site/NativeIsaretci";
 import { MetaPixel } from "@/components/site/MetaPixel";
 import { HizOlcumu } from "@/components/site/HizOlcumu";
 import { OnizlemeSeridi } from "@/components/site/OnizlemeSeridi";
+import { WhatsAppYuzenDugme } from "@/components/site/WhatsAppYuzenDugme";
 import { getMarka } from "@/lib/marka";
 import { mutlakDepoUrl } from "@/lib/depo";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
@@ -152,6 +153,8 @@ export default async function RootLayout({
         <NativeIsaretci />
         <TopLoader />
         <BildirimSaglayici>{children}</BildirimSaglayici>
+        {/* Sağ altta sabit WhatsApp düğmesi — tüm sayfalarda. */}
+        <WhatsAppYuzenDugme />
         {bantVar && <CerezBandi />}
         {/* Gerekçesi ve uygulamada neden çizilmediği HizOlcumu.tsx'te. */}
         <HizOlcumu />
