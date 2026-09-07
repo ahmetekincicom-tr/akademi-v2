@@ -173,7 +173,7 @@ export async function PublicFooter() {
           >
             {/* Resmi marka görseli; next/image SVG'yi optimize etmiyor. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/odeme/kommo-partner.svg" alt="Kommo partner" className="h-[46px] w-auto" />
+            <img src="/odeme/kommo-partner.svg" alt="Kommo partner" className="h-[35px] w-auto" />
           </a>
         </div>
         {sutunlar.map((k) => (
@@ -255,7 +255,7 @@ export async function PublicFooter() {
           )}
         </div>
 
-        <div className="mt-6 flex flex-col items-center gap-5 text-[13px] sm:mt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div className="mt-6 flex flex-col items-center gap-5 text-[13px] sm:mt-9 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <span className="order-2 text-center text-white/45 sm:order-1 sm:text-left">
             © 2021–2026 Ahmet Ekinci Akademi. Tüm hakları saklıdır.
           </span>
