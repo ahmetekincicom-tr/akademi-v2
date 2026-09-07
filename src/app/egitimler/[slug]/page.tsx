@@ -272,7 +272,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               <p className="mt-5 max-w-[400px] text-[14.5px] leading-[1.6] text-pretty text-white/60 sm:max-w-[560px] sm:text-[17.5px] sm:leading-[1.62] sm:text-white/65">
                 <KalinMetin metin={course.heroAciklama} />
               </p>
-              <HeroDegerler degerler={course.haplar} />
+              <HeroDegerler degerler={course.haplar} egitim={course.slug} />
             </div>
             {/*
               Kapak görseli dar ekranda GİZLİ.
@@ -548,7 +548,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 farklı ki hangi düğmenin çalıştığı ayrışsın.
               */}
               <Link
-                href={olculenWhatsapp("egitim-yan-kutu")}
+                href={olculenWhatsapp("egitim-yan-kutu", 0, course.slug)}
                 className="mt-6 flex h-13 items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[15.5px] font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.32)] transition hover:bg-ink"
               >
                 <Icon name="whatsapp" size={17} />

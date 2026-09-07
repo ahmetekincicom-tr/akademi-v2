@@ -1,6 +1,6 @@
 import { randomInt } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
-import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
+import { WHATSAPP_NUMARALAR, whatsappLink, egitimWhatsappMesaji } from "@/lib/iletisim";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { IZIN_CEREZI, izniCoz, reklamIzniVar } from "@/lib/izin";
 import { FBC_CEREZI, FBP_CEREZI } from "@/lib/meta/fbc";
@@ -71,13 +71,16 @@ export async function GET(request: NextRequest) {
   const kod = await temasiKaydet(request, yer, numara);
 
   /*
-    Hazır mesaj. Kod parantez içinde ve sonda: kişi mesajın başına kendi
-    cümlesini yazsa bile kod kalıyor, çünkü insanlar hazır metnin sonuna
-    değil önüne yazıyor.
+    Hazır mesaj. Metin eğitime göre değişiyor: eğitim detay sayfasındaki
+    düğmeler `e` parametresiyle eğitimin slug'ını taşıyor, mesaj ona göre
+    seçiliyor (egitimWhatsappMesaji). Slug yoksa/eşleşmezse varsayılan metin
+    — footer ve detay dışı her yer. Metinlerin hepsi sunucuda sabit.
+
+    Kod parantez içinde ve SONDA: kişi mesajın başına kendi cümlesini yazsa
+    bile kod kalıyor, çünkü insanlar hazır metnin sonuna değil önüne yazıyor.
   */
-  const mesaj = kod
-    ? `Merhaba, eğitimler hakkında bilgi almak istiyorum. (Ref: ${kod})`
-    : "Merhaba, eğitimler hakkında bilgi almak istiyorum.";
+  const taban = egitimWhatsappMesaji(yeriTemizle(parametre.get("e")));
+  const mesaj = kod ? `${taban} (Ref: ${kod})` : taban;
 
   /*
     303 kullanılıyor.

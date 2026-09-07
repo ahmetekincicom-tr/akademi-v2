@@ -19,7 +19,7 @@ import type { IkonluSatir } from "@/lib/courses";
  * lib/courses.ts içindeki VARSAYILAN_HAPLAR'da.
  */
 
-export function HeroDegerler({ degerler }: { degerler: IkonluSatir[] }) {
+export function HeroDegerler({ degerler, egitim }: { degerler: IkonluSatir[]; egitim?: string }) {
   return (
     <div className="mt-8 sm:mt-9">
       {/*
@@ -73,7 +73,7 @@ export function HeroDegerler({ degerler }: { degerler: IkonluSatir[] }) {
           "yan bilgi" gibi okunuyordu, oysa sayfanın tek eylemi bu.
         */}
         <Link
-          href={olculenWhatsapp("egitim-hero")}
+          href={olculenWhatsapp("egitim-hero", 0, egitim)}
           className="nabiz group flex h-14 w-full items-center justify-center gap-[11px] rounded-[14px] bg-brand px-8 text-[16.5px] font-semibold text-white shadow-[0_16px_40px_rgba(28,86,243,0.45)] transition-[background-color,box-shadow] duration-200 hover:bg-white hover:text-ink hover:shadow-[0_16px_44px_rgba(255,255,255,0.22)] sm:w-auto"
         >
           <Icon name="whatsapp" size={19} />

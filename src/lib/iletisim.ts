@@ -44,10 +44,38 @@ export function whatsappLink(numara: string, mesaj?: string) {
  * `yer` hangi düğmeye basıldığını söylüyor; hangi yerleşimin çalıştığını
  * ancak böyle görebiliyoruz.
  */
-export function olculenWhatsapp(yer: string, sira = 0) {
+export function olculenWhatsapp(yer: string, sira = 0, egitim?: string) {
   const q = new URLSearchParams({ yer });
   if (sira) q.set("no", String(sira));
+  // Eğitim detay sayfasındaki düğmeler eğitimin slug'ını taşıyor; hazır mesaj
+  // buna göre seçiliyor (bkz. egitimWhatsappMesaji ve app/git/whatsapp/route.ts).
+  if (egitim) q.set("e", egitim);
   return `/git/whatsapp?${q}`;
+}
+
+/**
+ * WhatsApp hazır mesajı.
+ *
+ * Varsayılan — footer dahil, eğitim detay sayfası DIŞINDAKİ her yer. Eğitim
+ * detay sayfalarında ise eğitime özel mesaj kullanılıyor; eşleşme aşağıdaki
+ * haritada, anahtar eğitimin slug'ı. Ref kodu her koşulda ayrıca ekleniyor
+ * (route.ts) — buradaki metinler koddan bağımsız.
+ *
+ * Metinler SUNUCUDA sabit; URL'den gelen slug yalnızca haritada arama anahtarı,
+ * mesajın kendisi hiçbir zaman adres çubuğundan gelmiyor.
+ */
+export const WHATSAPP_VARSAYILAN_MESAJ =
+  "Merhaba, birebir eğitimleriniz hakkında bilgi almak istiyorum.";
+
+const EGITIM_WHATSAPP_MESAJLARI: Record<string, string> = {
+  "birebir-meta-ads-egitimi": "Merhaba, Birebir Meta Ads eğitimi hakkında bilgi almak istiyorum.",
+  "sosyal-medya": "Merhaba, Sosyal Medya ve Reklam eğitimi hakkında bilgi almak istiyorum.",
+  "yapay-zeka-egitimi": "Merhaba, Yapay Zekâ eğitimi hakkında bilgi almak istiyorum.",
+};
+
+export function egitimWhatsappMesaji(slug: string | null | undefined): string {
+  if (slug && EGITIM_WHATSAPP_MESAJLARI[slug]) return EGITIM_WHATSAPP_MESAJLARI[slug];
+  return WHATSAPP_VARSAYILAN_MESAJ;
 }
 
 export const SOSYAL: { ad: string; ikon: IconName; href: string }[] = [
