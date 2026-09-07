@@ -258,17 +258,28 @@ export async function PublicFooter() {
         Alt bant. Üstte yasal bağlantılar, altında telif + ödeme işaretleri.
 
         Ödeme işaretleri dar ekranda ortalı, geniş ekranda telifin karşısında
-        (sağda) — görseldeki düzen. Yasal bağlantılar da dar ekranda ortalı,
-        geniş ekranda sola yaslı.
+        (sağda) — görseldeki düzen. Yasal bağlantılar dar ekranda ortalı,
+        geniş ekranda sağa yaslı ve her birinin başında bir ok işareti —
+        eskiden işaretsiz, düzensiz bir satırdı.
       */}
       <div className="mx-auto max-w-[1240px] px-5 pb-10 sm:px-8">
-        <div className="flex flex-wrap justify-center gap-x-[22px] gap-y-[10px] border-t border-white/10 pt-[22px] text-[13px] sm:justify-start">
+        <div className="flex flex-wrap justify-center gap-x-5 gap-y-[10px] border-t border-white/10 pt-[22px] text-[13px] sm:justify-end">
           {YASAL_LINKLER.map((l) => (
-            <Link key={l.href} href={l.href} className="text-white/55 hover:text-white">
+            <Link
+              key={l.href}
+              href={l.href}
+              className="group/yasal inline-flex items-center gap-[6px] text-white/55 transition hover:text-white"
+            >
+              <Icon name="chevronRight" size={13} className="flex-none text-white/35 transition group-hover/yasal:text-brand" />
               {l.label}
             </Link>
           ))}
-          {olcumlemeVar && <CerezTercihleriDugmesi className="text-white/55 hover:text-white" />}
+          {olcumlemeVar && (
+            <span className="inline-flex items-center gap-[6px] text-white/35">
+              <Icon name="chevronRight" size={13} className="flex-none" />
+              <CerezTercihleriDugmesi className="text-white/55 hover:text-white" />
+            </span>
+          )}
         </div>
 
         <div className="mt-6 flex flex-col items-center gap-5 text-[13px] sm:mt-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
