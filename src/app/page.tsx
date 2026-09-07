@@ -71,9 +71,48 @@ const surec = [
   },
 ];
 
-function SectionKicker({ children }: { children: React.ReactNode }) {
+/**
+ * Bölüm başlığı — ana sayfadaki TÜM bölümlerin ortak başlık düzeni.
+ *
+ * Tek bir bileşen: başlıklar eskiden her bölümde ayrı ayrı yazılıyordu ve
+ * boyutları, hizaları, altlarındaki metin birbirinden kopuyordu. Standart
+ * burada: dar ekranda ORTALI ve büyük (40px), geniş ekranda sola yaslı
+ * (46px); başlığın hemen altında iki satırlık bir açıklama. İsteğe bağlı
+ * `aksiyon` (geniş ekran düğmesi) başlığın karşısında durur.
+ *
+ * `koyu`: koyu zeminli bölümlerde (Yöntem) metin renklerini açar.
+ */
+function BolumBasligi({
+  baslik,
+  aciklama,
+  koyu = false,
+  aksiyon,
+}: {
+  baslik: React.ReactNode;
+  aciklama: string;
+  koyu?: boolean;
+  aksiyon?: React.ReactNode;
+}) {
   return (
-    <div className="font-mono text-[11px] tracking-[0.16em] text-brand uppercase">{children}</div>
+    <div className="mb-9 flex flex-col gap-6 sm:mb-12 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
+      <div className="w-full sm:max-w-[640px]">
+        <h2
+          className={`text-center font-heading text-[40px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-left sm:text-[46px] sm:leading-[1.05] ${
+            koyu ? "text-white" : "text-ink"
+          }`}
+        >
+          {baslik}
+        </h2>
+        <p
+          className={`mx-auto mt-[14px] max-w-[520px] text-center text-[15.5px] leading-[1.6] sm:mx-0 sm:mt-[18px] sm:max-w-none sm:text-left sm:text-[16.5px] ${
+            koyu ? "text-white/60" : "text-[#5C6273]"
+          }`}
+        >
+          {aciklama}
+        </p>
+      </div>
+      {aksiyon}
+    </div>
   );
 }
 
@@ -242,42 +281,29 @@ export default async function HomePage() {
 
       {/* Programs */}
       <section id="egitimler" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-6 sm:mb-12 sm:gap-10">
-          <div className="w-full sm:w-auto">
-            {/* Dar ekranda başlık büyük (40px) ve ORTALI: altındaki ortalı
-                "Tüm eğitimleri keşfet" düğmesiyle aynı eksende dursun.
-                Geniş ekranda sola yaslı, düğme karşısında. */}
-            <h2 className="text-center font-heading text-[40px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-left sm:text-[44px]">
-              Birebir Eğitimler
-            </h2>
-          </div>
-          {/*
-            Açıklama paragrafı kaldırıldı: format ve müfredat bilgisi hemen
-            altındaki kartlarda ve eğitim sayfalarında zaten duruyor. Bölüm
-            başlığının karşısına konan üçüncü bir metin, oradaki tek eylemi
-            — tüm eğitimlere gitmek — bastırıyordu.
-
-            Bağlantı da düğme oldu: düz mavi bir metin olarak kart
-            ızgarasının üstünde kayboluyordu.
-
-            Dar ekranda BAŞLIKTA DEĞİL, kartların altında (aşağıdaki ikinci
-            kopya). Tek sütuna inen düzende başlığın altındaki düğme,
-            programları görmeden "hepsini gör" demek oluyor; kartlardan
-            sonra ise doğal devamı. Geniş ekranda başlığın karşısında
-            duruyor, orası zaten kartların üstü değil yanı.
-          */}
-          <Link
-            href="/egitimler"
-            className="group/tumu hidden h-[48px] flex-none items-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:inline-flex"
-          >
-            Tüm eğitimleri keşfet
-            <Icon
-              name="arrowRight"
-              size={16}
-              className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
-            />
-          </Link>
-        </div>
+        {/*
+          Başlık standardı BolumBasligi'nde; buradaki tek özel şey geniş
+          ekran düğmesi. Düğme dar ekranda gizli — kartların altında ikinci
+          bir kopya var (aşağıda), çünkü tek sütuna inen düzende "hepsini
+          gör" düğmesi programlardan önce değil sonra anlamlı.
+        */}
+        <BolumBasligi
+          baslik="Birebir Eğitimler"
+          aciklama="Meta Ads, sosyal medya ve yapay zekâ programları; her biri canlı, birebir ve doğrudan kendi projeleriniz üzerinden ilerliyor."
+          aksiyon={
+            <Link
+              href="/egitimler"
+              className="group/tumu hidden h-[48px] flex-none items-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:inline-flex"
+            >
+              Tüm eğitimleri keşfet
+              <Icon
+                name="arrowRight"
+                size={16}
+                className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
+              />
+            </Link>
+          }
+        />
         <div className="grid grid-cols-1 gap-[22px] md:grid-cols-3">
           {programs.map((p, i) => (
             /* Vitrin kartı sıradaki ilk program; gerekçesi ProgramKarti'de. */
@@ -323,40 +349,27 @@ export default async function HomePage() {
         <div className="pointer-events-none absolute -top-[260px] left-[34%] h-[620px] w-[900px] rounded-full bg-[radial-gradient(closest-side,rgba(61,101,255,0.28),transparent)] blur-[20px]" />
 
         <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 py-20 sm:py-26">
-          <div className="flex flex-wrap items-end justify-between gap-6 sm:gap-12">
-            <div className="max-w-[620px]">
-              {/*
-                Etiketin yanındaki yanıp sönen nokta kaldırıldı: bölüm
-                başlığında sürekli çalışan bir animasyon, "canlı yayın"
-                işareti gibi okunuyordu.
-              */}
-              <div className="font-mono text-[11px] tracking-[0.26em] text-[#7F9BFF] uppercase">Yöntem</div>
-              {/*
-                Başlık iki renkte: tasarımda ikinci satır degrade dolguydu.
-                Tek cümlelik başlıkta aynı etkiyi vurgulanan kelimeye
-                taşıyoruz — cümlenin tamamı degrade olduğunda koyu zeminde
-                okunurluk düşüyor.
-
-                Dar ekranda başlık 40px: 36'da diğer bölüm başlıklarının
-                (34px) yanında ayırt edilemiyor, üstelik bu bölümün taşıdığı
-                vaat o başlık.
-              */}
-              <h2 className="mt-5 font-heading text-[40px] leading-[1.05] font-semibold tracking-[-0.035em] sm:mt-[30px] sm:text-[52px]">
+          {/*
+            Başlık standardı BolumBasligi'nde (koyu sürüm). Başlıktaki degrade
+            vurgu bu bölüme özel: cümlenin tamamı degrade olunca koyu zeminde
+            okunurluk düşüyordu, o yüzden yalnızca vurgulanan kelime.
+          */}
+          <BolumBasligi
+            koyu
+            baslik={
+              <>
                 Size özel{" "}
                 <span className="bg-[linear-gradient(100deg,#3d65ff_0%,#7f9bff_60%,#b9c8ff_100%)] bg-clip-text text-transparent">
                   bir süreç.
                 </span>
-              </h2>
-            </div>
-            <p className="max-w-[440px] text-[16px] leading-[1.68] text-white/60 sm:text-[17px]">
-              Aynı içeriği herkese uygulamıyoruz. Eğitim programını mevcut seviyenize, hedeflerinize ve kendi çalışma
-              alanınıza göre oluşturuyoruz.
-            </p>
-          </div>
+              </>
+            }
+            aciklama="Aynı içeriği herkese uygulamıyoruz; programı mevcut seviyenize, hedeflerinize ve kendi çalışma alanınıza göre oluşturuyoruz."
+          />
 
-          {/* Dar ekranda kartlar arası ve başlıkla aralık daraltıldı:
-              geniş boşluk mobilde bölümü seyrek ve amatör gösteriyordu. */}
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Kart aralıkları dar ekranda daraltıldı; başlıkla aradaki boşluğu
+              artık BolumBasligi'nin alt boşluğu veriyor. */}
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {farklar.map((f) => (
               <div
                 key={f.baslik}
@@ -378,10 +391,10 @@ export default async function HomePage() {
 
       {/* Süreç */}
       <section id="surec" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
-        <SectionKicker>Süreç</SectionKicker>
-        <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[30px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[44px]">
-          Kayıttan Sonra İlerleyiş
-        </h2>
+        <BolumBasligi
+          baslik="Kayıttan Sonra İlerleyiş"
+          aciklama="Ücretsiz ön görüşmeden ilk canlı derse, oradan eğitim sonrası desteğe; sürecin her adımı baştan belli."
+        />
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
           {surec.map((a) => (
             <div key={a.no} className="bg-white p-[26px] px-[26px] pt-[30px] pb-[34px] transition hover:bg-[#F5F8FF]">
@@ -400,33 +413,29 @@ export default async function HomePage() {
 
       {/* Testimonials */}
       <section id="yorumlar" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
-        {/* Üst etiket kaldırıldı; başlık doğrudan "Katılımcı Yorumları". */}
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-6 sm:mb-12 sm:gap-10">
-          <div className="w-full sm:w-auto">
-            {/* Dar ekranda başlık büyük (40px) ve ORTALI: hemen altındaki
-                ortalı "Tüm yorumları gör" düğmesiyle aynı eksende. Geniş
-                ekranda sola yaslı, düğme karşısında. */}
-            <h2 className="text-center font-heading text-[40px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-left sm:text-[44px]">
-              Katılımcı Yorumları
-            </h2>
-          </div>
-          {/*
-            "Tüm yorumları gör" artık düğme. Geniş ekranda başlığın karşısında;
-            dar ekranda ise gizli — mobilde onun kopyası yorumların hemen
-            üstünde ortalı duruyor (aşağıda).
-          */}
-          <Link
-            href="/yorumlar"
-            className="group/tumu hidden h-[48px] flex-none items-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:inline-flex"
-          >
-            Tüm yorumları gör
-            <Icon
-              name="arrowRight"
-              size={16}
-              className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
-            />
-          </Link>
-        </div>
+        {/*
+          Başlık ve alt metin standardı BolumBasligi'nde; /yorumlar sayfasıyla
+          aynı başlık ve açıklama (uyumlu olsunlar). Geniş ekran düğmesi
+          başlığın karşısında; dar ekranda gizli — mobilde kopyası yorumların
+          hemen üstünde ortalı (aşağıda).
+        */}
+        <BolumBasligi
+          baslik="Katılımcı Yorumları"
+          aciklama="Eğitime katılan katılımcıların, eğitim sonrası yorumları."
+          aksiyon={
+            <Link
+              href="/yorumlar"
+              className="group/tumu hidden h-[48px] flex-none items-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:inline-flex"
+            >
+              Tüm yorumları gör
+              <Icon
+                name="arrowRight"
+                size={16}
+                className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
+              />
+            </Link>
+          }
+        />
 
         {/* Dar ekran kopyası: yorumların en üstünde, ortalı. */}
         <Link
