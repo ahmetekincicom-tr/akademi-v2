@@ -72,20 +72,6 @@ const YASAL_LINKLER = [
   { label: "KVKK", href: "/kisisel-verilerin-islenmesi" },
 ];
 
-/*
-  Ödeme işaretleri.
-
-  Kabul edilen ödeme yöntemlerini gösteriyor; ödeme altyapısı iyzico
-  (bkz. lib/iyzico.ts). SVG'ler public/odeme altında, koyu zemine göre tek
-  renk. Yükseklikler her işaretin görsel ağırlığı eşit dursun diye ayrı.
-*/
-const ODEME_ISARETLERI = [
-  { ad: "iyzico ile öde", src: "/odeme/iyzico.svg", h: 26 },
-  { ad: "Mastercard", src: "/odeme/mastercard.svg", h: 26 },
-  { ad: "Visa", src: "/odeme/visa.svg", h: 17 },
-  { ad: "American Express", src: "/odeme/amex.svg", h: 24 },
-  { ad: "Troy", src: "/odeme/troy.svg", h: 18 },
-];
 
 /**
  * Eğitim sütunu veritabanından kuruluyor.
@@ -176,31 +162,18 @@ export async function PublicFooter() {
             ))}
           </div>
 
-          {/* Kommo partner rozeti — sosyal ikonların altında, markanın parçası. */}
+          {/* Kommo partner rozeti — resmi rozet (public/odeme/kommo-partner.svg). */}
           <a
             href="https://www.kommo.com/"
             target="_blank"
             rel="noreferrer"
             aria-label="Kommo partner"
             title="Kommo partner"
-            className="mt-[22px] inline-flex items-center gap-[11px] rounded-[11px] border border-white/14 bg-white/[0.03] px-[14px] py-[9px] transition hover:border-white/30"
+            className="mt-[22px] inline-block"
           >
-            <span
-              className="flex h-[28px] w-[28px] flex-none items-center justify-center rounded-[8px]"
-              style={{ background: "#2764E7" }}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
-                {/* Sohbet balonu: Kommo bir mesajlaşma/CRM aracı. */}
-                <path
-                  d="M5 4h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-7.6L7 20.4v-3.9H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"
-                  fill="#fff"
-                />
-              </svg>
-            </span>
-            <span className="flex flex-col text-left leading-[1.15]">
-              <span className="text-[14px] font-semibold text-white">Kommo</span>
-              <span className="text-[11px] tracking-[0.02em] text-white/55">partner</span>
-            </span>
+            {/* Resmi marka görseli; next/image SVG'yi optimize etmiyor. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/odeme/kommo-partner.svg" alt="Kommo partner" className="h-[46px] w-auto" />
           </a>
         </div>
         {sutunlar.map((k) => (
@@ -286,19 +259,21 @@ export async function PublicFooter() {
           <span className="order-2 text-center text-white/45 sm:order-1 sm:text-left">
             © 2021–2026 Ahmet Ekinci Akademi. Tüm hakları saklıdır.
           </span>
-          <div className="order-1 flex flex-wrap items-center justify-center gap-x-[22px] gap-y-3 sm:order-2 sm:justify-end">
-            {ODEME_ISARETLERI.map((o) => (
-              // Yerel SVG; next/image SVG'yi zaten optimize etmiyor.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={o.ad}
-                src={o.src}
-                alt={o.ad}
-                loading="lazy"
-                style={{ height: o.h }}
-                className="w-auto opacity-90"
-              />
-            ))}
+          {/*
+            iyzico'nun resmi "iyzico ile öde" bandı; Visa, Mastercard, American
+            Express ve Troy logolarını tek görselde içeriyor (public/odeme).
+            Genişliğe göre ölçekleniyor: dar ekranda taşmaması için w-full +
+            max-w, geniş ekranda sabit genişlik.
+          */}
+          <div className="order-1 flex w-full justify-center sm:order-2 sm:w-auto sm:justify-end">
+            {/* Resmi marka görseli; next/image SVG'yi optimize etmiyor. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/odeme/iyzico-band.svg"
+              alt="iyzico ile öde — Visa, Mastercard, American Express, Troy"
+              loading="lazy"
+              className="h-auto w-full max-w-[340px] sm:w-[340px]"
+            />
           </div>
         </div>
       </div>
