@@ -72,23 +72,6 @@ const surec = [
   },
 ];
 
-const panelOzellik = [
-  "Ders videoları ve ilerleme takibi",
-  "Şablon ve doküman kütüphanesi",
-  "Birebir seans randevu takvimi",
-  "Soru-cevap destek kanalı",
-  "Ödeme ve fatura geçmişi",
-  "Yeni eğitim satın alma",
-];
-
-const panelKart = [
-  { etiket: "Meta Business", deger: "%72 tamamlandı", yuzde: "72%" },
-  { etiket: "Sosyal Medya", deger: "%38 tamamlandı", yuzde: "38%" },
-  { etiket: "Dokümanlar", deger: "24 dosya", yuzde: "100%" },
-  { etiket: "Sonraki seans", deger: "12 Ağustos, 14:00", yuzde: "50%" },
-];
-
-
 function SectionKicker({ children }: { children: React.ReactNode }) {
   return (
     <div className="font-mono text-[11px] tracking-[0.16em] text-brand uppercase">{children}</div>
@@ -262,16 +245,10 @@ export default async function HomePage() {
       <section id="egitimler" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
         <div className="mb-10 flex flex-wrap items-end justify-between gap-10 sm:mb-12">
           <div>
-            <SectionKicker>Programlar</SectionKicker>
-            {/*
-              Dar ekranda 32 → 38px ve iki satır: hero başlığı 46px'e
-              çıkınca bölüm başlığı onun yanında bir alt başlık gibi
-              kalıyordu. max-w ile iki satıra zorlanıyor — "Üç program, tek
-              yöntem" tek satıra sığdığında harfler küçültülmüş bir masaüstü
-              başlığı gibi duruyor.
-            */}
-            <h2 className="mt-[18px] max-w-[260px] font-heading text-[38px] leading-[1.08] font-semibold tracking-[-0.035em] sm:max-w-none sm:text-[44px] sm:leading-[1.1]">
-              Üç program, tek yöntem
+            {/* Başlık dar ekranda 34 → geniş ekranda 44px; iki kelimelik
+                başlık her iki ölçüde de tek satıra rahat sığıyor. */}
+            <h2 className="font-heading text-[34px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[44px]">
+              Birebir Eğitimler
             </h2>
           </div>
           {/*
@@ -345,8 +322,8 @@ export default async function HomePage() {
         {/* Başlığın arkasındaki tek ışık lekesi. */}
         <div className="pointer-events-none absolute -top-[260px] left-[34%] h-[620px] w-[900px] rounded-full bg-[radial-gradient(closest-side,rgba(61,101,255,0.28),transparent)] blur-[20px]" />
 
-        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 py-26">
-          <div className="flex flex-wrap items-end justify-between gap-12">
+        <div className="relative mx-auto max-w-[1240px] px-5 sm:px-8 py-20 sm:py-26">
+          <div className="flex flex-wrap items-end justify-between gap-6 sm:gap-12">
             <div className="max-w-[620px]">
               {/*
                 Etiketin yanındaki yanıp sönen nokta kaldırıldı: bölüm
@@ -359,25 +336,31 @@ export default async function HomePage() {
                 Tek cümlelik başlıkta aynı etkiyi vurgulanan kelimeye
                 taşıyoruz — cümlenin tamamı degrade olduğunda koyu zeminde
                 okunurluk düşüyor.
+
+                Dar ekranda başlık 40px: 36'da diğer bölüm başlıklarının
+                (34px) yanında ayırt edilemiyor, üstelik bu bölümün taşıdığı
+                vaat o başlık.
               */}
-              <h2 className="mt-[30px] font-heading text-[36px] leading-[1.04] font-semibold tracking-[-0.035em] sm:text-[52px]">
+              <h2 className="mt-5 font-heading text-[40px] leading-[1.05] font-semibold tracking-[-0.035em] sm:mt-[30px] sm:text-[52px]">
                 Size özel{" "}
                 <span className="bg-[linear-gradient(100deg,#3d65ff_0%,#7f9bff_60%,#b9c8ff_100%)] bg-clip-text text-transparent">
                   bir süreç.
                 </span>
               </h2>
             </div>
-            <p className="max-w-[420px] text-[16px] leading-[1.68] text-white/60 sm:text-[17px]">
+            <p className="max-w-[440px] text-[16px] leading-[1.68] text-white/60 sm:text-[17px]">
               Aynı içeriği herkese uygulamıyoruz. Eğitim programını mevcut seviyenize, hedeflerinize ve kendi çalışma
               alanınıza göre oluşturuyoruz.
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Dar ekranda kartlar arası ve başlıkla aralık daraltıldı:
+              geniş boşluk mobilde bölümü seyrek ve amatör gösteriyordu. */}
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {farklar.map((f) => (
               <div
                 key={f.baslik}
-                className="group/fark relative overflow-hidden rounded-[20px] border border-white/12 bg-[linear-gradient(180deg,rgba(19,25,44,0.9),rgba(10,13,24,0.9))] px-7 pt-8 pb-9 transition duration-300 hover:-translate-y-[10px] hover:border-brand/50 hover:shadow-[0_30px_70px_-30px_rgba(61,101,255,0.55)]"
+                className="group/fark relative overflow-hidden rounded-[20px] border border-white/12 bg-[linear-gradient(180deg,rgba(19,25,44,0.9),rgba(10,13,24,0.9))] px-6 pt-7 pb-7 transition duration-300 hover:-translate-y-[10px] hover:border-brand/50 hover:shadow-[0_30px_70px_-30px_rgba(61,101,255,0.55)] sm:px-7 sm:pt-8 sm:pb-9"
               >
                 {/* Alt köşedeki yumuşak leke; üstteki parlayan çizgi kaldırıldı. */}
                 <span className="pointer-events-none absolute -right-[110px] -bottom-[140px] h-[260px] w-[260px] rounded-full bg-[radial-gradient(closest-side,rgba(61,101,255,0.35),transparent)] opacity-50" />
@@ -385,8 +368,8 @@ export default async function HomePage() {
                 <span className="relative flex h-[46px] w-[46px] items-center justify-center rounded-[13px] border border-brand/35 bg-brand/15 text-[#9DB3FF] transition group-hover/fark:border-brand/60 group-hover/fark:text-white">
                   <Icon name={f.ikon} size={21} strokeWidth={1.7} />
                 </span>
-                <h3 className="relative mt-7 text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{f.baslik}</h3>
-                <p className="relative mt-[11px] text-[14.5px] leading-[1.65] text-white/60">{f.metin}</p>
+                <h3 className="relative mt-5 text-[19px] leading-[1.3] font-semibold tracking-[-0.02em] sm:mt-7">{f.baslik}</h3>
+                <p className="relative mt-[10px] text-[14.5px] leading-[1.65] text-white/60">{f.metin}</p>
               </div>
             ))}
           </div>
@@ -396,8 +379,8 @@ export default async function HomePage() {
       {/* Süreç */}
       <section id="surec" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
         <SectionKicker>Süreç</SectionKicker>
-        <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[44px]">
-          Kayıttan sonra nasıl ilerliyoruz
+        <h2 className="mt-[18px] mb-12 max-w-[620px] font-heading text-[30px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[44px]">
+          Kayıttan Sonra İlerleyiş
         </h2>
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
           {surec.map((a) => (
@@ -415,88 +398,46 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Üye alanı preview */}
-      <section id="panel" className="border-y border-ink/8 bg-mist">
-        <div className="mx-auto grid max-w-[1240px] grid-cols-1 items-center gap-16 px-5 sm:px-8 py-24 lg:grid-cols-[0.95fr_1.05fr]">
-          <div>
-            <SectionKicker>Üye alanı</SectionKicker>
-            <h2 className="mt-[18px] font-heading text-[32px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[42px]">
-              Eğitim bittiğinde
-              <br />
-              erişiminiz bitmiyor.
-            </h2>
-            <p className="mt-[22px] max-w-[480px] text-[16.5px] leading-[1.62] text-[#5C6273]">
-              Katılımcı panelinde ders kayıtlarınız, şablonlar ve kontrol listeleri, birebir seans takviminiz,
-              faturalarınız ve soru-cevap kanalı tek yerde toplanır.
-            </p>
-            <div className="mt-[30px] grid grid-cols-1 gap-x-[26px] gap-y-3 sm:grid-cols-2">
-              {panelOzellik.map((o) => (
-                <div key={o} className="flex items-start gap-[10px] text-[14.5px] leading-[1.5] text-[#3A3F4F]">
-                  <span className="mt-[2px] flex h-4 w-4 flex-none items-center justify-center rounded-[5px] bg-brand/12 text-[10px] font-bold text-brand">
-                    ✓
-                  </span>
-                  <span>{o}</span>
-                </div>
-              ))}
-            </div>
-            <div className="mt-[34px] flex items-center gap-[18px]">
-              <Link
-                href="/giris"
-                className="inline-flex h-[50px] items-center gap-[9px] rounded-[10px] bg-ink px-[22px] text-[15.5px] font-semibold text-white hover:bg-brand"
-              >
-                Panele giriş yap <span>→</span>
-              </Link>
-              <span className="font-mono text-xs text-[#656B7A]">Katılımcılara özel</span>
-            </div>
-          </div>
-          <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-[0_26px_60px_rgba(10,13,24,0.1)]">
-            <div className="flex h-10 items-center gap-2 border-b border-ink/8 px-4">
-              <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
-              <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
-              <span className="h-[9px] w-[9px] rounded-full bg-ink/14" />
-              <span className="ml-3 font-mono text-[10.5px] text-[#656B7A]">panel.ahmetekinciakademi.com</span>
-            </div>
-            <div className="p-[22px]">
-              <div className="flex items-center justify-between gap-5 rounded-xl bg-ink px-[22px] py-5 text-white">
-                <div>
-                  <div className="font-mono text-[10px] tracking-[0.14em] text-white/50 uppercase">
-                    Kaldığın yerden devam et
-                  </div>
-                  <div className="mt-2 text-[16px] font-semibold">Modül 4 · Kampanya bütçe ölçekleme</div>
-                </div>
-                <span className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-brand text-sm">
-                  ▶
-                </span>
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                {panelKart.map((k) => (
-                  <div key={k.etiket} className="rounded-[11px] border border-ink/10 p-4">
-                    <div className="font-mono text-[10px] tracking-[0.1em] text-[#656B7A] uppercase">{k.etiket}</div>
-                    <div className="mt-2 text-[15px] font-semibold">{k.deger}</div>
-                    <div className="mt-3 h-[5px] overflow-hidden rounded-full bg-ink/8">
-                      <div className="h-full rounded-full bg-brand" style={{ width: k.yuzde }} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Testimonials */}
       <section id="yorumlar" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
-        <div className="mb-12 flex flex-wrap items-end justify-between gap-10">
+        {/* Üst etiket kaldırıldı; başlık doğrudan "Katılımcı Yorumları". */}
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-10 sm:mb-12">
           <div>
-            <SectionKicker>Katılımcı yorumları</SectionKicker>
-            <h2 className="mt-[18px] font-heading text-[32px] font-semibold tracking-[-0.035em] sm:text-[44px]">
-              Eğitimden sonra ne değişti
+            <h2 className="font-heading text-[32px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[44px]">
+              Katılımcı Yorumları
             </h2>
           </div>
-          <Link href="/yorumlar" className="text-[14.5px] font-semibold whitespace-nowrap">
-            Tüm yorumlar →
+          {/*
+            "Tüm yorumları gör" artık düğme. Geniş ekranda başlığın karşısında;
+            dar ekranda ise gizli — mobilde onun kopyası yorumların hemen
+            üstünde ortalı duruyor (aşağıda).
+          */}
+          <Link
+            href="/yorumlar"
+            className="group/tumu hidden h-[48px] flex-none items-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:inline-flex"
+          >
+            Tüm yorumları gör
+            <Icon
+              name="arrowRight"
+              size={16}
+              className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
+            />
           </Link>
         </div>
+
+        {/* Dar ekran kopyası: yorumların en üstünde, ortalı. */}
+        <Link
+          href="/yorumlar"
+          className="group/tumu mb-7 flex h-[50px] items-center justify-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:hidden"
+        >
+          Tüm yorumları gör
+          <Icon
+            name="arrowRight"
+            size={16}
+            className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
+          />
+        </Link>
+
         {/* Izgara değil sütun: satır yüksekliği en uzun karta göre belirlenip
             kısa yorumların altında boşluk bırakıyordu. */}
         <div className="columns-1 gap-[22px] md:columns-2 lg:columns-3">
@@ -511,16 +452,17 @@ export default async function HomePage() {
       <CorporateStrip text="Ekibinize özel, yerinde ya da uzaktan dijital pazarlama eğitimi." />
 
 
-      {/* Closing CTA */}
+      {/* Closing CTA — başlık ve düğme ortalı, tek sütun; her ölçüde aynı
+          hiza. Başlık dar ekranda 34, geniş ekranda 54px. */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute -top-45 right-[10%] h-[520px] w-[520px] rounded-full bg-brand opacity-22 blur-[120px]" />
-        <div className="relative mx-auto flex max-w-[1240px] flex-wrap items-end justify-between gap-14 px-5 sm:px-8 py-26">
-          <h2 className="max-w-[660px] font-heading text-[32px] leading-[1.05] font-semibold tracking-[-0.04em] sm:text-[48px]">
+        <div className="relative mx-auto flex max-w-[860px] flex-col items-center gap-9 px-5 sm:px-8 py-24 text-center sm:py-28 sm:gap-10">
+          <h2 className="font-heading text-[34px] leading-[1.1] font-semibold tracking-[-0.04em] sm:text-[54px] sm:leading-[1.05]">
             Hangi programın size uyduğunu <span className="text-brand">konuşarak</span> bulalım.
           </h2>
           <Link
             href="#egitimler"
-            className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-7 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] hover:bg-white hover:text-ink"
+            className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-8 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] transition hover:bg-white hover:text-ink"
           >
             Eğitimleri incele <span>→</span>
           </Link>
