@@ -5,7 +5,6 @@ import { getYorumlar, getReferanslar } from "@/lib/icerik";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
-import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { ProgramKarti } from "@/components/site/ProgramKarti";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import type { Metadata } from "next";
@@ -243,11 +242,12 @@ export default async function HomePage() {
 
       {/* Programs */}
       <section id="egitimler" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
-        <div className="mb-10 flex flex-wrap items-end justify-between gap-10 sm:mb-12">
-          <div>
-            {/* Başlık dar ekranda 34 → geniş ekranda 44px; iki kelimelik
-                başlık her iki ölçüde de tek satıra rahat sığıyor. */}
-            <h2 className="font-heading text-[34px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[44px]">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-6 sm:mb-12 sm:gap-10">
+          <div className="w-full sm:w-auto">
+            {/* Dar ekranda başlık büyük (40px) ve ORTALI: altındaki ortalı
+                "Tüm eğitimleri keşfet" düğmesiyle aynı eksende dursun.
+                Geniş ekranda sola yaslı, düğme karşısında. */}
+            <h2 className="text-center font-heading text-[40px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-left sm:text-[44px]">
               Birebir Eğitimler
             </h2>
           </div>
@@ -401,9 +401,12 @@ export default async function HomePage() {
       {/* Testimonials */}
       <section id="yorumlar" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
         {/* Üst etiket kaldırıldı; başlık doğrudan "Katılımcı Yorumları". */}
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-10 sm:mb-12">
-          <div>
-            <h2 className="font-heading text-[32px] leading-[1.1] font-semibold tracking-[-0.035em] sm:text-[44px]">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-6 sm:mb-12 sm:gap-10">
+          <div className="w-full sm:w-auto">
+            {/* Dar ekranda başlık büyük (40px) ve ORTALI: hemen altındaki
+                ortalı "Tüm yorumları gör" düğmesiyle aynı eksende. Geniş
+                ekranda sola yaslı, düğme karşısında. */}
+            <h2 className="text-center font-heading text-[40px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-left sm:text-[44px]">
               Katılımcı Yorumları
             </h2>
           </div>
@@ -449,23 +452,43 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <CorporateStrip text="Ekibinize özel, yerinde ya da uzaktan dijital pazarlama eğitimi." />
+      {/*
+        Tek kapanış CTA'sı.
 
-
-      {/* Closing CTA — başlık ve düğme ortalı, tek sütun; her ölçüde aynı
-          hiza. Başlık dar ekranda 34, geniş ekranda 54px. */}
+        Önceden burada arka arkaya İKİ eğitim çağrısı vardı: mavi "Kurumsal"
+        şeridi (/kurumsal) ve hemen altında koyu "Eğitimleri incele"
+        (#egitimler). İki blok yan yana yarışıp ziyaretçiyi iki farklı eğitim
+        yoluna aynı anda çağırıyordu. Artık tek blok: ASIL eylem bireysel
+        eğitim, hemen altında İKİNCİL bir kurumsal bağlantı — hiyerarşi net.
+        (Kurumsal erişim menü, footer ve /kurumsal sayfasında sürüyor.)
+      */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute -top-45 right-[10%] h-[520px] w-[520px] rounded-full bg-brand opacity-22 blur-[120px]" />
-        <div className="relative mx-auto flex max-w-[860px] flex-col items-center gap-9 px-5 sm:px-8 py-24 text-center sm:py-28 sm:gap-10">
+        <div className="relative mx-auto flex max-w-[860px] flex-col items-center gap-8 px-5 sm:px-8 py-24 text-center sm:py-28 sm:gap-9">
           <h2 className="font-heading text-[34px] leading-[1.1] font-semibold tracking-[-0.04em] sm:text-[54px] sm:leading-[1.05]">
             Hangi programın size uyduğunu <span className="text-brand">konuşarak</span> bulalım.
           </h2>
-          <Link
-            href="#egitimler"
-            className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-8 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] transition hover:bg-white hover:text-ink"
-          >
-            Eğitimleri incele <span>→</span>
-          </Link>
+          <div className="flex flex-col items-center gap-5">
+            <Link
+              href="#egitimler"
+              className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-8 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] transition hover:bg-white hover:text-ink"
+            >
+              Eğitimleri incele <span>→</span>
+            </Link>
+            {/* İkincil eylem: ekipler için kurumsal. Düz metin bağlantı —
+                asıl düğmeyle yarışmasın. */}
+            <Link
+              href="/kurumsal"
+              className="group/kurumsal inline-flex items-center gap-[7px] text-[14.5px] font-medium text-white/65 transition hover:text-white sm:text-[15px]"
+            >
+              Ekibiniz için mi? Kurumsal eğitim planı oluşturun
+              <Icon
+                name="arrowRight"
+                size={15}
+                className="transition-transform duration-200 group-hover/kurumsal:translate-x-[3px]"
+              />
+            </Link>
+          </div>
         </div>
       </section>
 
