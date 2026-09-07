@@ -141,9 +141,10 @@ export default async function KurumsalPage() {
                 açılır listede kendi konusunu aramak zorunda kalmasın. */}
             <Link
               href="/iletisim?konu=kurumsal"
-              className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-7 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] hover:bg-white hover:text-ink"
+              className="group/cta inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-7 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] transition hover:bg-white hover:text-ink"
             >
-              Ekibiniz İçin Eğitim Planlayın <span>→</span>
+              Ekibiniz İçin Eğitim Planlayın
+              <Icon name="arrowRight" size={17} className="transition-transform duration-200 group-hover/cta:translate-x-[3px]" />
             </Link>
           </div>
         </div>
@@ -273,11 +274,11 @@ export default async function KurumsalPage() {
           <div className="mt-14 flex flex-col items-center">
             <Link
               href="/iletisim?konu=kurumsal"
-              className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-7 text-[16px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.28)] transition hover:bg-ink"
+              className="group/cta inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-7 text-[16px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.28)] transition hover:bg-ink"
             >
-              Ekibiniz İçin Eğitim Planlayın <span>→</span>
+              Ekibiniz İçin Eğitim Planlayın
+              <Icon name="arrowRight" size={17} className="transition-transform duration-200 group-hover/cta:translate-x-[3px]" />
             </Link>
-            <span className="mt-[14px] text-[13.5px] text-[#6B7080]">Ücretsiz ihtiyaç analiziyle başlayın</span>
           </div>
         </div>
       </section>
@@ -312,12 +313,6 @@ export default async function KurumsalPage() {
           <h2 className="mt-[18px] font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[40px]">
             Kurumsal eğitim hakkında
           </h2>
-          <Link
-            href="/iletisim?konu=kurumsal"
-            className="mt-6 inline-flex h-12 items-center rounded-[10px] bg-ink px-5 text-[14.5px] font-semibold text-white hover:bg-brand"
-          >
-            Ekibiniz İçin Eğitim Planlayın →
-          </Link>
         </div>
         <FaqAccordion items={sss} />
       </div>

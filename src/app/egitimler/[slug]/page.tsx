@@ -381,8 +381,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                     <KalinMetin metin={icerik.egitmenBiyografi} kalinSinif="text-ink" />
                   </p>
                 )}
-                <Link href="/hakkimizda" className="mt-7 inline-flex text-[14.5px] font-semibold">
-                  Hakkımızda sayfası →
+                <Link href="/hakkimizda" className="group/hk mt-7 inline-flex items-center gap-[6px] text-[14.5px] font-semibold">
+                  Hakkımızda sayfası
+                  <Icon name="arrowRight" size={15} className="transition-transform duration-200 group-hover/hk:translate-x-[3px]" />
                 </Link>
               </div>
             </div>
@@ -572,7 +573,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 >
                   <Icon name="pin" size={15} />
                   Yüz yüze eğitim talebi oluştur
-                  <span className="transition-transform duration-200 group-hover/yuz:translate-x-[3px]">→</span>
+                  <Icon name="arrowRight" size={15} className="transition-transform duration-200 group-hover/yuz:translate-x-[3px]" />
                 </Link>
                 <Link
                   href="/iletisim?konu=kurumsal"
@@ -580,7 +581,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 >
                   <Icon name="users" size={15} />
                   Grup eğitimi &amp; kurumsal talep oluştur
-                  <span className="transition-transform duration-200 group-hover/kurum:translate-x-[3px]">→</span>
+                  <Icon name="arrowRight" size={15} className="transition-transform duration-200 group-hover/kurum:translate-x-[3px]" />
                 </Link>
               </div>
             </div>
@@ -635,9 +636,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                   biyografinin içinde kendi cümlesiyle zaten geçiyor. */}
               <Link
                 href="/hakkimizda"
-                className="mt-4 inline-flex text-[13.5px] font-semibold text-brand hover:text-ink"
+                className="group/eh mt-4 inline-flex items-center gap-[6px] text-[13.5px] font-semibold text-brand hover:text-ink"
               >
-                Eğitmen hakkında →
+                Eğitmen hakkında
+                <Icon name="arrowRight" size={14} className="transition-transform duration-200 group-hover/eh:translate-x-[3px]" />
               </Link>
             </div>
           </div>

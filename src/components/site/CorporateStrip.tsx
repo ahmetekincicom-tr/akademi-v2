@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Icon } from "@/components/Icon";
 
 export function CorporateStrip({ text }: { text: string }) {
   return (
@@ -10,9 +11,10 @@ export function CorporateStrip({ text }: { text: string }) {
         </div>
         <Link
           href="/kurumsal"
-          className="inline-flex h-[46px] items-center gap-[9px] rounded-[10px] bg-white px-5 text-[15px] font-semibold text-brand hover:bg-ink hover:text-white"
+          className="group/kurumsal inline-flex h-[46px] items-center gap-[9px] rounded-[10px] bg-white px-5 text-[15px] font-semibold text-brand transition hover:bg-ink hover:text-white"
         >
-          Kurumsal eğitim planı oluştur <span>→</span>
+          Kurumsal eğitim planı oluştur
+          <Icon name="arrowRight" size={16} className="transition-transform duration-200 group-hover/kurumsal:translate-x-[3px]" />
         </Link>
       </div>
     </section>

@@ -11,63 +11,59 @@ import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
 
 /*
-  Yöntem kartları.
+  "Neler Sunuyoruz?" kartları.
 
-  Sıra numarası (01–04) yerine ikon: numara bir SIRA vaat ediyordu — sanki
-  önce birebir ders, sonra destek, sonra kayıt geliyormuş gibi. Oysa bunlar
-  aynı anda geçerli dört özellik; sıralanan süreç bir alttaki "Süreç"
-  bölümünde zaten var ve numarayı orası kullanıyor.
+  Her biri ikonuyla anlatılan, aynı anda geçerli dört imkân — sıralı bir süreç
+  değil (o bir alttaki "Süreç Nasıl İlerliyor?" bölümünde).
 */
 const farklar: { ikon: IconName; baslik: string; metin: string }[] = [
   {
     ikon: "playCircle",
-    baslik: "Canlı ve birebir eğitim",
+    baslik: "Canlı ve Birebir Eğitim",
     metin:
       "Her oturumu yalnızca sizinle gerçekleştiriyor; sorularınızı anında yanıtlıyor, uygulamaları kendi hesabınız üzerinden birlikte yapıyoruz.",
   },
   {
-    ikon: "message",
-    baslik: "Eğitim sonrası destek",
+    ikon: "grid",
+    baslik: "Üye Paneline Erişim",
     metin:
-      "Program tamamlandıktan sonra da iletişim devam eder; uygulama sürecinde karşılaştığınız sorularda yalnız kalmazsınız.",
-  },
-  {
-    ikon: "folder",
-    baslik: "Ders kayıtları ve kaynaklar",
-    metin: "Ders kayıtları, şablonlar, kontrol listeleri ve yardımcı dokümanlar kişisel panelinize eklenir.",
+      "Eğitim öncesi ve sonrası tüm sürecinizi üye panelinizden organize edebilir, dokümanlarınıza ve kayıtlarınıza 7/24 ücretsiz ulaşabilir, eğitmen ile iletişimde kalabilirsiniz.",
   },
   {
     ikon: "sliders",
-    baslik: "Size özel eğitim planı",
+    baslik: "Size Özel Eğitim Planı",
     metin:
-      "Eğitim içeriği; seviyenize, hedeflerinize, sektörünüze ve geliştirmek istediğiniz yetkinliklere göre hazırlanır.",
+      "Eğitim öncesi tamamlayacağınız ön değerlendirme testi; eğitimin seviyenize, hedeflerinize ve işinize uygun şekilde özelleştirilmesine imkân sağlar.",
+  },
+  {
+    ikon: "message",
+    baslik: "Ömür Boyu Destek",
+    metin:
+      "Eğitiminiz tamamlandıktan sonra ömür boyu destek süreciniz başlar. WhatsApp, e-posta ya da üye paneliniz üzerinden eğitmen ile iletişimde kalmaya devam edebilirsiniz.",
   },
 ];
 
-const surec = [
+/*
+  Süreç adımları.
+
+  Numara ve küçük etiket kaldırıldı; her adım artık kendi ikonuyla anlatılıyor.
+  Üç adım: ön görüşme, planlama, başlangıç.
+*/
+const surec: { ikon: IconName; baslik: string; metin: string }[] = [
   {
-    no: "1",
-    etiket: "Ücretsiz",
+    ikon: "message",
     baslik: "Ön görüşme",
     metin: "İşinizi, seviyenizi ve hedefinizi konuşuruz. Hangi programın uyduğunu birlikte netleştiririz.",
   },
   {
-    no: "2",
-    etiket: "Planlama",
-    baslik: "Müfredat kurulumu",
-    metin: "Modüller sizin sektörünüze göre yeniden düzenlenir, ders takvimi birlikte belirlenir.",
+    ikon: "calendar",
+    baslik: "Planlama",
+    metin: "Modüller sizin sektörünüze göre yeniden düzenlenir, ders takviminiz birlikte belirlenir.",
   },
   {
-    no: "3",
-    etiket: "Uygulama",
-    baslik: "Canlı dersler",
-    metin: "Her ders kendi hesabınız üzerinde uygulamayla ilerler; kayıt ve dokümanlar panele düşer.",
-  },
-  {
-    no: "4",
-    etiket: "Süresiz",
-    baslik: "Ders sonrası destek",
-    metin: "Soru-cevap kanalı ve birebir seans takvimiyle uygulama sürecinde yanınızda kalırız.",
+    ikon: "playCircle",
+    baslik: "Başlangıç",
+    metin: "Size bildirilen katılım bağlantısı üzerinden, planlanan gün ve saatte eğitime katılım sağlarsınız.",
   },
 ];
 
@@ -104,7 +100,7 @@ function BolumBasligi({
           {baslik}
         </h2>
         <p
-          className={`mx-auto mt-[14px] max-w-[520px] text-center text-[15.5px] leading-[1.6] sm:mx-0 sm:mt-[18px] sm:max-w-none sm:text-left sm:text-[16.5px] ${
+          className={`mx-auto mt-[14px] max-w-[520px] text-center text-[15.5px] leading-[1.6] text-pretty sm:mx-0 sm:mt-[18px] sm:max-w-[620px] sm:text-left sm:text-[16.5px] ${
             koyu ? "text-white/60" : "text-[#5C6273]"
           }`}
         >
@@ -358,13 +354,13 @@ export default async function HomePage() {
             koyu
             baslik={
               <>
-                Size özel{" "}
+                Neler{" "}
                 <span className="bg-[linear-gradient(100deg,#3d65ff_0%,#7f9bff_60%,#b9c8ff_100%)] bg-clip-text text-transparent">
-                  bir süreç.
+                  Sunuyoruz?
                 </span>
               </>
             }
-            aciklama="Aynı içeriği herkese uygulamıyoruz; programı mevcut seviyenize, hedeflerinize ve kendi çalışma alanınıza göre oluşturuyoruz."
+            aciklama="Birebir canlı eğitimin yanında üye paneli erişimi, size özel eğitim planı ve ömür boyu destek — hepsi tek programda."
           />
 
           {/* Kart aralıkları dar ekranda daraltıldı; başlıkla aradaki boşluğu
@@ -392,20 +388,18 @@ export default async function HomePage() {
       {/* Süreç */}
       <section id="surec" className="mx-auto max-w-[1240px] px-5 sm:px-8 pt-26 pb-24">
         <BolumBasligi
-          baslik="Kayıttan Sonra İlerleyiş"
-          aciklama="Ücretsiz ön görüşmeden ilk canlı derse, oradan eğitim sonrası desteğe; sürecin her adımı baştan belli."
+          baslik="Süreç Nasıl İlerliyor?"
+          aciklama="Eğitimler birebir gerçekleştiği için her katılımcının uygunluk durumu ve hedeflerine uygun bir planlama yapılır. Tüm süreci üye panelinizden yürütebilirsiniz."
         />
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Üç adım: numara/etiket yerine her adımın kendi ikonu (büyük). */}
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink/10 bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
           {surec.map((a) => (
-            <div key={a.no} className="bg-white p-[26px] px-[26px] pt-[30px] pb-[34px] transition hover:bg-[#F5F8FF]">
-              <div className="flex items-center gap-3">
-                <span className="flex h-[26px] w-[26px] items-center justify-center rounded-[8px] bg-brand font-mono text-[11px] font-medium text-white">
-                  {a.no}
-                </span>
-                <span className="font-mono text-[10.5px] tracking-[0.12em] text-[#656B7A] uppercase">{a.etiket}</span>
-              </div>
-              <h3 className="mt-5 text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{a.baslik}</h3>
-              <p className="mt-[10px] text-[14.5px] leading-[1.65] text-[#5C6273]">{a.metin}</p>
+            <div key={a.baslik} className="bg-white p-[26px] pt-[30px] pb-[34px] transition hover:bg-[#F5F8FF]">
+              <span className="flex h-[52px] w-[52px] items-center justify-center rounded-[14px] bg-brand/10 text-brand">
+                <Icon name={a.ikon} size={26} strokeWidth={1.8} />
+              </span>
+              <h3 className="mt-6 text-[19px] leading-[1.3] font-semibold tracking-[-0.02em]">{a.baslik}</h3>
+              <p className="mt-[10px] text-[14.5px] leading-[1.65] text-pretty text-[#5C6273]">{a.metin}</p>
             </div>
           ))}
         </div>
@@ -480,9 +474,10 @@ export default async function HomePage() {
           <div className="flex flex-col items-center gap-5">
             <Link
               href="#egitimler"
-              className="inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-8 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] transition hover:bg-white hover:text-ink"
+              className="group/cta inline-flex h-14 items-center gap-[10px] rounded-[11px] bg-brand px-8 text-[16.5px] font-semibold text-white shadow-[0_12px_32px_rgba(28,86,243,0.4)] transition hover:bg-white hover:text-ink"
             >
-              Eğitimleri incele <span>→</span>
+              Eğitimleri incele
+              <Icon name="arrowRight" size={17} className="transition-transform duration-200 group-hover/cta:translate-x-[3px]" />
             </Link>
             {/* İkincil eylem: ekipler için kurumsal. Düz metin bağlantı —
                 asıl düğmeyle yarışmasın. */}

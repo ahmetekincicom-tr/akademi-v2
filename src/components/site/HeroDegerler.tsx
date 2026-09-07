@@ -78,7 +78,7 @@ export function HeroDegerler({ degerler, egitim }: { degerler: IkonluSatir[]; eg
         >
           <Icon name="whatsapp" size={19} />
           Eğitim Planı Oluştur
-          <span className="transition-transform duration-200 group-hover:translate-x-[3px]">→</span>
+          <Icon name="arrowRight" size={17} className="transition-transform duration-200 group-hover:translate-x-[3px]" />
         </Link>
 
         {/*
@@ -97,7 +97,7 @@ export function HeroDegerler({ degerler, egitim }: { degerler: IkonluSatir[]; eg
         >
           <Icon name="users" size={15} />
           Grup eğitimi &amp; kurumsal talep oluştur
-          <span className="transition-transform duration-200 group-hover/kurumsal:translate-x-[3px]">→</span>
+          <Icon name="arrowRight" size={15} className="transition-transform duration-200 group-hover/kurumsal:translate-x-[3px]" />
         </Link>
       </div>
     </div>
