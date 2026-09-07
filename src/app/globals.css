@@ -266,6 +266,46 @@
     }
   }
 
+  /*
+    Sayfa girişi (fade-up).
+
+    Her sayfa aşağıdan hafifçe yükselerek beliriyor; template.tsx her gezinmede
+    yeniden bağlandığı için animasyon her sayfada baştan oynuyor. Bitiş karesi
+    transform:none — animasyon bitince sarmalayıcı hiçbir transform taşımıyor,
+    içindeki yapışkan/sabit öğeler bozulmuyor. Yalnızca opacity ve translateY;
+    yatay taşma ya da düzen hesabı yok.
+  */
+  @keyframes aea-sayfa-giris {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /*
+    fill-mode: backwards (forwards/both DEĞİL).
+
+    "both/forwards" bitiş karesini tutuyor ve transform:none bile hesaplanmış
+    değerde matrix(1,0,0,1,0,0) olarak kalıyor — bu bir transform sayılır ve
+    içindeki position:fixed öğeler için içeren blok oluşturup onları bozardı
+    (ör. panelin mobil kenar çubuğu). "backwards" başlamadan önce ilk kareyi
+    uyguluyor, animasyon bitince öğe temel durumuna (transform yok) dönüyor.
+  */
+  .sayfa-giris {
+    animation: aea-sayfa-giris 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) backwards;
+  }
+
+  /* Hareket azaltma tercihinde geçiş kapanıyor. */
+  @media (prefers-reduced-motion: reduce) {
+    .sayfa-giris {
+      animation: none;
+    }
+  }
+
 
   /*
     Yorum kartlarının belirmesi.

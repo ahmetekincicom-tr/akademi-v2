@@ -17,21 +17,31 @@ import { getPixelId } from "@/lib/meta/pixel";
 import "./globals.css";
 import { SITE_URL, SITE_ADI, VARSAYILAN_ACIKLAMA, kurumSemasi, siteSemasi } from "@/lib/seo";
 
+/*
+  subsets'e "latin-ext" EKLENDİ.
+
+  Türkçe'ye özgü harfler (ğ, ş, ı, İ, ç ve diğerleri) Google Fonts'ta
+  "latin" değil "latin-ext" alt kümesinde. Yalnızca "latin" istendiğinde bu
+  harfler ayrı ve ÖN YÜKLENMEYEN bir dosyadan geç geliyordu; sayfa yenilenince
+  ğ/ş bir an yedek fontta görünüp sonra doğru fonta "atlıyordu" (FOUT). İki alt
+  küme birlikte istenince ikisi de aynı anda ön yükleniyor, harf sıçraması
+  bitiyor.
+*/
 const heading = Space_Grotesk({
   variable: "--font-heading",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["500", "600", "700"],
 });
 
 const body = Plus_Jakarta_Sans({
   variable: "--font-body",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500", "600", "700"],
 });
 
 const mono = IBM_Plex_Mono({
   variable: "--font-mono-aea",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   weight: ["400", "500"],
 });
 
