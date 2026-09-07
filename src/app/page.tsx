@@ -360,7 +360,7 @@ export default async function HomePage() {
                 </span>
               </>
             }
-            aciklama="Birebir canlı eğitimin yanında üye paneli erişimi, size özel eğitim planı ve ömür boyu destek — hepsi tek programda."
+            aciklama="Aynı içeriği herkese uygulamıyoruz; programı mevcut seviyenize, hedeflerinize ve kendi çalışma alanınıza göre oluşturuyoruz."
           />
 
           {/* Kart aralıkları dar ekranda daraltıldı; başlıkla aradaki boşluğu
