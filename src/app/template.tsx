@@ -1,16 +1,15 @@
+import { Beliriver } from "@/components/site/Beliriver";
+
 /**
- * Sayfa giriş geçişi.
+ * Sayfa geçiş sarmalayıcısı.
  *
- * template.tsx (layout değil): Next her gezinmede bunu YENİDEN bağlıyor, yani
- * içindeki `.sayfa-giris` animasyonu her sayfada baştan oynuyor — ilk açılışta
- * ve sonraki her geçişte. Böylece sayfalar "şak" diye değil, aşağıdan hafifçe
- * yükselerek (fade-up) beliriyor.
+ * template.tsx (layout değil): Next her gezinmede bunu yeniden bağlıyor, yani
+ * Beliriver de her sayfada yeniden çalışıp bölümleri baştan gözlemliyor.
  *
- * Sarmalayıcı yalnızca sayfa içeriğini kapsıyor; sabit WhatsApp düğmesi ve
- * çerez bandı kök düzende (layout.tsx) bunun DIŞINDA. Animasyon bitiş karesi
- * transform:none olduğu için, animasyon bittiğinde sarmalayıcı hiçbir transform
- * taşımıyor ve içindeki yapışkan/sabit öğeler normal çalışıyor.
+ * Beliriver bölümleri (<section>) kaydırdıkça yumuşakça belirtiyor; başlık ve
+ * alt bilgi etkilenmiyor. Sabit WhatsApp düğmesi ve çerez bandı kök düzende
+ * (layout.tsx) bunun dışında.
  */
 export default function Template({ children }: { children: React.ReactNode }) {
-  return <div className="sayfa-giris">{children}</div>;
+  return <Beliriver>{children}</Beliriver>;
 }
