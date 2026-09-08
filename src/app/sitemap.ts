@@ -19,6 +19,17 @@ export const dynamic = "force-dynamic";
  * Panel ve yönetim sayfaları hiçbir durumda listede değil: ikisi de oturum
  * istiyor, tarayıcı botu yalnızca giriş yönlendirmesi görür.
  */
+/*
+  Adresler sondaki eğik çizgiyle yazılıyor: next.config.ts'te trailingSlash
+  açık, yani sitenin gerçek adresleri "/egitimler/" biçiminde. Çizgisiz
+  yazılsaydı site haritasındaki her satır yönlendirmeye düşer ve Search
+  Console "Yönlendirmeli sayfa" uyarısı verirdi.
+*/
+function adres(yol: string): string {
+  if (yol === "/") return `${SITE_URL}/`;
+  return `${SITE_URL}${yol.startsWith("/") ? yol : `/${yol}`}/`;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const simdi = new Date();
   const yasal = await getYasalSayfalar();
@@ -26,11 +37,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Ön yüz kapalıyken arama motoruna açık tek yüz: giriş ekranı ve yasal
   // metinler.
   const giris: MetadataRoute.Sitemap = [
-    { url: `${SITE_URL}/giris`, lastModified: simdi, changeFrequency: "monthly", priority: 1 },
+    { url: adres("/giris"), lastModified: simdi, changeFrequency: "monthly", priority: 1 },
   ];
 
   const yasalGirdileri: MetadataRoute.Sitemap = yasal.map((y) => ({
-    url: `${SITE_URL}/${y.slug}`,
+    url: adres(y.slug),
     lastModified: simdi,
     changeFrequency: "yearly" as const,
     priority: 0.3,
@@ -38,22 +49,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   if (!ON_YUZ_ACIK) return [...giris, ...yasalGirdileri];
 
-  const egitimler = await getCourses();
+  /*
+    "Çok yakında" eğitimler haritaya GİRMİYOR.
+
+    O programların detay sayfası bilerek kapalı (egitimler/[slug]/page.tsx →
+    cokYakinda ise notFound). Haritaya koymak, arama motoruna "burada sayfa
+    var" deyip 404 döndürmek olur; Search Console bunu "Gönderilen URL
+    bulunamadı" diye raporluyor ve taşıma sırasında Google her şeyi yeniden
+    tararken bu hatalar gereksiz gürültü yaratıyor.
+  */
+  const egitimler = (await getCourses()).filter((e) => !e.cokYakinda);
 
   return [
-    { url: `${SITE_URL}/`, lastModified: simdi, changeFrequency: "weekly", priority: 1 },
-    { url: `${SITE_URL}/egitimler`, lastModified: simdi, changeFrequency: "weekly", priority: 0.9 },
+    { url: adres("/"), lastModified: simdi, changeFrequency: "weekly", priority: 1 },
+    { url: adres("/egitimler"), lastModified: simdi, changeFrequency: "weekly", priority: 0.9 },
     ...egitimler.map((e) => ({
-      url: `${SITE_URL}/egitimler/${e.slug}`,
+      url: adres(`/egitimler/${e.slug}`),
       lastModified: simdi,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
-    { url: `${SITE_URL}/hakkimizda`, lastModified: simdi, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${SITE_URL}/kurumsal`, lastModified: simdi, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${SITE_URL}/referanslar`, lastModified: simdi, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${SITE_URL}/yorumlar`, lastModified: simdi, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${SITE_URL}/iletisim`, lastModified: simdi, changeFrequency: "yearly", priority: 0.5 },
+    { url: adres("/hakkimizda"), lastModified: simdi, changeFrequency: "monthly", priority: 0.7 },
+    { url: adres("/kurumsal"), lastModified: simdi, changeFrequency: "monthly", priority: 0.7 },
+    { url: adres("/referanslar"), lastModified: simdi, changeFrequency: "monthly", priority: 0.6 },
+    { url: adres("/yorumlar"), lastModified: simdi, changeFrequency: "monthly", priority: 0.6 },
+    { url: adres("/iletisim"), lastModified: simdi, changeFrequency: "yearly", priority: 0.5 },
     ...giris,
     ...yasalGirdileri,
   ];

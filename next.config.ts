@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { YONLENDIRMELER } from "./src/lib/tasima";
 
 /**
  * Güvenlik başlıkları.
@@ -37,7 +38,29 @@ const GUVENLIK_BASLIKLARI = [
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
 ];
 
+/**
+ * WordPress'in hâlâ sunduğu içerik için kaynak adres.
+ *
+ * Blog yazıları, kategori arşivleri ve yeni projede karşılığı olmayan eski
+ * sayfalar WordPress'te kalmaya devam ediyor. Bu değişken tanımlı değilse
+ * fallback rewrite hiç kurulmuyor — yani ortam yanlış yapılandırıldığında
+ * sessizce bozuk bir proxy kurmak yerine uygulama eskisi gibi davranıyor.
+ *
+ * Örnek: https://wp.ahmetekinciakademi.com
+ */
+const WORDPRESS_KAYNAK = process.env.WORDPRESS_KAYNAK?.replace(/\/$/, "");
+
 const nextConfig: NextConfig = {
+  /*
+    Adreslerin sonunda eğik çizgi.
+
+    WordPress bütün adresleri "/hakkimizda/" biçiminde üretiyordu ve
+    indekslenmiş 56 adresin tamamı böyle. Next'in varsayılanı ise sondaki
+    çizgiyi atıp yönlendirme yapmak; o durumda Google'ın bildiği HER adres
+    fazladan bir sıçrama yerdi. Açık bırakınca eski yapıyla birebir eşleşiyor.
+  */
+  trailingSlash: true,
+
   /*
     Yüklenen görseller Supabase Storage'ta duruyor ve next/image yabancı bir
     konaktan görsel işlemeyi izin verilmedikçe reddediyor. Bu izin olmadığı
@@ -68,6 +91,73 @@ const nextConfig: NextConfig = {
         return [];
       }
     })(),
+  },
+
+  /*
+    Eski WordPress adreslerinden yenilerine kalıcı yönlendirme.
+
+    Liste ve gerekçesi src/lib/tasima.ts'te; orada testlerle korunuyor
+    (zincir yok, çift kaynak yok, hedefler gerçek sayfalar).
+
+    permanent: true → 308. Next 301 yerine 308 üretiyor; ikisi de "kalıcı" ve
+    Google ikisini de aynı şekilde değerlendiriyor, farkı 308'in istek yöntemini
+    koruması.
+
+    HEDEFE EĞİK ÇİZGİ EKLENİYOR — zincir olmasın diye. trailingSlash açık
+    olduğu için sitenin gerçek adresi "/egitimler/meta-ads-egitimi/". Hedefi
+    çizgisiz yazınca Next önce buraya, sonra çizgili biçime yönlendiriyordu:
+    eski adres → çizgisiz → çizgili, yani iki sıçrama. Ölçüldü ve düzeltildi;
+    şimdi tek sıçrama.
+  */
+  async redirects() {
+    return YONLENDIRMELER.map(({ eski, yeni }) => ({
+      source: eski,
+      destination: yeni.endsWith("/") ? yeni : `${yeni}/`,
+      permanent: true,
+    }));
+  },
+
+  /*
+    WordPress'te kalan içerik.
+
+    "fallback" grubu, Next kendi rotalarını VE dinamik rotalarını denedikten
+    sonra, tam 404 verecekken çalışıyor. Yani:
+
+      /egitimler/meta-ads-egitimi  → bu uygulama (kendi rotası)
+      /hakkimizda                  → bu uygulama
+      /meta-capi-nedir             → burada yok  → WordPress
+      /blog, /sosyal-medya         → WordPress (kategori arşivi)
+      /wp-content/...              → WordPress (görsel, stil)
+
+    Blog yazılarının kökte durması bunu zorunlu kılıyor: yazılar /blog/ altında
+    değil, doğrudan kökte (/meta-capi-nedir gibi). Tek tek liste yazmak yerine
+    "bilmediğim her şey WordPress'in" demek, yeni yazılan yazıların da kod
+    değişikliği olmadan çalışması demek.
+  */
+  async rewrites() {
+    if (!WORDPRESS_KAYNAK) return { beforeFiles: [], afterFiles: [], fallback: [] };
+    return {
+      beforeFiles: [],
+      afterFiles: [],
+      fallback: [
+        /*
+          İki kural, çünkü sondaki eğik çizgi kritik.
+
+          trailingSlash açıkken Next eşleştirmeden önce sondaki çizgiyi
+          kaldırıyor; hedefe olduğu gibi geçirseydik WordPress "/meta-capi-nedir"
+          isteği alırdı. WordPress ise kanonik adresi çizgili tutuyor ve
+          çizgisiz gelen isteği home_url'e — yani PUBLIC alan adına — 301'liyor.
+          O da bizim başladığımız adres: sonsuz yönlendirme döngüsü.
+
+          Bu yüzden sayfalara çizgi geri ekleniyor. Ama dosyalara EKLENMEMELİ:
+          "/wp-content/.../gorsel.jpg/" diye bir dosya yok, görseller kırılırdı.
+          İlk kural noktalı (uzantılı) yolları yakalayıp olduğu gibi geçiriyor,
+          ikincisi geri kalan her şeye çizgiyi ekliyor.
+        */
+        { source: "/:dosya*\\.:uzanti", destination: `${WORDPRESS_KAYNAK}/:dosya*.:uzanti` },
+        { source: "/:yol*", destination: `${WORDPRESS_KAYNAK}/:yol*/` },
+      ],
+    };
   },
 
   async headers() {

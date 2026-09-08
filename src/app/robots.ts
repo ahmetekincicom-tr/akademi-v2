@@ -23,6 +23,20 @@ export default function robots(): MetadataRoute.Robots {
     // Google-Extended) da bilerek engellenmiyor: engellenen platform siteyi
     // cevaplarında kaynak gösteremiyor.
     rules: { userAgent: "*", disallow: ["/panel", "/api"] },
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    /*
+      İKİ site haritası.
+
+      Blog yazıları ve kategori arşivleri WordPress'te kalmaya devam ediyor
+      (next.config.ts'teki fallback rewrite onları aynı alan adı altında
+      sunuyor). O sayfaların haritası WordPress tarafında üretiliyor ve burada
+      da bildirilmezse Google blogun haritasını tamamen kaybeder — yalnızca
+      bu uygulamanın sayfalarını görür.
+
+      Adres RankMath'in ürettiği dizin; WORDPRESS_SITEMAP tanımlı değilse
+      yalnızca kendi haritamız bildiriliyor.
+    */
+    sitemap: [`${SITE_URL}/sitemap.xml`, process.env.WORDPRESS_SITEMAP].filter(
+      (a): a is string => Boolean(a),
+    ),
   };
 }
