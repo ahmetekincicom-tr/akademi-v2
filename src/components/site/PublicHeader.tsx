@@ -45,7 +45,11 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
         MASAÜSTÜ: logo (sol) | menü (orta) | üye girişi (sağ). Yanlardaki iki
         sütun 1fr olduğu için menü alanın gerçek ortasına oturuyor.
       */}
-      <div className="mx-auto hidden min-h-[74px] max-w-[1240px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-5 py-2.5 sm:px-8 lg:grid">
+      {/* py-2.5 -> py-[15px] ve min-h 74 -> 84: başlık üst kenara yapışık
+          duruyordu, içeriğin üstünde nefes alanı yoktu. Yükseklik BaslikKabugu
+          tarafından ölçülüp --baslik-h'ye yazıldığı için ana sayfa hero'sunun
+          yukarı çekilmesi kendiliğinden uyuyor. */}
+      <div className="mx-auto hidden min-h-[84px] max-w-[1240px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-5 py-[15px] sm:px-8 lg:grid">
         <div className="flex items-center">{logo}</div>
 
         {menu ? (
@@ -70,7 +74,8 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
         MOBİL: üye girişi ikonu (sol) | logo (ORTALI) | menü (sağ, kayar panel).
         grid-cols-[1fr_auto_1fr] logoyu tam ortaya oturtuyor.
       */}
-      <div className="mx-auto grid min-h-[74px] max-w-[1240px] grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-2.5 sm:px-8 lg:hidden">
+      {/* Mobilde de aynı nefes alanı. */}
+      <div className="mx-auto grid min-h-[84px] max-w-[1240px] grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-[15px] sm:px-8 lg:hidden">
         <div className="flex justify-start">
           {menu ? <MobilUyeGiris /> : <span className="h-10 w-10" />}
         </div>
@@ -79,7 +84,10 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
 
         <div className="flex justify-end">
           {menu ? (
-            <MobilMenu nav={siteNav} />
+            /* Logo prop olarak gidiyor: <Logo> async sunucu bileşeni, MobilMenu
+               ise istemci — orada çağrılamaz, burada çizilip aktarılıyor.
+               Menü paneli her zaman beyaz zeminli, o yüzden koyu değişke. */
+            <MobilMenu nav={siteNav} logo={<Logo href={logoAdres} variant="dark" />} />
           ) : (
             <Link
               href="/giris"
