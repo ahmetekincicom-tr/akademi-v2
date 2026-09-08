@@ -200,8 +200,20 @@ export async function PublicFooter() {
                     <span className="min-w-0 break-words">{l.label}</span>
                   </>
                 );
+                /*
+                  Satır 20px yüksekliğindeydi ve parmakla isabet ettirmek zordu
+                  (WCAG en az 24px ister). Dolgu dokunma alanını 34px'e
+                  çıkarıyor; kapsayıcının boşluğu buna göre kısaldığı için
+                  görsel ritim aynı kalıyor.
+
+                  Ölçüt GENİŞLİK DEĞİL, İŞARETÇİ: sm: ile yazılsaydı 768px'lik
+                  bir tablet "geniş ekran" sayılıp dolguyu kaybederdi — oysa
+                  orada da parmakla dokunuluyor. pointer-fine yalnızca fare/
+                  kalem gibi hassas işaretçilerde dolguyu kaldırıyor, masaüstü
+                  düzeni birebir korunuyor.
+                */
                 const stil =
-                  "group flex items-start gap-[10px] text-[14.5px] leading-[1.4] text-white/65 transition hover:text-white";
+                  "group flex items-start gap-[10px] py-[7px] text-[14.5px] leading-[1.4] text-white/65 transition hover:text-white pointer-fine:py-0";
 
                 if (!l.href) {
                   return (
@@ -244,7 +256,7 @@ export async function PublicFooter() {
             <Link
               key={l.href}
               href={l.href}
-              className="group/yasal inline-flex items-center gap-[6px] text-white/55 transition hover:text-white"
+              className="group/yasal inline-flex items-center gap-[6px] py-[7px] text-white/55 transition hover:text-white pointer-fine:py-0"
             >
               <Icon name="chevronRight" size={13} className="flex-none text-white/35 transition group-hover/yasal:text-brand" />
               {l.label}
@@ -253,7 +265,8 @@ export async function PublicFooter() {
           {olcumlemeVar && (
             <span className="inline-flex items-center gap-[6px] text-white/35">
               <Icon name="chevronRight" size={13} className="flex-none" />
-              <CerezTercihleriDugmesi className="text-white/55 hover:text-white" />
+              {/* Komşu yasal bağlantılarla aynı dokunma yüksekliği. */}
+              <CerezTercihleriDugmesi className="py-[7px] text-white/55 hover:text-white pointer-fine:py-0" />
             </span>
           )}
         </div>

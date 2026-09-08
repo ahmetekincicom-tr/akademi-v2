@@ -85,8 +85,11 @@ export function GirisFormu({ hedef }: { hedef: string }) {
         {/* "Beni hatırla" kutusu kaldırıldı: durumu hiçbir yerde okunmuyordu,
             yani işaretlense de işaretlenmese de aynı şey oluyordu. Oturum
             zaten kalıcı — çalışmayan bir denetim, olmayandan kötü. */}
-        <div className="mt-4 flex justify-end">
-          <Link href="/sifremi-unuttum" className="text-sm font-semibold text-brand">
+        {/* Dolgu + küçültülmüş üst boşluk: görsel yer aynı, dokunma alanı
+            20px'ten 34px'e çıkıyor. Cümle içinde değil, tek başına duran bir
+            bağlantı — parmakla ıskalanması can sıkıcı. */}
+        <div className="mt-[9px] flex justify-end">
+          <Link href="/sifremi-unuttum" className="py-[7px] text-sm font-semibold text-brand">
             Şifremi unuttum
           </Link>
         </div>

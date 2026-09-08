@@ -57,7 +57,17 @@ export function BaslikKabugu({ children }: { children: React.ReactNode }) {
         ref={ref}
         data-saydam={saydam ? "1" : undefined}
         className={`sticky top-0 z-60 border-b transition-[background-color,border-color] duration-300 ${
-          saydam ? "border-transparent bg-transparent" : "border-ink/9 bg-white/90 yapiskan-baslik"
+          /*
+            pointer-coarse:bg-white/97 — dokunmatik cihazlarda zemin daha opak.
+            Bulanıklık orada bilerek kapalı (kaydırmayı takılmalı yapıyordu,
+            bkz. globals.css .yapiskan-baslik) ve bulanıklık olmayınca %90 opak
+            zeminden altta kayan yazılar hayalet gibi okunuyordu. %97 sızmayı
+            bitiriyor, bedeli yok. Masaüstünde bulanıklık çalıştığı için %90
+            olduğu gibi kalıyor.
+          */
+          saydam
+            ? "border-transparent bg-transparent"
+            : "border-ink/9 bg-white/90 yapiskan-baslik pointer-coarse:bg-white/97"
         }`}
       >
         {children}

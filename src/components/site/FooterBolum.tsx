@@ -56,7 +56,12 @@ export function FooterBolum({ baslik, children }: { baslik: string; children: Re
           <span className="group-open:hidden">+</span>
         </span>
       </summary>
-      <div className="flex flex-col gap-[13px] pb-[18px] sm:mt-[18px] sm:gap-[11px] sm:pb-0">{children}</div>
+      {/*
+        Dar ekranda boşluk küçük: bağlantıların kendi dikey dolgusu var
+        (PublicFooter'daki "stil"), dokunma alanları bitişik olsun diye. Toplam
+        satır aralığı eskisiyle aynı kalıyor, isabet alanı büyüyor.
+      */}
+      <div className="flex flex-col gap-[3px] pb-[18px] pointer-fine:gap-[11px] sm:mt-[18px] sm:pb-0">{children}</div>
     </details>
   );
 }
