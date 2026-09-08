@@ -776,10 +776,63 @@ select:focus-visible {
   background-color: var(--color-brand);
 }
 
-/* Yan menü açıkken arkadaki panelin kaymasını engelle. Menü kendi içinde
-   kayıyor; gövdenin de birlikte kayması iki katmanı aynı anda oynatıyordu. */
-[data-native="1"] body[data-menu-acik="1"] {
+/*
+  Yan menü açıkken arkadaki panelin kaymasını engelle. Menü kendi içinde
+  kayıyor; gövdenin de birlikte kayması iki katmanı aynı anda oynatıyordu.
+
+  Kural eskiden yalnızca [data-native="1"] altındaydı, yani kilit SADECE
+  Capacitor uygulamasında çalışıyordu; web'de (mobil Safari dâhil) menü
+  açıkken menünün dışında parmağı kaydırınca arkadaki sayfa kayıyordu.
+  Artık her yerde geçerli.
+
+  html'e de konuyor: iOS Safari yalnızca body'deki overflow:hidden ile
+  durmuyor, kaydırmayı belge kökünden sürdürüyor.
+*/
+html:has(body[data-menu-acik="1"]),
+body[data-menu-acik="1"] {
   overflow: hidden;
+  /* Kaydırma menünün içinde kalsın, sınıra gelince arkaya geçmesin. */
+  overscroll-behavior: none;
+}
+
+/* Masaüstünde menü kalıcı olarak açık (lg:translate-x-0) ve bir katman
+   değil; orada kilit yanlış olurdu — sayfa kaydırılamaz hale gelirdi. */
+@media (min-width: 1024px) {
+  html:has(body[data-menu-acik="1"]),
+  body[data-menu-acik="1"] {
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+}
+
+/*
+  Panel yan menüsündeki bağlantı listesi.
+
+  Liste ekrana sığmayınca kendi içinde kayıyor ve alt kenarda bir satır tam
+  ortasından kesiliyordu — işlevsel olarak doğru ama "yarım kalmış" duruyordu.
+  Maske son birkaç pikseli söndürüyor, böylece kesik bir sınır yerine devam
+  ettiğini söyleyen yumuşak bir geçiş oluyor.
+
+  -webkit- öneki şart: iOS Safari maskeyi hâlâ önekli özellikten okuyor ve
+  bu menü en çok orada görülüyor.
+
+  Kaydırma çubuğu da inceltilip koyu zemine uyduruldu; varsayılan açık renk
+  çubuk koyu menüde parlak bir şerit gibi duruyordu.
+*/
+.panel-menu-liste {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent 100%);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+.panel-menu-liste::-webkit-scrollbar {
+  width: 4px;
+}
+
+.panel-menu-liste::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
 }
 
 /* Yapışkan başlıkların bulanıklığı.

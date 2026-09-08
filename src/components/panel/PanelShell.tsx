@@ -10,6 +10,7 @@ import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
 import type { PanelBildirimleri } from "@/lib/bildirimler";
 import { DERSLER_ACIK } from "@/lib/bolumler";
+import { SOSYAL } from "@/lib/iletisim";
 
 type MenuItem = {
   href: string;
@@ -173,12 +174,18 @@ export function PanelShell({
       <aside
         // h-dvh: iOS'ta h-screen tarayıcı çubuklarını hesaba katmıyor ve menü
         // ekrandan taşıyordu, alttaki çıkış düğmesi kesiliyordu.
-        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[264px] flex-none flex-col bg-ink text-white/66 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+        /*
+          Zemin düz bg-ink değil, hafif bir dikey degrade: üstte biraz açılıp
+          altta koyulaşınca menü düz bir blok olmaktan çıkıp derinlik
+          kazanıyor. Sağ kenardaki ince beyaz çizgi de menüyü içerikten
+          "kesiyor" — tek başına kenarlık koymaktan daha yumuşak duruyor.
+        */
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[276px] flex-none flex-col bg-ink bg-gradient-to-b from-[#111629] via-ink to-[#070a12] text-white/66 shadow-[inset_-1px_0_0_rgba(255,255,255,0.07)] transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Yan menü de tam ekran yüksekliğinde: üstü çentiğe girmesin. */}
-        <div className="flex items-center justify-between border-b border-white/10 px-[22px] pt-[calc(22px+env(safe-area-inset-top))] pb-5">
+        <div className="flex items-center justify-between border-b border-white/10 px-[22px] pt-[calc(26px+env(safe-area-inset-top))] pb-5">
           <Link
             href={native ? "/panel" : "/"}
             className="flex items-center gap-[11px] text-white"
@@ -235,7 +242,14 @@ export function PanelShell({
           )}
         </div>
 
-        <nav className="flex flex-col gap-[14px] overflow-auto px-[14px] pt-[14px] pb-2">
+        {/*
+          min-h-0 + flex-1 şart: flex çocuğu varsayılan olarak içeriğinin
+          altına küçülmüyor, o yüzden overflow-auto hiç devreye girmiyor ve
+          liste alttaki profil/çıkış bloğunun altına taşıyordu (menü uzayınca
+          "Ödemelerim" yarıdan kesiliyordu). Bu ikisiyle liste kendi içinde
+          kayıyor, alt blok her zaman yerinde duruyor.
+        */}
+        <nav className="panel-menu-liste flex min-h-0 flex-1 flex-col gap-[14px] overflow-y-auto overscroll-contain px-[14px] pt-[14px] pb-2">
           {gorunenGruplar.map((g) => (
             <div key={g.title} className="flex flex-col gap-[2px]">
               <div className="px-[13px] pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/55 uppercase">
@@ -253,7 +267,9 @@ export function PanelShell({
                     <div
                       key={m.href}
                       aria-disabled
-                      className="flex cursor-not-allowed items-center gap-[11px] rounded-[9px] border-l-2 border-transparent px-3 py-[9px] text-sm"
+                      /* Ölçüler aktif satırlarla birebir aynı: farklı dolgu
+                         ya da kenarlık, kapalı bölümleri listede kaydırıyordu. */
+                      className="flex cursor-not-allowed items-center gap-[11px] rounded-[11px] px-3 py-[11px] text-sm"
                       style={{ color: "rgba(255,255,255,0.34)", fontWeight: 500 }}
                     >
                       <span className="flex flex-none opacity-45">
@@ -273,17 +289,19 @@ export function PanelShell({
                     href={m.href}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setMenuAcik(false)}
-                    className="flex items-center gap-[11px] rounded-[9px] border-l-2 px-3 py-[9px] text-sm transition hover:bg-white/[0.07] hover:text-white"
+                    /*
+                      Sol kenarlık yerine tam yuvarlatılmış bir satır: seçili
+                      öğe soldan sağa sönen bir marka degradesi, ince bir iç
+                      çerçeve ve yumuşak bir gölge taşıyor. Düz renk bloğuna
+                      göre daha katmanlı duruyor. Dikey dolgu da büyüdü —
+                      hem daha ferah hem parmakla daha kolay.
+                    */
+                    className={`relative flex items-center gap-[11px] rounded-[11px] px-3 py-[11px] text-sm transition-colors duration-150 hover:bg-white/[0.07] hover:text-white ${
+                      active ? "shadow-[inset_0_0_0_1px_rgba(28,86,243,0.42),0_6px_18px_-8px_rgba(28,86,243,0.65)]" : ""
+                    }`}
                     style={{
-                      borderColor: active ? "#1C56F3" : "transparent",
-                      /*
-                        Vurgulu bölüm seçili değilken de hafif bir zemin ve tam
-                        beyaz metin taşıyor. Yalnızca kalın yazıyla ayırmak
-                        yetmiyordu: koyu menüde ağırlık farkı zor seçiliyor,
-                        ayıran şey zemin ve metin parlaklığı.
-                      */
                       background: active
-                        ? "rgba(28,86,243,0.16)"
+                        ? "linear-gradient(90deg, rgba(28,86,243,0.34) 0%, rgba(28,86,243,0.10) 100%)"
                         : m.vurgulu || sayi > 0 || uyariVar
                           ? "rgba(255,255,255,0.06)"
                           : "transparent",
@@ -337,7 +355,30 @@ export function PanelShell({
               Yönetim paneli
             </Link>
           )}
-          <div className="flex items-center gap-[10px]">
+          {/*
+            Sosyal bağlantılar. Panelde de duruyor çünkü katılımcının eğitmene
+            ulaşacağı en kısa yol bu; WhatsApp zaten destek hattı. Adresler
+            lib/iletisim'deki tek kaynaktan (SOSYAL) geliyor, footer ile aynı.
+          */}
+          <div className="mb-4 flex items-center justify-center gap-2">
+            {SOSYAL.map((s) => (
+              <a
+                key={s.ad}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={s.ad}
+                title={s.ad}
+                className="flex h-[38px] w-[38px] items-center justify-center rounded-[11px] border border-white/12 bg-white/[0.04] text-white/60 transition hover:border-brand/60 hover:bg-brand hover:text-white"
+              >
+                <Icon name={s.ikon} size={16} />
+              </a>
+            ))}
+          </div>
+
+          {/* Profil kutusu: eskiden çıplak bir satırdı; kendi zemini olunca
+              menünün geri kalanından ayrılıyor ve alt blok toparlanıyor. */}
+          <div className="flex items-center gap-[10px] rounded-[12px] border border-white/10 bg-white/[0.04] px-[11px] py-[10px]">
             <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand/25 font-mono text-[11px] font-semibold text-[#A9C0FF]">
               {profil.basHarfler}
             </span>
@@ -366,7 +407,13 @@ export function PanelShell({
           altında kalıyordu. env() tarayıcıda 0 döndüğü için web etkilenmiyor.
         */}
         <header className="sticky top-0 z-40 border-b border-ink/9 bg-paper/90 pt-[env(safe-area-inset-top)] yapiskan-baslik">
-          <div className="flex h-[70px] items-center justify-between gap-3 px-4 sm:gap-6 sm:px-[34px]">
+          {/*
+            Sabit yükseklik yerine dolgu: h-[70px] içeriği dikeyde ortalıyordu
+            ama başlık üst kenara yapışık duruyordu — özellikle telefonda
+            "sıkışmış" hissi veren buydu. Üstte biraz daha fazla boşluk var
+            (10px alt / 14px üst), yükseklik de min-h ile korunuyor.
+          */}
+          <div className="flex min-h-[78px] items-center justify-between gap-3 px-4 pt-[14px] pb-[10px] sm:min-h-[86px] sm:gap-6 sm:px-[34px] sm:pt-[18px] sm:pb-[12px]">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
