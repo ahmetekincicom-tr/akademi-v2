@@ -291,6 +291,10 @@ export async function proxy(request: NextRequest) {
       // İzin kalkmışsa (çıkış yapıldı, liste değişti) şerit de kalksın.
       response.cookies.delete("aea-onizleme");
     }
+  } else if (request.cookies.has("aea-onizleme")) {
+    // Ön yüz artık AÇIK: önizleme kapalıyken kalan çerezi temizle, yoksa
+    // "Ön yüz yayında değil" şeridi eski çerez yüzünden görünmeye devam eder.
+    response.cookies.delete("aea-onizleme");
   }
 
   // Uygulama pazarlama sitesine geçemesin.
