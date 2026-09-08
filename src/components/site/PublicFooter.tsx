@@ -25,12 +25,15 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
   {
     baslik: "Akademi",
     linkler: [
-      { label: "Ana sayfa", href: "/" },
+      // Başlıktaki beş sayfa footer'da da; Kurumsal Eğitim ve İletişim ise
+      // yalnızca footer'da (başlık menüsünde yok).
+      { label: "Ana Sayfa", href: "/" },
       { label: "Hakkımızda", href: "/hakkimizda" },
+      { label: "Eğitimler", href: "/egitimler" },
       { label: "Referanslar", href: "/referanslar" },
-      { label: "Katılımcı yorumları", href: "/yorumlar" },
+      { label: "Yorumlar", href: "/yorumlar" },
+      { label: "Kurumsal Eğitim", href: "/kurumsal" },
       { label: "İletişim", href: "/iletisim" },
-      { label: "Panele giriş", href: "/giris" },
     ],
   },
   {
@@ -86,10 +89,10 @@ async function egitimSutunu(): Promise<{ baslik: string; linkler: FooterLink[] }
   return {
     baslik: "Eğitim",
     linkler: [
-      // Footer'ın uzamaması için ilk dördü; gerisi "Tüm eğitimler" altında.
+      // Eğitim adları SEO için ayrı bir menü sütununda; Kurumsal Eğitim artık
+      // "Akademi" sütununda, burada tekrar edilmiyor.
       ...egitimler.slice(0, 4).map((e) => ({ label: e.baslik, href: `/egitimler/${e.slug}` })),
       { label: "Tüm eğitimler", href: "/egitimler" },
-      { label: "Kurumsal eğitim", href: "/kurumsal" },
     ],
   };
 }

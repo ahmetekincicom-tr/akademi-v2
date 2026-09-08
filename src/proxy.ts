@@ -81,7 +81,7 @@ function uygulamayaAcik(pathname: string): boolean {
  * açmak istersen yolunu AYRICA_ACIK listesine ekle — o liste bayrak
  * kapalıyken de geçerli.
  */
-export const ON_YUZ_ACIK = false;
+export const ON_YUZ_ACIK = true;
 
 /**
  * Ön yüz kapalıyken bile açık kalan yollar.

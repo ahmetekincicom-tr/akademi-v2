@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { MobilMenu } from "./MobilMenu";
+import { MobilUyeGiris } from "./MobilUyeGiris";
 import { AktifNav } from "./AktifNav";
 import { BaslikKabugu } from "./BaslikKabugu";
 import { siteNav } from "./siteNav";
@@ -21,39 +22,41 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
   const menu = ON_YUZ_ACIK;
   const logoAdres = ON_YUZ_ACIK ? logoHref : "/giris";
 
+  /*
+    İki logo: beyaz başlıkta koyu (açık zemin) logo, saydam başlıkta açık (koyu
+    zemin) logo. CSS data-saydam'a göre birini gizliyor; gizli olan display:none
+    olduğu için erişilebilirlik ağacına girmiyor. Aynı ikili mobil ve masaüstü
+    düzenlerinde ayrı ayrı basılıyor (kırılıma göre biri gizli).
+  */
+  const logo = (
+    <>
+      <span className="baslik-logo-acik">
+        <Logo href={logoAdres} variant="dark" />
+      </span>
+      <span className="baslik-logo-koyu">
+        <Logo href={logoAdres} variant="light" />
+      </span>
+    </>
+  );
+
   return (
     <BaslikKabugu>
       {/*
-        Üç sütun: logo | menü | üye girişi.
-        justify-between ile menü ortada DURMUYOR — logo ve düğme farklı
-        genişliklerde olduğu için menü sürekli bir yana kayıyor. Yanlardaki iki
-        sütunun 1fr olması ortadakini alanın gerçek ortasına oturtuyor.
+        MASAÜSTÜ: logo (sol) | menü (orta) | üye girişi (sağ). Yanlardaki iki
+        sütun 1fr olduğu için menü alanın gerçek ortasına oturuyor.
       */}
-      <div className="mx-auto grid min-h-[74px] max-w-[1240px] py-2.5 grid-cols-[auto_1fr] items-center gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
-        {/*
-          İki logo: beyaz başlıkta koyu (açık zemin) logo, saydam başlıkta açık
-          (koyu zemin) logo. CSS data-saydam'a göre birini gizliyor; ikisi de
-          "/" bağlantısı ama gizli olan display:none olduğu için erişilebilirlik
-          ağacına girmiyor.
-        */}
-        <div className="flex items-center">
-          <span className="baslik-logo-acik">
-            <Logo href={logoAdres} variant="dark" />
-          </span>
-          <span className="baslik-logo-koyu">
-            <Logo href={logoAdres} variant="light" />
-          </span>
-        </div>
+      <div className="mx-auto hidden min-h-[74px] max-w-[1240px] grid-cols-[1fr_auto_1fr] items-center gap-6 px-5 py-2.5 sm:px-8 lg:grid">
+        <div className="flex items-center">{logo}</div>
 
         {menu ? (
-          <nav className="hidden items-center justify-center gap-[6px] lg:flex">
+          <nav className="flex items-center justify-center gap-[6px]">
             <AktifNav items={siteNav} />
           </nav>
         ) : (
-          <div className="hidden lg:block" />
+          <div />
         )}
 
-        <div className="hidden justify-end lg:flex">
+        <div className="flex justify-end">
           <Link
             href="/giris"
             className="inline-flex h-10 items-center gap-[7px] rounded-[9px] bg-brand px-[18px] text-sm font-semibold text-white shadow-[0_6px_18px_rgba(28,86,243,0.28)] transition hover:bg-ink hover:shadow-[0_6px_18px_rgba(10,13,24,0.25)]"
@@ -61,8 +64,20 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
             Üye girişi
           </Link>
         </div>
+      </div>
 
-        <div className="flex justify-end lg:hidden">
+      {/*
+        MOBİL: üye girişi ikonu (sol) | logo (ORTALI) | menü (sağ, kayar panel).
+        grid-cols-[1fr_auto_1fr] logoyu tam ortaya oturtuyor.
+      */}
+      <div className="mx-auto grid min-h-[74px] max-w-[1240px] grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-2.5 sm:px-8 lg:hidden">
+        <div className="flex justify-start">
+          {menu ? <MobilUyeGiris /> : <span className="h-10 w-10" />}
+        </div>
+
+        <div className="flex justify-center">{logo}</div>
+
+        <div className="flex justify-end">
           {menu ? (
             <MobilMenu nav={siteNav} />
           ) : (
