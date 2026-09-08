@@ -132,8 +132,16 @@ export function AdminShell({
   useEffect(() => {
     if (menuAcik) document.body.dataset.menuAcik = "1";
     else delete document.body.dataset.menuAcik;
+
+    // Koyu menü açıkken tarayıcı çubukları da koyulaşıyor; öğrenci panelinde
+    // (PanelShell) aynı davranış, gerekçesi orada uzun uzun yazılı.
+    const etiket = document.querySelector('meta[name="theme-color"]');
+    const eskiRenk = etiket?.getAttribute("content") ?? null;
+    if (etiket && menuAcik) etiket.setAttribute("content", "#0a0d18");
+
     return () => {
       delete document.body.dataset.menuAcik;
+      if (etiket && eskiRenk !== null) etiket.setAttribute("content", eskiRenk);
     };
   }, [menuAcik]);
 

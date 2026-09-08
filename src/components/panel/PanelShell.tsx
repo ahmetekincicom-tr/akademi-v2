@@ -119,8 +119,24 @@ export function PanelShell({
   useEffect(() => {
     if (menuAcik) document.body.dataset.menuAcik = "1";
     else delete document.body.dataset.menuAcik;
+
+    /*
+      Menü açıkken tarayıcı çubukları da menünün rengine dönüyor.
+
+      Menü koyu (bg-ink) ve ekranı baştan sona kaplıyor; Safari'nin durum ve
+      adres çubuğu ise sayfanın açık zeminine göre boyandığı için koyu menünün
+      üstünde ve altında açık şeritler kalıyordu — menü ekrana oturmuş değil,
+      araya sıkışmış gibi görünüyordu. Etiketi menü kapanınca eski değerine
+      geri koyuyoruz; kapalıyken hiç dokunulmuyor.
+    */
+    const etiket = document.querySelector('meta[name="theme-color"]');
+    const eskiRenk = etiket?.getAttribute("content") ?? null;
+    // --color-ink; menünün zemini.
+    if (etiket && menuAcik) etiket.setAttribute("content", "#0a0d18");
+
     return () => {
       delete document.body.dataset.menuAcik;
+      if (etiket && eskiRenk !== null) etiket.setAttribute("content", eskiRenk);
     };
   }, [menuAcik]);
 

@@ -112,8 +112,17 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
-  // Panelin durum çubuğu şeridiyle aynı marka mavisi.
-  themeColor: "#1c56f3",
+  /*
+    Tarayıcı çubuklarının rengi. Sayfa zemini (--color-paper) ile AYNI olmalı:
+    iOS Safari durum çubuğu ve adres çubuğu alanını bu renkle boyuyor, sayfanın
+    üstünde duran başlık da aynı açık tonda. Eskiden burada marka mavisi vardı
+    ve açık gri başlığın üstünde ayrı bir renk şeridi gibi duruyordu.
+
+    Standalone (ana ekrana eklenmiş) moddaki mavi şerit bundan etkilenmiyor:
+    onu PanelShell/AdminShell içindeki env(safe-area-inset-top) yüksekliğinde
+    bg-brand kutusu çiziyor; Safari'de o alanın yüksekliği zaten sıfır.
+  */
+  themeColor: "#f5f6fa",
   // Panel ana ekrandan açıldığında telefonun çentik/alt çubuk alanına kadar
   // uzansın; aksi halde standalone modda kenarlarda boş şeritler kalıyor.
   viewportFit: "cover",
@@ -151,7 +160,13 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify([kurumSemasi(), siteSemasi()]) }}
         />
       </head>
-      <body className="antialiased font-body text-ink bg-white">
+      {/*
+        bg-paper (bg-white değil): sayfanın zemini theme-color ve html'in
+        arka planıyla aynı tonda olmalı. Beyazken iOS Safari'de koyu içeriğin
+        üstünde/altında beyaz şeritler kalıyordu — lastik bandı (overscroll)
+        alanı ve Safari'nin çubuk tonu bu renkten besleniyor.
+      */}
+      <body className="antialiased font-body text-ink bg-paper">
         {/* Ön yüz kapalıyken, izinli kullanıcıya "bunu yalnızca sen
             görüyorsun" diyor. Çerezden okuyor; gerekçesi bileşende. */}
         <OnizlemeSeridi />

@@ -26,6 +26,22 @@
   }
 
   html {
+    /*
+      SAYFANIN KENDİ ZEMİNİ. Eskiden ne html'de ne body'de arka plan rengi
+      vardı; görünen bütün renkler içerideki sarmalayıcılardan geliyordu
+      (bg-paper, koyu bölümler). Sarmalayıcının ulaşmadığı her yer tarayıcı
+      varsayılanı olan BEYAZ kalıyordu ve iOS Safari'de bu iki yerde
+      görünüyordu: parmakla sınırın ötesine çekince açılan lastik bandı
+      (overscroll) alanı ve Safari'nin durum/adres çubuğu tonu — Safari o
+      tonu sayfanın zemininden örnekliyor. Sonuç, koyu içeriğin altında ve
+      üstünde beyaz şeritlerdi.
+
+      color-scheme ayrıca tarayıcıya sayfanın açık temalı olduğunu söylüyor;
+      kaydırma çubuğu ve form denetimleri de buna göre çiziliyor.
+    */
+    background-color: var(--color-paper);
+    color-scheme: light;
+
     /* Sayfa içi bağlantılar (#egitimler gibi) sıçrayarak değil kayarak
        gitsin. Azaltılmış hareket açıksa aşağıdaki medya sorgusu bunu
        kapatıyor — kayma bazı kişilerde baş dönmesi yapıyor. */
@@ -40,6 +56,9 @@
   body {
     -webkit-font-smoothing: antialiased;
     color: var(--color-ink);
+    /* Zemin rengi burada değil, layout.tsx'teki bg-paper sınıfında —
+       Tailwind yardımcı sınıfı bu katmanı geçtiği için iki yerde tanımlamak
+       yalnızca kafa karıştırırdı. */
   }
 
   * {
