@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { GorulmeAlani } from "@/lib/bildirimler";
+import { getBildirimler, type GorulmeAlani } from "@/lib/bildirimler";
 
 const IZINLI: GorulmeAlani[] = ["birebir", "soru_cevap"];
 
@@ -25,6 +25,25 @@ export async function alaniGorulduIsaretle(alan: GorulmeAlani) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Oturum bulunamadı." };
+
+  /*
+    DÜŞECEK ROZET YOKSA HİÇBİR ŞEY YAPMA.
+
+    Bu eylem bölüm her açıldığında çalışıyor ve eskiden koşulsuz yazıp
+    revalidatePath ile bütün /panel düzenini tazeliyordu. Ziyaretlerin
+    neredeyse tamamında rozet zaten sıfır — yani her açılışta boşuna bir
+    yazma ve sayfanın kendini yeniden çizmesi oluyordu. O tazeleme
+    görünür bir zarar da veriyordu: sayfa daha yeni açılmışken kendini
+    yenilediği için içerik bir an oynuyordu ("bakarken kayıtlar kayboldu"
+    bildiriminin arkasındaki zincirin halkalarından biri buydu) ve
+    tarayıcı konsoluna "useInsertionEffect must not schedule updates"
+    hatası düşüyordu.
+
+    Artık yalnızca gerçekten sıfırlanacak bir rozet varken yazıyoruz.
+  */
+  const { sayac } = await getBildirimler();
+  const bekleyen = alan === "birebir" ? sayac.birebir : sayac.soruCevap;
+  if (bekleyen === 0) return {};
 
   // upsert: ilk ziyarette satır yok, sonrakilerde zamanı ilerletiyoruz.
   await supabase

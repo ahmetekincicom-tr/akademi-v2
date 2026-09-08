@@ -68,7 +68,9 @@ export function OnayKayitlari({ kayitlar }: { kayitlar: RizaKaydi[] }) {
                     <Link
                       href={`/${k.belge}`}
                       target="_blank"
-                      className="text-[14.5px] leading-[1.3] font-semibold text-ink underline decoration-ink/25 underline-offset-[3px] hover:text-brand hover:decoration-brand"
+                      /* Tek başına duran sözleşme bağlantısı (cümle içi değil):
+                         dokunmatikte dolguyla 33px'e çıkıyor, farede aynı. */
+                      className="py-[7px] text-[14.5px] leading-[1.3] font-semibold text-ink underline decoration-ink/25 underline-offset-[3px] hover:text-brand hover:decoration-brand pointer-fine:py-0"
                     >
                       {k.baslik}
                     </Link>

@@ -15,7 +15,10 @@ export function Breadcrumb({ adimlar }: { adimlar: BreadcrumbAdim[] }) {
             {a.href && !sonuncu ? (
               <Link
                 href={a.href}
-                className="truncate font-medium text-[#656B7A] transition hover:text-brand"
+                /* Dokunmatikte dikey dolgu: kırıntı yolu 19px yüksekliğindeydi
+                   ve telefonda geri dönmek için ıskalanıyordu. Farede eski
+                   sıkı düzen korunuyor (pointer-fine). */
+                className="truncate py-[7px] font-medium text-[#656B7A] transition hover:text-brand pointer-fine:py-0"
               >
                 {a.label}
               </Link>

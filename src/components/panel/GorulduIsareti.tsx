@@ -13,6 +13,14 @@ import type { GorulmeAlani } from "@/lib/bildirimler";
  *
  * Hata yutuluyor: rozetin sıfırlanmaması sayfayı bozmamalı, kullanıcının
  * göreceği bir şey de değil.
+ *
+ * Çağrı BOYAMADAN SONRAYA erteleniyor. Eylem rozeti düşürdüğünde sunucuda
+ * revalidatePath çalışıyor ve bu, yönlendiriciyi güncelliyor; doğrudan
+ * efektin içinden tetiklenince o güncelleme React'in insertion-effect
+ * evresine denk gelip "useInsertionEffect must not schedule updates"
+ * hatasına yol açıyordu (panelde iki sayfada, her cihazda görülüyordu).
+ * Bir kare beklemek güncellemeyi güvenli evreye taşıyor; kullanıcı
+ * açısından fark yok, rozet yine anında düşüyor.
  */
 export function GorulduIsareti({ alan }: { alan: GorulmeAlani }) {
   const yazildi = useRef(false);
@@ -20,7 +28,10 @@ export function GorulduIsareti({ alan }: { alan: GorulmeAlani }) {
   useEffect(() => {
     if (yazildi.current) return;
     yazildi.current = true;
-    void alaniGorulduIsaretle(alan).catch(() => {});
+    const kare = requestAnimationFrame(() => {
+      void alaniGorulduIsaretle(alan).catch(() => {});
+    });
+    return () => cancelAnimationFrame(kare);
   }, [alan]);
 
   return null;
