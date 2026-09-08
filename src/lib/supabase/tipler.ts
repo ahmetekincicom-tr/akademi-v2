@@ -394,6 +394,7 @@ export type Database = {
           logo_koyu_zemin: string | null;
           logo_yuksekligi: number;
           logo_footer_olcek: number;
+          logo_footer_yuksekligi: number;
           og_genislik: number | null;
           og_gorsel: string | null;
           og_yukseklik: number | null;

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getMarkaYollari, logoYuksekligiDuzelt, footerOlcekDuzelt } from "@/lib/marka";
+import { getMarkaYollari, logoYuksekligiDuzelt, footerYuksekligiDuzelt } from "@/lib/marka";
 
 export type MarkaAlan =
   | "logo_koyu_zemin"
@@ -106,18 +106,18 @@ export async function logoYuksekligiKaydet(deger: number) {
 }
 
 /**
- * Footer logo ölçeği (%).
+ * Footer logo yüksekliği (piksel) — bağımsız ve mutlak.
  *
- * Başlık yüksekliğinden ayrı: aynı gerekçelerle sunucuda da sınırlanıyor,
- * DB'deki check kısıtı (50–200) üçüncü katman.
+ * Başlık yüksekliğinden ayrı: değeri değiştirmeden footer değişmiyor. Sunucuda
+ * da sınırlanıyor, DB'deki check kısıtı (20–120) üçüncü katman.
  */
-export async function footerOlcekKaydet(deger: number) {
-  const olcek = footerOlcekDuzelt(deger);
+export async function footerYuksekligiKaydet(deger: number) {
+  const yukseklik = footerYuksekligiDuzelt(deger);
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("marka")
-    .update({ logo_footer_olcek: olcek, updated_at: new Date().toISOString() })
+    .update({ logo_footer_yuksekligi: yukseklik, updated_at: new Date().toISOString() })
     .eq("id", true)
     .select("id");
 

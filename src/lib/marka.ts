@@ -13,14 +13,17 @@ export type Marka = {
   /** Görselin ölçüleri; og:image:width/height olarak basılıyor. */
   ogGenislik: number | null;
   ogYukseklik: number | null;
-  /** Başlıktaki logo yüksekliği (piksel); diğer yerler bundan oranlanıyor. */
+  /**
+   * Başlıktaki logo yüksekliği (piksel). Giriş ekranı bundan oranlanıyor;
+   * footer AYRI ve bağımsız (logoFooterYuksekligi).
+   */
   logoYuksekligi: number;
   /**
-   * Alt bilgideki (footer) logonun ek ölçeği (%). Başlık yüksekliğinden ayrı
-   * ince ayar: footer logosu, üstteki oranların üzerine bununla büyütülüp
-   * küçültülüyor. 100 = dokunma.
+   * Alt bilgideki (footer) logonun yüksekliği (piksel) — MUTLAK ve bağımsız.
+   * Başlık yüksekliği değişince footer değişmiyor; panelde seçilen piksel
+   * neyse o kalıyor.
    */
-  logoFooterOlcek: number;
+  logoFooterYuksekligi: number;
   /**
    * E-posta başlığındaki logo. Ayrı bir alan çünkü sitedeki logolar SVG
    * olabiliyor ve e-posta istemcileri SVG çizmiyor.
@@ -41,12 +44,12 @@ export const LOGO_YUKSEKLIK_ALT = 24;
 export const LOGO_YUKSEKLIK_UST = 72;
 
 /**
- * Footer logo ölçeği yüzde olarak: 100 = üstteki oranlara dokunma.
- * Aralık, DB'deki check kısıtıyla (50–200) aynı.
+ * Footer logo yüksekliği (piksel) — mutlak ve başlıktan bağımsız.
+ * Aralık, DB'deki check kısıtıyla (20–120) aynı.
  */
-export const VARSAYILAN_FOOTER_OLCEK = 100;
-export const FOOTER_OLCEK_ALT = 50;
-export const FOOTER_OLCEK_UST = 200;
+export const VARSAYILAN_FOOTER_YUKSEKLIGI = 40;
+export const FOOTER_YUKSEKLIK_ALT = 20;
+export const FOOTER_YUKSEKLIK_UST = 120;
 
 /** Panelden gelen değer bozuk ya da aralık dışıysa tasarımı bozmasın. */
 export function logoYuksekligiDuzelt(deger: unknown): number {
@@ -55,11 +58,11 @@ export function logoYuksekligiDuzelt(deger: unknown): number {
   return Math.min(LOGO_YUKSEKLIK_UST, Math.max(LOGO_YUKSEKLIK_ALT, Math.round(sayi)));
 }
 
-/** Aynı gerekçe, footer ölçeği için. */
-export function footerOlcekDuzelt(deger: unknown): number {
+/** Aynı gerekçe, footer yüksekliği için. */
+export function footerYuksekligiDuzelt(deger: unknown): number {
   const sayi = Number(deger);
-  if (!Number.isFinite(sayi)) return VARSAYILAN_FOOTER_OLCEK;
-  return Math.min(FOOTER_OLCEK_UST, Math.max(FOOTER_OLCEK_ALT, Math.round(sayi)));
+  if (!Number.isFinite(sayi)) return VARSAYILAN_FOOTER_YUKSEKLIGI;
+  return Math.min(FOOTER_YUKSEKLIK_UST, Math.max(FOOTER_YUKSEKLIK_ALT, Math.round(sayi)));
 }
 
 /** Logo, favicon ve paylaşım görseli — kendi alan adımızdan (bkz. lib/depo.ts). */
@@ -75,7 +78,7 @@ const BOS: Marka = {
   ogGenislik: null,
   ogYukseklik: null,
   logoYuksekligi: VARSAYILAN_LOGO_YUKSEKLIGI,
-  logoFooterOlcek: VARSAYILAN_FOOTER_OLCEK,
+  logoFooterYuksekligi: VARSAYILAN_FOOTER_YUKSEKLIGI,
   epostaLogo: null,
 };
 
@@ -114,7 +117,7 @@ export const getMarka = cache(async (client?: SupabaseClient<Database>): Promise
     ogGenislik: data.og_genislik ?? null,
     ogYukseklik: data.og_yukseklik ?? null,
     logoYuksekligi: logoYuksekligiDuzelt(data.logo_yuksekligi),
-    logoFooterOlcek: footerOlcekDuzelt(data.logo_footer_olcek),
+    logoFooterYuksekligi: footerYuksekligiDuzelt(data.logo_footer_yuksekligi),
     epostaLogo: markaUrl(data.eposta_logo),
   };
 });

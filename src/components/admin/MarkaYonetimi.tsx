@@ -6,16 +6,16 @@ import { createClient } from "@/lib/supabase/client";
 import {
   markaGuncelle,
   logoYuksekligiKaydet,
-  footerOlcekKaydet,
+  footerYuksekligiKaydet,
   type MarkaAlan,
 } from "@/app/kontrol-9f4x2k/(protected)/marka/actions";
 import {
   LOGO_YUKSEKLIK_ALT,
   LOGO_YUKSEKLIK_UST,
   VARSAYILAN_LOGO_YUKSEKLIGI,
-  FOOTER_OLCEK_ALT,
-  FOOTER_OLCEK_UST,
-  VARSAYILAN_FOOTER_OLCEK,
+  FOOTER_YUKSEKLIK_ALT,
+  FOOTER_YUKSEKLIK_UST,
+  VARSAYILAN_FOOTER_YUKSEKLIGI,
 } from "@/lib/marka";
 import { Icon } from "@/components/Icon";
 import { useBildirim } from "@/components/Bildirim";
@@ -26,7 +26,7 @@ export type MarkaGorunum = {
   favicon: string | null;
   ogGorsel: string | null;
   logoYuksekligi: number;
-  logoFooterOlcek: number;
+  logoFooterYuksekligi: number;
   epostaLogo: string | null;
 };
 
@@ -277,22 +277,19 @@ function LogoBoyutu({ marka }: { marka: MarkaGorunum }) {
     });
 
   // Site tarafındaki oranların aynısı (src/components/site/Logo.tsx).
-  // Alt bilgi iki satır: orada logo dar ekranda büyüyor, çünkü sütunlar alt
-  // alta inince tek başına en üstte kalıyor.
+  // Footer BURADA DEĞİL: artık bağımsız, kendi piksel ayarı var (aşağıda).
   const onizleme = [
     { ad: "Üst menü", oran: 1, koyu: false, url: marka.logoAcikZemin },
-    { ad: "Alt bilgi · masaüstü", oran: 0.88, koyu: true, url: marka.logoKoyuZemin },
-    { ad: "Alt bilgi · mobil", oran: 1.2, koyu: true, url: marka.logoKoyuZemin },
     { ad: "Giriş ekranı", oran: 1.2, koyu: true, url: marka.logoKoyuZemin },
   ];
 
   return (
     <section className="rounded-2xl border border-ink/10 bg-white p-6">
-      <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Logo boyutu</h2>
+      <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Üst menü logo boyutu</h2>
       <p className="mt-1 max-w-[640px] text-[13.5px] leading-[1.6] text-[#5C6273]">
-        Üst menüdeki logonun yüksekliği. Alt bilgi ve giriş ekranı bu değerden oranlanır, yani üçü birlikte
-        büyüyüp küçülür. Logo olması gerekenden küçük duruyorsa önce buradan dene; düzelmiyorsa dosyanın
-        kenarlarında boşluk var demektir.
+        Üst menüdeki logonun yüksekliği. Giriş ekranı bu değerden oranlanır. Footer logosu buradan bağımsızdır;
+        onu hemen aşağıdaki &ldquo;Footer logo boyutu&rdquo;ndan ayarlarsın. Logo olması gerekenden küçük
+        duruyorsa önce buradan dene; düzelmiyorsa dosyanın kenarlarında boşluk var demektir.
       </p>
 
       <div className="mt-5 flex flex-wrap items-center gap-4">
@@ -341,7 +338,7 @@ function LogoBoyutu({ marka }: { marka: MarkaGorunum }) {
         )}
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {onizleme.map((o) => {
           const y = Math.round(deger * o.oran);
           return (
@@ -388,24 +385,23 @@ function LogoBoyutu({ marka }: { marka: MarkaGorunum }) {
 }
 
 /**
- * Footer logo boyutu.
+ * Footer logo boyutu — MUTLAK PİKSEL, bağımsız.
  *
- * Üstteki "Logo boyutu" tüm yerleşimleri birlikte ölçekliyor; bu ise yalnızca
- * alt bilgideki logoyu, üstteki oranların üzerine bir yüzdeyle büyütüp
- * küçültüyor. Footer logosu çoğu zaman başlıktakiyle aynı dosya ama koyu
- * zeminde ve dört sütunun yanında farklı bir denge istiyor.
+ * Üst menü boyutundan tamamen ayrı: burada seçilen piksel neyse footer logosu
+ * o kadar (mobil/masaüstü aynı). Başlık logosunu değiştirmek footer'ı ETKİLEMEZ
+ * ve tersi de geçerli — değer değişmeden boyut değişmez.
  */
 function FooterLogoBoyutu({ marka }: { marka: MarkaGorunum }) {
   const router = useRouter();
   const bildir = useBildirim();
-  const [deger, setDeger] = useState(marka.logoFooterOlcek);
+  const [deger, setDeger] = useState(marka.logoFooterYuksekligi);
   const [islemde, startTransition] = useTransition();
 
-  const degisti = deger !== marka.logoFooterOlcek;
+  const degisti = deger !== marka.logoFooterYuksekligi;
 
   const kaydet = () =>
     startTransition(async () => {
-      const r = await footerOlcekKaydet(deger);
+      const r = await footerYuksekligiKaydet(deger);
       if (r?.error) bildir.hata(r.error);
       else {
         bildir.basarili("Footer logo boyutu güncellendi.");
@@ -413,90 +409,76 @@ function FooterLogoBoyutu({ marka }: { marka: MarkaGorunum }) {
       }
     });
 
-  // Footer'daki gerçek oranlar (src/components/site/Logo.tsx · OLCEK.alt):
-  // masaüstü 0.88, mobil 1.2 — ikisi de başlık yüksekliğinden, sonra bu yüzde.
-  const kat = deger / 100;
-  const onizleme = [
-    { ad: "Alt bilgi · masaüstü", oran: 0.88 },
-    { ad: "Alt bilgi · mobil", oran: 1.2 },
-  ];
-
   return (
     <section className="rounded-2xl border border-ink/10 bg-white p-6">
       <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Footer logo boyutu</h2>
       <p className="mt-1 max-w-[640px] text-[13.5px] leading-[1.6] text-[#5C6273]">
-        Yalnızca alt bilgideki (footer) logoyu ölçekler. Başlık yüksekliğine dokunmaz; onun üzerine bir yüzde
-        uygular. %100 = dokunma. Footer logosu üst menüdekiyle aynı boyda duruyorsa buradan biraz büyütüp
-        küçültebilirsin.
+        Alt bilgideki (footer) logonun yüksekliği — doğrudan piksel. Üst menü boyutundan bağımsızdır: burada
+        seçtiğin piksel sabit kalır, üst menü logosunu değiştirsen bile footer değişmez.
       </p>
 
       <div className="mt-5 flex flex-wrap items-center gap-4">
         <input
           type="range"
-          min={FOOTER_OLCEK_ALT}
-          max={FOOTER_OLCEK_UST}
+          min={FOOTER_YUKSEKLIK_ALT}
+          max={FOOTER_YUKSEKLIK_UST}
           step={1}
           value={deger}
           onChange={(e) => setDeger(Number(e.target.value))}
           className="h-2 w-full max-w-[380px] accent-[#1C56F3]"
-          aria-label="Footer logo ölçeği"
+          aria-label="Footer logo yüksekliği"
         />
         <label className="flex items-center gap-2">
           <input
             type="number"
-            min={FOOTER_OLCEK_ALT}
-            max={FOOTER_OLCEK_UST}
+            min={FOOTER_YUKSEKLIK_ALT}
+            max={FOOTER_YUKSEKLIK_UST}
             value={deger}
             onChange={(e) => {
               const sayi = Number(e.target.value);
               if (!Number.isFinite(sayi)) return;
-              setDeger(Math.min(FOOTER_OLCEK_UST, Math.max(FOOTER_OLCEK_ALT, Math.round(sayi))));
+              setDeger(Math.min(FOOTER_YUKSEKLIK_UST, Math.max(FOOTER_YUKSEKLIK_ALT, Math.round(sayi))));
             }}
-            aria-label="Footer logo ölçeği (%)"
+            aria-label="Footer logo yüksekliği (px)"
             className="h-9 w-[74px] rounded-[9px] border border-ink/13 bg-white px-[10px] font-mono text-[13px] text-ink outline-none focus:border-brand"
           />
-          <span className="font-mono text-[13px] text-[#656B7A]">%</span>
+          <span className="font-mono text-[13px] text-[#656B7A]">px</span>
         </label>
-        {deger !== VARSAYILAN_FOOTER_OLCEK && (
+        {deger !== VARSAYILAN_FOOTER_YUKSEKLIGI && (
           <button
             type="button"
-            onClick={() => setDeger(VARSAYILAN_FOOTER_OLCEK)}
+            onClick={() => setDeger(VARSAYILAN_FOOTER_YUKSEKLIGI)}
             className="text-[13px] font-semibold text-[#5C6273] underline underline-offset-2 hover:text-brand"
           >
-            Varsayılana dön (%{VARSAYILAN_FOOTER_OLCEK})
+            Varsayılana dön ({VARSAYILAN_FOOTER_YUKSEKLIGI} px)
           </button>
         )}
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {onizleme.map((o) => {
-          const y = Math.round(marka.logoYuksekligi * o.oran * kat);
-          return (
-            <div key={o.ad} className="overflow-hidden rounded-[12px] border border-ink/10">
-              <div className="border-b border-ink/8 px-3 py-2 font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
-                {o.ad} · {y} px
-              </div>
-              <div className="flex items-center px-4 py-5" style={{ background: "#0A0D18" }}>
-                {marka.logoKoyuZemin ? (
-                  /* eslint-disable-next-line @next/next/no-img-element -- önizleme */
-                  <img
-                    src={marka.logoKoyuZemin}
-                    alt=""
-                    style={{ height: y, maxWidth: y * 7 }}
-                    className="w-auto object-contain"
-                  />
-                ) : (
-                  <span
-                    style={{ height: y, fontSize: Math.round(y * 0.38) }}
-                    className="flex items-center rounded-[9px] bg-brand px-3 font-heading font-bold text-white"
-                  >
-                    AE
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        <div className="overflow-hidden rounded-[12px] border border-ink/10">
+          <div className="border-b border-ink/8 px-3 py-2 font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">
+            Footer · {deger} px
+          </div>
+          <div className="flex items-center px-4 py-5" style={{ background: "#0A0D18" }}>
+            {marka.logoKoyuZemin ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- önizleme */
+              <img
+                src={marka.logoKoyuZemin}
+                alt=""
+                style={{ height: deger, maxWidth: deger * 7 }}
+                className="w-auto object-contain"
+              />
+            ) : (
+              <span
+                style={{ height: deger, fontSize: Math.round(deger * 0.38) }}
+                className="flex items-center rounded-[9px] bg-brand px-3 font-heading font-bold text-white"
+              >
+                AE
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       <button
