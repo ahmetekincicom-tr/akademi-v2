@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "./Logo";
 import { MobilMenu } from "./MobilMenu";
 import { AktifNav } from "./AktifNav";
+import { BaslikKabugu } from "./BaslikKabugu";
 import { siteNav } from "./siteNav";
 import { ON_YUZ_ACIK } from "@/proxy";
 
@@ -21,7 +22,7 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
   const logoAdres = ON_YUZ_ACIK ? logoHref : "/giris";
 
   return (
-    <header className="sticky top-0 z-60 border-b border-ink/9 bg-white/90 yapiskan-baslik">
+    <BaslikKabugu>
       {/*
         Üç sütun: logo | menü | üye girişi.
         justify-between ile menü ortada DURMUYOR — logo ve düğme farklı
@@ -29,7 +30,20 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
         sütunun 1fr olması ortadakini alanın gerçek ortasına oturtuyor.
       */}
       <div className="mx-auto grid min-h-[74px] max-w-[1240px] py-2.5 grid-cols-[auto_1fr] items-center gap-6 px-5 sm:px-8 lg:grid-cols-[1fr_auto_1fr]">
-        <Logo href={logoAdres} />
+        {/*
+          İki logo: beyaz başlıkta koyu (açık zemin) logo, saydam başlıkta açık
+          (koyu zemin) logo. CSS data-saydam'a göre birini gizliyor; ikisi de
+          "/" bağlantısı ama gizli olan display:none olduğu için erişilebilirlik
+          ağacına girmiyor.
+        */}
+        <div className="flex items-center">
+          <span className="baslik-logo-acik">
+            <Logo href={logoAdres} variant="dark" />
+          </span>
+          <span className="baslik-logo-koyu">
+            <Logo href={logoAdres} variant="light" />
+          </span>
+        </div>
 
         {menu ? (
           <nav className="hidden items-center justify-center gap-[6px] lg:flex">
@@ -61,6 +75,6 @@ export function PublicHeader({ logoHref = "/" }: { logoHref?: string }) {
           )}
         </div>
       </div>
-    </header>
+    </BaslikKabugu>
   );
 }

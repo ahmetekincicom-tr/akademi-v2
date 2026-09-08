@@ -168,7 +168,13 @@ export default async function HomePage() {
         programlar bölümünde hem eğitimler sayfasında duruyor. Hero'da üçüncü
         kez saymak, tek bir cümleye odaklanan bu düzenin kendisini bozuyordu.
       */}
-      <section className="relative overflow-hidden bg-ink text-white">
+      {/*
+        Hero, saydam başlığın ALTINA kayıyor: negatif üst boşlukla kendini
+        başlık yüksekliği (--baslik-h) kadar yukarı çekip aynı miktarda üst
+        dolgu veriyor. Böylece koyu zemin, ana sayfa üstündeki saydam başlığın
+        arkasını dolduruyor; içerik yeri değişmiyor (mt ile pt birbirini götürür).
+      */}
+      <section className="relative mt-[calc(var(--baslik-h,76px)*-1)] overflow-hidden bg-ink pt-[var(--baslik-h,76px)] text-white">
         {/*
           Tek ışık kaynağı başlığın arkasında.
 

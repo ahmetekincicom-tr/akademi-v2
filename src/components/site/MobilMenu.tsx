@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/Icon";
+import { useBaslikSaydam } from "./BaslikKabugu";
 import type { NavItem } from "./siteNav";
 
 /**
@@ -14,6 +15,9 @@ export function MobilMenu({ nav }: { nav: NavItem[] }) {
   const [acik, setAcik] = useState(false);
   const pathname = usePathname();
   const kapat = () => setAcik(false);
+  // Saydam başlıkta (ana sayfa üstü) koyu zemin: düğme açık renk. Menü açıkken
+  // yine açık — düğme koyu hero üzerinde, panel altta beyaz.
+  const saydam = useBaslikSaydam();
 
   return (
     <>
@@ -22,7 +26,9 @@ export function MobilMenu({ nav }: { nav: NavItem[] }) {
         onClick={() => setAcik((v) => !v)}
         aria-label={acik ? "Menüyü kapat" : "Menüyü aç"}
         aria-expanded={acik}
-        className="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] border border-ink/14 text-ink transition hover:border-brand hover:text-brand lg:hidden"
+        className={`flex h-10 w-10 flex-none items-center justify-center rounded-[10px] border transition lg:hidden ${
+          saydam ? "border-white/25 text-white hover:border-white" : "border-ink/14 text-ink hover:border-brand hover:text-brand"
+        }`}
       >
         <Icon name={acik ? "x" : "menu"} size={18} />
       </button>

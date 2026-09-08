@@ -304,6 +304,23 @@
     }
   }
 
+  /*
+    Başlıktaki iki logo.
+
+    Beyaz başlıkta koyu (açık zemin) logo; saydam başlıkta (ana sayfa üstü)
+    açık (koyu zemin) logo. Gizli olan display:none — erişilebilirlik ağacına
+    girmiyor, yani "/" bağlantısı bir kez okunuyor.
+  */
+  .baslik-logo-koyu {
+    display: none;
+  }
+  [data-saydam="1"] .baslik-logo-acik {
+    display: none;
+  }
+  [data-saydam="1"] .baslik-logo-koyu {
+    display: block;
+  }
+
 
   /*
     Yorum kartlarının belirmesi.
