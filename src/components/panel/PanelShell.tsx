@@ -10,7 +10,6 @@ import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
 import type { PanelBildirimleri } from "@/lib/bildirimler";
 import { DERSLER_ACIK } from "@/lib/bolumler";
-import { SOSYAL } from "@/lib/iletisim";
 
 type MenuItem = {
   href: string;
@@ -355,27 +354,6 @@ export function PanelShell({
               Yönetim paneli
             </Link>
           )}
-          {/*
-            Sosyal bağlantılar. Panelde de duruyor çünkü katılımcının eğitmene
-            ulaşacağı en kısa yol bu; WhatsApp zaten destek hattı. Adresler
-            lib/iletisim'deki tek kaynaktan (SOSYAL) geliyor, footer ile aynı.
-          */}
-          <div className="mb-4 flex items-center justify-center gap-2">
-            {SOSYAL.map((s) => (
-              <a
-                key={s.ad}
-                href={s.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={s.ad}
-                title={s.ad}
-                className="flex h-[38px] w-[38px] items-center justify-center rounded-[11px] border border-white/12 bg-white/[0.04] text-white/60 transition hover:border-brand/60 hover:bg-brand hover:text-white"
-              >
-                <Icon name={s.ikon} size={16} />
-              </a>
-            ))}
-          </div>
-
           {/* Profil kutusu: eskiden çıplak bir satırdı; kendi zemini olunca
               menünün geri kalanından ayrılıyor ve alt blok toparlanıyor. */}
           <div className="flex items-center gap-[10px] rounded-[12px] border border-white/10 bg-white/[0.04] px-[11px] py-[10px]">
