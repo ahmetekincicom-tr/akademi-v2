@@ -29,6 +29,8 @@ export type CourseEditorInitial = {
   seviye: string;
   url: string;
   aciklama: string;
+  /** Hero'nun altındaki tek cümlelik tanıtım; boşsa açıklamaya düşüyor. */
+  heroAciklama: string;
   /** Eğitim sayfasında hero'nun altında basılan serbest tanıtım metni. */
   tanitimMetni: string;
   /** Bu eğitime özel sıkça sorulan sorular. */
@@ -39,6 +41,8 @@ export type CourseEditorInitial = {
   kapsam: IkonluSatir[];
   /** "6 kişilik kontenjan" gibi tek satır. */
   kontenjan: string;
+  /** Site genelindeki kayıt duyurusu bu eğitimde gizlensin mi? */
+  duyuruGizli: boolean;
   /** WhatsApp düğmesinin hazır mesajı; boşsa eğitim adından kuruluyor. */
   whatsappMesaji: string;
   /** Arama motoru başlığı; boşsa eğitimin başlığı kullanılıyor. */
@@ -65,6 +69,7 @@ const BOS_INITIAL: CourseEditorInitial = {
   seviye: "",
   url: "",
   aciklama: "",
+  heroAciklama: "",
   tanitimMetni: "",
   sss: [],
   // Yeni program varsayılanla başlıyor: boş bir kutu, doldurulması gereken
@@ -72,6 +77,7 @@ const BOS_INITIAL: CourseEditorInitial = {
   haplar: VARSAYILAN_HAPLAR,
   kapsam: VARSAYILAN_KAPSAM,
   kontenjan: "",
+  duyuruGizli: false,
   whatsappMesaji: "",
   seoBaslik: "",
   seoAciklama: "",
@@ -98,11 +104,13 @@ export function CourseEditor({
   const [seviye, setSeviye] = useState(initial.seviye);
   const [url, setUrl] = useState(initial.url);
   const [aciklama, setAciklama] = useState(initial.aciklama);
+  const [heroAciklama, setHeroAciklama] = useState(initial.heroAciklama);
   const [tanitimMetni, setTanitimMetni] = useState(initial.tanitimMetni);
   const [sss, setSss] = useState<EditorSoru[]>(initial.sss);
   const [haplar, setHaplar] = useState<IkonluSatir[]>(initial.haplar);
   const [kapsam, setKapsam] = useState<IkonluSatir[]>(initial.kapsam);
   const [kontenjan, setKontenjan] = useState(initial.kontenjan);
+  const [duyuruGizli, setDuyuruGizli] = useState(initial.duyuruGizli);
   const [whatsappMesaji, setWhatsappMesaji] = useState(initial.whatsappMesaji);
   const [seoBaslik, setSeoBaslik] = useState(initial.seoBaslik);
   const [seoAciklama, setSeoAciklama] = useState(initial.seoAciklama);
@@ -130,11 +138,13 @@ export function CourseEditor({
       format,
       seviye,
       aciklama,
+      heroAciklama,
       tanitimMetni,
       sss,
       haplar,
       kapsam,
       kontenjan,
+      duyuruGizli,
       whatsappMesaji,
       seoBaslik,
       seoAciklama,
@@ -341,6 +351,35 @@ export function CourseEditor({
                   placeholder="Sitede program kartında görünecek 1-2 cümle"
                   className="min-h-[86px] resize-y rounded-[10px] border border-ink/14 bg-white px-[14px] py-3 text-[14.5px] leading-[1.6] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
                 />
+                <span className="text-[12.5px] leading-[1.5] text-[#656B7A]">
+                  Eğitim listesindeki kartta ve arama sonucunda kullanılır. Aşağıdaki başlık altı cümlesi
+                  boş bırakılırsa eğitim sayfasında da bu metin görünür.
+                </span>
+              </label>
+
+              {/*
+                HERO AÇIKLAMASI için ayrı alan.
+
+                Bu alanı panelde karşılığı olmadan bırakmak pahalıya geldi:
+                sayfada başlığın altında basılan cümle buradan geliyordu ama
+                kaydetme yolu onu hiç yazmıyordu. Yani "Kısa açıklama"yı
+                düzeltmek sayfayı değiştirmiyor, alanın boş kaldığı
+                eğitimlerde ise başlığın altı kalıcı olarak boş kalıyordu.
+              */}
+              <label className="flex flex-col gap-2 sm:col-span-2">
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">
+                  Başlık altı cümlesi
+                </span>
+                <textarea
+                  value={heroAciklama}
+                  onChange={(e) => setHeroAciklama(e.target.value)}
+                  placeholder={aciklama || "Eğitim sayfasında büyük başlığın hemen altında görünür"}
+                  className="min-h-[86px] resize-y rounded-[10px] border border-ink/14 bg-white px-[14px] py-3 text-[14.5px] leading-[1.6] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                />
+                <span className="text-[12.5px] leading-[1.5] text-[#656B7A]">
+                  Eğitim sayfasında büyük başlığın altındaki cümle. **İki yıldız** arasına aldığınız yer
+                  kalın basılır. Boş bırakılırsa yukarıdaki kısa açıklama kullanılır.
+                </span>
               </label>
               <label className="flex flex-col gap-2 sm:col-span-2">
                 <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Tanıtım metni</span>
@@ -514,6 +553,39 @@ export function CourseEditor({
                     yazar ve detay sayfası kapalı kalır. Hazır olunca bu işareti kaldır — program normal,
                     tıklanabilir hale gelir. (Site görünürlüğü açık olmalı; kapalıyken program hiç
                     görünmez.)
+                  </span>
+                </span>
+              </label>
+
+              {/*
+                Kayıt duyurusu EĞİTİM BAZINDA kapatılabiliyor.
+
+                Duyuru metni site genelinde tek yerden yazılıyor ("Duyuru ve
+                eğitmen" ekranı) ve her eğitimin sayfasında basılıyordu. Oysa
+                "Eylül ayı kayıtları başladı" gibi bir haber her program için
+                geçerli olmuyor — dolu bir programda ya da henüz açılmamış bir
+                programda yanlış bilgi veriyor.
+
+                İşaret TERS yönde ("gizle"): eski kayıtlarda alan hiç yok ve
+                yokluğu "görünür" tarafına düşüyor. Diğer türlü, alanın
+                eklendiği gün bütün eğitimlerden duyuru kaybolurdu.
+              */}
+              <label className="mt-6 flex max-w-[620px] cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={duyuruGizli}
+                  onChange={(e) => setDuyuruGizli(e.target.checked)}
+                  className="mt-[3px] h-[18px] w-[18px] flex-none accent-brand"
+                />
+                <span className="flex flex-col gap-1">
+                  <span className="text-[14.5px] font-semibold text-ink">
+                    Kayıt duyurusunu bu eğitimde gizle
+                  </span>
+                  <span className="text-[12.5px] leading-[1.55] text-[#656B7A]">
+                    Site genelindeki kayıt duyurusu (&quot;Duyuru ve eğitmen&quot; ekranından yazılan,
+                    örneğin &quot;Eylül ayı kayıtları başladı&quot;) bu eğitimin sayfasında görünmez.
+                    Diğer eğitimler etkilenmez. Duyurunun tamamını kapatmak için &quot;Duyuru ve
+                    eğitmen&quot; ekranını kullanın.
                   </span>
                 </span>
               </label>

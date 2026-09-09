@@ -93,6 +93,41 @@ export const VARSAYILAN_HAPLAR: IkonluSatir[] = [
   { ad: "Ömür Boyu Ücretsiz Destek", ikon: "message" },
 ];
 
+/**
+ * Panele girilmiş metin bir açıklama mı, yoksa yer tutucu mu?
+ *
+ * En az üç kelime aranıyor: "d", "test", "yakında" gibi tek kelimelik
+ * girdiler açıklama değil, doldurulmayı bekleyen alanlardır ve ekrana
+ * basıldıklarında sayfayı bozuk gösteriyorlar.
+ */
+export function anlamliMetin(metin: string | null | undefined): boolean {
+  return (metin ?? "").trim().split(/\s+/).filter(Boolean).length >= 3;
+}
+
+/**
+ * Eğitim sayfasında hero'nun altında basılacak tanıtım cümlesi.
+ *
+ * SIRA: hero açıklaması → açıklama → boş.
+ *
+ * Bu yardımcı, yaşanmış iki ayrı arızayı birden kapatıyor:
+ *
+ *  1. Sayfa yalnızca hero_aciklama'yı basıyordu ve o alan boş olan
+ *     eğitimlerde (Ankara programı) hero'nun altı BOŞ kalıyordu — panele
+ *     açıklama yazılmış olmasına rağmen. Artık açıklamaya düşüyor.
+ *  2. Yer tutucu bir hero metni ("d" gibi), altındaki gerçek açıklamayı
+ *     GÖLGELİYORDU: dolu olduğu için kazanıyor, ama ekranda tek harf
+ *     görünüyordu. anlamliMetin süzgeci onu yok sayıyor.
+ *
+ * Tek yerde durması şart: aynı metin hero'da, "çok yakında" sayfasında,
+ * meta açıklamasında, yapısal veride ve llms dosyalarında kullanılıyor.
+ * Beş yerde ayrı ayrı yazılsaydı biri düzeltilip diğerleri eskirdi.
+ */
+export function egitimTanitimCumlesi(kurs: { heroAciklama: string; aciklama: string }): string {
+  if (anlamliMetin(kurs.heroAciklama)) return kurs.heroAciklama.trim();
+  if (anlamliMetin(kurs.aciklama)) return kurs.aciklama.trim();
+  return "";
+}
+
 export type Course = {
   id: string;
   slug: string;
@@ -119,6 +154,15 @@ export type Course = {
   haplar: IkonluSatir[];
   /** "6 kişilik kontenjan" gibi tek satır; boşsa satır hiç görünmüyor. */
   kontenjan: string;
+  /**
+   * Site genelindeki kayıt duyurusu ("Eylül ayı kayıtları başladı") BU
+   * eğitimin sayfasında gizlenmiş mi?
+   *
+   * Varsayılan false, yani duyuru görünür. Alan sonradan eklendi ve eski
+   * kayıtlarda hiç yok; "görünür" tarafına düşmesi doğru — yoksa alanın
+   * eklendiği gün bütün eğitimlerden duyuru kaybolurdu.
+   */
+  duyuruGizli: boolean;
   /**
    * Bu eğitimin WhatsApp düğmesine basıldığında hazır gelen mesaj.
    *
@@ -248,6 +292,7 @@ type CourseRow = {
     kapsam?: unknown;
     haplar?: unknown;
     kontenjan?: string;
+    duyuruGizli?: boolean;
     whatsappMesaji?: string;
     seoBaslik?: string;
     seoAciklama?: string;
@@ -307,6 +352,7 @@ function mapCourse(row: CourseRow): Course {
       ? satirlariDuzelt(row.content.haplar)
       : VARSAYILAN_HAPLAR,
     kontenjan: (row.content.kontenjan ?? "").trim(),
+    duyuruGizli: row.content.duyuruGizli === true,
     // Alan sonradan eklendi: eski kayıtlarda yok, boş metin doğru varsayılan
     // (başlıktan kurulan metne düşüyor).
     whatsappMesaji: (row.content.whatsappMesaji ?? "").trim(),

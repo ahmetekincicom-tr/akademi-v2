@@ -22,6 +22,13 @@ export type SaveCourseInput = {
   durum: "taslak" | "yayinda";
   /** Başlıkta renkli yazılacak kısım. Verilmezse mevcut değer korunuyor. */
   baslikVurgu?: string;
+  /**
+   * Hero'nun altındaki TEK CÜMLELİK tanıtım. Verilmezse mevcut değer korunuyor.
+   *
+   * Bu alan editörden YAZILAMIYORDU ve sebebi aşağıda: değeri hep mevcut
+   * kayıttan alınıyordu, yani bir kez ne yazıldıysa öyle kalıyordu.
+   */
+  heroAciklama?: string;
   /** Hero'nun altındaki serbest tanıtım metni. Verilmezse mevcut değer korunuyor. */
   tanitimMetni?: string;
   /** Eğitime özel sıkça sorulan sorular. Verilmezse mevcut liste korunuyor. */
@@ -32,6 +39,8 @@ export type SaveCourseInput = {
   kapsam?: { ad: string; ikon: string }[];
   /** "6 kişilik kontenjan" gibi tek satır. Verilmezse mevcut değer korunuyor. */
   kontenjan?: string;
+  /** Site genelindeki kayıt duyurusu bu eğitimde gizlensin mi? */
+  duyuruGizli?: boolean;
   /** WhatsApp düğmesinin hazır mesajı. Verilmezse mevcut değer korunuyor. */
   whatsappMesaji?: string;
   /** Arama motoru başlığı. Verilmezse mevcut değer korunuyor. */
@@ -58,6 +67,7 @@ type ExistingContent = {
   haplar?: { ad: string; ikon: string }[];
   kapsam?: { ad: string; ikon: string }[];
   kontenjan?: string;
+  duyuruGizli?: boolean;
   whatsappMesaji?: string;
   seoBaslik?: string;
   seoAciklama?: string;
@@ -125,6 +135,7 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     haplar: input.haplar !== undefined ? ikonluSatirlar(input.haplar) : (existingContent.haplar ?? []),
     kapsam: input.kapsam !== undefined ? ikonluSatirlar(input.kapsam) : (existingContent.kapsam ?? []),
     kontenjan: input.kontenjan !== undefined ? input.kontenjan.trim() : (existingContent.kontenjan ?? ""),
+    duyuruGizli: input.duyuruGizli !== undefined ? input.duyuruGizli : (existingContent.duyuruGizli ?? false),
     whatsappMesaji:
       input.whatsappMesaji !== undefined
         ? input.whatsappMesaji.trim()

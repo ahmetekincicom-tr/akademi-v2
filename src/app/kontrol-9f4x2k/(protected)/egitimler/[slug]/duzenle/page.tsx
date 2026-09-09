@@ -9,7 +9,7 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
   const { data: course } = await supabase
     .from("courses")
     .select(
-      "slug, baslik, baslik_vurgu, aciklama, sure, format, seviye, kapak_gorsel, sitede_gorunur, satisa_acik, fiyat_gorunur, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure))",
+      "slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, format, seviye, kapak_gorsel, sitede_gorunur, satisa_acik, fiyat_gorunur, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure))",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -33,6 +33,7 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
     haplar?: unknown;
     kapsam?: unknown;
     kontenjan?: string;
+    duyuruGizli?: boolean;
     whatsappMesaji?: string;
     seoBaslik?: string;
     seoAciklama?: string;
@@ -57,11 +58,13 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
     seviye: course.seviye ?? "",
     url: course.slug,
     aciklama: course.aciklama ?? "",
+    heroAciklama: course.hero_aciklama ?? "",
     tanitimMetni: icerik?.tanitimMetni ?? "",
     sss: icerik?.sss ?? [],
     haplar: satirlar(icerik?.haplar, VARSAYILAN_HAPLAR),
     kapsam: satirlar(icerik?.kapsam, VARSAYILAN_KAPSAM),
     kontenjan: icerik?.kontenjan ?? "",
+    duyuruGizli: icerik?.duyuruGizli === true,
     whatsappMesaji: icerik?.whatsappMesaji ?? "",
     seoBaslik: icerik?.seoBaslik ?? "",
     seoAciklama: icerik?.seoAciklama ?? "",

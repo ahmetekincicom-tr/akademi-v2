@@ -10,7 +10,13 @@ import { HeroDegerler } from "@/components/site/HeroDegerler";
 import { KalinMetin } from "@/components/site/KalinMetin";
 import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
 import { Icon } from "@/components/Icon";
-import { getCourseBySlug, basligiIkiSatir, basligiParcala, type Course } from "@/lib/courses";
+import {
+  getCourseBySlug,
+  basligiIkiSatir,
+  basligiParcala,
+  egitimTanitimCumlesi,
+  type Course,
+} from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { WHATSAPP_NUMARALAR, egitimWhatsappMesaji } from "@/lib/iletisim";
 import { WhatsAppBaglantisi } from "@/components/site/WhatsAppBaglantisi";
@@ -46,18 +52,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       iki katıydı, üstelik kesme kelimenin ortasından yapılıyordu. Kısaltmayı
       artık sayfaMeta yapıyor — kelime sınırında ve üç noktayla.
     */
-    aciklama: course.seoAciklama || course.heroAciklama || course.aciklama,
+    aciklama: course.seoAciklama || egitimTanitimCumlesi(course),
     yol: `/egitimler/${course.slug}`,
   });
 }
 
-/**
- * Panele girilmiş metin bir açıklama mı, yoksa yer tutucu mu?
- *
- * En az üç kelime aranıyor: "d", "test", "yakında" gibi tek kelimelik
- * girdiler açıklama değil, doldurulmayı bekleyen alanlardır ve ekrana
- * basıldıklarında sayfayı bozuk gösteriyorlar.
- */
 /**
  * Bu eğitimin WhatsApp hazır mesajı.
  *
@@ -67,10 +66,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
  */
 function hazirMesaj(course: Course): string {
   return course.whatsappMesaji || egitimWhatsappMesaji(course.baslik);
-}
-
-function anlamliAciklama(metin: string): boolean {
-  return metin.trim().split(/\s+/).filter(Boolean).length >= 3;
 }
 
 /**
@@ -127,9 +122,9 @@ function CokYakindaSayfasi({ course }: { course: Course }) {
             olduğu gibi ekrana bastı. Boş kontrolü yetmiyor, çünkü yer tutucu
             boş değil — bir cümle uzunluğu şartı gerekiyor.
           */}
-          {anlamliAciklama(course.heroAciklama || course.aciklama) && (
+          {egitimTanitimCumlesi(course) && (
             <p className="mx-auto mt-4 max-w-[560px] text-[15px] leading-[1.65] text-white/55">
-              {(course.heroAciklama || course.aciklama).trim()}
+              {egitimTanitimCumlesi(course)}
             </p>
           )}
 
@@ -194,6 +189,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
   // Panelden gelen serbest metin: boş satır paragraf ayırıcı. Yalnızca
   // boşluktan oluşan satırlar da ayırıcı sayılıyor, aksi halde panele
   // yapıştırılan metinde görünmez bir boşluk paragrafları birleştiriyor.
+  // Duyuru hem site genelinde açık olmalı hem de bu eğitimde gizlenmemiş.
+  const duyuruGoster = icerik.kayitDuyurusuAktif && !course.duyuruGizli;
+
   const tanitimParagraflari = course.tanitimMetni
     .split(/\n\s*\n/)
     .map((p) => p.trim())
@@ -205,7 +203,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     egitimSemasi({
       slug: course.slug,
       baslik: course.baslik,
-      aciklama: course.heroAciklama || course.aciklama,
+      aciklama: egitimTanitimCumlesi(course),
       sure: course.sure,
       kapak: course.kapak,
     }),
@@ -316,9 +314,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 Dar ekranda alt alta iniyorlar; iki hap yan yana sığmıyor ve
                 sıkıştırılmış hâlleri satır kırıyor.
               */}
-              {((icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu) || (icerik.rozetAktif && icerik.rozetMetni)) && (
+              {/*
+                Kayıt duyurusu EĞİTİM BAZINDA kapatılabiliyor
+                (course.duyuruGizli). Duyuru site geneli bir ayar ve her
+                eğitimin sayfasında basılıyordu; oysa "Eylül ayı kayıtları
+                başladı" gibi bir haber her program için geçerli olmuyor.
+                Rozet site geneli kalıyor: o kalıcı bir nitelik anlatıyor.
+              */}
+              {((duyuruGoster && icerik.kayitDuyurusu) || (icerik.rozetAktif && icerik.rozetMetni)) && (
                 <div className="mb-7 flex flex-col items-center gap-[9px] sm:flex-row sm:flex-wrap sm:justify-center sm:gap-[10px] lg:justify-start">
-                  {icerik.kayitDuyurusuAktif && icerik.kayitDuyurusu && (
+                  {duyuruGoster && icerik.kayitDuyurusu && (
                     <div
                       className={
                         icerik.duyuruStili === "koyu"
@@ -403,9 +408,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 ekranda tam genişliğe yayılan ortalı metin, her satırı farklı
                 uzunlukta bitirip tırtıklı bir blok üretiyordu.
               */}
-              <p className="mt-5 max-w-[400px] text-[14.5px] leading-[1.6] text-pretty text-white/60 sm:max-w-[560px] sm:text-[17.5px] sm:leading-[1.62] sm:text-white/65">
-                <KalinMetin metin={course.heroAciklama} />
-              </p>
+              {/*
+                Metin yoksa <p> HİÇ BASILMIYOR. Eskiden boş bir paragraf
+                çiziliyordu: hero'nun altında sebepsiz bir boşluk kalıyor ve
+                "yazı gelmedi mi" izlenimi veriyordu.
+              */}
+              {egitimTanitimCumlesi(course) && (
+                <p className="mt-5 max-w-[400px] text-[14.5px] leading-[1.6] text-pretty text-white/60 sm:max-w-[560px] sm:text-[17.5px] sm:leading-[1.62] sm:text-white/65">
+                  <KalinMetin metin={egitimTanitimCumlesi(course)} />
+                </p>
+              )}
               <HeroDegerler degerler={course.haplar} mesaj={hazirMesaj(course)} />
             </div>
             {/*

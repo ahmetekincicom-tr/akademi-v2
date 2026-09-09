@@ -1,5 +1,5 @@
 import { SITE_URL } from "@/lib/seo";
-import { getCourses } from "@/lib/courses";
+import { getCourses, egitimTanitimCumlesi } from "@/lib/courses";
 import { getHakkimizda } from "@/lib/hakkimizda";
 import { getKurumsalSss } from "@/lib/kurumsal";
 import { getYorumlar } from "@/lib/icerik";
@@ -89,7 +89,7 @@ export async function GET() {
     if (bicimler.length > 0) satirlar.push(`- Katılım: ${bicimler.join(", ")}`);
     satirlar.push("");
 
-    const tanitim = duzMetin(e.heroAciklama || e.aciklama);
+    const tanitim = duzMetin(egitimTanitimCumlesi(e));
     if (tanitim) satirlar.push(tanitim, "");
     const ekMetin = duzMetin(e.tanitimMetni);
     if (ekMetin) satirlar.push(ekMetin, "");
