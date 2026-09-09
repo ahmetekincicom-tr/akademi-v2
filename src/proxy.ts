@@ -174,10 +174,35 @@ function suAndaSunuluyor(pathname: string, onizleme: boolean): boolean {
   return AYRICA_ACIK.some((k) => pathname === k || pathname.startsWith(k + "/"));
 }
 
-// Panel arayan otomatik taramaların denediği bilinen adresler. Cevap olarak
-// giriş ekranı değil, ana sayfa dönüyor: burada bir panel olduğu bilgisi bile
-// verilmiyor.
-const TUZAK_KOKLER = ["/admin", "/administrator", "/wp-admin", "/wp-login.php", "/yonetim"];
+/*
+  Panel arayan otomatik taramaların denediği bilinen adresler. Cevap olarak
+  giriş ekranı değil, ana sayfa dönüyor: burada bir panel olduğu bilgisi bile
+  verilmiyor.
+
+  /wp-admin ve /wp-login.php BU LİSTEDEN ÇIKARILDI. Ana alan adına taşındıktan
+  sonra blog WordPress'te kalmaya devam ediyor ve o iki adres artık tuzak
+  değil, gerçekten çalışan yönetim paneli. Listede kaldıkları sürece ara
+  katman onları yönlendirmelerden önce yakalayıp ana sayfaya atıyordu; yani
+  WordPress paneline hiç girilemiyordu.
+
+  Gizlemenin bir anlamı da kalmıyordu: orada gerçekten bir WordPress var ve
+  kendini zaten ele veriyor. Asıl korunan adres (/kontrol-9f4x2k) listede
+  hiç değil — o, hiçbir yerden bağlantı verilmediği ve oturum istediği için
+  korunuyor.
+*/
+const TUZAK_KOKLER = ["/admin", "/administrator", "/yonetim"];
+
+/**
+ * WordPress'e ait yollar.
+ *
+ * Bu istekler next.config.ts'teki fallback rewrite ile WordPress'e gidiyor;
+ * burada yapılacak hiçbir iş yok. Erken çıkmak Supabase oturum tazelemesini
+ * de atlıyor — yönetim paneli gezinirken her istekte gereksiz bir kimlik
+ * doğrulama çağrısı yapılmıyor.
+ */
+function wordpressYolu(yol: string): boolean {
+  return yol.startsWith("/wp-");
+}
 
 /**
  * Reklam tıklamasını çereze yazar.
@@ -227,6 +252,8 @@ export async function proxy(request: NextRequest) {
   if (TUZAK_KOKLER.some((k) => yol === k || yol.startsWith(k + "/"))) {
     return NextResponse.redirect(new URL(ON_YUZ_ACIK ? "/" : KAPALI_HEDEF, request.url));
   }
+  // WordPress'e gidecek istek: burada yapılacak iş yok, dokunmadan geçir.
+  if (wordpressYolu(yol)) return NextResponse.next({ request });
 
   let response = NextResponse.next({ request });
 
