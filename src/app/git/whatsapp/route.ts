@@ -157,6 +157,67 @@ export async function GET(request: NextRequest) {
   return cevap;
 }
 
+/* ------------------------------------------------ hazır mesaj önbelleği --- */
+
+/**
+ * Eğitim mesajları bellekte tutuluyor.
+ *
+ * Yönlendirmenin önünde kalan TEK bekleme bu sorguydu: eğitim düğmeleri
+ * ölçümde ~185 ms, hiç sorgu yapmayan yüzen düğme ~7 ms sürüyordu. Aradaki
+ * fark tamamen bu gidiş-dönüş.
+ *
+ * Veri buna fazlasıyla uygun: altı satır, toplamı bir kaç yüz bayt ve ayda
+ * bir değişiyor. Tek tek slug sorgulamak yerine HEPSİ tek sorguda alınıyor —
+ * altı satır için maliyet bir satırla aynı, ama sonuç her eğitime yarıyor.
+ *
+ * Bayat veri sunulmuyor gibi davranılmıyor; kural açıkça şu:
+ *  - Önbellek boşsa (yeni başlamış bir sunucu örneği) bir kez bekleniyor.
+ *  - Doluysa, süresi geçmiş olsa bile ELDEKİ kullanılıyor ve tazeleme
+ *    yanıttan sonraya bırakılıyor. Yani panelden değiştirilen bir metin en
+ *    geç bir sonraki tıklamada yerine oturuyor.
+ *
+ * unstable_cache bilerek kullanılmadı: Next 16'da kullanımdan kaldırıldı,
+ * yerine geçen "use cache" ise projenin tamamını ilgilendiren bir yapılandırma
+ * (cacheComponents) istiyor. Altı satırlık bir sözlük için o kadarı gerekmiyor.
+ */
+const ONBELLEK_SURESI_MS = 5 * 60 * 1000;
+
+let mesajOnbellegi: { mesajlar: Map<string, string>; zaman: number } | null = null;
+
+async function mesajlariCek(): Promise<Map<string, string>> {
+  const harita = new Map<string, string>();
+  /*
+    Eğitimlerin TAMAMI çekilmiyor, üç alan çekiliyor. Önce getCourseBySlug()
+    kullanılıyordu; o sorgu modules ve lessons tablolarını da birleştiriyor —
+    bir eğitim sayfasını çizmek için doğru, iki satırlık bir mesaj için değil.
+
+    whatsappMesaji, content JSON'unun içinden doğrudan isteniyor; koca JSON
+    ağdan geçmiyor.
+  */
+  const { data, error } = await createPublicClient()
+    .from("courses")
+    .select("slug, baslik, whatsappMesaji:content->>whatsappMesaji")
+    .overrideTypes<{ slug: string; baslik: string; whatsappMesaji: string | null }[]>();
+
+  if (error || !data) return harita;
+  for (const satir of data) {
+    harita.set(satir.slug, satir.whatsappMesaji?.trim() || egitimWhatsappMesaji(satir.baslik));
+  }
+  return harita;
+}
+
+/** Arka planda tazeleme; başarısız olursa eldeki önbellek olduğu gibi kalıyor. */
+async function onbellegiTazele(): Promise<void> {
+  try {
+    const mesajlar = await mesajlariCek();
+    // Boş sonuç yazılmıyor: sorgu tökezlediğinde çalışan bir önbelleği
+    // boşaltmak, her tıklamayı yeniden bekletmek olurdu.
+    if (mesajlar.size > 0) mesajOnbellegi = { mesajlar, zaman: Date.now() };
+  } catch {
+    // Sessiz: bu iş yanıttan sonra çalışıyor, kimseyi bekletmiyor.
+  }
+}
+
 /**
  * Bu eğitim için hazır mesaj.
  *
@@ -168,25 +229,22 @@ export async function GET(request: NextRequest) {
 async function egitiminMesaji(slug: string | null): Promise<string | null> {
   if (!slug) return null;
   try {
-    /*
-      Eğitimin TAMAMI çekilmiyor, iki alan çekiliyor.
-
-      Önce getCourseBySlug() kullanılıyordu; o sorgu eğitimin bütün içeriğiyle
-      birlikte modules ve lessons tablolarını da birleştiriyor — bir eğitim
-      sayfasını çizmek için doğru, iki satırlık bir mesaj metni için değil.
-      Ölçüldü: yönlendirmenin önündeki tek bekleme buydu.
-
-      whatsappMesaji, content JSON'unun içinden doğrudan isteniyor; koca JSON
-      ağdan geçmiyor.
-    */
-    const { data, error } = await createPublicClient()
-      .from("courses")
-      .select("baslik, whatsappMesaji:content->>whatsappMesaji")
-      .eq("slug", slug)
-      .maybeSingle<{ baslik: string; whatsappMesaji: string | null }>();
-
-    if (error || !data) return null;
-    return data.whatsappMesaji?.trim() || egitimWhatsappMesaji(data.baslik);
+    if (!mesajOnbellegi) {
+      // Soğuk başlangıç: bir kez beklemek zorundayız.
+      const mesajlar = await mesajlariCek();
+      if (mesajlar.size === 0) return null;
+      mesajOnbellegi = { mesajlar, zaman: Date.now() };
+    } else if (Date.now() - mesajOnbellegi.zaman > ONBELLEK_SURESI_MS) {
+      /*
+        Zaman damgası tazeleme BİTMEDEN ileri alınıyor. Amaç, aynı anda gelen
+        birden fazla isteğin arka arkaya tazeleme başlatmasını önlemek. Bedeli:
+        tazeleme başarısız olursa bayatlık bir süre daha uzuyor — kabul
+        edilebilir, çünkü sunulan metin yine de doğru bir metin.
+      */
+      mesajOnbellegi = { ...mesajOnbellegi, zaman: Date.now() };
+      after(onbellegiTazele());
+    }
+    return mesajOnbellegi.mesajlar.get(slug) ?? null;
   } catch {
     return null;
   }
