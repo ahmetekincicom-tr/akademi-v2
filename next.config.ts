@@ -137,7 +137,47 @@ const nextConfig: NextConfig = {
   async rewrites() {
     if (!WORDPRESS_KAYNAK) return { beforeFiles: [], afterFiles: [], fallback: [] };
     return {
-      beforeFiles: [],
+      /*
+        Elementor / UiCore tema düzenleyicisinin ÖNİZLEMESİ.
+
+        Footer gibi tema parçaları hâlâ WordPress'te ve Elementor ile
+        düzenleniyor. Düzenleyici, üzerinde çalıştığı parçayı bir iframe
+        içinde önizliyor ve o iframe'in adresi çoğu zaman sitenin ana
+        sayfası oluyor — yani artık BU UYGULAMANIN sunduğu bir adres.
+
+        İki sorun birden çıkıyordu: uygulama sayfaları X-Frame-Options: DENY
+        taşıdığı için tarayıcı çerçeveyi engelliyor (düzenleyici sonsuza
+        kadar yükleniyor), engel kalksa bile çerçevede WordPress'in değil
+        yeni sitenin sayfası görünürdü.
+
+        "elementor-preview" parametresi taşıyan istek düzenleyicinin kendi
+        önizlemesidir; olduğu gibi WordPress'e gidiyor. WordPress'e giden
+        cevaplara Next kendi başlıklarını eklemediği için çerçeve engeli de
+        kendiliğinden kalkıyor.
+
+        Kapsam bilerek dar: yalnızca bu tek parametre. Normal ziyaretçi
+        adreslerinde böyle bir parametre bulunmuyor, arama motorları da
+        eklemiyor.
+      */
+      beforeFiles: WORDPRESS_KAYNAK
+        ? [
+            /*
+              Kök ve alt sayfalar ayrı: tek kuralla yazınca kökte "//" ya da
+              alt sayfada çizgisiz adres oluşuyordu. Çizgisiz adres WordPress'te
+              kanonik yönlendirme tetikliyor ve önizleme çerçevesi kırılıyor.
+            */
+            {
+              source: "/",
+              has: [{ type: "query" as const, key: "elementor-preview" }],
+              destination: `${WORDPRESS_KAYNAK}/`,
+            },
+            {
+              source: "/:yol+",
+              has: [{ type: "query" as const, key: "elementor-preview" }],
+              destination: `${WORDPRESS_KAYNAK}/:yol+/`,
+            },
+          ]
+        : [],
       afterFiles: [],
       fallback: [
         /*

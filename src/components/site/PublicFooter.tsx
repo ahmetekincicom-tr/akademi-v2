@@ -19,7 +19,20 @@ import {
 import type { IconName } from "@/components/Icon";
 
 // ikon verilmezse listelerde ince bir "+" işareti kullanılır
-type FooterLink = { label: string; href?: string; dis?: boolean; ikon?: IconName };
+/**
+ * dis: başka bir siteye/uygulamaya gider — yeni sekmede açılır.
+ * ayniSekme: aynı alan adında ama bu uygulamanın rotası değil (blog, WordPress
+ *   tarafında duruyor). Düz <a> ile ve AYNI sekmede açılmalı: kendi sitemiz,
+ *   yeni sekme açmak yanlış olur; Next <Link> ise olmayan bir rotayı istemci
+ *   tarafında bulmaya çalışıp takılır.
+ */
+type FooterLink = {
+  label: string;
+  href?: string;
+  dis?: boolean;
+  ayniSekme?: boolean;
+  ikon?: IconName;
+};
 
 const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
   {
@@ -33,6 +46,18 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
       { label: "Referanslar", href: "/referanslar" },
       { label: "Yorumlar", href: "/yorumlar" },
       { label: "Kurumsal Eğitim", href: "/kurumsal" },
+      /*
+        Blog WordPress'te duruyor ama aynı alan adının altında
+        (next.config.ts'teki fallback rewrite). Buradan bağlantı vermek iki
+        işe yarıyor: ziyaretçi yazılara ulaşabiliyor ve arama motoru için
+        sitenin geri kalanından bloga giden bir yol açılıyor — taşımadan
+        sonra o yol kopmuştu.
+
+        ayniSekme: kendi alan adımız, yeni sekmede açmak yanlış olur; ama
+        Next <Link> de kullanılamaz çünkü /blog bu uygulamanın bir rotası
+        değil ve istemci tarafı gezinme onu bulamaz.
+      */
+      { label: "Blog", href: "/blog/", ayniSekme: true },
       { label: "İletişim", href: "/iletisim" },
     ],
   },
@@ -221,6 +246,13 @@ export async function PublicFooter() {
                       {isaret}
                       <span className="min-w-0 break-words text-white/45">{l.label}</span>
                     </span>
+                  );
+                }
+                if (l.ayniSekme) {
+                  return (
+                    <a key={l.label} href={l.href} className={stil}>
+                      {govde}
+                    </a>
                   );
                 }
                 return l.dis ? (
