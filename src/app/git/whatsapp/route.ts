@@ -1,12 +1,12 @@
 import { randomInt } from "node:crypto";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, after, type NextRequest } from "next/server";
 import {
   WHATSAPP_NUMARALAR,
   WHATSAPP_VARSAYILAN_MESAJ,
   whatsappLink,
   egitimWhatsappMesaji,
 } from "@/lib/iletisim";
-import { getCourseBySlug } from "@/lib/courses";
+import { createPublicClient } from "@/lib/supabase/public";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { IZIN_CEREZI, izniCoz, reklamIzniVar } from "@/lib/izin";
 import { FBC_CEREZI, FBP_CEREZI } from "@/lib/meta/fbc";
@@ -46,7 +46,15 @@ export const dynamic = "force-dynamic";
  * yapıştırıyor. "0" ile "O"yu ayırt etmek zorunda kalmamalı.
  */
 const ALFABE = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-const KOD_UZUNLUK = 5;
+/*
+  6 karakter. Eskiden 5'ti ve çakışma hâlinde yeni bir kodla tekrar
+  deneniyordu; artık kod mesaja gömüldükten sonra yazıldığı için tekrar
+  denemek mümkün değil (bkz. temasiKaydet). Bir hane eklemek çakışma
+  ihtimalini 32 kat düşürüyor: 32^6 ≈ 1,07 milyar, on bin temasta beklenen
+  çakışma 0,05'in altında. Eski 5 haneli kodlar geçerliliğini koruyor —
+  sütunda uzunluk kısıtı yok, yalnızca benzersizlik var.
+*/
+const KOD_UZUNLUK = 6;
 
 function kodUret(): string {
   let kod = "";
@@ -74,7 +82,15 @@ export async function GET(request: NextRequest) {
   const numara = (Number.isInteger(sira) && WHATSAPP_NUMARALAR[sira] ? WHATSAPP_NUMARALAR[sira] : WHATSAPP_NUMARALAR[0])
     .numara;
 
-  const kod = await temasiKaydet(request, yer, numara);
+  /*
+    KOD ÖNCE, VERİTABANINA SORMADAN ÜRETİLİYOR.
+
+    Eskiden kod veritabanı satırı yazıldıktan sonra elde ediliyordu ve
+    yönlendirme o yazma bitene kadar bekliyordu. Oysa kodu üreten şey
+    veritabanı değil, aşağıdaki kodUret(): satırın işi onu SAKLAMAK. Üretimi
+    öne alınca kayıt yanıttan sonraya taşınabiliyor.
+  */
+  const kod = kodUret();
 
   /*
     Hazır mesaj. Eğitim detay sayfasındaki düğmeler `e` parametresiyle
@@ -83,14 +99,51 @@ export async function GET(request: NextRequest) {
     bulunamazsa varsayılan metin — footer ve detay dışı her yer.
 
     Metin VERİTABANINDAN okunuyor; adres çubuğundan gelen slug yalnızca arama
-    anahtarı, mesajın kendisi hiçbir zaman URL'den gelmiyor.
+    anahtarı, mesajın kendisi hiçbir zaman URL'den gelmiyor. Yönlendirmeden
+    önce beklenen TEK iş bu: mesajın kendisi olmadan yönlendirilemez.
 
     Kod parantez içinde ve SONDA: kişi mesajın başına kendi cümlesini yazsa
     bile kod kalıyor, çünkü insanlar hazır metnin sonuna değil önüne yazıyor.
   */
   const taban =
     (await egitiminMesaji(yeriTemizle(parametre.get("e")))) ?? WHATSAPP_VARSAYILAN_MESAJ;
-  const mesaj = kod ? `${taban} (Ref: ${kod})` : taban;
+  const mesaj = `${taban} (Ref: ${kod})`;
+
+  /*
+    ÖLÇÜMLEME YANITTAN SONRAYA ALINIYOR.
+
+    Bu uç, tıklayan kişiyi WhatsApp'a göndermeden önce beş ayrı veritabanı
+    turu yapıyordu: eğitim araması, temas satırı, olay açık mı kontrolü,
+    tekilleştirme kontrolü ve olay satırı. Her biri ayrı bir gidiş-dönüş;
+    telefonda mobil bağlantıyla toplamı birkaç saniyeye çıkıyor ve düğmeye
+    basan kişi boş ekrana bakıyordu.
+
+    Bunların HİÇBİRİ yönlendirmenin içeriğini etkilemiyor — kod artık elimizde
+    olduğuna göre. after() geri çağrısı yanıt gönderildikten sonra çalışıyor,
+    yani kişi WhatsApp'a giderken kayıt arka planda yazılıyor. Yönlendirme
+    başarısız olsa bile after() çalışıyor (Next belgeleri bunu açıkça
+    söylüyor), dolayısıyla ölçümlemeden bir şey kaybedilmiyor.
+
+    İstek verisi (çerezler, IP, tarayıcı) BURADA okunup aşağı taşınıyor:
+    geri çağrı çalıştığında istek nesnesine güvenmek yerine değerleri elde
+    tutmak, ölçümlemenin yanıt yaşam döngüsüne bağlı kalmamasını sağlıyor.
+  */
+  after(
+    temasiKaydet(
+      {
+        kod,
+        yer,
+        hedef: numara,
+        fbp: request.cookies.get(FBP_CEREZI)?.value ?? null,
+        fbc: request.cookies.get(FBC_CEREZI)?.value ?? null,
+        izin: reklamIzniVar(izniCoz(request.cookies.get(IZIN_CEREZI)?.value)),
+        ip: istekIpsi(request.headers),
+        ua: request.headers.get("user-agent"),
+        referrer: request.headers.get("referer"),
+        kaynakUrl: request.headers.get("referer") ?? request.nextUrl.origin,
+      },
+    ),
+  );
 
   /*
     303 kullanılıyor.
@@ -115,76 +168,102 @@ export async function GET(request: NextRequest) {
 async function egitiminMesaji(slug: string | null): Promise<string | null> {
   if (!slug) return null;
   try {
-    const egitim = await getCourseBySlug(slug);
-    if (!egitim) return null;
-    return egitim.whatsappMesaji || egitimWhatsappMesaji(egitim.baslik);
+    /*
+      Eğitimin TAMAMI çekilmiyor, iki alan çekiliyor.
+
+      Önce getCourseBySlug() kullanılıyordu; o sorgu eğitimin bütün içeriğiyle
+      birlikte modules ve lessons tablolarını da birleştiriyor — bir eğitim
+      sayfasını çizmek için doğru, iki satırlık bir mesaj metni için değil.
+      Ölçüldü: yönlendirmenin önündeki tek bekleme buydu.
+
+      whatsappMesaji, content JSON'unun içinden doğrudan isteniyor; koca JSON
+      ağdan geçmiyor.
+    */
+    const { data, error } = await createPublicClient()
+      .from("courses")
+      .select("baslik, whatsappMesaji:content->>whatsappMesaji")
+      .eq("slug", slug)
+      .maybeSingle<{ baslik: string; whatsappMesaji: string | null }>();
+
+    if (error || !data) return null;
+    return data.whatsappMesaji?.trim() || egitimWhatsappMesaji(data.baslik);
   } catch {
     return null;
   }
 }
 
+/** Yanıt gönderildikten sonra kaydedilecek olan her şey. */
+type TemasIzi = {
+  kod: string;
+  yer: string | null;
+  hedef: string;
+  fbp: string | null;
+  fbc: string | null;
+  izin: boolean;
+  ip: string | null;
+  ua: string | null;
+  referrer: string | null;
+  kaynakUrl: string;
+};
+
 /**
  * Temas satırını yazar ve Contact olayını kuyruğa koyar.
  *
- * Kod döndüremezse null: mesaj kodsuz gider, yönlendirme yine çalışır.
+ * YANITTAN SONRA çalışıyor (bkz. GET içindeki after çağrısı). Hiçbir şey
+ * döndürmüyor ve hiçbir şeyi engellemiyor: kişi bu iş yürürken çoktan
+ * WhatsApp'a gitmiş oluyor.
+ *
+ * Kod artık dışarıdan geliyor — mesaja gömülmüş olan kod bu. Bu yüzden
+ * çakışma hâlinde YENİ bir kodla tekrar denenmiyor: kullanıcının elindeki
+ * mesajda yazan kod o değil, farklı bir kodla yazılan satır yöneticinin
+ * aramasında bulunmaz, yani sessizce yanlış bir kayıt üretirdi. Çakışan
+ * kayıt düşüyor ve günlüğe yazılıyor.
+ *
+ * Çakışma ihtimali: kod 6 karakter ve 32 harfli bir alfabeden (32^6 ≈ 1,07
+ * milyar). On bin temasta beklenen çakışma sayısı 0,05'in altında — pratikte
+ * hiç. Kod eskiden 5 karakterdi; yeniden deneme kaldırıldığı için bir hane
+ * eklendi, yoksa on binde bir buçuk kayıt kodsuz kalırdı.
  */
-async function temasiKaydet(
-  request: NextRequest,
-  yer: string | null,
-  hedef: string,
-): Promise<string | null> {
+async function temasiKaydet(iz: TemasIzi): Promise<void> {
   try {
     const servis = gorevIstemcisi();
-    if (!servis) return null;
+    if (!servis) return;
 
-    const fbp = request.cookies.get(FBP_CEREZI)?.value ?? null;
-    const fbc = request.cookies.get(FBC_CEREZI)?.value ?? null;
-    const izin = reklamIzniVar(izniCoz(request.cookies.get(IZIN_CEREZI)?.value));
-    const ip = istekIpsi(request.headers);
-    const ua = request.headers.get("user-agent");
+    const { data, error } = await servis
+      .from("temaslar")
+      .insert({
+        kod: iz.kod,
+        yer: iz.yer,
+        hedef: iz.hedef,
+        fbp: iz.fbp,
+        fbc: iz.fbc,
+        ip: iz.ip,
+        ua: iz.ua,
+        referrer: iz.referrer,
+        izin: iz.izin,
+      })
+      .select("id")
+      .single();
 
-    /*
-      Çakışma ihtimali düşük ama sıfır değil (32^5 ≈ 33 milyon). Üç deneme,
-      sonra vazgeçiliyor: kod olmadan da yönlendirme çalışıyor ve ziyaretçiyi
-      bekletmenin anlamı yok.
-    */
-    for (let deneme = 0; deneme < 3; deneme += 1) {
-      const kod = kodUret();
-      const { data, error } = await servis
-        .from("temaslar")
-        .insert({
-          kod,
-          yer,
-          hedef,
-          fbp,
-          fbc,
-          ip,
-          ua,
-          referrer: request.headers.get("referer"),
-          izin,
-        })
-        .select("id")
-        .single();
-
-      // 23505 = kod çakıştı, yeniden dene.
-      if (error?.code === "23505") continue;
-      if (error || !data) return null;
-
-      await metaOlayiKuyrukla({
-        olay: "Contact",
-        eventId: `contact-${data.id}`,
-        kimlik: kimlikKur({ fbp, fbc, ip, ua }),
-        ozel: { content_name: yer ?? "whatsapp" },
-        aksiyon: "website",
-        kaynakUrl: request.headers.get("referer") ?? request.nextUrl.origin,
-        izin,
-      });
-
-      return kod;
+    if (error) {
+      // 23505 = kod çakıştı. Sessiz geçilmiyor: bir daha olursa kod uzunluğu
+      // yeniden konuşulmalı.
+      console.error("[whatsapp] temas yazılamadı:", error.code, error.message);
+      return;
     }
-    return null;
-  } catch {
-    // Ölçümleme yan iş; yönlendirmeyi düşürmesin.
-    return null;
+    if (!data) return;
+
+    await metaOlayiKuyrukla({
+      olay: "Contact",
+      eventId: `contact-${data.id}`,
+      kimlik: kimlikKur({ fbp: iz.fbp, fbc: iz.fbc, ip: iz.ip, ua: iz.ua }),
+      ozel: { content_name: iz.yer ?? "whatsapp" },
+      aksiyon: "website",
+      kaynakUrl: iz.kaynakUrl,
+      izin: iz.izin,
+    });
+  } catch (hata) {
+    // Ölçümleme yan iş; arka planda da olsa gürültü çıkarmasın.
+    console.error("[whatsapp] temas kaydı başarısız:", hata);
   }
 }
