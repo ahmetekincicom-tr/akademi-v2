@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
-import { olculenWhatsapp } from "@/lib/iletisim";
+import { WHATSAPP_NUMARALAR } from "@/lib/iletisim";
+import { WhatsAppBaglantisi } from "./WhatsAppBaglantisi";
 import type { IkonluSatir } from "@/lib/courses";
 
 /**
@@ -19,7 +20,14 @@ import type { IkonluSatir } from "@/lib/courses";
  * lib/courses.ts içindeki VARSAYILAN_HAPLAR'da.
  */
 
-export function HeroDegerler({ degerler, egitim }: { degerler: IkonluSatir[]; egitim?: string }) {
+export function HeroDegerler({
+  degerler,
+  mesaj,
+}: {
+  degerler: IkonluSatir[];
+  /** WhatsApp düğmesinin hazır mesajı; sunucuda hazırlanıp buraya veriliyor. */
+  mesaj: string;
+}) {
   return (
     <div className="mt-8 sm:mt-9">
       {/*
@@ -72,30 +80,17 @@ export function HeroDegerler({ degerler, egitim }: { degerler: IkonluSatir[]; eg
           Düğme mobilde tam genişlikte: dar ekranda sola yaslanmış bir düğme
           "yan bilgi" gibi okunuyordu, oysa sayfanın tek eylemi bu.
         */}
-        {/*
-          Düz <a>, next/link DEĞİL — ve hedef sayfanın kendisi değil, telefonun
-          WhatsApp uygulaması.
-
-          Bu adres uygulamanın bir sayfası değil, WhatsApp'a çıkan bir ara
-          durak (/git/whatsapp). <Link> ile sarıldığında Next bunu kendi
-          içinde bir gezinme sanıp adresi istemci tarafında çözmeye çalışıyor;
-          telefon o sırayı "kullanıcı bir bağlantıya bastı" olarak görmediği
-          için wa.me'yi uygulamaya değil tarayıcıya açıyor ve karşımıza
-          WhatsApp'ın "sohbete devam et" ara sayfası çıkıyordu — yani kişi
-          WhatsApp'a gitmek için bir de o sayfada düğmeye basmak zorunda
-          kalıyordu. Sağ alttaki yüzen düğme baştan beri düz <a> olduğu için
-          doğrudan uygulamayı açıyordu; aradaki tek fark buydu.
-        */}
-        <a
-          href={olculenWhatsapp("egitim-hero", 0, egitim)}
-          target="_blank"
-          rel="noopener noreferrer"
+        {/* Doğrudan wa.me'ye giden bağlantı; gerekçesi WhatsAppBaglantisi'nde. */}
+        <WhatsAppBaglantisi
+          numara={WHATSAPP_NUMARALAR[0].numara}
+          mesaj={mesaj}
+          yer="egitim-hero"
           className="nabiz group flex h-14 w-full items-center justify-center gap-[11px] rounded-[14px] bg-brand px-8 text-[16.5px] font-semibold text-white shadow-[0_16px_40px_rgba(28,86,243,0.45)] transition-[background-color,box-shadow] duration-200 hover:bg-white hover:text-ink hover:shadow-[0_16px_44px_rgba(255,255,255,0.22)] sm:w-auto"
         >
           <Icon name="whatsapp" size={19} />
           Eğitim Planı Oluştur
           <Icon name="arrowRight" size={17} className="transition-transform duration-200 group-hover:translate-x-[3px]" />
-        </a>
+        </WhatsAppBaglantisi>
 
         {/*
           İkincil yol: grup ve kurumsal talep.

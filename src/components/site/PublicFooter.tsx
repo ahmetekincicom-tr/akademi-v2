@@ -3,6 +3,7 @@ import { Logo } from "./Logo";
 import { Icon } from "@/components/Icon";
 import { CerezTercihleriDugmesi } from "@/components/site/CerezTercihleriDugmesi";
 import { FooterBolum } from "@/components/site/FooterBolum";
+import { WhatsAppBaglantisi } from "@/components/site/WhatsAppBaglantisi";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import { getCourses } from "@/lib/courses";
 import { ON_YUZ_ACIK } from "@/proxy";
@@ -13,7 +14,7 @@ import {
   INSTAGRAM_KULLANICI,
   INSTAGRAM_URL,
   OFIS_ADRESI,
-  olculenWhatsapp,
+  WHATSAPP_VARSAYILAN_MESAJ,
 } from "@/lib/iletisim";
 
 import type { IconName } from "@/components/Icon";
@@ -31,6 +32,8 @@ type FooterLink = {
   href?: string;
   dis?: boolean;
   ayniSekme?: boolean;
+  /** WhatsApp düğmesi: doğrudan wa.me'ye gider, tıklama işaretle kaydedilir. */
+  whatsapp?: boolean;
   ikon?: IconName;
 };
 
@@ -73,8 +76,7 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
     linkler: [
       {
         label: WHATSAPP_NUMARALAR[0].gosterim,
-        href: olculenWhatsapp("footer"),
-        dis: true,
+        whatsapp: true,
         ikon: "whatsapp",
       },
       {
@@ -180,19 +182,35 @@ export async function PublicFooter() {
             Dijital çağın dinamiklerine uygun, yenilikçi eğitim deneyimi.
           </p>
           <div className="mt-[22px] flex gap-[10px]">
-            {SOSYAL.map((s) => (
-              <a
-                key={s.ad}
-                href={s.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={s.ad}
-                title={s.ad}
-                className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-[10px] border border-white/14 text-white/70 transition hover:border-brand hover:bg-brand hover:text-white"
-              >
-                <Icon name={s.ikon} size={17} />
-              </a>
-            ))}
+            {SOSYAL.map((s) => {
+              const sosyalStil =
+                "inline-flex h-[38px] w-[38px] items-center justify-center rounded-[10px] border border-white/14 text-white/70 transition hover:border-brand hover:bg-brand hover:text-white";
+              return s.whatsapp ? (
+                <WhatsAppBaglantisi
+                  key={s.ad}
+                  numara={WHATSAPP_NUMARALAR[0].numara}
+                  mesaj={WHATSAPP_VARSAYILAN_MESAJ}
+                  yer="sosyal"
+                  ariaLabel={s.ad}
+                  title={s.ad}
+                  className={sosyalStil}
+                >
+                  <Icon name={s.ikon} size={17} />
+                </WhatsAppBaglantisi>
+              ) : (
+                <a
+                  key={s.ad}
+                  href={s.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={s.ad}
+                  title={s.ad}
+                  className={sosyalStil}
+                >
+                  <Icon name={s.ikon} size={17} />
+                </a>
+              );
+            })}
           </div>
 
           {/* Kommo partner rozeti — resmi rozet (public/odeme/kommo-partner.svg). */}
@@ -245,6 +263,19 @@ export async function PublicFooter() {
                 const stil =
                   "group flex items-start gap-[10px] py-[7px] text-[14.5px] leading-[1.4] text-white/65 transition hover:text-white pointer-fine:py-0";
 
+                if (l.whatsapp) {
+                  return (
+                    <WhatsAppBaglantisi
+                      key={l.label}
+                      numara={WHATSAPP_NUMARALAR[0].numara}
+                      mesaj={WHATSAPP_VARSAYILAN_MESAJ}
+                      yer="footer"
+                      className={stil}
+                    >
+                      {govde}
+                    </WhatsAppBaglantisi>
+                  );
+                }
                 if (!l.href) {
                   return (
                     <span key={l.label} className={`${stil} hover:text-white/45`}>

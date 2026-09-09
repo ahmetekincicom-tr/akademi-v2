@@ -32,36 +32,6 @@ export function whatsappLink(numara: string, mesaj?: string) {
 }
 
 /**
- * Ölçülen WhatsApp bağlantısı.
- *
- * wa.me'ye DOĞRUDAN gitmek yerine kendi ucumuzdan geçiyor: orada tıklama
- * kimliği kaydediliyor ve WhatsApp mesajına kısa bir referans kodu
- * gömülüyor. Gerekçesi app/git/whatsapp/route.ts içinde.
- *
- * WordPress'teki ana site de bu adresi kullanıyor — tam adresiyle:
- * https://panel.ahmetekinciakademi.com/git/whatsapp?yer=wp-header
- *
- * `yer` hangi düğmeye basıldığını söylüyor; hangi yerleşimin çalıştığını
- * ancak böyle görebiliyoruz.
- */
-export function olculenWhatsapp(yer: string, sira = 0, egitim?: string) {
-  const q = new URLSearchParams({ yer });
-  if (sira) q.set("no", String(sira));
-  // Eğitim detay sayfasındaki düğmeler eğitimin slug'ını taşıyor; hazır mesaj
-  // buna göre kuruluyor (bkz. app/git/whatsapp/route.ts).
-  if (egitim) q.set("e", egitim);
-  /*
-    Sondaki eğik çizgi ŞART.
-
-    next.config.ts'te trailingSlash açık: çizgisiz yazılan adres önce 308 ile
-    çizgili biçime yönlendiriliyordu. Yani WhatsApp'a giden her tıklama iki
-    sıçrama yapıyordu (308 → 303 → wa.me) ve telefonda uygulamanın açılması
-    o kadar gecikiyordu. Ölçüldü: çizgiyle tek sıçrama kalıyor.
-  */
-  return `/git/whatsapp/?${q}`;
-}
-
-/**
  * WhatsApp hazır mesajı.
  *
  * Varsayılan — footer dahil, eğitim detay sayfası DIŞINDAKİ her yer. Eğitim
@@ -94,8 +64,16 @@ export function egitimWhatsappMesaji(baslik: string | null | undefined): string 
   return `Merhaba, ${temiz} hakkında bilgi almak istiyorum.`;
 }
 
-export const SOSYAL: { ad: string; ikon: IconName; href: string }[] = [
+/**
+ * Sosyal medya ikonları.
+ *
+ * WhatsApp'ın adresi YOK, `whatsapp: true` işareti var: o bağlantı doğrudan
+ * wa.me'ye gitmek zorunda (gerekçesi WhatsAppBaglantisi.tsx'te) ve tıklama
+ * kaydı ayrı bir işaretle yapılıyor. Burada bir adres tutulsaydı, çizen taraf
+ * onu sıradan bir dış bağlantı gibi basardı.
+ */
+export const SOSYAL: { ad: string; ikon: IconName; href?: string; whatsapp?: boolean }[] = [
   { ad: "Instagram", ikon: "instagram", href: INSTAGRAM_URL },
   { ad: "LinkedIn", ikon: "linkedin", href: LINKEDIN_URL },
-  { ad: "WhatsApp", ikon: "whatsapp", href: olculenWhatsapp("sosyal") },
+  { ad: "WhatsApp", ikon: "whatsapp", whatsapp: true },
 ];

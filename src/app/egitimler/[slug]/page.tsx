@@ -12,7 +12,8 @@ import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
 import { Icon } from "@/components/Icon";
 import { getCourseBySlug, basligiIkiSatir, basligiParcala, type Course } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
-import { olculenWhatsapp } from "@/lib/iletisim";
+import { WHATSAPP_NUMARALAR, egitimWhatsappMesaji } from "@/lib/iletisim";
+import { WhatsAppBaglantisi } from "@/components/site/WhatsAppBaglantisi";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
 
 // Gerekçe: src/app/page.tsx
@@ -57,6 +58,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
  * girdiler açıklama değil, doldurulmayı bekleyen alanlardır ve ekrana
  * basıldıklarında sayfayı bozuk gösteriyorlar.
  */
+/**
+ * Bu eğitimin WhatsApp hazır mesajı.
+ *
+ * Sayfa çizilirken belirleniyor: eğitim nesnesi zaten elimizde, ayrıca bir
+ * veritabanı sorgusu gerekmiyor. Eskiden metin tıklama anında sunucudan
+ * sorulyordu ve o sorgu, kişiyi WhatsApp'a göndermeden önceki tek beklemeydi.
+ */
+function hazirMesaj(course: Course): string {
+  return course.whatsappMesaji || egitimWhatsappMesaji(course.baslik);
+}
+
 function anlamliAciklama(metin: string): boolean {
   return metin.trim().split(/\s+/).filter(Boolean).length >= 3;
 }
@@ -70,7 +82,7 @@ function anlamliAciklama(metin: string): boolean {
  *
  * Çıkış kapısı bırakılıyor: buraya gelen kişi ilgilenen kişidir, elinde
  * yalnızca "geri dön" varsa kaybediliyor. WhatsApp bağlantısı ölçümlü
- * (olculenWhatsapp) ki hangi programın haber listesine talep geldiği
+ * (yer="egitim-cok-yakinda") ki hangi programın haber listesine talep geldiği
  * görülebilsin.
  */
 function CokYakindaSayfasi({ course }: { course: Course }) {
@@ -122,15 +134,15 @@ function CokYakindaSayfasi({ course }: { course: Course }) {
           )}
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a
-              href={olculenWhatsapp("egitim-cok-yakinda", 0, course.slug)}
-              target="_blank"
-              rel="noreferrer"
+            <WhatsAppBaglantisi
+              numara={WHATSAPP_NUMARALAR[0].numara}
+              mesaj={hazirMesaj(course)}
+              yer="egitim-cok-yakinda"
               className="inline-flex h-[52px] w-full max-w-[320px] items-center justify-center gap-[9px] rounded-full bg-brand px-7 text-[15.5px] font-semibold text-white shadow-[0_10px_26px_-8px_rgba(28,86,243,0.7)] transition hover:bg-white hover:text-ink sm:w-auto"
             >
               <Icon name="whatsapp" size={17} />
               Açılınca haber ver
-            </a>
+            </WhatsAppBaglantisi>
             <Link
               href="/egitimler"
               className="inline-flex h-[52px] w-full max-w-[320px] items-center justify-center gap-[7px] rounded-full border border-white/20 px-7 text-[15.5px] font-semibold text-white transition hover:border-white sm:w-auto"
@@ -394,7 +406,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               <p className="mt-5 max-w-[400px] text-[14.5px] leading-[1.6] text-pretty text-white/60 sm:max-w-[560px] sm:text-[17.5px] sm:leading-[1.62] sm:text-white/65">
                 <KalinMetin metin={course.heroAciklama} />
               </p>
-              <HeroDegerler degerler={course.haplar} egitim={course.slug} />
+              <HeroDegerler degerler={course.haplar} mesaj={hazirMesaj(course)} />
             </div>
             {/*
               Kapak görseli dar ekranda GİZLİ.
@@ -670,17 +682,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 yukarı dönmek zorunda kalmasın. Ölçülen uçtan gidiyor, kaynak
                 farklı ki hangi düğmenin çalıştığı ayrışsın.
               */}
-              {/* Düz <a>: <Link> ile sarılınca telefon WhatsApp'ı uygulamada
-                  değil tarayıcıda açıyordu; gerekçesi HeroDegerler.tsx'te. */}
-              <a
-                href={olculenWhatsapp("egitim-yan-kutu", 0, course.slug)}
-                target="_blank"
-                rel="noopener noreferrer"
+              {/* Doğrudan wa.me; gerekçesi WhatsAppBaglantisi'nde. */}
+              <WhatsAppBaglantisi
+                numara={WHATSAPP_NUMARALAR[0].numara}
+                mesaj={hazirMesaj(course)}
+                yer="egitim-yan-kutu"
                 className="mt-6 flex h-13 items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[15.5px] font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.32)] transition hover:bg-ink"
               >
                 <Icon name="whatsapp" size={17} />
                 Eğitim Planı Oluştur
-              </a>
+              </WhatsAppBaglantisi>
 
               {/*
                 İkincil talepler artık düğme değil bağlantı — mobildeki

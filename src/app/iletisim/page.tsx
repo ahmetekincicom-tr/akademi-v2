@@ -12,9 +12,10 @@ import {
   ADRES_SOKAK,
   ADRES_ILCE,
   OFIS_BINA,
-  olculenWhatsapp,
+  WHATSAPP_VARSAYILAN_MESAJ,
 } from "@/lib/iletisim";
 import { sayfaMeta } from "@/lib/seo";
+import { WhatsAppBaglantisi } from "@/components/site/WhatsAppBaglantisi";
 import { otomatikSeo } from "@/lib/sayfa-seo";
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
@@ -58,12 +59,14 @@ const kanallar: {
   ikon: IconName;
   href?: string;
   vurgu?: boolean;
+  /** WhatsApp kartı: doğrudan wa.me'ye gider. */
+  whatsapp?: boolean;
 }[] = [
   {
     baslik: "WhatsApp hattı",
     deger: WHATSAPP_NUMARALAR[0].gosterim,
     ikon: "whatsapp",
-    href: olculenWhatsapp("iletisim"),
+    whatsapp: true,
     // Tek renkli kart: en çok kullanılan kanal, listede kaybolmasın.
     vurgu: true,
   },
@@ -139,6 +142,19 @@ export default function IletisimPage() {
 
               const ortak = "flex flex-1 items-center gap-[14px] rounded-2xl border border-ink/10 bg-white px-5 py-4";
 
+              if (k.whatsapp) {
+                return (
+                  <WhatsAppBaglantisi
+                    key={k.baslik}
+                    numara={WHATSAPP_NUMARALAR[0].numara}
+                    mesaj={WHATSAPP_VARSAYILAN_MESAJ}
+                    yer="iletisim"
+                    className={`${ortak} transition hover:border-ink/40 hover:shadow-[0_10px_26px_rgba(10,13,24,0.07)]`}
+                  >
+                    {icerik}
+                  </WhatsAppBaglantisi>
+                );
+              }
               return k.href ? (
                 <a
                   key={k.baslik}
