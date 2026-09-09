@@ -120,6 +120,16 @@ export type Course = {
   /** "6 kişilik kontenjan" gibi tek satır; boşsa satır hiç görünmüyor. */
   kontenjan: string;
   /**
+   * Bu eğitimin WhatsApp düğmesine basıldığında hazır gelen mesaj.
+   *
+   * Boşsa metin eğitimin başlığından kuruluyor (bkz. egitimWhatsappMesaji).
+   * Panelden yazılabilmesinin sebebi: metinler önce kodda slug'a göre bir
+   * haritada duruyordu ve taşımada adresler değişince sessizce eşleşmez
+   * oldu — herkes genel mesajla WhatsApp'a düşmeye başladı, hiçbir yerde
+   * hata görünmediği için de aylarca fark edilmedi.
+   */
+  whatsappMesaji: string;
+  /**
    * Vitrin kartında "YENİ" rozeti.
    *
    * Sıraya bağlanamıyor: "en çok tercih edilen" bir konum meselesi, "yeni"
@@ -228,6 +238,7 @@ type CourseRow = {
     kapsam?: unknown;
     haplar?: unknown;
     kontenjan?: string;
+    whatsappMesaji?: string;
     yeni?: boolean;
     cokYakinda?: boolean;
     sira?: number;
@@ -284,6 +295,9 @@ function mapCourse(row: CourseRow): Course {
       ? satirlariDuzelt(row.content.haplar)
       : VARSAYILAN_HAPLAR,
     kontenjan: (row.content.kontenjan ?? "").trim(),
+    // Alan sonradan eklendi: eski kayıtlarda yok, boş metin doğru varsayılan
+    // (başlıktan kurulan metne düşüyor).
+    whatsappMesaji: (row.content.whatsappMesaji ?? "").trim(),
     // Alan sonradan eklendi: eski kayıtlarda yok, rozetsiz doğru varsayılan.
     yeni: row.content.yeni === true,
     // Sonradan eklendi: eski kayıtlarda yok, "çok yakında değil" doğru varsayılan.

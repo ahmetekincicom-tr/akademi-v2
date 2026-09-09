@@ -39,6 +39,8 @@ export type CourseEditorInitial = {
   kapsam: IkonluSatir[];
   /** "6 kişilik kontenjan" gibi tek satır. */
   kontenjan: string;
+  /** WhatsApp düğmesinin hazır mesajı; boşsa eğitim adından kuruluyor. */
+  whatsappMesaji: string;
   /** Vitrin kartındaki "YENİ" rozeti. */
   yeni: boolean;
   /** "Çok yakında": kart sönük ve tıklanamaz kalır. */
@@ -66,6 +68,7 @@ const BOS_INITIAL: CourseEditorInitial = {
   haplar: VARSAYILAN_HAPLAR,
   kapsam: VARSAYILAN_KAPSAM,
   kontenjan: "",
+  whatsappMesaji: "",
   yeni: false,
   cokYakinda: false,
   modules: [],
@@ -94,6 +97,7 @@ export function CourseEditor({
   const [haplar, setHaplar] = useState<IkonluSatir[]>(initial.haplar);
   const [kapsam, setKapsam] = useState<IkonluSatir[]>(initial.kapsam);
   const [kontenjan, setKontenjan] = useState(initial.kontenjan);
+  const [whatsappMesaji, setWhatsappMesaji] = useState(initial.whatsappMesaji);
   const [yeni, setYeni] = useState(initial.yeni);
   const [cokYakinda, setCokYakinda] = useState(initial.cokYakinda);
   const [modules, setModules] = useState<EditorModule[]>(initial.modules);
@@ -123,6 +127,7 @@ export function CourseEditor({
       haplar,
       kapsam,
       kontenjan,
+      whatsappMesaji,
       yeni,
       cokYakinda,
       modules,
@@ -397,6 +402,32 @@ export function CourseEditor({
                 <span className="max-w-[620px] text-[12.5px] leading-[1.55] text-[#656B7A]">
                   Sağdaki kutunun koyu başlığında, eğitim adının altında rozet olarak görünür. Boş bırakılırsa
                   hiç görünmez.
+                </span>
+              </label>
+
+              {/*
+                WhatsApp hazır mesajı.
+
+                Panelde duruyor çünkü kodda durduğunda bozuldu: metinler
+                eğitim adresine göre eşleşiyordu, taşımada adresler değişince
+                eşleşme koptu ve herkes genel mesajla WhatsApp'a düşmeye
+                başladı. Hiçbir yerde hata görünmediği için de fark edilmedi.
+              */}
+              <label className="mt-6 flex flex-col gap-2">
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">
+                  WhatsApp hazır mesajı
+                </span>
+                <textarea
+                  value={whatsappMesaji}
+                  onChange={(e) => setWhatsappMesaji(e.target.value)}
+                  rows={2}
+                  placeholder={`Merhaba, ${ad || "eğitim adı"} hakkında bilgi almak istiyorum.`}
+                  className="max-w-[620px] rounded-[10px] border border-ink/14 bg-white px-[14px] py-[11px] text-[14.5px] leading-[1.55] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                />
+                <span className="max-w-[620px] text-[12.5px] leading-[1.55] text-[#656B7A]">
+                  Bu eğitimin sayfasındaki WhatsApp düğmelerine basıldığında mesaj kutusunda hazır gelen metin.
+                  Sonuna takip kodu (Ref: ABC12) kendiliğinden ekleniyor — onu buraya yazmayın. Boş bırakılırsa
+                  eğitim adından otomatik kurulur.
                 </span>
               </label>
 

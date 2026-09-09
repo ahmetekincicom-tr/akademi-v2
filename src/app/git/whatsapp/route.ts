@@ -1,6 +1,11 @@
 import { randomInt } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
-import { WHATSAPP_NUMARALAR, whatsappLink, egitimWhatsappMesaji } from "@/lib/iletisim";
+import {
+  WHATSAPP_NUMARALAR,
+  WHATSAPP_VARSAYILAN_MESAJ,
+  whatsappLink,
+  egitimWhatsappMesaji,
+} from "@/lib/iletisim";
 import { getCourseBySlug } from "@/lib/courses";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { IZIN_CEREZI, izniCoz, reklamIzniVar } from "@/lib/izin";
@@ -73,19 +78,18 @@ export async function GET(request: NextRequest) {
 
   /*
     Hazır mesaj. Eğitim detay sayfasındaki düğmeler `e` parametresiyle
-    eğitimin slug'ını taşıyor; mesaj o eğitimin BAŞLIĞINDAN kuruluyor. Slug
-    yoksa ya da öyle bir eğitim bulunamazsa varsayılan metin — footer ve
-    detay dışı her yer.
+    eğitimin slug'ını taşıyor; mesaj o eğitimin panelde yazılmış metni, yoksa
+    başlığından kurulan metin oluyor. Slug yoksa ya da öyle bir eğitim
+    bulunamazsa varsayılan metin — footer ve detay dışı her yer.
 
-    Başlık veritabanından okunuyor, adres çubuğundan gelen metin doğrudan
-    mesaja girmiyor. Okuma başarısız olursa (veritabanı yavaş/kapalı)
-    varsayılan metinle devam ediliyor: bu uç hiçbir koşulda yönlendirmeyi
-    düşürmemeli.
+    Metin VERİTABANINDAN okunuyor; adres çubuğundan gelen slug yalnızca arama
+    anahtarı, mesajın kendisi hiçbir zaman URL'den gelmiyor.
 
     Kod parantez içinde ve SONDA: kişi mesajın başına kendi cümlesini yazsa
     bile kod kalıyor, çünkü insanlar hazır metnin sonuna değil önüne yazıyor.
   */
-  const taban = egitimWhatsappMesaji(await egitimBasligi(yeriTemizle(parametre.get("e"))));
+  const taban =
+    (await egitiminMesaji(yeriTemizle(parametre.get("e")))) ?? WHATSAPP_VARSAYILAN_MESAJ;
   const mesaj = kod ? `${taban} (Ref: ${kod})` : taban;
 
   /*
@@ -101,16 +105,19 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Slug'a karşılık gelen eğitimin başlığı.
+ * Bu eğitim için hazır mesaj.
  *
- * Bulunamazsa ya da okuma başarısız olursa null: mesaj varsayılana düşüyor,
- * yönlendirme her koşulda çalışıyor.
+ * Önce panelden yazılan metin (content.whatsappMesaji); yoksa eğitimin
+ * başlığından kurulan metin. Eğitim bulunamazsa ya da okuma başarısız olursa
+ * null döner ve çağıran taraf genel metne düşer — bu uç hiçbir koşulda
+ * yönlendirmeyi düşürmemeli.
  */
-async function egitimBasligi(slug: string | null): Promise<string | null> {
+async function egitiminMesaji(slug: string | null): Promise<string | null> {
   if (!slug) return null;
   try {
     const egitim = await getCourseBySlug(slug);
-    return egitim?.baslik?.trim() || null;
+    if (!egitim) return null;
+    return egitim.whatsappMesaji || egitimWhatsappMesaji(egitim.baslik);
   } catch {
     return null;
   }

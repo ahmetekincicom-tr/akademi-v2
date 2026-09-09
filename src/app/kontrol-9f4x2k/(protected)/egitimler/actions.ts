@@ -32,6 +32,8 @@ export type SaveCourseInput = {
   kapsam?: { ad: string; ikon: string }[];
   /** "6 kişilik kontenjan" gibi tek satır. Verilmezse mevcut değer korunuyor. */
   kontenjan?: string;
+  /** WhatsApp düğmesinin hazır mesajı. Verilmezse mevcut değer korunuyor. */
+  whatsappMesaji?: string;
   /** Vitrin kartındaki "YENİ" rozeti. Verilmezse mevcut değer korunuyor. */
   yeni?: boolean;
   /** "Çok yakında" durumu. Verilmezse mevcut değer korunuyor. */
@@ -52,6 +54,7 @@ type ExistingContent = {
   haplar?: { ad: string; ikon: string }[];
   kapsam?: { ad: string; ikon: string }[];
   kontenjan?: string;
+  whatsappMesaji?: string;
   yeni?: boolean;
   cokYakinda?: boolean;
   sira?: number;
@@ -116,6 +119,10 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     haplar: input.haplar !== undefined ? ikonluSatirlar(input.haplar) : (existingContent.haplar ?? []),
     kapsam: input.kapsam !== undefined ? ikonluSatirlar(input.kapsam) : (existingContent.kapsam ?? []),
     kontenjan: input.kontenjan !== undefined ? input.kontenjan.trim() : (existingContent.kontenjan ?? ""),
+    whatsappMesaji:
+      input.whatsappMesaji !== undefined
+        ? input.whatsappMesaji.trim()
+        : (existingContent.whatsappMesaji ?? ""),
     yeni: input.yeni !== undefined ? input.yeni : (existingContent.yeni ?? false),
     cokYakinda: input.cokYakinda !== undefined ? input.cokYakinda : (existingContent.cokYakinda ?? false),
     // Sıra editörden yönetilmiyor; kaydederken kaybolmasın.
