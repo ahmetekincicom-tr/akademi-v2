@@ -288,35 +288,43 @@
   /*
     Bölümlerin belirmesi (fade-up).
 
-    Sayfa içeriğindeki her <section> görünüme girince aşağıdan hafifçe yükselerek
-    beliriyor (Beliriver bileşeni yönetiyor). Gizleme yalnızca "beliriver-hazir"
-    sınıfı varken geçerli; o sınıfı JavaScript ekliyor — script yüklenmezse tüm
-    bölümler olduğu gibi görünüyor.
+    Sayfa içeriğindeki bir <section> görünüme girince aşağıdan hafifçe
+    yükselerek beliriyor (Beliriver bileşeni yönetiyor).
 
-    Başlık ve alt bilgi birer <section> olmadığı için etkilenmiyor; sabit kalıyor
-    ve eski tam sayfa "beyaz flaş" oluşmuyor. Ekranda olan bölümler Beliriver'da
-    önceden görünür işaretlendiği için üst kısım anında (animasyonsuz) geliyor.
+    GİZLEME İSTEĞE BAĞLI: yalnızca data-beliriver="gizli" yazan bölüm gizli.
+    Eskiden sarmalayıcıdaki bir sınıf altındaki BÜTÜN bölümleri gizliyor,
+    görünür olmak JavaScript'in işaretlemesine bağlı oluyordu; efekt bir
+    sayfada çalışmadığında içeriğin tamamı görünmez kalıyordu (başlık ve alt
+    bilgisi olan bomboş sayfa). Şimdi işaretlenmemiş bölüm her koşulda
+    görünür — bozulma en fazla "animasyon olmadı" demek.
 
-    Animasyon değil geçiş (transition): bölüm data-gorunur olunca oradan
+    Başlık ve alt bilgi birer <section> olmadığı için etkilenmiyor; sabit
+    kalıyor ve eski tam sayfa "beyaz flaş" oluşmuyor. Ekranda olan bölümlere
+    Beliriver hiç dokunmadığı için üst kısım anında geliyor.
+
+    Animasyon değil geçiş (transition): bölüm "gorunur"a döndüğünde oradan
     tetikleniyor; animasyon olsaydı bir kez baştan oynayıp tekrar tetiklenmesi
     gerekirdi.
   */
-  .beliriver-hazir section {
-    opacity: 0;
-    transform: translateY(22px);
+  section[data-beliriver] {
     transition:
       opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
       transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
-  .beliriver-hazir section[data-gorunur] {
+  section[data-beliriver="gizli"] {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  section[data-beliriver="gorunur"] {
     opacity: 1;
     transform: none;
   }
 
   /* Hareket azaltma tercihinde belirme kapanıyor. */
   @media (prefers-reduced-motion: reduce) {
-    .beliriver-hazir section {
+    section[data-beliriver] {
       opacity: 1;
       transform: none;
       transition: none;
