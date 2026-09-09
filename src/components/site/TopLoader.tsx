@@ -43,13 +43,37 @@ export function TopLoader() {
     const origPush = window.history.pushState.bind(window.history);
     const origReplace = window.history.replaceState.bind(window.history);
 
+    /*
+      Bulunulan adrese yapılan gezinmede çizgi HİÇ başlamıyor.
+
+      Aşağı inip logoya tıklandığında (hedef zaten "/") Next gezinmeyi
+      başlatıyor ama yapacak bir şey olmadığı için sayfa değişmiyor —
+      dolayısıyla aşağıdaki `pathname` etkisi de çalışmıyor ve çizgiyi
+      bitirecek bir olay kalmıyordu. Çizgi 5 saniyelik güvenlik süresi
+      dolana kadar ekranda takılı kalıyordu: kullanıcıya "yükleniyor ama
+      bir türlü açılmıyor" izlenimi veren şey buydu.
+
+      Adres aynıysa gösterilecek bir ilerleme yok; sayfayı başa alma işini
+      AyniSayfaBaglantisi üstleniyor.
+    */
+    const adresDegisiyorMu = (url: unknown) => {
+      if (url == null) return false;
+      try {
+        return new URL(String(url), window.location.href).href !== window.location.href;
+      } catch {
+        // Çözülemeyen adres: emin olamadığımız için çizgiyi başlatıyoruz.
+        // Yanlış tarafa düşerse güvenlik süresi yine de kapatıyor.
+        return true;
+      }
+    };
+
     window.history.pushState = ((...args: Parameters<typeof origPush>) => {
-      window.dispatchEvent(new Event("aea-nav-start"));
+      if (adresDegisiyorMu(args[2])) window.dispatchEvent(new Event("aea-nav-start"));
       return origPush(...args);
     }) as typeof window.history.pushState;
 
     window.history.replaceState = ((...args: Parameters<typeof origReplace>) => {
-      window.dispatchEvent(new Event("aea-nav-start"));
+      if (adresDegisiyorMu(args[2])) window.dispatchEvent(new Event("aea-nav-start"));
       return origReplace(...args);
     }) as typeof window.history.replaceState;
 

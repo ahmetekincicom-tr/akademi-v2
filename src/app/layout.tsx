@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Plus_Jakarta_Sans, IBM_Plex_Mono } from "next/font/google";
 import { TopLoader } from "@/components/site/TopLoader";
+import { AyniSayfaBaglantisi } from "@/components/site/AyniSayfaBaglantisi";
 import { BildirimSaglayici } from "@/components/Bildirim";
 import { Olcumleme, ONYUKLEME } from "@/components/site/Olcumleme";
 import { CerezBandi } from "@/components/site/CerezBandi";
@@ -177,6 +178,9 @@ export default async function RootLayout({
         <ServiceWorkerKaydi />
         <NativeIsaretci />
         <TopLoader />
+        {/* Bulunduğun sayfaya giden bağlantı (logo, "Ana Sayfa") tıklanınca
+            sayfayı başa alır; gerekçesi bileşenin içinde. */}
+        <AyniSayfaBaglantisi />
         <BildirimSaglayici>{children}</BildirimSaglayici>
         {/* Sağ altta sabit WhatsApp düğmesi — tüm sayfalarda. */}
         <WhatsAppYuzenDugme />

@@ -42,7 +42,12 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
       // yalnızca footer'da (başlık menüsünde yok).
       { label: "Ana Sayfa", href: "/" },
       { label: "Hakkımızda", href: "/hakkimizda" },
-      { label: "Eğitimler", href: "/egitimler" },
+      /*
+        "Eğitimler" satırı buradan KALDIRILDI: yan sütundaki "Tüm eğitimler"
+        de aynı adrese (/egitimler) gidiyordu. Aynı hedefe iki bağlantı hem
+        okuyanı ikisi farklı bir şeymiş gibi düşündürüyor hem de gereksiz
+        tekrar. Eğitimlere giden yol yan sütunun kendisi.
+      */
       { label: "Referanslar", href: "/referanslar" },
       { label: "Yorumlar", href: "/yorumlar" },
       { label: "Kurumsal Eğitim", href: "/kurumsal" },
