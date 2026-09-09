@@ -52,11 +52,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   /*
     "Çok yakında" eğitimler haritaya GİRMİYOR.
 
-    O programların detay sayfası bilerek kapalı (egitimler/[slug]/page.tsx →
-    cokYakinda ise notFound). Haritaya koymak, arama motoruna "burada sayfa
-    var" deyip 404 döndürmek olur; Search Console bunu "Gönderilen URL
-    bulunamadı" diye raporluyor ve taşıma sırasında Google her şeyi yeniden
-    tararken bu hatalar gereksiz gürültü yaratıyor.
+    Sayfaları artık 404 değil, 200 dönüyor (bkz. egitimler/[slug]/page.tsx →
+    CokYakindaSayfasi) — yani taranabilirler ve eski adreslerden gelen
+    yönlendirmeler ölü sayfaya düşmüyor. Ama içerikleri henüz ince: yalnızca
+    başlık, kısa açıklama ve "yakında" bildirimi.
+
+    Erişilebilir olmak ile site haritasıyla ÖNERMEK farklı şeyler. İnce bir
+    sayfayı haritaya koymak, arama motoruna "bunu dizine al" demek olur; o
+    program açıldığında sayfa dolduğunda haritaya kendiliğinden giriyor.
   */
   const egitimler = (await getCourses()).filter((e) => !e.cokYakinda);
 

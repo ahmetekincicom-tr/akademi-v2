@@ -29,6 +29,10 @@ const YONLENDIRILEN = {
   "/kurumsal-meta-ads-egitimi/": "/kurumsal/",
   "/sartlar-ve-kosullar/": "/uyelik-sozlesmesi/",
   "/cerez-politikasi/": "/gizlilik-politikasi/",
+  // Site haritasında yoktu ama dış bağlantıları olabilir; taşımada 404
+  // verdikleri görülünce eklendi.
+  "/birebir-meta-ads-egitimi/": "/egitimler/meta-ads-egitimi/",
+  "/birebir-meta-ads-egitimi-2026/": "/egitimler/meta-ads-egitimi/",
 };
 
 /** Site haritasındaki sayfalar (29). */
@@ -62,6 +66,9 @@ const SAYFALAR = [
   "/sartlar-ve-kosullar/",
   "/cerez-politikasi/",
   "/bakim/",
+  // Site haritasında olmayan, geçmişte paylaşılmış eski eğitim adresleri.
+  "/birebir-meta-ads-egitimi/",
+  "/birebir-meta-ads-egitimi-2026/",
 ];
 
 /** Blog yazıları (23) — WordPress'te kalıyor, adresleri değişmemeli. */

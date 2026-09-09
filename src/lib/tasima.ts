@@ -62,6 +62,16 @@ export const YONLENDIRMELER: Yonlendirme[] = [
   { eski: "/birebir-egitimler", yeni: "/egitimler" },
   { eski: "/kurumsal-meta-ads-egitimi", yeni: "/kurumsal" },
 
+  /*
+    Bu ikisi site haritasında YOKTU — WordPress'ten bir noktada kaldırılmışlar
+    ve taşıma sırasında 404 veriyorlardı. Site haritasında olmaması "kimse
+    gelmiyor" demek değil: adres geçmişte paylaşılmışsa dış bağlantılar ve
+    yer imleri hâlâ oraya gidiyor, Google da bilmeye devam ediyor. İkisi de
+    aynı eğitimin eski adresleri.
+  */
+  { eski: "/birebir-meta-ads-egitimi", yeni: "/egitimler/meta-ads-egitimi" },
+  { eski: "/birebir-meta-ads-egitimi-2026", yeni: "/egitimler/meta-ads-egitimi" },
+
   // -------------------------------------------------------- yasal metin ---
   { eski: "/sartlar-ve-kosullar", yeni: "/uyelik-sozlesmesi" },
   // Ayrı bir çerez politikası sayfası yok; konu gizlilik politikasının içinde

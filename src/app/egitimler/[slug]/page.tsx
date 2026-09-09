@@ -10,7 +10,7 @@ import { HeroDegerler } from "@/components/site/HeroDegerler";
 import { KalinMetin } from "@/components/site/KalinMetin";
 import { ProgramGoruntulendi } from "@/components/site/ProgramGoruntulendi";
 import { Icon } from "@/components/Icon";
-import { getCourseBySlug, basligiIkiSatir, basligiParcala } from "@/lib/courses";
+import { getCourseBySlug, basligiIkiSatir, basligiParcala, type Course } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { olculenWhatsapp } from "@/lib/iletisim";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
@@ -42,13 +42,127 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   });
 }
 
+/**
+ * Panele girilmiş metin bir açıklama mı, yoksa yer tutucu mu?
+ *
+ * En az üç kelime aranıyor: "d", "test", "yakında" gibi tek kelimelik
+ * girdiler açıklama değil, doldurulmayı bekleyen alanlardır ve ekrana
+ * basıldıklarında sayfayı bozuk gösteriyorlar.
+ */
+function anlamliAciklama(metin: string): boolean {
+  return metin.trim().split(/\s+/).filter(Boolean).length >= 3;
+}
+
+/**
+ * Henüz açılmamış programın sayfası.
+ *
+ * Sayfanın işi tek bir şeyi net söylemek: program var, tarihi henüz yok.
+ * Boş müfredat ve boş SSS bölümleri basılmıyor — dolu görünmeye çalışan
+ * yarım bir sayfa, sade bir sayfadan kötü.
+ *
+ * Çıkış kapısı bırakılıyor: buraya gelen kişi ilgilenen kişidir, elinde
+ * yalnızca "geri dön" varsa kaybediliyor. WhatsApp bağlantısı ölçümlü
+ * (olculenWhatsapp) ki hangi programın haber listesine talep geldiği
+ * görülebilsin.
+ */
+function CokYakindaSayfasi({ course }: { course: Course }) {
+  const parca = basligiParcala(course.baslik, course.baslikVurgu);
+
+  return (
+    <div className="bg-white">
+      <PublicHeader />
+
+      <section className="relative overflow-hidden bg-ink text-white">
+        <div
+          className="bg-grid-dark absolute inset-0"
+          style={{
+            maskImage: "radial-gradient(120% 90% at 25% 15%, #000 30%, transparent 78%)",
+            WebkitMaskImage: "radial-gradient(120% 90% at 25% 15%, #000 30%, transparent 78%)",
+          }}
+        />
+        <div className="absolute -top-45 -right-25 h-[600px] w-[600px] rounded-full bg-brand opacity-18 blur-[120px]" />
+
+        <div className="relative mx-auto max-w-[820px] px-5 py-24 text-center sm:px-8 sm:py-30">
+          <span className="inline-flex items-center gap-[7px] rounded-full border border-white/18 bg-white/[0.06] px-[14px] py-[7px] font-mono text-[10.5px] tracking-[0.16em] text-white/75 uppercase">
+            <Icon name="calendar" size={13} />
+            Çok yakında
+          </span>
+
+          <h1 className="mt-6 font-heading text-[34px] leading-[1.08] font-semibold tracking-[-0.03em] sm:text-[46px]">
+            {parca.once}
+            {parca.vurgu && <span className="text-[#7FA0FF]">{parca.vurgu}</span>}
+            {parca.sonra}
+          </h1>
+
+          <p className="mx-auto mt-5 max-w-[560px] text-[16px] leading-[1.65] text-white/70">
+            Bu eğitimin detayları çok yakında burada olacak. Programın içeriği, süresi ve
+            başlangıç tarihi hazırlanıyor.
+          </p>
+
+          {/*
+            Açıklama yalnızca GERÇEKTEN yazılmışsa basılıyor.
+
+            Henüz açılmamış bir programın alanları çoğu zaman yer tutucuyla
+            dolu oluyor; testte bu sayfa tek harflik bir açıklamayı ("d")
+            olduğu gibi ekrana bastı. Boş kontrolü yetmiyor, çünkü yer tutucu
+            boş değil — bir cümle uzunluğu şartı gerekiyor.
+          */}
+          {anlamliAciklama(course.heroAciklama || course.aciklama) && (
+            <p className="mx-auto mt-4 max-w-[560px] text-[15px] leading-[1.65] text-white/55">
+              {(course.heroAciklama || course.aciklama).trim()}
+            </p>
+          )}
+
+          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a
+              href={olculenWhatsapp("egitim-cok-yakinda", 0, course.slug)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-[52px] w-full max-w-[320px] items-center justify-center gap-[9px] rounded-full bg-brand px-7 text-[15.5px] font-semibold text-white shadow-[0_10px_26px_-8px_rgba(28,86,243,0.7)] transition hover:bg-white hover:text-ink sm:w-auto"
+            >
+              <Icon name="whatsapp" size={17} />
+              Açılınca haber ver
+            </a>
+            <Link
+              href="/egitimler"
+              className="inline-flex h-[52px] w-full max-w-[320px] items-center justify-center gap-[7px] rounded-full border border-white/20 px-7 text-[15.5px] font-semibold text-white transition hover:border-white sm:w-auto"
+            >
+              Açık eğitimleri gör
+              <Icon name="arrowRight" size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <PublicFooter />
+    </div>
+  );
+}
+
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
   if (!course) notFound();
-  // "Çok yakında" programın detay sayfası kapalı: kartı zaten tıklanmıyor, ama
-  // adres elle yazılırsa da açılmasın — panelden aktifleşince erişilebilir olur.
-  if (course.cokYakinda) notFound();
+
+  /*
+    "Çok yakında" programlar artık 404 DEĞİL.
+
+    Eskiden bu sayfa notFound() veriyordu. Taşımada bunun bedeli görüldü:
+    eski WordPress adreslerinden bazıları bu programlara yönlendiriliyor ve
+    yönlendirme doğru çalışsa bile hedef 404 verince zincirin tamamı çöpe
+    gidiyordu — Google için "yönlendirme beni ölü sayfaya attı" demek.
+
+    Ayrıca 404, adresi bilen bir ziyaretçiye de yanlış bilgi veriyordu:
+    program yok değil, henüz açılmamış. Sayfa artık 200 dönüyor ve bunu
+    açıkça söylüyor.
+
+    Tam sayfa yerine sade bir sürüm basılıyor: müfredat, SSS, fiyat gibi
+    bölümler bu programlarda henüz boş ve yarım dolu bir sayfa, hiç
+    olmayandan kötü görünüyor.
+  */
+  if (course.cokYakinda) {
+    return <CokYakindaSayfasi course={course} />;
+  }
 
   const icerik = await getSiteIcerik();
 
