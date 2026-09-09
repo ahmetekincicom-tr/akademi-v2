@@ -15,13 +15,14 @@ import {
   olculenWhatsapp,
 } from "@/lib/iletisim";
 import { sayfaMeta } from "@/lib/seo";
+import { otomatikSeo } from "@/lib/sayfa-seo";
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
 export function generateMetadata(): Promise<Metadata> {
   return sayfaMeta({
-  baslik: "İletişim",
-  aciklama:
-    "Hangi dijital pazarlama programının size uyduğunu birlikte belirleyelim. Formu doldurun ya da WhatsApp'tan yazın; Ankara ofisi ve online görüşme seçenekleri açık.",
+  // Metinler tek kaynakta: src/lib/sayfa-seo.ts. Panel de aynı yerden
+  // okuyor — iki yere yazılsaydı biri değiştiğinde diğeri sessizce eskir.
+  ...otomatikSeo("/iletisim"),
   yol: "/iletisim",
 });
 }

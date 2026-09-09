@@ -34,6 +34,8 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
     kapsam?: unknown;
     kontenjan?: string;
     whatsappMesaji?: string;
+    seoBaslik?: string;
+    seoAciklama?: string;
     yeni?: boolean;
     cokYakinda?: boolean;
   } | null;
@@ -61,6 +63,8 @@ export default async function EgitimDuzenlePage({ params }: { params: Promise<{ 
     kapsam: satirlar(icerik?.kapsam, VARSAYILAN_KAPSAM),
     kontenjan: icerik?.kontenjan ?? "",
     whatsappMesaji: icerik?.whatsappMesaji ?? "",
+    seoBaslik: icerik?.seoBaslik ?? "",
+    seoAciklama: icerik?.seoAciklama ?? "",
     yeni: icerik?.yeni === true,
     cokYakinda: icerik?.cokYakinda === true,
     modules,

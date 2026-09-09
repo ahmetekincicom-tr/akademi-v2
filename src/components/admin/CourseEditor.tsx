@@ -41,6 +41,10 @@ export type CourseEditorInitial = {
   kontenjan: string;
   /** WhatsApp düğmesinin hazır mesajı; boşsa eğitim adından kuruluyor. */
   whatsappMesaji: string;
+  /** Arama motoru başlığı; boşsa eğitimin başlığı kullanılıyor. */
+  seoBaslik: string;
+  /** Arama sonucu açıklaması; boşsa hero metninden kısaltılıyor. */
+  seoAciklama: string;
   /** Vitrin kartındaki "YENİ" rozeti. */
   yeni: boolean;
   /** "Çok yakında": kart sönük ve tıklanamaz kalır. */
@@ -69,6 +73,8 @@ const BOS_INITIAL: CourseEditorInitial = {
   kapsam: VARSAYILAN_KAPSAM,
   kontenjan: "",
   whatsappMesaji: "",
+  seoBaslik: "",
+  seoAciklama: "",
   yeni: false,
   cokYakinda: false,
   modules: [],
@@ -98,6 +104,8 @@ export function CourseEditor({
   const [kapsam, setKapsam] = useState<IkonluSatir[]>(initial.kapsam);
   const [kontenjan, setKontenjan] = useState(initial.kontenjan);
   const [whatsappMesaji, setWhatsappMesaji] = useState(initial.whatsappMesaji);
+  const [seoBaslik, setSeoBaslik] = useState(initial.seoBaslik);
+  const [seoAciklama, setSeoAciklama] = useState(initial.seoAciklama);
   const [yeni, setYeni] = useState(initial.yeni);
   const [cokYakinda, setCokYakinda] = useState(initial.cokYakinda);
   const [modules, setModules] = useState<EditorModule[]>(initial.modules);
@@ -128,6 +136,8 @@ export function CourseEditor({
       kapsam,
       kontenjan,
       whatsappMesaji,
+      seoBaslik,
+      seoAciklama,
       yeni,
       cokYakinda,
       modules,
@@ -428,6 +438,48 @@ export function CourseEditor({
                   Bu eğitimin sayfasındaki WhatsApp düğmelerine basıldığında mesaj kutusunda hazır gelen metin.
                   Sonuna takip kodu (Ref: ABC12) kendiliğinden ekleniyor — onu buraya yazmayın. Boş bırakılırsa
                   eğitim adından otomatik kurulur.
+                </span>
+              </label>
+
+              {/*
+                SEO alanları burada da duruyor, SEO ekranında da.
+
+                İkisi aynı yere (content.seoBaslik / seoAciklama) yazıyor.
+                Sebep: bir eğitimi yeni açarken metni burada, hepsini yan yana
+                görüp karşılaştırırken SEO ekranında yazmak istiyorsunuz.
+                Sayfanın önizlemesi ve karakter sayacı SEO ekranında.
+              */}
+              <label className="mt-6 flex flex-col gap-2">
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">
+                  Arama başlığı (SEO)
+                </span>
+                <input
+                  type="text"
+                  value={seoBaslik}
+                  onChange={(e) => setSeoBaslik(e.target.value)}
+                  placeholder={ad || "Eğitimin başlığı"}
+                  className="h-[46px] max-w-[620px] rounded-[10px] border border-ink/14 bg-white px-[14px] text-[14.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                />
+                <span className="max-w-[620px] text-[12.5px] leading-[1.55] text-[#656B7A]">
+                  Google&apos;da görünen başlık. Sayfadaki büyük başlıktan farklı olabilir; orası kısa ve net
+                  durmalı, burası yer aldığı için konumu da taşıyabilir. Boş bırakılırsa eğitimin adı kullanılır.
+                </span>
+              </label>
+
+              <label className="mt-6 flex flex-col gap-2">
+                <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">
+                  Arama açıklaması (SEO)
+                </span>
+                <textarea
+                  value={seoAciklama}
+                  onChange={(e) => setSeoAciklama(e.target.value)}
+                  rows={3}
+                  placeholder="Boş bırakılırsa hero metninden kısaltılır."
+                  className="max-w-[620px] rounded-[10px] border border-ink/14 bg-white px-[14px] py-[11px] text-[14.5px] leading-[1.55] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+                />
+                <span className="max-w-[620px] text-[12.5px] leading-[1.55] text-[#656B7A]">
+                  Arama sonucunda başlığın altındaki iki satır. Google yaklaşık 160 karakter gösteriyor;
+                  uzunsa kelime sınırından kesilir. SEO ekranında karakter sayacı ve önizleme var.
                 </span>
               </label>
 

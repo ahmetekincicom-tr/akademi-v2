@@ -9,6 +9,7 @@ import { ProgramKarti } from "@/components/site/ProgramKarti";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
+import { otomatikSeo } from "@/lib/sayfa-seo";
 
 /*
   "Neler Sunuyoruz?" kartları.
@@ -130,9 +131,9 @@ export const revalidate = 3600;
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
 export function generateMetadata(): Promise<Metadata> {
   return sayfaMeta({
-  baslik: "Birebir Dijital Pazarlama Eğitimleri",
-  aciklama:
-    "Meta Ads, sosyal medya yönetimi ve yapay zekâ araçlarını birebir öğren. Ankara merkezli, kuruma ve kişiye özel program; eğitim sonrası destek dahil.",
+  // Metinler tek kaynakta: src/lib/sayfa-seo.ts. Panel de aynı yerden
+  // okuyor — iki yere yazılsaydı biri değiştiğinde diğeri sessizce eskir.
+  ...otomatikSeo("/"),
   yol: "/",
 });
 }

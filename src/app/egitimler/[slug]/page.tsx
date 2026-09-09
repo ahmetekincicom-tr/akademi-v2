@@ -34,10 +34,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!course) return { title: "Eğitim bulunamadı", robots: { index: false, follow: true } };
 
   return sayfaMeta({
-    baslik: course.baslik,
-    // Açıklama arama sonucunda tıklanma kararını veren metin; kartlardaki
-    // kısa özet yerine kapsamı anlatan hero metnini tercih ediyoruz.
-    aciklama: (course.heroAciklama || course.aciklama).slice(0, 300),
+    // Panelden yazılmışsa o; yoksa eğitimin kendi başlığı.
+    baslik: course.seoBaslik || course.baslik,
+    /*
+      Açıklama arama sonucunda tıklanma kararını veren metin. Panelden
+      yazılmışsa o kullanılıyor; yazılmadıysa kartlardaki kısa özet yerine
+      kapsamı anlatan hero metnine düşülüyor.
+
+      Buradaki .slice(0, 300) KALDIRILDI: 300 karakter Google'ın gösterdiğinin
+      iki katıydı, üstelik kesme kelimenin ortasından yapılıyordu. Kısaltmayı
+      artık sayfaMeta yapıyor — kelime sınırında ve üç noktayla.
+    */
+    aciklama: course.seoAciklama || course.heroAciklama || course.aciklama,
     yol: `/egitimler/${course.slug}`,
   });
 }

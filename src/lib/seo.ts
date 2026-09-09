@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { mutlakDepoUrl } from "@/lib/depo";
 import { ADRES_SOKAK, EPOSTA, INSTAGRAM_URL, LINKEDIN_URL, OFIS_BINA, WHATSAPP_NUMARALAR } from "@/lib/iletisim";
+import { aciklamayiKisalt, getSayfaSeo } from "@/lib/sayfa-seo";
 
 /**
  * SEO'nun tek kaynağı.
@@ -85,14 +86,38 @@ type SayfaSeo = {
  * sorgu.
  */
 export async function sayfaMeta({
-  baslik,
-  aciklama,
+  baslik: koddakiBaslik,
+  aciklama: koddakiAciklama,
   yol,
   indeksleme = true,
   tip = "website",
   yayinTarihi,
 }: SayfaSeo): Promise<Metadata> {
   const tamAdres = `${SITE_URL}${yol}`;
+
+  /*
+    Panelden yazılan başlık/açıklama BURADA uygulanıyor, sayfaların içinde
+    değil.
+
+    Sayfa başına yazılsaydı yedi ayrı yerde aynı üç satır tekrarlanır ve
+    sekizinci sayfa eklendiğinde unutulurdu — üstelik unutulduğunda hiçbir
+    hata görünmez, panele yazılan metin sessizce hiçbir işe yaramazdı.
+    Metadata'nın tek geçtiği yer burası olduğu için kural da burada duruyor.
+
+    Eğitim sayfaları kendi metinlerini courses.content'ten okuyup buraya
+    hazır getiriyor; onların yolu için tabloda satır bulunmuyor.
+  */
+  const ezme = await getSayfaSeo(yol);
+  const baslik = ezme.baslik || koddakiBaslik;
+  /*
+    Açıklama her koşulda kısaltılıyor — panelden gelen de.
+
+    Panel uzun yazmayı engellemiyor, yalnızca uyarıyor: bazen bir cümle 165
+    karakter eder ve kırpılmasını göze almak istersiniz. Ama arama sonucunda
+    yarım kelimeyle bitmesin diye kesme yine kelime sınırında yapılıyor.
+  */
+  const aciklama = aciklamayiKisalt(ezme.aciklama || koddakiAciklama);
+
   const gorsel = await ogGorseli();
   // Ana sayfada marka adını iki kez yazmıyoruz.
   const tamBaslik = yol === "/" ? baslik : `${baslik} — ${SITE_ADI}`;

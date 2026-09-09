@@ -9,13 +9,14 @@ import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { getReferanslar } from "@/lib/icerik";
 import { getKurumsalSss } from "@/lib/kurumsal";
 import { sayfaMeta } from "@/lib/seo";
+import { otomatikSeo } from "@/lib/sayfa-seo";
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
 export function generateMetadata(): Promise<Metadata> {
   return sayfaMeta({
-  baslik: "Kurumsal Eğitim",
-  aciklama:
-    "Ekibinize özel dijital pazarlama eğitimi: Ankara'da yerinde ya da tamamen uzaktan. Müfredat ekibin seviyesine göre kurulur, kurumsal faturalandırma ve eğitim sonrası destek dahil.",
+  // Metinler tek kaynakta: src/lib/sayfa-seo.ts. Panel de aynı yerden
+  // okuyor — iki yere yazılsaydı biri değiştiğinde diğeri sessizce eskir.
+  ...otomatikSeo("/kurumsal"),
   yol: "/kurumsal",
 });
 }

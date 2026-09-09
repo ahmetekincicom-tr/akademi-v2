@@ -5,13 +5,14 @@ import { CorporateStrip } from "@/components/site/CorporateStrip";
 import { getReferanslar } from "@/lib/icerik";
 import { ReferansLogo } from "@/components/site/ReferansLogo";
 import { sayfaMeta } from "@/lib/seo";
+import { otomatikSeo } from "@/lib/sayfa-seo";
 
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
 export function generateMetadata(): Promise<Metadata> {
   return sayfaMeta({
-  baslik: "Referanslar",
-  aciklama:
-    "Ahmet Ekinci Akademi eğitimlerini tercih eden kurumlar ve markalar. Birebir dijital pazarlama eğitimi alan ekiplerin listesi.",
+  // Metinler tek kaynakta: src/lib/sayfa-seo.ts. Panel de aynı yerden
+  // okuyor — iki yere yazılsaydı biri değiştiğinde diğeri sessizce eskir.
+  ...otomatikSeo("/referanslar"),
   yol: "/referanslar",
 });
 }

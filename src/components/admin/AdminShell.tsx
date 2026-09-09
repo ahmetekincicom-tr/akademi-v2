@@ -47,6 +47,7 @@ const groups: MenuGroup[] = [
       { href: "/kontrol-9f4x2k/site-icerik", label: "Duyuru ve eğitmen", icon: "user" },
       { href: "/kontrol-9f4x2k/hakkimizda", label: "Hakkımızda sayfası", icon: "file" },
       { href: "/kontrol-9f4x2k/kurumsal", label: "Kurumsal sayfası", icon: "users" },
+      { href: "/kontrol-9f4x2k/seo", label: "SEO", icon: "eye" },
     ],
   },
   {
@@ -81,6 +82,7 @@ const pageTitles: Record<string, string> = {
   "/kontrol-9f4x2k/marka": "Logo ve favicon",
   "/kontrol-9f4x2k/site-icerik": "Duyuru ve eğitmen",
   "/kontrol-9f4x2k/hakkimizda": "Hakkımızda sayfası",
+  "/kontrol-9f4x2k/seo": "SEO",
   "/kontrol-9f4x2k/birebir-egitim": "Birebir eğitim",
   "/kontrol-9f4x2k/seanslar": "Takvim",
   "/kontrol-9f4x2k/gorusmeler": "Danışmanlık talepleri",

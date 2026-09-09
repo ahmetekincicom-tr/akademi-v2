@@ -34,6 +34,10 @@ export type SaveCourseInput = {
   kontenjan?: string;
   /** WhatsApp düğmesinin hazır mesajı. Verilmezse mevcut değer korunuyor. */
   whatsappMesaji?: string;
+  /** Arama motoru başlığı. Verilmezse mevcut değer korunuyor. */
+  seoBaslik?: string;
+  /** Arama sonucu açıklaması. Verilmezse mevcut değer korunuyor. */
+  seoAciklama?: string;
   /** Vitrin kartındaki "YENİ" rozeti. Verilmezse mevcut değer korunuyor. */
   yeni?: boolean;
   /** "Çok yakında" durumu. Verilmezse mevcut değer korunuyor. */
@@ -55,6 +59,8 @@ type ExistingContent = {
   kapsam?: { ad: string; ikon: string }[];
   kontenjan?: string;
   whatsappMesaji?: string;
+  seoBaslik?: string;
+  seoAciklama?: string;
   yeni?: boolean;
   cokYakinda?: boolean;
   sira?: number;
@@ -123,6 +129,9 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
       input.whatsappMesaji !== undefined
         ? input.whatsappMesaji.trim()
         : (existingContent.whatsappMesaji ?? ""),
+    seoBaslik: input.seoBaslik !== undefined ? input.seoBaslik.trim() : (existingContent.seoBaslik ?? ""),
+    seoAciklama:
+      input.seoAciklama !== undefined ? input.seoAciklama.trim() : (existingContent.seoAciklama ?? ""),
     yeni: input.yeni !== undefined ? input.yeni : (existingContent.yeni ?? false),
     cokYakinda: input.cokYakinda !== undefined ? input.cokYakinda : (existingContent.cokYakinda ?? false),
     // Sıra editörden yönetilmiyor; kaydederken kaybolmasın.

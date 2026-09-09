@@ -130,6 +130,16 @@ export type Course = {
    */
   whatsappMesaji: string;
   /**
+   * Arama motoru başlığı. Boşsa eğitimin kendi başlığı kullanılıyor.
+   *
+   * Ayrı bir alan çünkü sayfadaki H1 ile arama sonucundaki başlığın işi
+   * farklı: H1 "Birebir Meta Ads Eğitimi" olarak kısa ve net durmalı, arama
+   * başlığı ise yer aldığı için konumu ve kapsamı da taşıyabilir.
+   */
+  seoBaslik: string;
+  /** Arama sonucundaki açıklama. Boşsa hero metninden kısaltılıyor. */
+  seoAciklama: string;
+  /**
    * Vitrin kartında "YENİ" rozeti.
    *
    * Sıraya bağlanamıyor: "en çok tercih edilen" bir konum meselesi, "yeni"
@@ -239,6 +249,8 @@ type CourseRow = {
     haplar?: unknown;
     kontenjan?: string;
     whatsappMesaji?: string;
+    seoBaslik?: string;
+    seoAciklama?: string;
     yeni?: boolean;
     cokYakinda?: boolean;
     sira?: number;
@@ -298,6 +310,10 @@ function mapCourse(row: CourseRow): Course {
     // Alan sonradan eklendi: eski kayıtlarda yok, boş metin doğru varsayılan
     // (başlıktan kurulan metne düşüyor).
     whatsappMesaji: (row.content.whatsappMesaji ?? "").trim(),
+    // Sonradan eklendi: eski kayıtlarda yok, boş metin doğru varsayılan
+    // (başlığa ve hero metnine düşüyor).
+    seoBaslik: (row.content.seoBaslik ?? "").trim(),
+    seoAciklama: (row.content.seoAciklama ?? "").trim(),
     // Alan sonradan eklendi: eski kayıtlarda yok, rozetsiz doğru varsayılan.
     yeni: row.content.yeni === true,
     // Sonradan eklendi: eski kayıtlarda yok, "çok yakında değil" doğru varsayılan.

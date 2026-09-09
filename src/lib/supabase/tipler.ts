@@ -746,6 +746,17 @@ export type Database = {
           },
         ];
       };
+      sayfa_seo: {
+        Row: {
+          yol: string;
+          baslik: string | null;
+          aciklama: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["sayfa_seo"]["Row"]> & { yol: string };
+        Update: Partial<Database["public"]["Tables"]["sayfa_seo"]["Row"]>;
+        Relationships: [];
+      };
       seanslar: {
         Row: {
           baslangic: string;

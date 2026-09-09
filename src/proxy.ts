@@ -339,11 +339,32 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/panel", request.url));
   }
 
-  const isAdminRoute = pathname.startsWith(YONETIM_KOKU) && pathname !== `${YONETIM_KOKU}/giris`;
-  const isPanelRoute = pathname.startsWith("/panel");
+  /*
+    Sondaki eğik çizgi atılıyor — ATILMAZSA YÖNETİM GİRİŞİ SONSUZ DÖNGÜYE
+    GİRİYOR.
+
+    next.config.ts'te trailingSlash açık, yani buraya gelen yol
+    "/kontrol-9f4x2k/giris/" biçiminde. Aşağıdaki karşılaştırma çizgisiz
+    yazılmıştı ve eşleşmiyordu: giriş sayfasının kendisi "korumalı yönetim
+    sayfası" sayılıp giriş sayfasına yönlendiriliyor, o adres de çizgili
+    biçime 308'leniyor ve baştan başlıyordu.
+
+    Oturumu AÇIK olan hiç görmüyor (yönlendirme yalnızca kullanıcı yokken
+    çalışıyor), bu yüzden gözden kaçmış: panele girmiş biri çalıştığını
+    sanıyor, çerezi düşen biri ise kilitleniyor.
+
+    Üye tarafı (/giris) aynı hatadan etkilenmiyordu çünkü giriş sayfası
+    /panel altında değil; orada yalnızca fazladan bir sıçrama vardı, o da
+    aşağıdaki çizgili hedefle birlikte kalktı.
+  */
+  const sadeYol = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+
+  const isAdminRoute = sadeYol.startsWith(YONETIM_KOKU) && sadeYol !== `${YONETIM_KOKU}/giris`;
+  const isPanelRoute = sadeYol.startsWith("/panel");
 
   if ((isAdminRoute || isPanelRoute) && !user) {
-    const loginUrl = new URL(isAdminRoute ? `${YONETIM_KOKU}/giris` : "/giris", request.url);
+    // Hedef çizgiyle: çizgisiz yazılırsa araya bir 308 daha giriyordu.
+    const loginUrl = new URL(isAdminRoute ? `${YONETIM_KOKU}/giris/` : "/giris/", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }

@@ -14,6 +14,7 @@ import { kapakUrl } from "@/lib/kapak";
 import { LINKEDIN_URL } from "@/lib/iletisim";
 import { getReferanslar } from "@/lib/icerik";
 import { sayfaMeta, kisiSemasi } from "@/lib/seo";
+import { otomatikSeo } from "@/lib/sayfa-seo";
 
 // Gerekçe: src/app/page.tsx
 export const revalidate = 3600;
@@ -21,9 +22,9 @@ export const revalidate = 3600;
 // Paylaşım görseli panelden okunduğu için metadata istek anında üretiliyor.
 export function generateMetadata(): Promise<Metadata> {
   return sayfaMeta({
-  baslik: "Hakkımızda",
-  aciklama:
-    "Ahmet Ekinci ve Ahmet Ekinci Akademi: yeni medya temelleri üzerine kurulmuş, birebir yürüyen dijital pazarlama eğitimi.",
+  // Metinler tek kaynakta: src/lib/sayfa-seo.ts. Panel de aynı yerden
+  // okuyor — iki yere yazılsaydı biri değiştiğinde diğeri sessizce eskir.
+  ...otomatikSeo("/hakkimizda"),
   yol: "/hakkimizda",
 });
 }
