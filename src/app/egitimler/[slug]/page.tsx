@@ -662,13 +662,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
                 yukarı dönmek zorunda kalmasın. Ölçülen uçtan gidiyor, kaynak
                 farklı ki hangi düğmenin çalıştığı ayrışsın.
               */}
-              <Link
+              {/* Düz <a>: <Link> ile sarılınca telefon WhatsApp'ı uygulamada
+                  değil tarayıcıda açıyordu; gerekçesi HeroDegerler.tsx'te. */}
+              <a
                 href={olculenWhatsapp("egitim-yan-kutu", 0, course.slug)}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="mt-6 flex h-13 items-center justify-center gap-[9px] rounded-[11px] bg-brand text-[15.5px] font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.32)] transition hover:bg-ink"
               >
                 <Icon name="whatsapp" size={17} />
                 Eğitim Planı Oluştur
-              </Link>
+              </a>
 
               {/*
                 İkincil talepler artık düğme değil bağlantı — mobildeki

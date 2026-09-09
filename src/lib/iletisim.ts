@@ -48,34 +48,50 @@ export function olculenWhatsapp(yer: string, sira = 0, egitim?: string) {
   const q = new URLSearchParams({ yer });
   if (sira) q.set("no", String(sira));
   // Eğitim detay sayfasındaki düğmeler eğitimin slug'ını taşıyor; hazır mesaj
-  // buna göre seçiliyor (bkz. egitimWhatsappMesaji ve app/git/whatsapp/route.ts).
+  // buna göre kuruluyor (bkz. app/git/whatsapp/route.ts).
   if (egitim) q.set("e", egitim);
-  return `/git/whatsapp?${q}`;
+  /*
+    Sondaki eğik çizgi ŞART.
+
+    next.config.ts'te trailingSlash açık: çizgisiz yazılan adres önce 308 ile
+    çizgili biçime yönlendiriliyordu. Yani WhatsApp'a giden her tıklama iki
+    sıçrama yapıyordu (308 → 303 → wa.me) ve telefonda uygulamanın açılması
+    o kadar gecikiyordu. Ölçüldü: çizgiyle tek sıçrama kalıyor.
+  */
+  return `/git/whatsapp/?${q}`;
 }
 
 /**
  * WhatsApp hazır mesajı.
  *
  * Varsayılan — footer dahil, eğitim detay sayfası DIŞINDAKİ her yer. Eğitim
- * detay sayfalarında ise eğitime özel mesaj kullanılıyor; eşleşme aşağıdaki
- * haritada, anahtar eğitimin slug'ı. Ref kodu her koşulda ayrıca ekleniyor
- * (route.ts) — buradaki metinler koddan bağımsız.
- *
- * Metinler SUNUCUDA sabit; URL'den gelen slug yalnızca haritada arama anahtarı,
- * mesajın kendisi hiçbir zaman adres çubuğundan gelmiyor.
+ * detay sayfalarında mesaj eğitimin ADINDAN kuruluyor (bkz.
+ * egitimWhatsappMesaji). Ref kodu her koşulda ayrıca ekleniyor (route.ts).
  */
 export const WHATSAPP_VARSAYILAN_MESAJ =
   "Merhaba, birebir eğitimleriniz hakkında bilgi almak istiyorum.";
 
-const EGITIM_WHATSAPP_MESAJLARI: Record<string, string> = {
-  "birebir-meta-ads-egitimi": "Merhaba, Birebir Meta Ads eğitimi hakkında bilgi almak istiyorum.",
-  "sosyal-medya": "Merhaba, Sosyal Medya ve Reklam eğitimi hakkında bilgi almak istiyorum.",
-  "yapay-zeka-egitimi": "Merhaba, Yapay Zekâ eğitimi hakkında bilgi almak istiyorum.",
-};
-
-export function egitimWhatsappMesaji(slug: string | null | undefined): string {
-  if (slug && EGITIM_WHATSAPP_MESAJLARI[slug]) return EGITIM_WHATSAPP_MESAJLARI[slug];
-  return WHATSAPP_VARSAYILAN_MESAJ;
+/**
+ * Eğitime özel hazır mesaj.
+ *
+ * ESKİDEN slug → metin diye elle yazılmış bir harita vardı ve SESSİZCE
+ * BOZULMUŞTU: taşımada eğitim adresleri değişti ("birebir-meta-ads-egitimi"
+ * artık "meta-ads-egitimi"), haritadaki üç anahtarın ikisi hiçbir eğitimle
+ * eşleşmiyordu. Yani Meta Ads ve Sosyal Medya düğmelerine basan herkes
+ * eğitime özel değil genel mesajla WhatsApp'a düşüyordu; hiçbir yerde hata
+ * görünmediği için de fark edilmiyordu.
+ *
+ * Artık metin eğitimin kendi başlığından kuruluyor: yeni eğitim eklendiğinde
+ * ya da adı değiştiğinde kod değişmeden doğru çalışıyor.
+ *
+ * Başlık VERİTABANINDAN geliyor, adres çubuğundan değil: URL'deki slug
+ * yalnızca arama anahtarı. Böylece mesaj metnine dışarıdan bir şey
+ * yazdırılamıyor.
+ */
+export function egitimWhatsappMesaji(baslik: string | null | undefined): string {
+  const temiz = baslik?.trim();
+  if (!temiz) return WHATSAPP_VARSAYILAN_MESAJ;
+  return `Merhaba, ${temiz} hakkında bilgi almak istiyorum.`;
 }
 
 export const SOSYAL: { ad: string; ikon: IconName; href: string }[] = [
