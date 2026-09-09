@@ -138,6 +138,7 @@ const AYRICA_ACIK = [
   "/robots.txt",
   "/sitemap.xml",
   "/llms.txt",
+  "/llms-full.txt",
   "/manifest.webmanifest",
   "/sw.js",
 ];
