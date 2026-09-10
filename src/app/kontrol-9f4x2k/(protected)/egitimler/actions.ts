@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ikonuDuzelt } from "@/lib/courses";
+import { kaydedilecekIsaret, kaydedilecekMetin } from "@/lib/panel-alan";
 
 export type SaveCourseInput = {
   originalSlug?: string;
@@ -94,7 +95,7 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
 
   let courseId: string | null = null;
   let baslikVurgu = input.baslik;
-  let heroAciklama = input.aciklama;
+  let mevcutHeroAciklama: string | null = null;
   let existingContent: ExistingContent = {};
 
   if (input.originalSlug) {
@@ -106,7 +107,7 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     if (existing) {
       courseId = existing.id;
       baslikVurgu = existing.baslik_vurgu ?? input.baslik;
-      heroAciklama = existing.hero_aciklama ?? input.aciklama;
+      mevcutHeroAciklama = existing.hero_aciklama;
       existingContent = (existing.content as ExistingContent) ?? {};
     }
   }
@@ -114,6 +115,19 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
   // Editörden gelen vurgu her zaman kazanıyor; alan boş bırakıldıysa vurgu
   // yapılmaması isteniyor demektir, o yüzden boş string de geçerli bir değer.
   if (input.baslikVurgu !== undefined) baslikVurgu = input.baslikVurgu.trim();
+
+  /*
+    BAŞLIK ALTI CÜMLESİ (hero_aciklama).
+
+    Eskiden bu sütun `mevcut ?? input.aciklama` ile yazılıyordu, yani MEVCUT
+    bir eğitimde hiç değişmiyordu: panelde ne yazılırsa yazılsın kaydettikten
+    sonra eski değere dönüyordu. Boş string null olmadığı için `??` de
+    devreye girmiyordu; boş kalan alan kalıcı olarak boş kalıyordu.
+
+    Kural artık kaydedilecekMetin() içinde ve testli — buraya gömülü olduğu
+    sürece iki kez yanlış yazıldı ve ikisi de sessizce geçti.
+  */
+  const heroAciklama = kaydedilecekMetin(input.heroAciklama, mevcutHeroAciklama, input.aciklama);
 
   const modulSayisi = input.modules.length;
   const dersSayisi = input.modules.reduce((n, m) => n + m.dersler.length, 0);
@@ -131,20 +145,16 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     ],
     // Editör alanı boş string gönderebilir ("metni sil" demek), o yüzden
     // ?? değil undefined kontrolü: boş string geçerli bir değer.
-    tanitimMetni: input.tanitimMetni !== undefined ? input.tanitimMetni : (existingContent.tanitimMetni ?? ""),
+    tanitimMetni: kaydedilecekMetin(input.tanitimMetni, existingContent.tanitimMetni),
     haplar: input.haplar !== undefined ? ikonluSatirlar(input.haplar) : (existingContent.haplar ?? []),
     kapsam: input.kapsam !== undefined ? ikonluSatirlar(input.kapsam) : (existingContent.kapsam ?? []),
-    kontenjan: input.kontenjan !== undefined ? input.kontenjan.trim() : (existingContent.kontenjan ?? ""),
-    duyuruGizli: input.duyuruGizli !== undefined ? input.duyuruGizli : (existingContent.duyuruGizli ?? false),
-    whatsappMesaji:
-      input.whatsappMesaji !== undefined
-        ? input.whatsappMesaji.trim()
-        : (existingContent.whatsappMesaji ?? ""),
-    seoBaslik: input.seoBaslik !== undefined ? input.seoBaslik.trim() : (existingContent.seoBaslik ?? ""),
-    seoAciklama:
-      input.seoAciklama !== undefined ? input.seoAciklama.trim() : (existingContent.seoAciklama ?? ""),
-    yeni: input.yeni !== undefined ? input.yeni : (existingContent.yeni ?? false),
-    cokYakinda: input.cokYakinda !== undefined ? input.cokYakinda : (existingContent.cokYakinda ?? false),
+    kontenjan: kaydedilecekMetin(input.kontenjan, existingContent.kontenjan),
+    duyuruGizli: kaydedilecekIsaret(input.duyuruGizli, existingContent.duyuruGizli),
+    whatsappMesaji: kaydedilecekMetin(input.whatsappMesaji, existingContent.whatsappMesaji),
+    seoBaslik: kaydedilecekMetin(input.seoBaslik, existingContent.seoBaslik),
+    seoAciklama: kaydedilecekMetin(input.seoAciklama, existingContent.seoAciklama),
+    yeni: kaydedilecekIsaret(input.yeni, existingContent.yeni),
+    cokYakinda: kaydedilecekIsaret(input.cokYakinda, existingContent.cokYakinda),
     // Sıra editörden yönetilmiyor; kaydederken kaybolmasın.
     sira: existingContent.sira ?? 999,
     kazanimlar: existingContent.kazanimlar ?? [],
@@ -263,6 +273,13 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     revalidatePath(`/egitimler/${input.originalSlug}`);
   }
   revalidatePath("/");
+  /*
+    Yapay zekâ araçlarının okuduğu özetler de tazeleniyor. Onlar da saatlik
+    üretiliyor ve eğitim metni değiştiğinde eski hâliyle kalıyorlardı — yani
+    ChatGPT'ye bir saat boyunca eski açıklama gidiyordu.
+  */
+  revalidatePath("/llms.txt");
+  revalidatePath("/llms-full.txt");
 
   redirect("/kontrol-9f4x2k/egitimler");
 }
@@ -312,5 +329,7 @@ export async function kursKapakGuncelle(slug: string, yol: string | null): Promi
   revalidatePath("/kontrol-9f4x2k/egitimler");
   revalidatePath("/egitimler");
   revalidatePath(`/egitimler/${slug}`);
+  revalidatePath("/llms.txt");
+  revalidatePath("/llms-full.txt");
   return {};
 }
