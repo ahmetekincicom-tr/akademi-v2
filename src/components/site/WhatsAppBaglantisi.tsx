@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { whatsappLink } from "@/lib/iletisim";
 import { kodUret, kodluMesaj } from "@/lib/temas-kod";
+import { whatsappOlayi } from "@/lib/olay";
 
 /**
  * WhatsApp düğmesi — DOĞRUDAN wa.me'ye giden bağlantı.
@@ -96,6 +97,14 @@ export function WhatsAppBaglantisi({
   */
   const tikla = () => {
     if (!kod.current) return;
+
+    /*
+      Google tarafı: WhatsApp temas olayı. Reklamın optimize olacağı sinyal
+      bu (eski "Eğitim Planı Oluştur" dönüşümünün karşılığı). Meta tarafı
+      ayrıca sunucudan gidiyor (aşağıdaki beacon → /api/temas → CAPI).
+    */
+    whatsappOlayi(yer, kod.current);
+
     /*
       Adres sondaki eğik çizgiyle: next.config.ts'te trailingSlash açık ve
       çizgisiz yazılırsa işaret önce 308 yiyor. Sayfa terk edilirken fazladan

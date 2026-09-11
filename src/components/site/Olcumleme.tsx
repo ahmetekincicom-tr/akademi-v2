@@ -105,6 +105,19 @@ j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNo
             {`gtag('js', new Date());
 gtag('config', '${o.ga4}');${o.adsId ? `\ngtag('config', '${o.adsId}');` : ""}`}
           </Script>
+          {/*
+            AW kimliği ve dönüşüm etiketi tarayıcıya yayınlanıyor: WhatsApp
+            butonu (lib/olay.ts) bunu okuyup doğrudan Ads dönüşümünü ateşliyor.
+            Yalnızca GTM YOKKEN: GTM varsa dönüşüm GTM içinde whatsapp_iletisim
+            olayına bağlanır, doğrudan gtag conversion çift sayıma yol açardı.
+            Değerler getOlcumleme'de biçim doğrulamasından geçtiği için satır
+            içine güvenle gömülüyor (AW-\\d+ ve [\\w-]).
+          */}
+          {o.adsId && o.adsEtiket && (
+            <Script id="aea-ads-yayin" strategy="afterInteractive">
+              {`window.__aeaAds={id:'${o.adsId}',etiket:'${o.adsEtiket}'};`}
+            </Script>
+          )}
         </>
       )}
     </>
