@@ -106,18 +106,29 @@ j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNo
 gtag('config', '${o.ga4}');${o.adsId ? `\ngtag('config', '${o.adsId}');` : ""}`}
           </Script>
           {/*
-            AW kimliği ve dönüşüm etiketi tarayıcıya yayınlanıyor: WhatsApp
-            butonu (lib/olay.ts) bunu okuyup doğrudan Ads dönüşümünü ateşliyor.
-            Yalnızca GTM YOKKEN: GTM varsa dönüşüm GTM içinde whatsapp_iletisim
-            olayına bağlanır, doğrudan gtag conversion çift sayıma yol açardı.
-            Değerler getOlcumleme'de biçim doğrulamasından geçtiği için satır
-            içine güvenle gömülüyor (AW-\\d+ ve [\\w-]).
+            GA4 kimliği ve (varsa) AW dönüşüm etiketi tarayıcıya yayınlanıyor.
+            WhatsApp butonu (lib/olay.ts) bunları okuyup olayı GA4'e AÇIKÇA
+            (send_to) gönderiyor; etiket girilmişse ayrıca doğrudan Ads
+            dönüşümünü de ateşliyor.
+
+            send_to ŞART: gtag'e send_to'suz atılan olay, sitedeki Google
+            etiketi olayı öncelikle Ads hedefine (AW-735642553) yönlendirdiği
+            için GA4 mülküne HİÇ ulaşmıyordu — GA4 Gerçek Zamanlı'nın boş
+            kalmasının sebebi buydu. GA4 kimliğini açıkça hedefleyince olay
+            GA4'e kesin düşüyor.
+
+            Yalnızca GTM YOKKEN çalışır: GTM varsa dönüşüm GTM içinde yönetilir,
+            doğrudan gtag çağrısı çift sayıma yol açardı. Değerler
+            getOlcumleme'de biçim doğrulamasından geçtiği için satır içine
+            güvenle gömülüyor (G-/AW- ve [\\w-]).
           */}
-          {o.adsId && o.adsEtiket && (
-            <Script id="aea-ads-yayin" strategy="afterInteractive">
-              {`window.__aeaAds={id:'${o.adsId}',etiket:'${o.adsEtiket}'};`}
-            </Script>
-          )}
+          <Script id="aea-yayin" strategy="afterInteractive">
+            {`window.__aeaGa4='${o.ga4}';${
+              o.adsId && o.adsEtiket
+                ? `window.__aeaAds={id:'${o.adsId}',etiket:'${o.adsEtiket}'};`
+                : ""
+            }`}
+          </Script>
         </>
       )}
     </>

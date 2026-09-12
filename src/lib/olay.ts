@@ -34,12 +34,29 @@ type Ads = { id: string; etiket: string };
  */
 export function whatsappOlayi(yer: string, ref: string | null): void {
   if (typeof window === "undefined") return;
-  const w = window as unknown as { gtag?: (...a: unknown[]) => void; __aeaAds?: Ads };
+  const w = window as unknown as {
+    gtag?: (...a: unknown[]) => void;
+    __aeaAds?: Ads;
+    __aeaGa4?: string;
+  };
   if (typeof w.gtag !== "function") return;
 
   try {
-    w.gtag("event", "whatsapp_iletisim", { yer, ...(ref ? { ref } : {}) });
+    /*
+      Olay GA4'e AÇIKÇA gönderiliyor (send_to). Bu olmadan olay, sitedeki
+      Google etiketi tarafından öncelikle Ads hedefine yönlendiriliyor ve GA4
+      mülküne hiç ulaşmıyordu (Gerçek Zamanlı'da görünmemesinin sebebi buydu).
+      __aeaGa4 yoksa (beklenmez) send_to'suz atılıyor, yine de kaybolmasın.
+    */
+    const p: Record<string, unknown> = { yer, ...(ref ? { ref } : {}) };
+    if (w.__aeaGa4) p.send_to = w.__aeaGa4;
+    w.gtag("event", "whatsapp_iletisim", p);
 
+    /*
+      Panelde AW dönüşüm etiketi girilmişse doğrudan Ads dönüşümü de ateşlenir.
+      Etiket boşken bu satır atlanır; dönüşüm o durumda GA4 anahtar olayının
+      Ads'e içe aktarılmasıyla sayılır.
+    */
     const ads = w.__aeaAds;
     if (ads?.id && ads.etiket) {
       w.gtag("event", "conversion", { send_to: `${ads.id}/${ads.etiket}` });
