@@ -114,16 +114,19 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   /*
-    Tarayıcı çubuklarının rengi. Sayfa zemini (--color-paper) ile AYNI olmalı:
-    iOS Safari durum çubuğu ve adres çubuğu alanını bu renkle boyuyor, sayfanın
-    üstünde duran başlık da aynı açık tonda. Eskiden burada marka mavisi vardı
-    ve açık gri başlığın üstünde ayrı bir renk şeridi gibi duruyordu.
+    theme-color BİLEREK verilmiyor.
+
+    iOS Safari, verilirse hem üst hem alt çubuğu bu TEK renkle DOLU boyuyor.
+    Tek bir değer, açık üst başlıkla koyu bölümlerin (hero altındaki "çok
+    yakında" alanı, footer) ikisine birden uyamaz: açık (#f5f6fa) verince, alt
+    adres çubuğu koyu bir bölümün üstüne geldiğinde beyaz bir şerit gibi
+    duruyordu. Renk vermeyince Safari çubukları YARI SAYDAM kalıp arkasındaki
+    içeriğe uyum sağlıyor — açık da olsa koyu da olsa temiz görünüyor.
 
     Standalone (ana ekrana eklenmiş) moddaki mavi şerit bundan etkilenmiyor:
     onu PanelShell/AdminShell içindeki env(safe-area-inset-top) yüksekliğinde
     bg-brand kutusu çiziyor; Safari'de o alanın yüksekliği zaten sıfır.
   */
-  themeColor: "#f5f6fa",
   // Panel ana ekrandan açıldığında telefonun çentik/alt çubuk alanına kadar
   // uzansın; aksi halde standalone modda kenarlarda boş şeritler kalıyor.
   viewportFit: "cover",
