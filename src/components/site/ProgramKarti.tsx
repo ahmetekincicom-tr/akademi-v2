@@ -84,9 +84,9 @@ export function ProgramKarti({
           {p.etiket}
         </span>
         {p.cokYakinda ? (
-          {/* backdrop-blur YOK: iOS 26 Safari sayfadaki backdrop-filter
-              katmanlarını alt adres çubuğunun tintine karıştırıp gri bant
-              oluşturabiliyor. Blur yerine biraz daha opak zemin, aynı okunurluk. */}
+          /* backdrop-blur YOK: iOS 26 Safari sayfadaki backdrop-filter
+             katmanlarını alt adres çubuğunun tintine karıştırıp gri bant
+             oluşturabiliyor. Blur yerine biraz daha opak zemin, aynı okunurluk. */
           <span className="rounded-[6px] bg-ink/85 px-[10px] py-[6px] text-right font-mono text-[10px] leading-[1.35] tracking-[0.1em] text-white uppercase">
             Çok yakında
           </span>
