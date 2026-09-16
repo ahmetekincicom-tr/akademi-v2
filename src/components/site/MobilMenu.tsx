@@ -66,10 +66,23 @@ export function MobilMenu({ nav, logo }: { nav: NavItem[]; logo?: React.ReactNod
         böylece hem açılış hem kapanış yumuşak. Kapalıyken pointer-events yok.
       */}
       <div className={`fixed inset-0 z-[70] lg:hidden ${acik ? "" : "pointer-events-none"}`} aria-hidden={!acik}>
+        {/*
+          backdrop-blur YALNIZCA menü açıkken.
+
+          Bu overlay yumuşak geçiş için menü kapalıyken de DOM'da duruyor
+          (fixed inset-0, opacity-0). backdrop-filter'ı burada sabit tutmak
+          iOS 26 Safari'de ağır bir arızaya yol açıyordu: Safari, görünmez de
+          olsa bu backdrop-filter compositing katmanını örnekleyip alt adres
+          çubuğunu gri bir bantla boyuyor ve sayfanın çubuğun arkasına
+          uzanmasını (edge-to-edge) engelliyordu. backdrop-blur yalnızca açık
+          durumda uygulanınca kapalıyken katman oluşmuyor, çubuk saydam kalıp
+          içerik ekranın fiziksel alt kenarına kadar akıyor. (/safari-test10
+          vs /safari-test11 ile kanıtlandı.)
+        */}
         <div
           onClick={kapat}
-          className={`absolute inset-0 bg-ink/50 backdrop-blur-[3px] transition-opacity duration-300 ${
-            acik ? "opacity-100" : "opacity-0"
+          className={`absolute inset-0 bg-ink/50 transition-opacity duration-300 ${
+            acik ? "opacity-100 backdrop-blur-[3px]" : "opacity-0"
           }`}
         />
 
