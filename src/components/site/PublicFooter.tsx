@@ -151,7 +151,11 @@ export async function PublicFooter() {
     : [{ baslik: "Akademi", linkler: [{ label: "Üye girişi", href: "/giris" }] }, ...footerColumns.slice(1)];
 
   return (
-    <footer className="border-t border-white/10 bg-ink text-white/60">
+    // pb-[env(safe-area-inset-bottom)]: footer sayfanın en alt öğesi; koyu
+    // zemini telefonun alt güvenli alanına (home indicator / Safari çubuğu
+    // bölgesi) kadar uzansın ki altında gövdenin açık zemini şerit gibi
+    // sızmasın. Masaüstü/Android'de bu değer 0, düzen değişmez.
+    <footer className="border-t border-white/10 bg-ink text-white/60 pb-[env(safe-area-inset-bottom)]">
       {/*
         Dar ekranda hizalama: marka bloğu ortalı, LİSTELER sola yaslı.
 

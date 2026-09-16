@@ -114,23 +114,21 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   /*
-    Tarayıcı çubuklarının rengi = İÇERİĞİN rengi (BEYAZ).
+    theme-color BİLEREK verilmiyor — sayfanın edge-to-edge (Midas gibi)
+    görünmesi için gerekli.
 
-    iOS Safari 15+ alt adres çubuğunu theme-color ile DOLU boyuyor; verilmezse
-    URL'yi "gri zemin üstünde beyaz kutu" varsayılanıyla çiziyor (o çirkin
-    şerit bu). Değer İÇERİKLE aynı olmalı: header ve içerik kartları beyaz
-    (#ffffff). Eskiden burada paper (#f5f6fa) yazıyordu ve beyaz içerikle
-    uyuşmadığı için hem üstte (durum çubuğu) hem altta (adres çubuğu) gri bir
-    şerit kalıyordu. Beyaz verilince çubuklar beyaz header/içerikle birebir
-    uyuyor, şerit kayboluyor.
+    theme-color verilince iOS Safari alt adres çubuğunu o renkle DOLU (OPAK)
+    boyuyor ve çubuk, içeriğin üstünde AYRI bir bant gibi duruyor. Verilmeyince
+    çubuk YARI SAYDAM kalıyor ve viewport-fit=cover sayesinde sayfa içeriği
+    çubuğun ARKASINDAN, ekranın fiziksel alt sınırına kadar akıyor — istenen
+    davranış bu. theme-color eklemek bu floating görünümü bozuyordu.
 
     Standalone (ana ekrana eklenmiş) moddaki mavi şerit bundan etkilenmiyor:
     onu PanelShell/AdminShell içindeki env(safe-area-inset-top) yüksekliğinde
     bg-brand kutusu çiziyor; Safari'de o alanın yüksekliği zaten sıfır.
   */
-  themeColor: "#ffffff",
-  // Panel ana ekrandan açıldığında telefonun çentik/alt çubuk alanına kadar
-  // uzansın; aksi halde standalone modda kenarlarda boş şeritler kalıyor.
+  // viewport-fit=cover: sayfa telefonun çentik/alt güvenli alanlarına kadar
+  // uzanır; içerik Safari çubuğunun arkasından fiziksel alt sınıra akar.
   viewportFit: "cover",
 };
 
