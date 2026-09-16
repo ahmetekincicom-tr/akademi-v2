@@ -482,35 +482,25 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             <div className="grid grid-cols-1 overflow-hidden rounded-[18px] border border-ink/11 md:grid-cols-[260px_1fr]">
               {icerik.egitmenGorsel ? (
                 /*
-                  Dar ekranda görsel KIRPILMIYOR.
+                  Eğitmen portresi 1:1 (kare) — detay sayfasında eğitmen görseli
+                  her yerde kare basılıyor (aşağıdaki yan kutuyla aynı oran).
 
-                  Tek sütuna düşen kutuda alan tam genişlik oluyor ve
-                  `bg-cover` + sabit yükseklik, yatay bir fotoğrafın üstünü ve
-                  altını kesiyordu — sahnedeki kişinin başı kadraj dışında
-                  kalıyordu. Kendi en-boy oranıyla basıldığında böyle bir
-                  karar vermek gerekmiyor.
-
-                  Geniş ekranda (md+) alan 260px'lik dar bir sütun; orada
-                  fotoğrafı olduğu gibi basmak kutuyu uzatırdı, o yüzden
-                  kırpma doğru davranış.
+                  Kare, `bg-cover` ile kırpma demek: yatay bir fotoğrafın yanları,
+                  dikey bir fotoğrafın altı kırpılır. `bg-center` ile ortadan
+                  kırpılıyor; yüz üste yakınsa kadraj dışında kalmaması için
+                  gerekirse konum bg-top'a çekilebilir.
 
                   next/image değil: kaynak Supabase CDN'i, yapılandırma yükü
                   kazancından fazla.
                 */
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={icerik.egitmenGorsel}
-                    alt={`${icerik.egitmenAd} portresi`}
-                    className="h-auto w-full md:hidden"
-                  />
-                  <div
-                    className="hidden bg-cover bg-center md:block md:min-h-[280px]"
-                    style={{ backgroundImage: `url(${icerik.egitmenGorsel})` }}
-                  />
-                </>
+                <div
+                  className="aspect-square bg-cover bg-center"
+                  style={{ backgroundImage: `url(${icerik.egitmenGorsel})` }}
+                  role="img"
+                  aria-label={`${icerik.egitmenAd} portresi`}
+                />
               ) : (
-                <div className="placeholder-block flex min-h-[200px] items-end p-4 md:min-h-[280px]">
+                <div className="placeholder-block flex aspect-square items-end p-4">
                   <span className="rounded-[5px] bg-white/90 px-2 py-[5px] font-mono text-[10px] text-[#656B7A]">
                     eğitmen portresi
                   </span>
@@ -750,13 +740,13 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           <div className="mt-4 overflow-hidden rounded-[14px] border border-ink/11">
             {icerik.egitmenGorsel ? (
               <div
-                className="aspect-[4/3] bg-cover bg-center"
+                className="aspect-square bg-cover bg-center"
                 style={{ backgroundImage: `url(${icerik.egitmenGorsel})` }}
               />
             ) : (
               // Portre yüklenmediyse yer tutucu değil baş harfler: boş bir
               // kutu eksik iş gibi duruyor, harfler bilinçli bir tasarım.
-              <div className="flex aspect-[4/3] items-center justify-center bg-ink">
+              <div className="flex aspect-square items-center justify-center bg-ink">
                 <span className="font-heading text-[38px] font-semibold tracking-[-0.02em] text-white/85">
                   {basHarfler(icerik.egitmenAd)}
                 </span>
