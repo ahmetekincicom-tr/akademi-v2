@@ -165,14 +165,15 @@ export default async function RootLayout({
         />
       </head>
       {/*
-        bg-white: iOS 26 Safari alt/üst toolbar tonunu body background-color'dan
-        örnekliyor (bkz. globals.css html kuralı). Body beyaz olunca toolbar da
-        beyaz oluyor ve beyaz header/kartlarla birebir uyuyor; eskiden bg-paper
-        (#f5f6fa) idi ve alt adres çubuğu içerikten kopuk açık gri bir bant gibi
-        duruyordu. Soft zemin gereken bölümler kendi bg-paper sınıfını
-        kullanmaya devam ediyor.
+        Body'ye KATI zemin sınıfı (bg-white/bg-paper) verilmiyor — bilerek.
+        iOS 26 Safari, html/body katı bir background-color taşırsa alt çubuğu
+        OPAK boyuyor (içeriğin altında kopuk gri/beyaz bant). Katı zemin
+        olmayınca çubuk yarı saydam kalıp içerik altından akıyor (edge-to-edge,
+        Midas davranışı; /safari-test.html ile kanıtlandı). Görünür zemini
+        bölümler kendi arka planlarıyla veriyor; boş kalan yer tarayıcının açık
+        tuvali (beyaz) olur. Gerekçe globals.css html kuralında.
       */}
-      <body className="antialiased font-body text-ink bg-white">
+      <body className="antialiased font-body text-ink">
         {/* Ön yüz kapalıyken, izinli kullanıcıya "bunu yalnızca sen
             görüyorsun" diyor. Çerezden okuyor; gerekçesi bileşende. */}
         <OnizlemeSeridi />
