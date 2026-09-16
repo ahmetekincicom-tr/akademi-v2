@@ -72,6 +72,31 @@ export const YONLENDIRMELER: Yonlendirme[] = [
   { eski: "/birebir-meta-ads-egitimi", yeni: "/egitimler/meta-ads-egitimi" },
   { eski: "/birebir-meta-ads-egitimi-2026", yeni: "/egitimler/meta-ads-egitimi" },
 
+  /*
+    -2025 ekli ve /egitim/ önekli ESKİ adresler.
+
+    Haritada yalnızca -2026 varyantları vardı; Semrush site denetiminde bu
+    -2025 ve /egitim/ biçimleri 400 dönüyordu (WordPress fallback'ine düşüp).
+    Dış bağlantılar, yer imleri ve Google hâlâ bu adresleri biliyor —
+    yönlendirilmezse eski sıralamaların SEO değeri kayboluyor (ör. "meta
+    business eğitimi" sıralaması taşımadan sonra düşmüştü).
+  */
+  { eski: "/birebir-meta-business-egitimi-2025", yeni: "/egitimler/meta-ads-egitimi" },
+  {
+    eski: "/birebir-sosyal-medya-ve-reklam-uzmanligi-egitimi-2025",
+    yeni: "/egitimler/sosyal-medya-ve-reklam-egitimi",
+  },
+  {
+    eski: "/egitim/birebir-sosyal-medya-reklam-uzmanligi-egitimi",
+    yeni: "/egitimler/sosyal-medya-ve-reklam-egitimi",
+  },
+  {
+    eski: "/egitim/birebir-sosyal-medya-ve-reklam-uzmanligi-egitimi-2025",
+    yeni: "/egitimler/sosyal-medya-ve-reklam-egitimi",
+  },
+  // Bu isimde ayrı bir eğitim yok; en yakın hedef eğitim listesi.
+  { eski: "/birebir-influencer-ugc-olma-egitimi", yeni: "/egitimler" },
+
   // -------------------------------------------------------- yasal metin ---
   { eski: "/sartlar-ve-kosullar", yeni: "/uyelik-sozlesmesi" },
   // Ayrı bir çerez politikası sayfası yok; konu gizlilik politikasının içinde
