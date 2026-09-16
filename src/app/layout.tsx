@@ -165,12 +165,14 @@ export default async function RootLayout({
         />
       </head>
       {/*
-        bg-paper (bg-white değil): sayfanın zemini theme-color ve html'in
-        arka planıyla aynı tonda olmalı. Beyazken iOS Safari'de koyu içeriğin
-        üstünde/altında beyaz şeritler kalıyordu — lastik bandı (overscroll)
-        alanı ve Safari'nin çubuk tonu bu renkten besleniyor.
+        bg-white: iOS 26 Safari alt/üst toolbar tonunu body background-color'dan
+        örnekliyor (bkz. globals.css html kuralı). Body beyaz olunca toolbar da
+        beyaz oluyor ve beyaz header/kartlarla birebir uyuyor; eskiden bg-paper
+        (#f5f6fa) idi ve alt adres çubuğu içerikten kopuk açık gri bir bant gibi
+        duruyordu. Soft zemin gereken bölümler kendi bg-paper sınıfını
+        kullanmaya devam ediyor.
       */}
-      <body className="antialiased font-body text-ink bg-paper">
+      <body className="antialiased font-body text-ink bg-white">
         {/* Ön yüz kapalıyken, izinli kullanıcıya "bunu yalnızca sen
             görüyorsun" diyor. Çerezden okuyor; gerekçesi bileşende. */}
         <OnizlemeSeridi />

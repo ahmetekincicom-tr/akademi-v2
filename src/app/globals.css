@@ -27,19 +27,25 @@
 
   html {
     /*
-      SAYFANIN KENDİ ZEMİNİ. Eskiden ne html'de ne body'de arka plan rengi
-      vardı; görünen bütün renkler içerideki sarmalayıcılardan geliyordu
-      (bg-paper, koyu bölümler). Sarmalayıcının ulaşmadığı her yer tarayıcı
-      varsayılanı olan BEYAZ kalıyordu ve iOS Safari'de bu iki yerde
-      görünüyordu: parmakla sınırın ötesine çekince açılan lastik bandı
-      (overscroll) alanı ve Safari'nin durum/adres çubuğu tonu — Safari o
-      tonu sayfanın zemininden örnekliyor. Sonuç, koyu içeriğin altında ve
-      üstünde beyaz şeritlerdi.
+      SAYFANIN KÖK ZEMİNİ = SAFARI TOOLBAR RENGİNİN KAYNAĞI.
 
-      color-scheme ayrıca tarayıcıya sayfanın açık temalı olduğunu söylüyor;
-      kaydırma çubuğu ve form denetimleri de buna göre çiziliyor.
+      iOS 26 Safari (Liquid Glass) alt/üst toolbar tonunu şöyle belirliyor:
+      önce viewport kenarındaki position:fixed/sticky bir elementin
+      background-color'ına, o yoksa <body>'ye, o da yoksa <html>'e bakıyor
+      (theme-color artık kullanılmıyor). Altta sabit bir element olmadığı için
+      Safari kök zemine düşüyor.
+
+      Bu değer BEYAZ: header ve içerik kartları beyaz (#ffffff). Eskiden burada
+      paper (#f5f6fa) vardı ve Safari alt adres çubuğunu bu gri tonla boyuyordu;
+      beyaz içeriğin altında kopuk açık gri bir bant gibi duruyordu. Beyaz
+      verilince toolbar beyaz içerikle birebir uyuyor, bant kayboluyor.
+      (Soft "paper" zemin gereken bölümler kendi bg-paper sınıfını kullanmaya
+      devam ediyor; değişen yalnızca kök zemin ve dolayısıyla toolbar tonu.)
+
+      color-scheme tarayıcıya sayfanın açık temalı olduğunu söylüyor; kaydırma
+      çubuğu ve form denetimleri de buna göre çiziliyor.
     */
-    background-color: var(--color-paper);
+    background-color: #ffffff;
     color-scheme: light;
 
     /* Sayfa içi bağlantılar (#egitimler gibi) sıçrayarak değil kayarak
