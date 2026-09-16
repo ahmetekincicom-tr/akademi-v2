@@ -165,15 +165,12 @@ export default async function RootLayout({
         />
       </head>
       {/*
-        Body'ye KATI zemin sınıfı (bg-white/bg-paper) verilmiyor — bilerek.
-        iOS 26 Safari, html/body katı bir background-color taşırsa alt çubuğu
-        OPAK boyuyor (içeriğin altında kopuk gri/beyaz bant). Katı zemin
-        olmayınca çubuk yarı saydam kalıp içerik altından akıyor (edge-to-edge,
-        Midas davranışı; /safari-test.html ile kanıtlandı). Görünür zemini
-        bölümler kendi arka planlarıyla veriyor; boş kalan yer tarayıcının açık
-        tuvali (beyaz) olur. Gerekçe globals.css html kuralında.
+        bg-paper KATI zemin: iOS 26 Safari alt çubuğunun rengini body
+        background-color'ından örnekliyor. Şeffaf kalırsa çubuk gri bir bantla
+        opak boyanıyordu; katı zemin verilince çubuk yarı saydam kalıp içerik
+        fiziksel alt kenara akıyor. Gerekçe globals.css html kuralında.
       */}
-      <body className="antialiased font-body text-ink">
+      <body className="antialiased font-body text-ink bg-paper">
         {/* Ön yüz kapalıyken, izinli kullanıcıya "bunu yalnızca sen
             görüyorsun" diyor. Çerezden okuyor; gerekçesi bileşende. */}
         <OnizlemeSeridi />

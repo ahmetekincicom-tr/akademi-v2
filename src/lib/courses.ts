@@ -265,9 +265,39 @@ export function basligiIkiSatir(baslik: string): { ilk: string; kalan: string } 
   const kelimeler = baslik.trim().split(/\s+/);
   if (kelimeler.length < 3) return null;
 
-  const ilk = kelimeler[0];
-  const kalan = kelimeler.slice(1).join(" ");
-  return kalan.length > ilk.length ? { ilk, kalan } : null;
+  /*
+    İki satırı olabildiğince DENGELİ böl.
+
+    Eskiden hep ilk kelime tek başına üstte kalıyordu ("Birebir" / "Meta
+    Business Eğitimi"); kısa başlıklarda idare ediyordu ama uzun başlıklarda
+    ilk satır bir kelimeyle yapayalnız, ikinci satır çok uzun kalıyor ve
+    dengesiz duruyordu. Şimdi her olası kırılma noktası denenip iki parçanın
+    uzunluk farkı en küçük olan seçiliyor: "Birebir Meta" / "Business Eğitimi".
+  */
+  let ilk = "";
+  let kalan = "";
+  let enAzFark = Infinity;
+  for (let i = 1; i < kelimeler.length; i++) {
+    const ust = kelimeler.slice(0, i).join(" ");
+    const alt = kelimeler.slice(i).join(" ");
+    const fark = Math.abs(ust.length - alt.length);
+    if (fark < enAzFark) {
+      enAzFark = fark;
+      ilk = ust;
+      kalan = alt;
+    }
+  }
+
+  /*
+    En dengeli bölme bile çok orantısızsa (kısa satır, uzun satırın yarısından
+    küçük) hiç bölme: "Pazarlamada A B" gibi başlıklarda ters merdiven
+    oluşuyordu. Bu durumda başlık text-balance ile kendi akışına bırakılıyor.
+  */
+  if (Math.min(ilk.length, kalan.length) < Math.max(ilk.length, kalan.length) * 0.5) {
+    return null;
+  }
+
+  return { ilk, kalan };
 }
 
 const COURSE_SELECT =

@@ -4,10 +4,16 @@ import { basligiIkiSatir } from "@/lib/courses";
 
 
 describe("basligiIkiSatir", () => {
-  it("ilk kelimeyi kendi satırına alır", () => {
+  it("başlığı dengeli iki satıra böler", () => {
+    // Eskiden hep ilk kelime ("Birebir") tek başına üstte kalıyordu; artık
+    // iki satır uzunlukça olabildiğince eşit bölünüyor.
     expect(basligiIkiSatir("Birebir Meta Ads Eğitimi")).toEqual({
-      ilk: "Birebir",
-      kalan: "Meta Ads Eğitimi",
+      ilk: "Birebir Meta",
+      kalan: "Ads Eğitimi",
+    });
+    expect(basligiIkiSatir("Birebir Meta Business Eğitimi")).toEqual({
+      ilk: "Birebir Meta",
+      kalan: "Business Eğitimi",
     });
   });
 

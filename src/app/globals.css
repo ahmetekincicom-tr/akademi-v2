@@ -27,23 +27,22 @@
 
   html {
     /*
-      html/body'ye BİLEREK katı background-color VERİLMİYOR.
+      SAYFANIN KÖK ZEMİNİ — KATI olmak ZORUNDA.
 
-      iOS 26 Safari (Liquid Glass) alt/üst toolbar'ı: html/body katı bir
-      background-color taşıyorsa çubuğu o renkle OPAK boyuyor (içeriğin altında
-      kopuk bir bant). Katı zemin YOKSA çubuk YARI SAYDAM kalıyor ve
-      viewport-fit=cover sayesinde sayfa içeriği çubuğun arkasından ekranın
-      fiziksel alt kenarına kadar akıyor — istenen (Midas / getmidas.com)
-      davranış bu. İzole minimal test (/safari-test.html) bunu kanıtladı:
-      html/body'de bg olmayınca içerik edge-to-edge gidiyor, bant yok.
+      iOS 26 Safari (Liquid Glass) alt adres çubuğunun rengini/saydamlığını,
+      kenardaki bir sabit/sticky element yoksa <body> (yoksa <html>)
+      background-color'ından belirliyor. Bu değer ŞEFFAF kalırsa Safari
+      örnekleyecek katı bir zemin bulamıyor ve çubuğu gri bir bantla OPAK
+      boyuyor; sayfanın çubuğun arkasına uzanması (edge-to-edge) bozuluyor.
+      KATI bir renk verilince çubuk YARI SAYDAM kalıp içerik fiziksel alt
+      kenara akıyor — hesap oluşturma ekranının (AuthShell, bg-paper) temiz
+      olmasının sebebi buydu; Web Inspector'da body/html'in rgba(0,0,0,0)
+      çıkması da bantın sebebini doğruladı.
 
-      Görünür zemini bölümlerin/kartların kendi arka planları veriyor (bg-white,
-      bg-paper, bg-ink...). html/body katı zemin taşımadığında görünmeyen kısım
-      tarayıcının açık-tema tuvali (beyaz) olur; görsel olarak aynı, ama toolbar
-      artık saydam kalır. Bu yüzden buraya background-color KONMAMALI.
-
-      color-scheme yine light: kaydırma çubuğu ve form denetimleri buna göre.
+      color-scheme ayrıca tarayıcıya sayfanın açık temalı olduğunu söylüyor;
+      kaydırma çubuğu ve form denetimleri de buna göre çiziliyor.
     */
+    background-color: var(--color-paper);
     color-scheme: light;
 
     /* Sayfa içi bağlantılar (#egitimler gibi) sıçrayarak değil kayarak
