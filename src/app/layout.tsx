@@ -114,18 +114,21 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   /*
-    theme-color BİLEREK verilmiyor.
+    Tarayıcı çubuklarının rengi = İÇERİĞİN rengi (BEYAZ).
 
-    Verilince iOS Safari alt adres çubuğunu o renkle DOLU (opak) boyuyor;
-    sayfa açık temalı olduğu için çubuk beyaz bir şerit gibi duruyordu. Renk
-    vermeyince çubuk YARI SAYDAM kalıp arkasındaki içeriğe uyum sağlıyor —
-    Midas gibi theme-color vermeyen sitelerde çubuğun temiz görünmesinin
-    sebebi bu. Alt çubuğun arkasındaki beyaz şerit bu satır yüzündendi.
+    iOS Safari 15+ alt adres çubuğunu theme-color ile DOLU boyuyor; verilmezse
+    URL'yi "gri zemin üstünde beyaz kutu" varsayılanıyla çiziyor (o çirkin
+    şerit bu). Değer İÇERİKLE aynı olmalı: header ve içerik kartları beyaz
+    (#ffffff). Eskiden burada paper (#f5f6fa) yazıyordu ve beyaz içerikle
+    uyuşmadığı için hem üstte (durum çubuğu) hem altta (adres çubuğu) gri bir
+    şerit kalıyordu. Beyaz verilince çubuklar beyaz header/içerikle birebir
+    uyuyor, şerit kayboluyor.
 
     Standalone (ana ekrana eklenmiş) moddaki mavi şerit bundan etkilenmiyor:
     onu PanelShell/AdminShell içindeki env(safe-area-inset-top) yüksekliğinde
     bg-brand kutusu çiziyor; Safari'de o alanın yüksekliği zaten sıfır.
   */
+  themeColor: "#ffffff",
   // Panel ana ekrandan açıldığında telefonun çentik/alt çubuk alanına kadar
   // uzansın; aksi halde standalone modda kenarlarda boş şeritler kalıyor.
   viewportFit: "cover",

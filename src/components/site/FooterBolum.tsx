@@ -37,7 +37,7 @@ export function FooterBolum({ baslik, children }: { baslik: string; children: Re
   return (
     <details
       open={genisEkran}
-      className="group border-b border-ink/[0.08] last:border-b-0 sm:border-b-0"
+      className="group border-b border-white/[0.08] last:border-b-0 sm:border-b-0"
     >
       {/*
         Başlık SOLDA, işaret SAĞDA — dokunulacak alan satırın tamamı.
@@ -48,10 +48,10 @@ export function FooterBolum({ baslik, children }: { baslik: string; children: Re
         {/* Başlık, altındaki bağlantılardan belirgin şekilde ayrışıyor: daha
             iri, daha kalın ve daha parlak. Eskiden 10.5px soluk gri bir
             etiketti; listenin bir parçası gibi okunuyordu. */}
-        <span className="font-mono text-[12.5px] font-semibold tracking-[0.14em] text-ink/80 uppercase">
+        <span className="font-mono text-[12.5px] font-semibold tracking-[0.14em] text-white/85 uppercase">
           {baslik}
         </span>
-        <span className="flex h-6 w-6 flex-none items-center justify-center rounded-[7px] border border-ink/12 font-mono text-[13px] leading-none text-ink/50 transition group-open:border-ink/20 sm:hidden">
+        <span className="flex h-6 w-6 flex-none items-center justify-center rounded-[7px] border border-white/12 font-mono text-[13px] leading-none text-white/50 transition group-open:border-white/20 sm:hidden">
           <span className="hidden group-open:inline">–</span>
           <span className="group-open:hidden">+</span>
         </span>

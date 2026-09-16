@@ -150,17 +150,8 @@ export async function PublicFooter() {
     ? [footerColumns[0], egitim!, ...footerColumns.slice(1)]
     : [{ baslik: "Akademi", linkler: [{ label: "Üye girişi", href: "/giris" }] }, ...footerColumns.slice(1)];
 
-  /*
-    AÇIK footer.
-
-    Eskiden zemin koyuydu (bg-ink) ve iOS Safari alt adres çubuğunun rengini
-    sayfanın açık kök zemininden (#f5f6fa) örneklediği için, koyu footer'ın
-    altında beyaz bir şerit kalıyordu. Footer artık kök zeminle aynı açık tonda
-    (bg-paper); çubuk footer'a uyuyor, şerit kayboluyor. Bütün metin/çizgi/ikon
-    renkleri koyudan (white/xx) açık zemine (ink/xx) çevrildi.
-  */
   return (
-    <footer className="border-t border-ink/10 bg-paper text-ink/60">
+    <footer className="border-t border-white/10 bg-ink text-white/60">
       {/*
         Dar ekranda hizalama: marka bloğu ortalı, LİSTELER sola yaslı.
 
@@ -184,16 +175,16 @@ export async function PublicFooter() {
           Alttaki çizgi de yalnızca dar ekranda: orada blok ile menüler aynı
           sütuna indiği için ayrım gerekiyor.
         */}
-        <div className="mb-2 flex flex-col items-center border-b border-ink/[0.08] pb-7 text-center sm:mb-0 sm:items-start sm:border-b-0 sm:pb-0 sm:text-left">
+        <div className="mb-2 flex flex-col items-center border-b border-white/[0.08] pb-7 text-center sm:mb-0 sm:items-start sm:border-b-0 sm:pb-0 sm:text-left">
           {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor. */}
-          <Logo variant="dark" yer="alt" href={ON_YUZ_ACIK ? "/" : "/giris"} />
-          <p className="mt-5 max-w-[300px] text-[16px] leading-[1.7] text-ink/60">
+          <Logo variant="light" yer="alt" href={ON_YUZ_ACIK ? "/" : "/giris"} />
+          <p className="mt-5 max-w-[300px] text-[16px] leading-[1.7] text-white/70">
             Dijital çağın dinamiklerine uygun, yenilikçi eğitim deneyimi.
           </p>
           <div className="mt-[22px] flex gap-[10px]">
             {SOSYAL.map((s) => {
               const sosyalStil =
-                "inline-flex h-[38px] w-[38px] items-center justify-center rounded-[10px] border border-ink/14 text-ink/55 transition hover:border-brand hover:bg-brand hover:text-white";
+                "inline-flex h-[38px] w-[38px] items-center justify-center rounded-[10px] border border-white/14 text-white/70 transition hover:border-brand hover:bg-brand hover:text-white";
               return s.whatsapp ? (
                 <WhatsAppBaglantisi
                   key={s.ad}
@@ -248,7 +239,7 @@ export async function PublicFooter() {
                     // iletişim sütununda beş satır birden renk değiştirince
                     // liste, üzerinde gezinen imleci takip eden bir ışık
                     // şeridine dönüşüyordu.
-                    className="mt-[3px] flex-none text-ink/40"
+                    className="mt-[3px] flex-none text-white/70"
                   />
                 );
                 const govde = (
@@ -270,7 +261,7 @@ export async function PublicFooter() {
                   düzeni birebir korunuyor.
                 */
                 const stil =
-                  "group flex items-start gap-[10px] py-[7px] text-[14.5px] leading-[1.4] text-ink/65 transition hover:text-ink pointer-fine:py-0";
+                  "group flex items-start gap-[10px] py-[7px] text-[14.5px] leading-[1.4] text-white/65 transition hover:text-white pointer-fine:py-0";
 
                 if (l.whatsapp) {
                   return (
@@ -287,9 +278,9 @@ export async function PublicFooter() {
                 }
                 if (!l.href) {
                   return (
-                    <span key={l.label} className={`${stil} hover:text-ink/45`}>
+                    <span key={l.label} className={`${stil} hover:text-white/45`}>
                       {isaret}
-                      <span className="min-w-0 break-words text-ink/45">{l.label}</span>
+                      <span className="min-w-0 break-words text-white/45">{l.label}</span>
                     </span>
                   );
                 }
@@ -328,37 +319,35 @@ export async function PublicFooter() {
         eskiden işaretsiz, düzensiz bir satırdı.
       */}
       <div className="mx-auto max-w-[1240px] px-5 pb-10 sm:px-8">
-        <div className="flex flex-wrap justify-center gap-x-5 gap-y-[10px] border-t border-ink/10 pt-[22px] text-[13px] sm:justify-end">
+        <div className="flex flex-wrap justify-center gap-x-5 gap-y-[10px] border-t border-white/10 pt-[22px] text-[13px] sm:justify-end">
           {YASAL_LINKLER.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="group/yasal inline-flex items-center gap-[6px] py-[7px] text-ink/55 transition hover:text-ink pointer-fine:py-0"
+              className="group/yasal inline-flex items-center gap-[6px] py-[7px] text-white/55 transition hover:text-white pointer-fine:py-0"
             >
-              <Icon name="chevronRight" size={13} className="flex-none text-ink/35 transition group-hover/yasal:text-brand" />
+              <Icon name="chevronRight" size={13} className="flex-none text-white/35 transition group-hover/yasal:text-brand" />
               {l.label}
             </Link>
           ))}
           {olcumlemeVar && (
-            <span className="inline-flex items-center gap-[6px] text-ink/35">
+            <span className="inline-flex items-center gap-[6px] text-white/35">
               <Icon name="chevronRight" size={13} className="flex-none" />
               {/* Komşu yasal bağlantılarla aynı dokunma yüksekliği. */}
-              <CerezTercihleriDugmesi className="py-[7px] text-ink/55 hover:text-ink pointer-fine:py-0" />
+              <CerezTercihleriDugmesi className="py-[7px] text-white/55 hover:text-white pointer-fine:py-0" />
             </span>
           )}
         </div>
 
         <div className="mt-6 flex flex-col items-center gap-5 text-[13px] sm:mt-9 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <span className="order-2 text-center text-ink/45 sm:order-1 sm:text-left">
+          <span className="order-2 text-center text-white/45 sm:order-1 sm:text-left">
             © 2021–2026 Ahmet Ekinci Akademi. Tüm hakları saklıdır.
           </span>
           {/*
             iyzico'nun resmi "iyzico ile öde" bandı; Visa, Mastercard, American
             Express ve Troy logolarını tek görselde içeriyor (public/odeme).
-            Görselin kendisi BEYAZ olduğu için (koyu zemin için tasarlanmış)
-            açık footer'da kaybolmasın diye küçük koyu bir kutunun içinde
-            duruyor — saydam bölümlerinden koyu zemin görünüyor, logolar
-            okunur kalıyor. Genişliğe göre ölçekleniyor.
+            Genişliğe göre ölçekleniyor: dar ekranda taşmaması için w-full +
+            max-w, geniş ekranda sabit genişlik.
           */}
           <div className="order-1 flex w-full justify-center sm:order-2 sm:w-auto sm:justify-end">
             {/* Resmi marka görseli; next/image SVG'yi optimize etmiyor. */}
@@ -367,7 +356,7 @@ export async function PublicFooter() {
               src="/odeme/iyzico-band.svg"
               alt="iyzico ile öde — Visa, Mastercard, American Express, Troy"
               loading="lazy"
-              className="h-auto w-full max-w-[340px] rounded-[10px] bg-ink px-3 py-2 sm:w-[340px]"
+              className="h-auto w-full max-w-[340px] sm:w-[340px]"
             />
           </div>
         </div>
