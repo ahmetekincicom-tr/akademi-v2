@@ -16,6 +16,8 @@
  * çalışma biçimi tam olarak budur.
  */
 
+import { oaiqOlcum } from "@/lib/oaiq";
+
 type Ads = { id: string; etiket: string };
 
 /**
@@ -64,4 +66,12 @@ export function whatsappOlayi(yer: string, ref: string | null): void {
   } catch {
     // Ölçümleme yan iş; WhatsApp'a gidişi hiçbir koşulda engellemesin.
   }
+
+  /*
+    OpenAI (ChatGPT) Ads: WhatsApp teması bir "lead". Google'dan ayrı bir
+    çağrı, çünkü OpenAI'nin kendi SDK'sı var ve Consent Mode onu kapsamıyor —
+    izin kontrolü oaiqOlcum içinde. Piksel yalnızca izinle yüklendiğinden izin
+    yoksa bu da sessizce atlanır.
+  */
+  oaiqOlcum("lead_created", { type: "customer_action" });
 }

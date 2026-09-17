@@ -8,6 +8,7 @@ import { CerezBandi } from "@/components/site/CerezBandi";
 import { ServiceWorkerKaydi } from "@/components/site/ServiceWorkerKaydi";
 import { NativeIsaretci } from "@/components/site/NativeIsaretci";
 import { MetaPixel } from "@/components/site/MetaPixel";
+import { OpenAiPixel } from "@/components/site/OpenAiPixel";
 import { HizOlcumu } from "@/components/site/HizOlcumu";
 import { OnizlemeSeridi } from "@/components/site/OnizlemeSeridi";
 import { WhatsAppYuzenDugme } from "@/components/site/WhatsAppYuzenDugme";
@@ -178,6 +179,9 @@ export default async function RootLayout({
         {/* Pixel ID girilmemişse hiç çizilmiyor: kapatma düğmesi burada,
             "Pixel ID'yi boş bırak" demek pixel'i tamamen kaldırmak demek. */}
         {pixelId && <MetaPixel pixelId={pixelId} />}
+        {/* OpenAI (ChatGPT) Ads pikseli. Kimlik sabit (lib/oaiq.ts), reklam
+            izni verilmeden yüklenmiyor; WhatsApp teması lead_created ölçüyor. */}
+        <OpenAiPixel />
         <ServiceWorkerKaydi />
         <NativeIsaretci />
         <TopLoader />
