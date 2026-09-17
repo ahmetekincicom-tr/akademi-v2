@@ -18,6 +18,8 @@ import {
   type Course,
 } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
+import { getReferanslar } from "@/lib/icerik";
+import { ReferansBulutu } from "@/components/site/ReferansBulutu";
 import { WHATSAPP_NUMARALAR, egitimWhatsappMesaji } from "@/lib/iletisim";
 import { WhatsAppBaglantisi } from "@/components/site/WhatsAppBaglantisi";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
@@ -179,7 +181,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
     return <CokYakindaSayfasi course={course} />;
   }
 
-  const icerik = await getSiteIcerik();
+  // Referans logoları site geneli TEK kaynaktan (getReferanslar): panelden
+  // güncellenince ana sayfa, referanslar sayfası ve buradaki şerit birlikte
+  // değişiyor.
+  const [icerik, referanslar] = await Promise.all([getSiteIcerik(), getReferanslar()]);
 
   // Hero başlığı eğitimin tam adı; vurgulanan kısım renkli yazılıyor.
   const parca = basligiParcala(course.baslik, course.baslikVurgu);
@@ -468,6 +473,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           <section id="mufredat">
             <CurriculumAccordion modules={course.modules} />
           </section>
+
+          {/*
+            Müfredatın hemen altında kayan referans logoları — sosyal kanıt.
+            Veri getReferanslar() ile site geneli tek kaynaktan; panelden
+            güncellenince ana sayfa/referanslar sayfası ile birlikte değişiyor.
+            Boş listede ReferansBulutu null döndüğü için bölüm hiç basılmıyor.
+          */}
+          <div className="mt-16 overflow-hidden rounded-2xl border border-ink/10">
+            <ReferansBulutu referanslar={referanslar} />
+          </div>
 
 
 
