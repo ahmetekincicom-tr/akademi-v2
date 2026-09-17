@@ -27,28 +27,24 @@
 
   html {
     /*
-      SAYFANIN KÖK ZEMİNİ — KATI ve KENAR İÇERİĞİYLE AYNI RENK olmak ZORUNDA.
+      SAYFANIN KÖK ZEMİNİ — KATI ve BEYAZ.
 
-      iOS 26 Safari (Liquid Glass) alt adres çubuğunun altında, içeriğin
-      bittiği yerde bu kök zemin bir BANT olarak görünüyor (çubuğun arkasına
-      denk gelen bölge). Çubuk hangi rengi örneklerse şeridi o renge boyuyor.
+      Alt adres çubuğu şeridinin ASIL sebebi buranın rengi DEĞİLDİ: iOS 26.0
+      Safari'de DOM'da sürekli duran, viewport boyutunda bir `fixed inset-0`
+      konteyneri (MobilMenu overlay'i) çubuğun altında bir boşluk bırakıyordu.
+      Overlay kapalıyken DOM'dan kaldırılınca (MobilMenu.tsx) şerit gitti.
 
-      Public sayfaların hem ÜST kenarı (hero) hem ALT kenarı (footer) `bg-ink`
-      (koyu). Kök zemin `paper` (#f5f6fa, açık gri) iken koyu footer'ın altında
-      gri bir şerit ayrışıyordu — ekran görüntüsünde ölçülen bant tam olarak
-      #f5f6fa'ydı. Kök zemin footer'la AYNI KOYU renge alınınca koyu içerik
-      çubuğun arkasından fiziksel alt kenara kadar akıyor (edge-to-edge) ve
-      ayrışan bant kalmıyor.
-
-      Işık sayfaları (AuthShell/panel/admin) `min-h-screen bg-paper` ile kendi
-      tam-yükseklik zeminini bunun ÜSTÜNE boyuyor; koyu kök zemin orada hiç
-      görünmüyor. Public sayfalarda da orta kısım `bg-white` bölümlerle kaplı,
-      koyu kök yalnızca zaten koyu olan üst/alt kenarlarda görünüyor.
+      Bu yüzden kök zemin artık yalnızca kenar/overscroll dolgusu. İçeriğin
+      baskın rengi beyaz (bg-white bölümler) olduğu için burası da beyaz:
+      kenarda veya overscroll'da görünürse içerikle kaynaşıyor. (Koyu
+      denenmişti; ışık sayfalarında overscroll'da koyu bir kenar riski olduğu
+      için beyaza döndü.) Şeffaf bırakılamaz — o durumda çubuk gri bir bantla
+      opak boyanıyor.
 
       color-scheme: light — içerik açık temalı; form denetimleri ve kaydırma
       çubuğu buna göre çiziliyor.
     */
-    background-color: var(--color-ink);
+    background-color: #fff;
     color-scheme: light;
 
     /* Sayfa içi bağlantılar (#egitimler gibi) sıçrayarak değil kayarak

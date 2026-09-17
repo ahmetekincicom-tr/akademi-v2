@@ -166,13 +166,11 @@ export default async function RootLayout({
         />
       </head>
       {/*
-        bg-ink KATI koyu zemin: iOS 26 Safari alt çubuğunun altında kök zemin
-        bant olarak görünüyor. Public sayfaların üst (hero) ve alt (footer)
-        kenarı koyu olduğu için kök zemin de koyu: koyu footer çubuğun arkasından
-        dibe akıyor, gri şerit kayboluyor. Işık sayfaları (giriş/panel) kendi
-        paper zeminini üstüne boyadığı için etkilenmiyor. Gerekçe globals.css.
+        bg-white KATI zemin: alt çubuk şeridinin asıl çözümü MobilMenu overlay'i
+        (gerekçe globals.css html kuralında). Kök zemin yalnızca kenar/overscroll
+        dolgusu; baskın içerik beyaz olduğu için beyaz — görünürse kaynaşıyor.
       */}
-      <body className="antialiased font-body text-ink bg-ink">
+      <body className="antialiased font-body text-ink bg-white">
         {/* Ön yüz kapalıyken, izinli kullanıcıya "bunu yalnızca sen
             görüyorsun" diyor. Çerezden okuyor; gerekçesi bileşende. */}
         <OnizlemeSeridi />
