@@ -868,3 +868,99 @@ body[data-menu-acik="1"] {
     backdrop-filter: none;
   }
 }
+
+/* -------------------------------------------------------------- blog --- */
+/*
+  Blog gövde metni. Hem herkese açık yazıda (dangerouslySetInnerHTML) hem
+  editörde (TipTap içerik alanı) aynı sınıf kullanılıyor, böylece yazarken
+  görünen düzen yayındakiyle bire bir aynı.
+*/
+.blog-icerik {
+  font-size: 17.5px;
+  line-height: 1.75;
+  color: #2b303d;
+  overflow-wrap: break-word;
+}
+.blog-icerik > :first-child {
+  margin-top: 0;
+}
+.blog-icerik p {
+  margin: 0 0 1.15em;
+}
+.blog-icerik h2 {
+  font-family: var(--font-heading);
+  font-size: 27px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  margin: 1.8em 0 0.6em;
+}
+.blog-icerik h3 {
+  font-family: var(--font-heading);
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--color-ink);
+  margin: 1.5em 0 0.5em;
+}
+.blog-icerik h4 {
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 1.3em 0 0.4em;
+}
+.blog-icerik ul,
+.blog-icerik ol {
+  margin: 0 0 1.15em;
+  padding-left: 1.4em;
+}
+.blog-icerik ul {
+  list-style: disc;
+}
+.blog-icerik ol {
+  list-style: decimal;
+}
+.blog-icerik li {
+  margin: 0.35em 0;
+}
+.blog-icerik li > p {
+  margin: 0;
+}
+.blog-icerik a {
+  color: var(--color-brand);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.blog-icerik blockquote {
+  margin: 1.4em 0;
+  padding: 0.2em 0 0.2em 1.1em;
+  border-left: 3px solid var(--color-brand);
+  color: #4a4f5e;
+  font-style: italic;
+}
+.blog-icerik img,
+.blog-icerik .blog-gorsel {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 14px;
+  margin: 1.6em 0;
+}
+.blog-icerik strong {
+  font-weight: 700;
+  color: var(--color-ink);
+}
+.blog-icerik hr {
+  border: 0;
+  border-top: 1px solid rgba(10, 13, 24, 0.1);
+  margin: 2em 0;
+}
+/* TipTap boş editör yer tutucusu. */
+.blog-icerik p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #9aa0ae;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

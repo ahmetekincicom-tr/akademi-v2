@@ -46,6 +46,30 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["courses"]["Row"]>;
         Relationships: [];
       };
+      posts: {
+        Row: {
+          baslik: string;
+          created_at: string;
+          durum: string;
+          icerik_html: string;
+          icerik_json: Json;
+          id: string;
+          kapak_gorsel: string | null;
+          ozet: string;
+          seo_aciklama: string;
+          seo_baslik: string;
+          slug: string;
+          updated_at: string;
+          yayin_tarihi: string | null;
+          yazar: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["posts"]["Row"]> & {
+          baslik: string;
+          slug: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["posts"]["Row"]>;
+        Relationships: [];
+      };
       documents: {
         Row: {
           baslik: string;

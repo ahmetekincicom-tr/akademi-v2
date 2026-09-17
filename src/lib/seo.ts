@@ -72,6 +72,11 @@ type SayfaSeo = {
   indeksleme?: boolean;
   tip?: "website" | "article";
   yayinTarihi?: string;
+  /**
+   * Sayfaya özel paylaşım görseli (blog kapağı gibi). MUTLAK adres olmalı.
+   * Verilmezse marka.og_gorsel kullanılıyor (varsayılan davranış).
+   */
+  paylasimGorseli?: { url: string; width?: number; height?: number };
 };
 
 /**
@@ -92,6 +97,7 @@ export async function sayfaMeta({
   indeksleme = true,
   tip = "website",
   yayinTarihi,
+  paylasimGorseli,
 }: SayfaSeo): Promise<Metadata> {
   const tamAdres = `${SITE_URL}${yol}`;
 
@@ -118,7 +124,10 @@ export async function sayfaMeta({
   */
   const aciklama = aciklamayiKisalt(ezme.aciklama || koddakiAciklama);
 
-  const gorsel = await ogGorseli();
+  // Sayfaya özel görsel (blog kapağı) varsa o; yoksa marka paylaşım görseli.
+  const gorsel = paylasimGorseli
+    ? { ...paylasimGorseli, type: "image/jpeg" as const }
+    : await ogGorseli();
   // Ana sayfada marka adını iki kez yazmıyoruz.
   const tamBaslik = yol === "/" ? baslik : `${baslik} — ${SITE_ADI}`;
 
@@ -271,6 +280,39 @@ export function egitimSemasi(kurs: {
       courseMode: "online",
       courseWorkload: kurs.sure || undefined,
     },
+  };
+}
+
+/**
+ * Blog yazısı için Article şeması.
+ *
+ * Arama sonucunda tarih/yazar/görsel zengin sonucunun ve yapay zekâ arama
+ * motorlarında kaynak gösterilmenin yolu bu. `gorsel` MUTLAK adres olmalı.
+ */
+export function makaleSemasi(m: {
+  slug: string;
+  baslik: string;
+  aciklama: string;
+  gorsel: string | null;
+  yayinTarihi: string | null;
+  guncelleme: string;
+  yazar: string;
+}) {
+  const adres = `${SITE_URL}/blog/${m.slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: m.baslik,
+    description: m.aciklama,
+    url: adres,
+    mainEntityOfPage: adres,
+    ...(m.gorsel ? { image: m.gorsel } : {}),
+    inLanguage: "tr-TR",
+    ...(m.yayinTarihi ? { datePublished: m.yayinTarihi } : {}),
+    dateModified: m.guncelleme,
+    // Yazar adı yazılmışsa kişi; yoksa akademinin kurucusu varlığına bağlanıyor.
+    author: m.yazar ? { "@type": "Person", name: m.yazar } : { "@id": `${SITE_URL}/hakkimizda#kisi` },
+    publisher: { "@id": `${SITE_URL}/#kurum` },
   };
 }
 

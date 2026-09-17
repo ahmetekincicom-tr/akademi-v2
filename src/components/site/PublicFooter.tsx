@@ -54,18 +54,10 @@ const footerColumns: { baslik: string; linkler: FooterLink[] }[] = [
       { label: "Referanslar", href: "/referanslar" },
       { label: "Yorumlar", href: "/yorumlar" },
       { label: "Kurumsal Eğitim", href: "/kurumsal" },
-      /*
-        Blog WordPress'te duruyor ama aynı alan adının altında
-        (next.config.ts'teki fallback rewrite). Buradan bağlantı vermek iki
-        işe yarıyor: ziyaretçi yazılara ulaşabiliyor ve arama motoru için
-        sitenin geri kalanından bloga giden bir yol açılıyor — taşımadan
-        sonra o yol kopmuştu.
-
-        ayniSekme: kendi alan adımız, yeni sekmede açmak yanlış olur; ama
-        Next <Link> de kullanılamaz çünkü /blog bu uygulamanın bir rotası
-        değil ve istemci tarafı gezinme onu bulamaz.
-      */
-      { label: "Blog", href: "/blog/", ayniSekme: true },
+      // Blog artık bu uygulamanın kendi rotası (src/app/blog); normal iç
+      // bağlantı. (Eskiden WordPress'te olduğu için ayniSekme ile düz <a>
+      // veriliyordu.)
+      { label: "Blog", href: "/blog" },
       { label: "İletişim", href: "/iletisim" },
     ],
   },

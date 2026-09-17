@@ -37,6 +37,7 @@ const groups: MenuGroup[] = [
     title: "İçerik",
     items: [
       { href: "/kontrol-9f4x2k/egitimler", label: "Eğitimler", icon: "book" },
+      { href: "/kontrol-9f4x2k/blog", label: "Blog", icon: "file" },
       { href: "/kontrol-9f4x2k/video", label: "Video kütüphanesi", icon: "playCircle", sayac: "video" },
       { href: "/kontrol-9f4x2k/dokumanlar", label: "Dokümanlar", icon: "folder" },
       { href: "/kontrol-9f4x2k/duyurular", label: "Gündem panosu", icon: "bell" },
@@ -69,6 +70,7 @@ const pageTitles: Record<string, string> = {
   "/kontrol-9f4x2k/ogrenciler": "Öğrenciler",
   "/kontrol-9f4x2k/ogrenciler/ice-aktar": "Öğrenci içe aktarma",
   "/kontrol-9f4x2k/egitimler": "Eğitimler",
+  "/kontrol-9f4x2k/blog": "Blog",
   "/kontrol-9f4x2k/odemeler": "Ödemeler",
   "/kontrol-9f4x2k/bildirimler": "Push bildirimler",
   "/kontrol-9f4x2k/e-postalar": "E-posta bildirimleri",
@@ -109,6 +111,15 @@ function breadcrumbAdimlari(pathname: string): BreadcrumbAdim[] {
       kok,
       { label: "Eğitimler", href: "/kontrol-9f4x2k/egitimler" },
       { label: pathname.endsWith("/yeni") ? "Yeni eğitim" : "Eğitim düzenle" },
+    ];
+  }
+
+  // Blog editörü de liste sayfasının bir alt kademesinde.
+  if (pathname.startsWith("/kontrol-9f4x2k/blog/")) {
+    return [
+      kok,
+      { label: "Blog", href: "/kontrol-9f4x2k/blog" },
+      { label: pathname.endsWith("/yeni") ? "Yeni yazı" : "Yazıyı düzenle" },
     ];
   }
 
