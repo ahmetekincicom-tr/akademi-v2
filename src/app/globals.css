@@ -27,30 +27,28 @@
 
   html {
     /*
-      SAYFANIN KÖK ZEMİNİ — KATI ve BEYAZ olmak ZORUNDA.
+      SAYFANIN KÖK ZEMİNİ — KATI ve KENAR İÇERİĞİYLE AYNI RENK olmak ZORUNDA.
 
-      iOS 26 Safari (Liquid Glass) alt adres çubuğunun tintini, kenarda sabit/
-      sticky bir element yoksa kök zeminden (<body>, yoksa <html>) örnekliyor.
-      İki koşul birden gerekiyor:
+      iOS 26 Safari (Liquid Glass) alt adres çubuğunun altında, içeriğin
+      bittiği yerde bu kök zemin bir BANT olarak görünüyor (çubuğun arkasına
+      denk gelen bölge). Çubuk hangi rengi örneklerse şeridi o renge boyuyor.
 
-        1. KATI olmalı — şeffaf kalırsa çubuk gri bir bantla OPAK boyanıyor.
-        2. İÇERİKLE AYNI RENK olmalı — çubuk hangi rengi örneklerse şeridi o
-           renge boyuyor. Zemin `paper` (#f5f6fa, açık GRİ) iken çubuk gri
-           çıkıyor ve beyaz (bg-white) içeriğin altında gri bir şerit gibi
-           ayrışıyordu. İçerik beyaz olduğu için kök zemin de beyaz: çubuk
-           beyaza boyanıp içerikle kaynaşıyor, şerit kayboluyor.
+      Public sayfaların hem ÜST kenarı (hero) hem ALT kenarı (footer) `bg-ink`
+      (koyu). Kök zemin `paper` (#f5f6fa, açık gri) iken koyu footer'ın altında
+      gri bir şerit ayrışıyordu — ekran görüntüsünde ölçülen bant tam olarak
+      #f5f6fa'ydı. Kök zemin footer'la AYNI KOYU renge alınınca koyu içerik
+      çubuğun arkasından fiziksel alt kenara kadar akıyor (edge-to-edge) ve
+      ayrışan bant kalmıyor.
 
-      İzole test bunu doğruladı: beyaz gövde + backdrop-filter yok = temiz;
-      tek değişken zemini `paper` yapmak şeridi geri getiriyordu. (backdrop-
-      filter ayrı bir tetikleyici; dokunmatikte .yapiskan-baslik'te kapalı.)
+      Işık sayfaları (AuthShell/panel/admin) `min-h-screen bg-paper` ile kendi
+      tam-yükseklik zeminini bunun ÜSTÜNE boyuyor; koyu kök zemin orada hiç
+      görünmüyor. Public sayfalarda da orta kısım `bg-white` bölümlerle kaplı,
+      koyu kök yalnızca zaten koyu olan üst/alt kenarlarda görünüyor.
 
-      AuthShell/panel kendi tam-yükseklik `paper` zeminlerini bunun ÜSTÜNE
-      boyuyor; orada içerik de paper olduğu için ayrışma zaten yok.
-
-      color-scheme ayrıca tarayıcıya sayfanın açık temalı olduğunu söylüyor;
-      kaydırma çubuğu ve form denetimleri de buna göre çiziliyor.
+      color-scheme: light — içerik açık temalı; form denetimleri ve kaydırma
+      çubuğu buna göre çiziliyor.
     */
-    background-color: #fff;
+    background-color: var(--color-ink);
     color-scheme: light;
 
     /* Sayfa içi bağlantılar (#egitimler gibi) sıçrayarak değil kayarak
