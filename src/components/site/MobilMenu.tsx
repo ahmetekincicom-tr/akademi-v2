@@ -23,9 +23,49 @@ import type { NavItem } from "./siteNav";
 export function MobilMenu({ nav, logo }: { nav: NavItem[]; logo?: React.ReactNode }) {
   const [acik, setAcik] = useState(false);
   const pathname = usePathname();
-  const kapat = () => setAcik(false);
   // Saydam başlıkta (ana sayfa üstü) hamburger açık renk.
   const saydam = useBaslikSaydam();
+
+  /*
+    Overlay YALNIZCA gerekliyken DOM'da.
+
+    iOS 26.0 Safari'de DOM'da sürekli duran, viewport boyutunda bir
+    `position: fixed; inset: 0` konteyneri, alt adres çubuğunun altında
+    ~safe-area yüksekliğinde bir şerit/boşluk bırakıyor ve sayfanın çubuğun
+    arkasına akmasını (edge-to-edge) engelliyor. Overlay kapalıyken tamamen
+    kaldırılınca bu tuzak ortadan kalkıyor — hesap ekranının (MobilMenu yok)
+    temiz olmasının sebebi de buydu.
+
+    `dom`: element ekranda mı. `gorunur`: açık görünüm (kayma/opaklık). Aç:
+    önce DOM'a ekle, bir sonraki karede görünür yap (mount sonrası geçiş
+    çalışsın). Kapat: görünmez yap, geçiş bitince DOM'dan çıkar. setState'ler
+    yalnızca handler ve callback içinde — effect gövdesinde senkron çağrı yok.
+  */
+  const [dom, setDom] = useState(false);
+  const [gorunur, setGorunur] = useState(false);
+
+  const ac = () => {
+    setDom(true);
+    setAcik(true);
+  };
+  const kapat = () => {
+    setGorunur(false);
+    setAcik(false);
+  };
+
+  // DOM'a eklendikten SONRA görünür yap (rAF callback: senkron setState değil).
+  useEffect(() => {
+    if (!dom) return;
+    const r = requestAnimationFrame(() => setGorunur(true));
+    return () => cancelAnimationFrame(r);
+  }, [dom]);
+
+  // Kapanış geçişi bitince DOM'dan çıkar (setTimeout callback).
+  useEffect(() => {
+    if (gorunur || !dom) return;
+    const t = setTimeout(() => setDom(false), 320);
+    return () => clearTimeout(t);
+  }, [gorunur, dom]);
 
   // Panel açıkken arka planın kaymasını engelle.
   useEffect(() => {
@@ -41,7 +81,7 @@ export function MobilMenu({ nav, logo }: { nav: NavItem[]; logo?: React.ReactNod
   useEffect(() => {
     if (!acik) return;
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setAcik(false);
+      if (e.key === "Escape") kapat();
     };
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
@@ -51,7 +91,7 @@ export function MobilMenu({ nav, logo }: { nav: NavItem[]; logo?: React.ReactNod
     <>
       <button
         type="button"
-        onClick={() => setAcik(true)}
+        onClick={ac}
         aria-label="Menüyü aç"
         aria-expanded={acik}
         className={`flex h-10 w-10 flex-none items-center justify-center rounded-[10px] border transition lg:hidden ${
@@ -62,27 +102,18 @@ export function MobilMenu({ nav, logo }: { nav: NavItem[]; logo?: React.ReactNod
       </button>
 
       {/*
-        Kaplama her zaman DOM'da; açık/kapalı geçişi opacity + translate ile,
-        böylece hem açılış hem kapanış yumuşak. Kapalıyken pointer-events yok.
+        Overlay yalnızca dom=true iken basılıyor (gerekçe yukarıdaki state
+        bloğunda: iOS 26'da sürekli duran fixed inset-0 alt çubuk şeridine yol
+        açıyor). Açık/kapalı geçişi opacity + translate ile; kapalıyken zaten
+        DOM'dan çıkıyor.
       */}
-      <div className={`fixed inset-0 z-[70] lg:hidden ${acik ? "" : "pointer-events-none"}`} aria-hidden={!acik}>
-        {/*
-          backdrop-blur YALNIZCA menü açıkken.
-
-          Bu overlay yumuşak geçiş için menü kapalıyken de DOM'da duruyor
-          (fixed inset-0, opacity-0). backdrop-filter'ı burada sabit tutmak
-          iOS 26 Safari'de ağır bir arızaya yol açıyordu: Safari, görünmez de
-          olsa bu backdrop-filter compositing katmanını örnekleyip alt adres
-          çubuğunu gri bir bantla boyuyor ve sayfanın çubuğun arkasına
-          uzanmasını (edge-to-edge) engelliyordu. backdrop-blur yalnızca açık
-          durumda uygulanınca kapalıyken katman oluşmuyor, çubuk saydam kalıp
-          içerik ekranın fiziksel alt kenarına kadar akıyor. (/safari-test10
-          vs /safari-test11 ile kanıtlandı.)
-        */}
+      {dom && (
+      <div className={`fixed inset-0 z-[70] lg:hidden ${gorunur ? "" : "pointer-events-none"}`} aria-hidden={!acik}>
+        {/* backdrop-blur yalnızca açık görünümde. */}
         <div
           onClick={kapat}
           className={`absolute inset-0 bg-ink/50 transition-opacity duration-300 ${
-            acik ? "opacity-100 backdrop-blur-[3px]" : "opacity-0"
+            gorunur ? "opacity-100 backdrop-blur-[3px]" : "opacity-0"
           }`}
         />
 
@@ -97,7 +128,7 @@ export function MobilMenu({ nav, logo }: { nav: NavItem[]; logo?: React.ReactNod
             katmanlı duruyor.
           */
           className={`absolute top-0 right-0 flex h-dvh w-[88%] max-w-[360px] flex-col bg-gradient-to-b from-white via-white to-[#F3F5FA] shadow-[-24px_0_60px_rgba(10,13,24,0.26)] transition-transform duration-300 ease-out ${
-            acik ? "translate-x-0" : "translate-x-full"
+            gorunur ? "translate-x-0" : "translate-x-full"
           }`}
         >
           {/* Üst: marka + kapat. Çentikli telefonlarda üst güvenli alan kadar
@@ -199,6 +230,7 @@ export function MobilMenu({ nav, logo }: { nav: NavItem[]; logo?: React.ReactNod
           </div>
         </aside>
       </div>
+      )}
     </>
   );
 }
