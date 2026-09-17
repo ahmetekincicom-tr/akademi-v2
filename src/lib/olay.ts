@@ -17,6 +17,7 @@
  */
 
 import { oaiqOlcum } from "@/lib/oaiq";
+import { OAIQ_LEAD_OLAYI } from "@/lib/openai-ads/ortak";
 
 type Ads = { id: string; etiket: string };
 
@@ -72,6 +73,10 @@ export function whatsappOlayi(yer: string, ref: string | null): void {
     çağrı, çünkü OpenAI'nin kendi SDK'sı var ve Consent Mode onu kapsamıyor —
     izin kontrolü oaiqOlcum içinde. Piksel yalnızca izinle yüklendiğinden izin
     yoksa bu da sessizce atlanır.
+
+    event_id = ref (WhatsApp takip kodu): sunucu tarafı CAPI (/api/temas →
+    openaiLeadGonder) AYNI kodu event id yapıyor → OpenAI iki bildirimi tek
+    dönüşüm sayıyor (dedup). Piksel bloklanırsa sunucu, ikisi de geçerse dedup.
   */
-  oaiqOlcum("lead_created", { type: "customer_action" });
+  oaiqOlcum(OAIQ_LEAD_OLAYI, { type: "customer_action" }, ref ?? undefined);
 }

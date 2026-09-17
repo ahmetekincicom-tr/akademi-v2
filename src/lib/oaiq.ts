@@ -1,6 +1,7 @@
 "use client";
 
 import { IZIN_CEREZI, cerezdenOku, izniCoz, reklamIzniVar } from "@/lib/izin";
+import { OAIQ_PIXEL_ID } from "@/lib/openai-ads/ortak";
 
 /**
  * OpenAI (ChatGPT) Ads ölçüm pikseli — tarayıcı tarafı.
@@ -22,15 +23,6 @@ declare global {
     oaiq?: Oaiq;
   }
 }
-
-/**
- * Piksel kimliği. Herkese açık bir tanımlayıcı (sayfa kaynağında görünür),
- * gizli değil — dönüşüm yazan Conversions API anahtarı ayrı ve sunucuda kalır.
- *
- * Meta/Google kimlikleri panelden geliyor; OpenAI Ads yeni olduğu için şimdilik
- * sabit. Panel alanı gerektiğinde settings'e taşınabilir (Meta'daki gibi).
- */
-export const OAIQ_PIXEL_ID = "4JjkdYZzB2UpAPk7xTXAS5";
 
 /**
  * init yalnızca bir kez. Modül seviyesinde, bileşen state'inde değil:
@@ -89,11 +81,15 @@ export function oaiqBaslat(): boolean {
  *
  * Piksel açılmadıysa (izin yok) sessizce atlanır — izinsiz kuyruğa bile
  * yazılmaz. SDK henüz inmediyse çağrı oaiq.q kuyruğunda bekler.
+ *
+ * `eventId` verilirse 4. argüman (supplementaryData) olarak gidiyor: sunucu
+ * tarafı CAPI aynı id'yi gönderdiğinde OpenAI ikisini tek dönüşüm sayıyor
+ * (dedup). Argüman sırası OpenAI SDK'sının beklediği biçim.
  */
-export function oaiqOlcum(tur: string, veri?: Record<string, unknown>): void {
+export function oaiqOlcum(tur: string, veri?: Record<string, unknown>, eventId?: string): void {
   if (!baslatildi || !oaiqIzinVar()) return;
   try {
-    window.oaiq?.("measure", tur, veri ?? {});
+    window.oaiq?.("measure", tur, veri ?? {}, eventId ? { event_id: eventId } : {});
   } catch {
     // Ölçümleme yan iş; kullanıcı akışını hiçbir koşulda bozmamalı.
   }

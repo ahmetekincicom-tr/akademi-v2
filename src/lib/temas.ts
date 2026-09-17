@@ -7,6 +7,7 @@ import { FBC_CEREZI, FBP_CEREZI } from "@/lib/meta/fbc";
 import { istekIpsi } from "@/lib/meta/toplama";
 import { kimlikKur } from "@/lib/meta/kimlik";
 import { metaOlayiKuyrukla } from "@/lib/meta/kuyruk";
+import { openaiLeadGonder } from "@/lib/openai-ads/sunucu";
 
 /**
  * WhatsApp temasının kaydı.
@@ -100,6 +101,14 @@ export async function temasiKaydet(iz: TemasIzi): Promise<void> {
       kaynakUrl: iz.kaynakUrl,
       izin: iz.izin,
     });
+
+    /*
+      OpenAI (ChatGPT) Ads dönüşümü — sunucu tarafı. event_id = iz.kod, tarayıcı
+      pikseli (lib/olay.ts) da aynı kodu gönderdiği için dedup oluyor. İzin
+      kontrolü ve hata yutma openaiLeadGonder içinde; Meta olayını etkilemesin
+      diye ondan sonra ve kendi try/catch'iyle.
+    */
+    await openaiLeadGonder({ kod: iz.kod, izin: iz.izin, kaynakUrl: iz.kaynakUrl });
   } catch (hata) {
     // Ölçümleme yan iş; arka planda da olsa gürültü çıkarmasın.
     console.error("[temas] kayıt başarısız:", hata);
