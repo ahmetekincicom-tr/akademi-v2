@@ -474,16 +474,6 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
             <CurriculumAccordion modules={course.modules} />
           </section>
 
-          {/*
-            Müfredatın hemen altında kayan referans logoları — sosyal kanıt.
-            Veri getReferanslar() ile site geneli tek kaynaktan; panelden
-            güncellenince ana sayfa/referanslar sayfası ile birlikte değişiyor.
-            Boş listede ReferansBulutu null döndüğü için bölüm hiç basılmıyor.
-          */}
-          <div className="mt-16 overflow-hidden rounded-2xl border border-ink/10">
-            <ReferansBulutu referanslar={referanslar} />
-          </div>
-
 
 
           {/*
@@ -799,6 +789,18 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           </div>
         </aside>
       </div>
+
+      {/*
+        Kayan referans logoları — TAM GENİŞLİK. İçerik iki sütunlu ızgarada
+        (müfredat solda, yapışkan kayıt kutusu sağda); tam genişlik bir bandı
+        sütun içine koymak sıkışık görünüyordu, o yüzden ızgaranın hemen altına,
+        sayfa genişliğinde yerleştirildi (ana sayfadakiyle aynı görünüm).
+
+        Veri getReferanslar() ile site geneli TEK kaynaktan: panelden
+        güncellenince ana sayfa, referanslar sayfası ve buradaki şerit birlikte
+        değişiyor. Liste boşsa ReferansBulutu null döndüğü için hiç basılmıyor.
+      */}
+      <ReferansBulutu referanslar={referanslar} />
 
       <PublicFooter />
     </div>
