@@ -27,22 +27,30 @@
 
   html {
     /*
-      SAYFANIN KÖK ZEMİNİ — KATI olmak ZORUNDA.
+      SAYFANIN KÖK ZEMİNİ — KATI ve BEYAZ olmak ZORUNDA.
 
-      iOS 26 Safari (Liquid Glass) alt adres çubuğunun rengini/saydamlığını,
-      kenardaki bir sabit/sticky element yoksa <body> (yoksa <html>)
-      background-color'ından belirliyor. Bu değer ŞEFFAF kalırsa Safari
-      örnekleyecek katı bir zemin bulamıyor ve çubuğu gri bir bantla OPAK
-      boyuyor; sayfanın çubuğun arkasına uzanması (edge-to-edge) bozuluyor.
-      KATI bir renk verilince çubuk YARI SAYDAM kalıp içerik fiziksel alt
-      kenara akıyor — hesap oluşturma ekranının (AuthShell, bg-paper) temiz
-      olmasının sebebi buydu; Web Inspector'da body/html'in rgba(0,0,0,0)
-      çıkması da bantın sebebini doğruladı.
+      iOS 26 Safari (Liquid Glass) alt adres çubuğunun tintini, kenarda sabit/
+      sticky bir element yoksa kök zeminden (<body>, yoksa <html>) örnekliyor.
+      İki koşul birden gerekiyor:
+
+        1. KATI olmalı — şeffaf kalırsa çubuk gri bir bantla OPAK boyanıyor.
+        2. İÇERİKLE AYNI RENK olmalı — çubuk hangi rengi örneklerse şeridi o
+           renge boyuyor. Zemin `paper` (#f5f6fa, açık GRİ) iken çubuk gri
+           çıkıyor ve beyaz (bg-white) içeriğin altında gri bir şerit gibi
+           ayrışıyordu. İçerik beyaz olduğu için kök zemin de beyaz: çubuk
+           beyaza boyanıp içerikle kaynaşıyor, şerit kayboluyor.
+
+      İzole test bunu doğruladı: beyaz gövde + backdrop-filter yok = temiz;
+      tek değişken zemini `paper` yapmak şeridi geri getiriyordu. (backdrop-
+      filter ayrı bir tetikleyici; dokunmatikte .yapiskan-baslik'te kapalı.)
+
+      AuthShell/panel kendi tam-yükseklik `paper` zeminlerini bunun ÜSTÜNE
+      boyuyor; orada içerik de paper olduğu için ayrışma zaten yok.
 
       color-scheme ayrıca tarayıcıya sayfanın açık temalı olduğunu söylüyor;
       kaydırma çubuğu ve form denetimleri de buna göre çiziliyor.
     */
-    background-color: var(--color-paper);
+    background-color: #fff;
     color-scheme: light;
 
     /* Sayfa içi bağlantılar (#egitimler gibi) sıçrayarak değil kayarak

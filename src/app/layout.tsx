@@ -166,12 +166,12 @@ export default async function RootLayout({
         />
       </head>
       {/*
-        bg-paper KATI zemin: iOS 26 Safari alt çubuğunun rengini body
-        background-color'ından örnekliyor. Şeffaf kalırsa çubuk gri bir bantla
-        opak boyanıyordu; katı zemin verilince çubuk yarı saydam kalıp içerik
-        fiziksel alt kenara akıyor. Gerekçe globals.css html kuralında.
+        bg-white KATI zemin: iOS 26 Safari alt çubuğu kök zemini örnekliyor ve
+        şeridi o renge boyuyor. Zemin `paper` (açık gri) iken beyaz içeriğin
+        altında gri bir şerit ayrışıyordu; içerikle aynı renk (beyaz) verilince
+        çubuk beyaza boyanıp kaynaşıyor. Gerekçe globals.css html kuralında.
       */}
-      <body className="antialiased font-body text-ink bg-paper">
+      <body className="antialiased font-body text-ink bg-white">
         {/* Ön yüz kapalıyken, izinli kullanıcıya "bunu yalnızca sen
             görüyorsun" diyor. Çerezden okuyor; gerekçesi bileşende. */}
         <OnizlemeSeridi />
