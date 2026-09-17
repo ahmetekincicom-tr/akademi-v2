@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { slugYap } from "@/lib/duyuru";
 import type { Json } from "@/lib/supabase/tipler";
 
 export type YaziKaydetGirdi = {
@@ -20,6 +21,8 @@ export type YaziKaydetGirdi = {
   seoBaslik: string;
   seoAciklama: string;
   yazar: string;
+  kategoriId: string | null;
+  etiketler: string[];
 };
 
 export async function saveYazi(input: YaziKaydetGirdi): Promise<{ error?: string }> {
@@ -46,6 +49,9 @@ export async function saveYazi(input: YaziKaydetGirdi): Promise<{ error?: string
     seo_baslik: input.seoBaslik.trim(),
     seo_aciklama: input.seoAciklama.trim(),
     yazar: input.yazar.trim(),
+    kategori_id: input.kategoriId,
+    // Boş etiketler ayıklanıyor; tekrarlar temizleniyor.
+    etiketler: Array.from(new Set(input.etiketler.map((e) => e.trim()).filter(Boolean))),
     updated_at: new Date().toISOString(),
   };
 
@@ -90,4 +96,45 @@ export async function silYazi(slug: string): Promise<{ error?: string }> {
   revalidatePath(`/blog/${slug}`);
   revalidatePath("/sitemap.xml");
   redirect("/kontrol-9f4x2k/blog");
+}
+
+/* ---------------------------------------------------------- kategoriler --- */
+
+export async function kategoriEkle(ad: string): Promise<{ id?: string; error?: string }> {
+  const temiz = ad.trim();
+  if (!temiz) return { error: "Kategori adı boş olamaz." };
+  const supabase = await createClient();
+  const slug = slugYap(temiz) || `kategori-${Date.now()}`;
+  const { data, error } = await supabase.from("categories").insert({ ad: temiz, slug }).select("id").single();
+  if (error) return { error: error.code === "23505" ? "Bu kategori (ya da URL) zaten var." : error.message };
+  revalidatePath("/kontrol-9f4x2k/blog");
+  revalidatePath("/blog");
+  return { id: data.id };
+}
+
+export async function kategoriGuncelle(id: string, ad: string): Promise<{ error?: string }> {
+  const temiz = ad.trim();
+  if (!temiz) return { error: "Kategori adı boş olamaz." };
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .update({ ad: temiz, slug: slugYap(temiz) || undefined })
+    .eq("id", id)
+    .select("id");
+  if (error) return { error: error.code === "23505" ? "Bu kategori (ya da URL) zaten var." : error.message };
+  if (!data || data.length === 0) return { error: "Güncellenemedi (RLS)." };
+  revalidatePath("/kontrol-9f4x2k/blog");
+  revalidatePath("/blog");
+  return {};
+}
+
+export async function kategoriSil(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  // FK on delete set null: silinen kategorinin yazıları kategorisiz kalır.
+  const { data, error } = await supabase.from("categories").delete().eq("id", id).select("id");
+  if (error) return { error: error.message };
+  if (!data || data.length === 0) return { error: "Silinemedi (RLS)." };
+  revalidatePath("/kontrol-9f4x2k/blog");
+  revalidatePath("/blog");
+  return {};
 }

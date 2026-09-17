@@ -116,11 +116,12 @@ function breadcrumbAdimlari(pathname: string): BreadcrumbAdim[] {
 
   // Blog editörü de liste sayfasının bir alt kademesinde.
   if (pathname.startsWith("/kontrol-9f4x2k/blog/")) {
-    return [
-      kok,
-      { label: "Blog", href: "/kontrol-9f4x2k/blog" },
-      { label: pathname.endsWith("/yeni") ? "Yeni yazı" : "Yazıyı düzenle" },
-    ];
+    const alt = pathname.endsWith("/yeni")
+      ? "Yeni yazı"
+      : pathname.endsWith("/kategoriler")
+        ? "Kategoriler"
+        : "Yazıyı düzenle";
+    return [kok, { label: "Blog", href: "/kontrol-9f4x2k/blog" }, { label: alt }];
   }
 
   return [kok, { label: pageTitles[pathname] ?? "Sayfa" }];

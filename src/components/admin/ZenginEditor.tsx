@@ -8,6 +8,8 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { useCallback, useRef, useState, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { depoUrl } from "@/lib/depo";
+import { LinkSecici, type LinkSecim } from "@/components/admin/LinkSecici";
+import type { IcLinkHedef } from "@/lib/yazilar";
 
 /**
  * Zengin metin editörü (TipTap).
@@ -58,15 +60,22 @@ function Ayrac() {
   return <span className="mx-1 h-5 w-px bg-ink/12" />;
 }
 
+function htmlKacir(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
 export function ZenginEditor({
   baslangicJson,
+  icHedefler = [],
   onDegisim,
 }: {
   baslangicJson: unknown;
+  icHedefler?: IcLinkHedef[];
   onDegisim: (d: Deger) => void;
 }) {
   const dosyaGirdi = useRef<HTMLInputElement>(null);
   const [gorselYukleniyor, setGorselYukleniyor] = useState(false);
+  const [linkAcik, setLinkAcik] = useState(false);
 
   const gecerliDoc =
     baslangicJson && typeof baslangicJson === "object" && (baslangicJson as { type?: string }).type
@@ -92,23 +101,34 @@ export function ZenginEditor({
     onUpdate: ({ editor }) => onDegisim({ html: editor.getHTML(), json: editor.getJSON() }),
   });
 
-  const baglantiEkle = useCallback(() => {
+  const linkUygula = (s: LinkSecim) => {
     if (!editor) return;
-    const mevcut = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("Bağlantı adresi (iç sayfa için /blog/... yazabilirsin):", mevcut ?? "https://");
-    if (url === null) return;
-    if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
+    setLinkAcik(false);
+    const bos = editor.state.selection.empty;
+    if (bos) {
+      // Seçili metin yoksa hedefin başlığını (ya da URL'yi) bağlı metin olarak ekle.
+      const metin = s.baslik ?? s.url;
+      const oz = s.ic ? "" : ' target="_blank" rel="noopener noreferrer"';
+      editor
+        .chain()
+        .focus()
+        .insertContent(`<a href="${htmlKacir(s.url)}"${oz}>${htmlKacir(metin)}</a>`)
+        .run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .extendMarkRange("link")
+        .setLink({ href: s.url, target: s.ic ? null : "_blank", rel: s.ic ? null : "noopener noreferrer" })
+        .run();
     }
-    const ic = url.startsWith("/");
-    editor
-      .chain()
-      .focus()
-      .extendMarkRange("link")
-      .setLink({ href: url, target: ic ? null : "_blank", rel: ic ? null : "noopener noreferrer" })
-      .run();
-  }, [editor]);
+  };
+
+  const linkKaldir = () => {
+    if (!editor) return;
+    setLinkAcik(false);
+    editor.chain().focus().extendMarkRange("link").unsetLink().run();
+  };
 
   const gorselSec = useCallback(
     async (dosya: File | undefined) => {
@@ -164,7 +184,7 @@ export function ZenginEditor({
           ❝
         </AracDugmesi>
         <Ayrac />
-        <AracDugmesi etiket="Bağlantı" aktif={editor.isActive("link")} onTikla={baglantiEkle}>
+        <AracDugmesi etiket="Bağlantı" aktif={editor.isActive("link")} onTikla={() => setLinkAcik(true)}>
           🔗
         </AracDugmesi>
         <AracDugmesi etiket={gorselYukleniyor ? "Yükleniyor…" : "Görsel ekle"} onTikla={() => dosyaGirdi.current?.click()}>
@@ -191,6 +211,16 @@ export function ZenginEditor({
           e.target.value = "";
         }}
       />
+
+      {linkAcik && (
+        <LinkSecici
+          hedefler={icHedefler}
+          mevcutUrl={(editor.getAttributes("link").href as string | undefined) || undefined}
+          onSec={linkUygula}
+          onKaldir={linkKaldir}
+          onKapat={() => setLinkAcik(false)}
+        />
+      )}
     </div>
   );
 }

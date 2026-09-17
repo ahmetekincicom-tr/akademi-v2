@@ -29,12 +29,20 @@ export default async function BlogListePage() {
           </h1>
           <p className="mt-[7px] text-[14.5px] text-[#5C6273]">Yazıları oluştur, düzenle ve yayınla.</p>
         </div>
-        <Link
-          href="/kontrol-9f4x2k/blog/yeni"
-          className="flex h-[42px] items-center rounded-[10px] bg-brand px-[18px] text-sm font-semibold text-white hover:bg-ink"
-        >
-          + Yeni yazı
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/kontrol-9f4x2k/blog/kategoriler"
+            className="flex h-[42px] items-center rounded-[10px] border border-ink/13 bg-white px-[16px] text-sm font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+          >
+            Kategoriler
+          </Link>
+          <Link
+            href="/kontrol-9f4x2k/blog/yeni"
+            className="flex h-[42px] items-center rounded-[10px] bg-brand px-[18px] text-sm font-semibold text-white hover:bg-ink"
+          >
+            + Yeni yazı
+          </Link>
+        </div>
       </div>
 
       <div className="mt-[22px] flex flex-col gap-[14px]">

@@ -1,12 +1,16 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { YaziEditoru } from "@/components/admin/YaziEditoru";
-import { yaziGetirAdmin } from "@/lib/yazilar";
+import { yaziGetirAdmin, getKategoriler, icLinkHedefleri } from "@/lib/yazilar";
 
 export default async function YaziDuzenlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
-  const yazi = await yaziGetirAdmin(slug, supabase);
+  const [yazi, kategoriler, icHedefler] = await Promise.all([
+    yaziGetirAdmin(slug, supabase),
+    getKategoriler(),
+    icLinkHedefleri(),
+  ]);
   if (!yazi) notFound();
 
   return (
@@ -15,7 +19,7 @@ export default async function YaziDuzenlePage({ params }: { params: Promise<{ sl
         Yazıyı düzenle
       </h1>
       <div className="mt-6">
-        <YaziEditoru mevcut={yazi} />
+        <YaziEditoru mevcut={yazi} kategoriler={kategoriler} icHedefler={icHedefler} />
       </div>
     </main>
   );

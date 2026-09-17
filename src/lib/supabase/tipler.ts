@@ -46,15 +46,32 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["courses"]["Row"]>;
         Relationships: [];
       };
+      categories: {
+        Row: {
+          ad: string;
+          created_at: string;
+          id: string;
+          sira: number;
+          slug: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["categories"]["Row"]> & {
+          ad: string;
+          slug: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["categories"]["Row"]>;
+        Relationships: [];
+      };
       posts: {
         Row: {
           baslik: string;
           created_at: string;
           durum: string;
+          etiketler: string[];
           icerik_html: string;
           icerik_json: Json;
           id: string;
           kapak_gorsel: string | null;
+          kategori_id: string | null;
           ozet: string;
           seo_aciklama: string;
           seo_baslik: string;
@@ -68,7 +85,15 @@ export type Database = {
           slug: string;
         };
         Update: Partial<Database["public"]["Tables"]["posts"]["Row"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "posts_kategori_id_fkey";
+            columns: ["kategori_id"];
+            isOneToOne: false;
+            referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       documents: {
         Row: {

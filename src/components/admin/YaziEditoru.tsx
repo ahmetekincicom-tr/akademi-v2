@@ -6,8 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { depoUrl } from "@/lib/depo";
 import { slugYap } from "@/lib/duyuru";
 import { ZenginEditor } from "@/components/admin/ZenginEditor";
-import { saveYazi, silYazi } from "@/app/kontrol-9f4x2k/(protected)/blog/actions";
-import type { Yazi } from "@/lib/yazilar";
+import { saveYazi, silYazi, kategoriEkle } from "@/app/kontrol-9f4x2k/(protected)/blog/actions";
+import type { Yazi, Kategori, IcLinkHedef } from "@/lib/yazilar";
 
 const ETIKET = "font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase";
 const GIRDI =
@@ -25,7 +25,17 @@ function isoDanYerel(iso: string | null): string {
   }
 }
 
-export function YaziEditoru({ mevcut, varsayilanYazar }: { mevcut?: Yazi | null; varsayilanYazar?: string }) {
+export function YaziEditoru({
+  mevcut,
+  varsayilanYazar,
+  kategoriler = [],
+  icHedefler = [],
+}: {
+  mevcut?: Yazi | null;
+  varsayilanYazar?: string;
+  kategoriler?: Kategori[];
+  icHedefler?: IcLinkHedef[];
+}) {
   const bildir = useBildirim();
 
   const [baslik, setBaslik] = useState(mevcut?.baslik ?? "");
@@ -38,8 +48,21 @@ export function YaziEditoru({ mevcut, varsayilanYazar }: { mevcut?: Yazi | null;
   const [seoBaslik, setSeoBaslik] = useState(mevcut?.seoBaslik ?? "");
   const [seoAciklama, setSeoAciklama] = useState(mevcut?.seoAciklama ?? "");
   const [yazar, setYazar] = useState(mevcut?.yazar || varsayilanYazar || "");
+  const [kategoriId, setKategoriId] = useState<string>(mevcut?.kategoriId ?? "");
+  const [kategoriListe, setKategoriListe] = useState<Kategori[]>(kategoriler);
+  const [etiketMetni, setEtiketMetni] = useState((mevcut?.etiketler ?? []).join(", "));
   const [kaydediliyor, setKaydediliyor] = useState(false);
   const [kapakYukleniyor, setKapakYukleniyor] = useState(false);
+
+  const yeniKategori = async () => {
+    const ad = window.prompt("Yeni kategori adı:");
+    if (!ad || !ad.trim()) return;
+    const r = await kategoriEkle(ad.trim());
+    if (r.error || !r.id) return bildir.hata(r.error ?? "Kategori eklenemedi.");
+    setKategoriListe((l) => [...l, { id: r.id!, slug: "", ad: ad.trim() }]);
+    setKategoriId(r.id);
+    bildir.basarili("Kategori eklendi.");
+  };
 
   // İçerik her tuşta ref'e yazılıyor; state yapılsaydı tüm form yeniden çizilirdi.
   const icerik = useRef<{ html: string; json: unknown }>({
@@ -81,6 +104,11 @@ export function YaziEditoru({ mevcut, varsayilanYazar }: { mevcut?: Yazi | null;
       seoBaslik: seoBaslik.trim(),
       seoAciklama: seoAciklama.trim(),
       yazar: yazar.trim(),
+      kategoriId: kategoriId || null,
+      etiketler: etiketMetni
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
     });
     // Başarılıysa action redirect ediyor; buraya yalnızca hata dönerse geliyoruz.
     setKaydediliyor(false);
@@ -123,7 +151,11 @@ export function YaziEditoru({ mevcut, varsayilanYazar }: { mevcut?: Yazi | null;
 
         <div className="flex flex-col gap-2">
           <span className={ETIKET}>İçerik</span>
-          <ZenginEditor baslangicJson={mevcut?.icerikJson ?? null} onDegisim={(d) => (icerik.current = d)} />
+          <ZenginEditor
+            baslangicJson={mevcut?.icerikJson ?? null}
+            icHedefler={icHedefler}
+            onDegisim={(d) => (icerik.current = d)}
+          />
         </div>
       </div>
 
@@ -171,6 +203,33 @@ export function YaziEditoru({ mevcut, varsayilanYazar }: { mevcut?: Yazi | null;
             <div className="flex flex-col gap-2">
               <span className={ETIKET}>Yazar</span>
               <input value={yazar} onChange={(e) => setYazar(e.target.value)} className={GIRDI} />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className={ETIKET}>Kategori</span>
+                <button type="button" onClick={yeniKategori} className="text-[12px] font-semibold text-brand hover:text-ink">
+                  + Yeni
+                </button>
+              </div>
+              <select value={kategoriId} onChange={(e) => setKategoriId(e.target.value)} className={GIRDI}>
+                <option value="">— Kategorisiz —</option>
+                {kategoriListe.map((k) => (
+                  <option key={k.id} value={k.id}>
+                    {k.ad}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className={ETIKET}>Etiketler (virgülle ayır)</span>
+              <input
+                value={etiketMetni}
+                onChange={(e) => setEtiketMetni(e.target.value)}
+                placeholder="meta ads, facebook, bütçe"
+                className={GIRDI}
+              />
             </div>
           </div>
         </div>

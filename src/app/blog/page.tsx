@@ -3,19 +3,24 @@ import type { Metadata } from "next";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { getYayindakiYazilar } from "@/lib/yazilar";
-import { sayfaMeta } from "@/lib/seo";
+import { getYayindakiYazilar, getKategoriler } from "@/lib/yazilar";
+import { sayfaMeta, SITE_URL } from "@/lib/seo";
 
 // Gerekçe: src/app/page.tsx (ISR — saatlik yeniden üretim).
 export const revalidate = 3600;
 
-export function generateMetadata(): Promise<Metadata> {
-  return sayfaMeta({
+export async function generateMetadata(): Promise<Metadata> {
+  const meta = await sayfaMeta({
     baslik: "Blog",
     aciklama:
       "Meta (Facebook & Instagram) reklamları, sosyal medya yönetimi ve dijital pazarlama üzerine rehberler, ipuçları ve güncel stratejiler.",
     yol: "/blog",
   });
+  // Feed okuyucular için otomatik keşif bağlantısı.
+  return {
+    ...meta,
+    alternates: { ...meta.alternates, types: { "application/rss+xml": `${SITE_URL}/blog/rss.xml` } },
+  };
 }
 
 function tarih(deger: string | null): string {
@@ -30,7 +35,7 @@ function tarih(deger: string | null): string {
 }
 
 export default async function BlogPage() {
-  const yazilar = await getYayindakiYazilar();
+  const [yazilar, kategoriler] = await Promise.all([getYayindakiYazilar(), getKategoriler()]);
 
   return (
     <div className="bg-white">
@@ -59,6 +64,19 @@ export default async function BlogPage() {
       </section>
 
       <main className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
+        {kategoriler.length > 0 && (
+          <div className="mb-10 flex flex-wrap gap-2">
+            {kategoriler.map((k) => (
+              <Link
+                key={k.id}
+                href={`/blog/kategori/${k.slug}`}
+                className="rounded-full border border-ink/12 bg-white px-[15px] py-[8px] text-[13.5px] font-medium text-[#3A3F4F] transition hover:border-brand hover:text-brand"
+              >
+                {k.ad}
+              </Link>
+            ))}
+          </div>
+        )}
         {yazilar.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-ink/15 bg-mist p-12 text-center text-[15px] text-[#5C6273]">
             Yakında ilk yazılar burada olacak.
