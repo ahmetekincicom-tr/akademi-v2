@@ -67,6 +67,7 @@ export type Database = {
           created_at: string;
           durum: string;
           etiketler: string[];
+          icerik_guncelleme: string | null;
           icerik_html: string;
           icerik_json: Json;
           id: string;

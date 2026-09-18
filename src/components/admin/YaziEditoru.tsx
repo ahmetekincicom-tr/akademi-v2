@@ -53,6 +53,9 @@ export function YaziEditoru({
   const [etiketMetni, setEtiketMetni] = useState((mevcut?.etiketler ?? []).join(", "));
   const [kaydediliyor, setKaydediliyor] = useState(false);
   const [kapakYukleniyor, setKapakYukleniyor] = useState(false);
+  // Var olan yazıyı düzenlerken: bu kayıt içeriğin güncellenme tarihini
+  // değiştirsin mi? Varsayılan kapalı — her save'de dateModified ilerlemesin.
+  const [icerikGuncellendi, setIcerikGuncellendi] = useState(false);
 
   const yeniKategori = async () => {
     const ad = window.prompt("Yeni kategori adı:");
@@ -109,6 +112,7 @@ export function YaziEditoru({
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
+      icerikGuncellendi,
     });
     // Başarılıysa action redirect ediyor; buraya yalnızca hata dönerse geliyoruz.
     setKaydediliyor(false);
@@ -186,6 +190,34 @@ export function YaziEditoru({
                 className={GIRDI}
               />
             </div>
+
+            {/* İçerik güncelleme tarihi: teknik updated_at'ten AYRI. Her save'de
+                otomatik değişmiyor; yalnızca bu kutu işaretlenirse damgalanıyor. */}
+            {mevcut && (
+              <div className="flex flex-col gap-1.5 rounded-[10px] border border-ink/12 bg-mist p-3">
+                <span className={ETIKET}>Son içerik güncellemesi</span>
+                <span className="text-[13px] text-[#5C6273]">
+                  {mevcut.icerikGuncelleme
+                    ? new Date(mevcut.icerikGuncelleme).toLocaleDateString("tr-TR")
+                    : "— (yayından beri güncellenmedi)"}
+                </span>
+                <label className="mt-1 flex items-start gap-2 text-[13px] text-ink">
+                  <input
+                    type="checkbox"
+                    checked={icerikGuncellendi}
+                    onChange={(e) => setIcerikGuncellendi(e.target.checked)}
+                    className="mt-[3px]"
+                  />
+                  <span>
+                    Bu değişiklik içeriğin güncellenme tarihini değiştirsin
+                    <span className="mt-0.5 block text-[11.5px] text-[#8A90A0]">
+                      Yalnızca gerçek içerik güncellemelerinde işaretleyin (yeni bölüm, düzeltme, güncel
+                      ekran görüntüsü). Yazım/teknik düzeltmelerde boş bırakın.
+                    </span>
+                  </span>
+                </label>
+              </div>
+            )}
 
             <div className="flex flex-col gap-2">
               <span className={ETIKET}>URL</span>
