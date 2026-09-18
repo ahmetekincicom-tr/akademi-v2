@@ -69,7 +69,7 @@ export function KategoriYonetimi({ kategoriler }: { kategoriler: (Kategori & { a
           <div key={k.id} className="flex items-center gap-3 rounded-[12px] border border-ink/10 bg-white p-3">
             <div className="min-w-0 flex-1">
               <div className="truncate text-[15px] font-semibold">{k.ad}</div>
-              <div className="font-mono text-[11px] text-[#8A90A0]">/{k.slug} · {k.adet} yazı</div>
+              <div className="font-mono text-[11px] text-[#8A90A0]">/blog/kategori/{k.slug} · {k.adet} yazı</div>
             </div>
             <button
               type="button"

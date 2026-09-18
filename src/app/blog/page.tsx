@@ -69,7 +69,7 @@ export default async function BlogPage() {
             {kategoriler.map((k) => (
               <Link
                 key={k.id}
-                href={`/${k.slug}`}
+                href={`/blog/kategori/${k.slug}`}
                 className="rounded-full border border-ink/12 bg-white px-[15px] py-[8px] text-[13.5px] font-medium text-[#3A3F4F] transition hover:border-brand hover:text-brand"
               >
                 {k.ad}
@@ -86,7 +86,7 @@ export default async function BlogPage() {
             {yazilar.map((y) => (
               <Link
                 key={y.id}
-                href={`/${y.slug}`}
+                href={`/blog/${y.slug}`}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[4px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
               >
                 <div

@@ -76,22 +76,22 @@ export async function saveYazi(input: YaziKaydetGirdi): Promise<{ error?: string
 
   /*
     Ön yüz saatlik yeniden üretiliyor; kayıt anında görünsün diye tazeleniyor.
-    Yazılar ve kategoriler KÖKTE sunuluyor (/{slug}), /blog yalnızca dizin.
+    Yazılar /blog/{slug}, kategori arşivleri /blog/kategori/{slug} altında.
   */
   revalidatePath("/blog");
-  revalidatePath(`/${input.slug}`);
+  revalidatePath(`/blog/${input.slug}`);
   if (input.originalSlug && input.originalSlug !== input.slug) {
-    revalidatePath(`/${input.originalSlug}`);
+    revalidatePath(`/blog/${input.originalSlug}`);
   }
   // Yazının kategorisi varsa arşiv sayfası da tazelensin (yeni yazı listede
-  // görünsün). Kategori arşivi de kökte: /{kategoriSlug}.
+  // görünsün).
   if (input.kategoriId) {
     const { data: kat } = await supabase
       .from("categories")
       .select("slug")
       .eq("id", input.kategoriId)
       .maybeSingle();
-    if (kat?.slug) revalidatePath(`/${kat.slug}`);
+    if (kat?.slug) revalidatePath(`/blog/kategori/${kat.slug}`);
   }
   revalidatePath("/sitemap.xml");
 
@@ -106,7 +106,7 @@ export async function silYazi(slug: string): Promise<{ error?: string }> {
     return { error: "Silinemedi. Yönetici yetkisi doğrulanamadı (RLS)." };
   }
   revalidatePath("/blog");
-  revalidatePath(`/${slug}`);
+  revalidatePath(`/blog/${slug}`);
   revalidatePath("/sitemap.xml");
   redirect("/kontrol-9f4x2k/blog");
 }

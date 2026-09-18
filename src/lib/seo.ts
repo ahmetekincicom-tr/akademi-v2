@@ -298,8 +298,8 @@ export function makaleSemasi(m: {
   guncelleme: string;
   yazar: string;
 }) {
-  // Yazılar kökte sunuluyor (WordPress yapısı birebir korundu): /{slug}.
-  const adres = `${SITE_URL}/${m.slug}`;
+  // Yazılar /blog/{slug} altında sunuluyor (WordPress yapısı birebir korundu).
+  const adres = `${SITE_URL}/blog/${m.slug}`;
   return {
     "@context": "https://schema.org",
     "@type": "Article",

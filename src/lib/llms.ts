@@ -115,14 +115,14 @@ export async function getBlogYazilari(limit = 60): Promise<BlogYazisi[]> {
     API'si DEĞİL. Faz 3'te blog içeriği WordPress'ten Supabase'e taşındı;
     llms.txt'nin WordPress'in ayakta olmasına bağlı kalması gerekmiyor.
 
-    Yazılar KÖKTE sunuluyor: adres /{slug}/ (WordPress yapısı birebir korundu).
+    Yazılar /blog/{slug}/ altında sunuluyor (WordPress yapısı birebir korundu).
   */
   try {
     const { getYayindakiYazilar } = await import("@/lib/yazilar");
     const yazilar = await getYayindakiYazilar();
     return yazilar.slice(0, limit).map((y) => ({
       baslik: y.baslik,
-      adres: `${SITE_URL}/${y.slug}/`,
+      adres: `${SITE_URL}/blog/${y.slug}/`,
       ozet: htmlsiz(y.ozet ?? ""),
       tarih: (y.yayinTarihi ?? y.guncelleme ?? "").slice(0, 10),
     }));
