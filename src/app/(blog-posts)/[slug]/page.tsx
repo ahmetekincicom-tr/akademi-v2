@@ -16,9 +16,34 @@ import {
   type Yazi,
   type Kategori,
 } from "@/lib/yazilar";
-import { iceriktenIcindekiler } from "@/lib/blog-icerik";
+import { iceriktenIcindekiler, type IcindekiSatir } from "@/lib/blog-icerik";
+import { grupla } from "@/lib/blog-toc";
+import { egitimCtaHtml } from "@/lib/blog-cta";
+import { IcindekilerYan } from "@/components/blog/IcindekilerYan";
+import { IcindekilerAccordion } from "@/components/blog/IcindekilerAccordion";
+import { EgitimCta } from "@/components/blog/EgitimCta";
 import { mutlakDepoUrl } from "@/lib/depo";
 import { sayfaMeta, makaleSemasi, kirintiSemasi, SITE_URL } from "@/lib/seo";
+
+/**
+ * Mobil/tablet için içerik içi (~%40) kompakt CTA'yı gövdeye enjekte eder.
+ *
+ * Bileşen yerine HTML string enjeksiyonu: CTA tek `.blog-icerik` kabının
+ * İÇİNDE, blok sınırında (bir H2'den hemen önce) duruyor — böylece içerik ikiye
+ * bölünüp iki ayrı kaba düşmüyor (kenar boşluğu/masaüstü görünümü bozulmuyor).
+ * Yalnızca yeterince uzun yazılarda (≥3 H2) ekleniyor; kısa yazıda reklam
+ * hissi yaratmasın.
+ */
+function araCtaEkle(html: string, h2ler: IcindekiSatir[]): string {
+  if (h2ler.length < 3) return html;
+  const idx = Math.min(h2ler.length - 1, Math.max(1, Math.round(h2ler.length * 0.4)));
+  const idIsaret = `id="${h2ler[idx].id}"`;
+  const idPos = html.indexOf(idIsaret);
+  if (idPos === -1) return html;
+  const h2Pos = html.lastIndexOf("<h2", idPos);
+  if (h2Pos === -1) return html;
+  return html.slice(0, h2Pos) + egitimCtaHtml("ara") + html.slice(h2Pos);
+}
 
 /**
  * Kök slug rotası — WordPress'ten taşınan blog yazıları ve kategori arşivleri.
@@ -110,11 +135,16 @@ export default async function KokSlugPage({ params }: { params: Promise<{ slug: 
 /* ------------------------------------------------------------- yazı --- */
 
 async function YaziDetay({ yazi }: { yazi: Yazi }) {
-  const [{ html: icerikHtml, icindekiler }, ilgili] = await Promise.all([
+  const [{ html: icerikHam, icindekiler }, ilgili] = await Promise.all([
     Promise.resolve(iceriktenIcindekiler(yazi.icerikHtml)),
     ilgiliYazilar(yazi.id, yazi.kategoriId),
   ]);
-  const tocGoster = icindekiler.length >= 3;
+
+  // İçindekiler yapısı (yalnızca sunum): H2 grupları + düz H2 listesi.
+  const gruplar = grupla(icindekiler);
+  const h2ler = icindekiler.filter((i) => i.seviye === 2);
+  // Mobil/tablet ara CTA'sını gövdeye ekle (masaüstünde CSS ile gizli).
+  const icerikHtml = araCtaEkle(icerikHam, h2ler);
 
   const kapakMutlak = mutlakDepoUrl(yazi.kapak, SITE_URL);
 
@@ -141,15 +171,21 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
       <div className="bg-white">
         <PublicHeader />
 
-        <article className="mx-auto max-w-[760px] px-5 pt-14 pb-20 sm:px-8 sm:pt-20">
-          <nav aria-label="Kırıntı yolu" className="font-mono text-[11px] tracking-[0.06em] text-[#8A90A0]">
-            <Link href="/blog" className="inline-flex items-center gap-[6px] hover:text-brand">
-              <Icon name="arrowLeft" size={14} />
-              Blog
-            </Link>
-          </nav>
+        {/*
+          Masaüstü (≥1024px): iki kolon — içerik (≤760px) + sticky sidebar
+          (296px). Altında tek kolon; sidebar tamamen kalkıyor, İçindekiler
+          accordion'a, CTA içerik akışına dönüyor.
+        */}
+        <div className="mx-auto max-w-[1200px] px-5 pt-14 pb-20 sm:px-8 sm:pt-20 lg:grid lg:grid-cols-[minmax(0,1fr)_296px] lg:gap-12 xl:gap-16">
+          <article className="mx-auto w-full min-w-0 max-w-[760px] lg:mx-0">
+            <nav aria-label="Kırıntı yolu" className="font-mono text-[11px] tracking-[0.06em] text-[#8A90A0]">
+              <Link href="/blog" className="inline-flex items-center gap-[6px] hover:text-brand">
+                <Icon name="arrowLeft" size={14} />
+                Blog
+              </Link>
+            </nav>
 
-          <header className="mt-6">
+            <header className="mt-6">
             <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] tracking-[0.08em] text-[#6B7080]">
               {yazi.kategori && (
                 <Link
@@ -172,47 +208,51 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
             {yazi.ozet && <p className="mt-5 text-[18px] leading-[1.6] text-pretty text-[#5C6273]">{yazi.ozet}</p>}
           </header>
 
-          {yazi.kapak && (
-            <div
-              className="mt-8 aspect-[16/9] overflow-hidden rounded-2xl bg-cover bg-center"
-              style={{ backgroundImage: `url(${yazi.kapak})` }}
-              role="img"
-              aria-label={yazi.baslik}
-            />
-          )}
+            {yazi.kapak && (
+              <div
+                className="mt-8 aspect-[16/9] overflow-hidden rounded-2xl bg-cover bg-center"
+                style={{ backgroundImage: `url(${yazi.kapak})` }}
+                role="img"
+                aria-label={yazi.baslik}
+              />
+            )}
 
-          {tocGoster && (
-            <nav aria-label="İçindekiler" className="mt-10 rounded-2xl border border-ink/10 bg-mist/60 p-5">
-              <div className="font-mono text-[10.5px] tracking-[0.16em] text-[#656B7A] uppercase">İçindekiler</div>
-              <ul className="mt-3 flex flex-col gap-[7px]">
-                {icindekiler.map((i) => (
-                  <li key={i.id} className={i.seviye === 3 ? "pl-4" : ""}>
-                    <a
-                      href={`#${i.id}`}
-                      className="text-[14.5px] leading-[1.4] text-[#3A3F4F] hover:text-brand hover:underline"
-                    >
-                      {i.metin}
-                    </a>
-                  </li>
+            {/* Mobil/tablet İçindekiler: kapak sonrası, içerik öncesi accordion
+                (bileşen kendini lg:hidden ile masaüstünde gizliyor). */}
+            <IcindekilerAccordion h2ler={h2ler} />
+
+            {/* İçerik editörde/WordPress'ten gelen HTML; yazarlar yönetici
+                olduğu için güvenilir kaynak. Başlıklara TOC için id eklendi.
+                Mobil ara CTA gövdeye enjekte edildi (masaüstünde CSS ile gizli). */}
+            <div className="blog-icerik mt-10" dangerouslySetInnerHTML={{ __html: icerikHtml }} />
+
+            {yazi.etiketler.length > 0 && (
+              <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-ink/10 pt-6">
+                {yazi.etiketler.map((e) => (
+                  <span key={e} className="rounded-full bg-ink/[0.05] px-[11px] py-[5px] text-[12.5px] text-[#5C6273]">
+                    #{e}
+                  </span>
                 ))}
-              </ul>
-            </nav>
-          )}
+              </div>
+            )}
 
-          {/* İçerik editörde/WordPress'ten gelen HTML; yazarlar yönetici olduğu
-              için güvenilir kaynak. Başlıklara TOC için id eklendi. */}
-          <div className="blog-icerik mt-10" dangerouslySetInnerHTML={{ __html: icerikHtml }} />
+            {/* Mobil/tablet yazı sonu güçlü CTA (masaüstünde CSS ile gizli;
+                orada sidebar CTA'sı devrede). */}
+            <EgitimCta varyant="son" />
+          </article>
 
-          {yazi.etiketler.length > 0 && (
-            <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-ink/10 pt-6">
-              {yazi.etiketler.map((e) => (
-                <span key={e} className="rounded-full bg-ink/[0.05] px-[11px] py-[5px] text-[12.5px] text-[#5C6273]">
-                  #{e}
-                </span>
-              ))}
+          {/* Masaüstü sticky sidebar: İçindekiler (scroll-spy) + eğitim CTA.
+              1024px altında tamamen gizli. */}
+          <aside className="hidden lg:block">
+            <div
+              className="flex flex-col gap-5"
+              style={{ position: "sticky", top: "calc(var(--baslik-h, 84px) + 24px)" }}
+            >
+              {gruplar.length > 0 && <IcindekilerYan gruplar={gruplar} />}
+              <EgitimCta varyant="yan" />
             </div>
-          )}
-        </article>
+          </aside>
+        </div>
 
         {ilgili.length > 0 && (
           <section className="border-t border-ink/10 bg-mist/40">
