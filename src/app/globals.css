@@ -943,9 +943,36 @@ body[data-menu-acik="1"] {
 .blog-icerik .blog-gorsel {
   display: block;
   max-width: 100%;
-  height: auto;
+  height: auto; /* width/height oranı korunur, görsel bozulmaz (CLS azalır) */
   border-radius: 14px;
   margin: 1.6em 0;
+}
+/*
+  Yeni yüklenen görseller <figure> içinde: kenar boşluğu figure'da, görselde
+  değil. Caption varsa figcaption olarak; yoksa hiç figcaption üretilmiyor.
+*/
+.blog-icerik figure.blog-figur {
+  margin: 1.7em 0;
+}
+.blog-icerik figure.blog-figur img {
+  margin: 0;
+}
+.blog-icerik .blog-figcaption {
+  margin-top: 0.65em;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #6b7080;
+  text-align: center;
+}
+/* Lightbox açık görsel: büyütülebilir olduğunu imleçle belli et. */
+.blog-icerik img[data-lightbox="1"] {
+  cursor: zoom-in;
+}
+/* Editörde seçili figure. */
+.blog-icerik figure.blog-figur.ProseMirror-selectednode {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+  border-radius: 14px;
 }
 .blog-icerik strong {
   font-weight: 700;

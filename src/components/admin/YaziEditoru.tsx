@@ -155,6 +155,7 @@ export function YaziEditoru({
             baslangicJson={mevcut?.icerikJson ?? null}
             baslangicHtml={mevcut?.icerikHtml ?? ""}
             icHedefler={icHedefler}
+            yaziSlug={slug}
             onDegisim={(d) => (icerik.current = d)}
           />
         </div>
