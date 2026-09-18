@@ -11,7 +11,11 @@ import { depoUrl } from "@/lib/depo";
 import { LinkSecici, type LinkSecim } from "@/components/admin/LinkSecici";
 import type { IcLinkHedef } from "@/lib/yazilar";
 import { BlogBloklari, blokEkle, notEtiketiniGuncelle } from "@/components/admin/tiptap/BlogBloklari";
+import { BlogGorsel } from "@/components/admin/tiptap/BlogGorsel";
+import { GorselPanel } from "@/components/admin/tiptap/GorselPanel";
 import { BLOKLAR } from "@/lib/blog-bloklar";
+import { optimizeGorsel, GorselHatasi, boyutMetni } from "@/lib/gorsel-optimize";
+import { seoTabanAd, storageYolu } from "@/lib/gorsel-ad";
 
 /**
  * Zengin metin editörü (TipTap).
@@ -70,6 +74,7 @@ export function ZenginEditor({
   baslangicJson,
   baslangicHtml = "",
   icHedefler = [],
+  yaziSlug,
   onDegisim,
 }: {
   baslangicJson: unknown;
@@ -81,10 +86,15 @@ export function ZenginEditor({
    */
   baslangicHtml?: string;
   icHedefler?: IcLinkHedef[];
+  /** Yeni görsellerin SEO dosya adı için yedek kaynak (yazının slug'ı). */
+  yaziSlug?: string;
   onDegisim: (d: Deger) => void;
 }) {
   const dosyaGirdi = useRef<HTMLInputElement>(null);
   const [gorselYukleniyor, setGorselYukleniyor] = useState(false);
+  const [gorselDurum, setGorselDurum] = useState<string | null>(null);
+  // Aynı dosyanın çift eklenmesini engelleyen kilit (yükleme sürerken).
+  const yuklemeKilit = useRef(false);
   const [linkAcik, setLinkAcik] = useState(false);
   const [blokMenu, setBlokMenu] = useState(false);
   const blokSarici = useRef<HTMLDivElement>(null);
@@ -115,7 +125,10 @@ export function ZenginEditor({
         autolink: true,
         HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
       }),
+      // Base Image yalnızca TAŞINAN içerikteki düz <img>'ler için (round-trip).
       Image.configure({ HTMLAttributes: { class: "blog-gorsel" } }),
+      // Yeni yüklemeler: metadata'lı figure görseli (alt, caption, boyut, lightbox).
+      BlogGorsel,
       Placeholder.configure({ placeholder: "Yazmaya başla…" }),
       // Özel bloklar: Bilgi, Uyarı, İpucu, Prompt.
       ...BlogBloklari,
@@ -158,25 +171,71 @@ export function ZenginEditor({
 
   const gorselSec = useCallback(
     async (dosya: File | undefined) => {
-      if (!dosya || !editor) return;
-      if (!dosya.type.startsWith("image/")) {
-        window.alert("Yalnızca görsel yükleyebilirsin.");
-        return;
-      }
+      // Kilit: yükleme sürerken aynı dosya ikinci kez eklenmesin.
+      if (!dosya || !editor || yuklemeKilit.current) return;
+      yuklemeKilit.current = true;
       setGorselYukleniyor(true);
-      const temizAd = dosya.name.replace(/[^\w.\-]/g, "_");
-      const yol = `blog/${Date.now()}-${temizAd}`;
-      const supabase = createClient();
-      const { error } = await supabase.storage.from("kapaklar").upload(yol, dosya, { cacheControl: "3600" });
-      setGorselYukleniyor(false);
-      if (error) {
-        window.alert(`Görsel yüklenemedi: ${error.message}`);
-        return;
+      try {
+        // 1) Tarayıcıda optimize: resize + (mümkünse) WebP. Supabase'e yalnızca
+        //    hazır dosya gidiyor.
+        setGorselDurum("Görsel hazırlanıyor…");
+        const sonuc = await optimizeGorsel(dosya);
+
+        // 2) SEO uyumlu dosya adı + düzenli Storage yolu (blog/yıl/ay/ad-ek.uzanti).
+        setGorselDurum("Optimize ediliyor…");
+        const taban = seoTabanAd({ yaziSlug: yaziSlug ?? null });
+        const yol = storageYolu(taban, sonuc.uzanti);
+
+        // 3) Yükle.
+        setGorselDurum("Yükleniyor…");
+        const supabase = createClient();
+        const { error } = await supabase.storage
+          .from("kapaklar")
+          .upload(yol, sonuc.blob, { cacheControl: "3600", contentType: sonuc.mime, upsert: false });
+        if (error) throw new Error(error.message);
+
+        const url = depoUrl("kapaklar", yol);
+        if (!url) throw new Error("Görsel adresi üretilemedi.");
+
+        // 4) Metadata'yı figure node'una yaz.
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: "blogGorsel",
+            attrs: {
+              src: url,
+              alt: "",
+              caption: "",
+              width: sonuc.genislik,
+              height: sonuc.yukseklik,
+              lightboxEnabled: true,
+              decorative: false,
+              originalFilename: dosya.name,
+              mimeType: sonuc.mime,
+              fileSize: sonuc.optimizeBoyut,
+            },
+          })
+          .run();
+
+        setGorselDurum(`Tamamlandı · ${boyutMetni(sonuc.orijinalBoyut)} → ${boyutMetni(sonuc.optimizeBoyut)}`);
+        window.setTimeout(() => setGorselDurum(null), 2800);
+      } catch (e) {
+        // Kullanıcıya anlaşılır mesaj; teknik iz konsola. Editördeki içerik
+        // korunuyor, kırık görsel node'u eklenmiyor.
+        const mesaj =
+          e instanceof GorselHatasi
+            ? e.message
+            : "Görsel yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.";
+        setGorselDurum(null);
+        console.error("[gorsel] yükleme hatası:", e);
+        window.alert(mesaj);
+      } finally {
+        yuklemeKilit.current = false;
+        setGorselYukleniyor(false);
       }
-      const url = depoUrl("kapaklar", yol);
-      if (url) editor.chain().focus().setImage({ src: url }).run();
     },
-    [editor],
+    [editor, yaziSlug],
   );
 
   if (!editor) {
@@ -279,12 +338,26 @@ export function ZenginEditor({
         </AracDugmesi>
       </div>
 
+      {/* Görsel yükleme durumu: hazırlanıyor → optimize → yükleniyor → tamam. */}
+      {gorselDurum && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="border-b border-ink/10 bg-brand/[0.05] px-3 py-2 text-[12.5px] font-medium text-brand"
+        >
+          {gorselDurum}
+        </div>
+      )}
+
+      {/* Seçili görselin ayar paneli (alt, caption, dekoratif, lightbox, SEO). */}
+      <GorselPanel editor={editor} />
+
       <EditorContent editor={editor} />
 
       <input
         ref={dosyaGirdi}
         type="file"
-        accept="image/png,image/jpeg,image/webp,image/avif"
+        accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
         className="hidden"
         onChange={(e) => {
           void gorselSec(e.target.files?.[0]);

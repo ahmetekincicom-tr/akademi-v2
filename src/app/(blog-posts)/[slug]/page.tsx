@@ -23,6 +23,7 @@ import { IcindekilerYan } from "@/components/blog/IcindekilerYan";
 import { IcindekilerAccordion } from "@/components/blog/IcindekilerAccordion";
 import { EgitimCta } from "@/components/blog/EgitimCta";
 import { PromptKopyala } from "@/components/blog/PromptKopyala";
+import { GorselLightbox } from "@/components/blog/GorselLightbox";
 import { mutlakDepoUrl } from "@/lib/depo";
 import { sayfaMeta, makaleSemasi, kirintiSemasi, SITE_URL } from "@/lib/seo";
 
@@ -232,9 +233,10 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
                 olduğu için güvenilir kaynak. Başlıklara TOC için id eklendi.
                 Mobil ara CTA gövdeye enjekte edildi (masaüstünde CSS ile gizli). */}
             <div className="blog-icerik mt-10" dangerouslySetInnerHTML={{ __html: icerikHtml }} />
-            {/* Prompt bloklarının "Kopyala" düğmelerini bağlayan küçük ada
-                (yalnızca etkileşim; bloklar bu olmadan da doğru görünür). */}
+            {/* Prompt kopyala + görsel lightbox: statik HTML üzerine bağlanan
+                küçük client adaları (içerik bunlarsız da doğru render olur). */}
             <PromptKopyala />
+            <GorselLightbox />
 
             {yazi.etiketler.length > 0 && (
               <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-ink/10 pt-6">
