@@ -7,43 +7,61 @@ import { useCallback, useEffect, useRef, useState } from "react";
  *
  * İçerik statik HTML (dangerouslySetInnerHTML) olarak render ediliyor; bu küçük
  * ada `img[data-lightbox="1"]` görsellerine tıklama/klavye ile büyütme davranışı
- * bağlıyor. Etkileşim olay delegasyonuyla belgeye bağlanıyor (görseller sonradan
- * eklense bile çalışır); erişilebilirlik nitelikleri (role/tabindex/aria) de
- * bağlanıyor. Optimize edilmiş ana dosya (uzun kenar ≤ 2000 px) lightbox için de
- * yeterli — ikinci bir upload gerekmiyor.
+ * bağlıyor (olay delegasyonu → görsel sonradan eklense de çalışır).
+ *
+ * Görsel EDGE-TO-EDGE açılmıyor: koyu backdrop tüm ekranı kaplasa da görsel,
+ * ortalanmış bir modal container İÇİNDE kontrollü bir maksimum genişlik/yükseklik
+ * ile gösteriliyor (dokümantasyon tarzı). Stiller globals.css'te (.aea-lightbox*)
+ * — min()/calc, medya sorguları ve prefers-reduced-motion orada net yönetiliyor.
+ *
+ * İlk açılış her zaman fit-to-screen; görsele tıklamak lightbox'ı KAPATMAZ,
+ * gerçek boyut (zoom) ile fit arasında geçiş yapar. Kapatma yolları: X,
+ * backdrop tıklaması, Escape. Yalnızca içerikteki lightboxEnabled görseller;
+ * hero/kapak görseline uygulanmıyor (kapak zaten data-lightbox taşımıyor).
  */
 const SECICI = '.blog-icerik img[data-lightbox="1"]';
 
+type Acik = { src: string; alt: string; caption: string };
+
 export function GorselLightbox() {
-  const [acik, setAcik] = useState<{ src: string; alt: string } | null>(null);
+  const [acik, setAcik] = useState<Acik | null>(null);
+  const [yakin, setYakin] = useState(false);
+  const kutu = useRef<HTMLDivElement>(null);
   const kapatDugmesi = useRef<HTMLButtonElement>(null);
+  const gorselRef = useRef<HTMLImageElement>(null);
   const oncekiOdak = useRef<HTMLElement | null>(null);
 
   const kapat = useCallback(() => {
     setAcik(null);
-    oncekiOdak.current?.focus?.();
+    setYakin(false);
+    // Odağı tetikleyen görsele geri ver. Kapanış DOM'dan kaldırma odağı
+    // gövdeye kaydırdığı için bir kare bekleyip sonra taşıyoruz.
+    const hedef = oncekiOdak.current;
+    requestAnimationFrame(() => hedef?.focus?.());
   }, []);
 
   useEffect(() => {
     const ac = (img: HTMLImageElement) => {
+      // Kapanışta odak buraya dönecek; tetikleyen görselin odaklanabilir
+      // olduğunu garantiye al (SSR dışı/geç eklenen görsellerde de çalışsın).
+      if (!img.hasAttribute("tabindex")) img.setAttribute("tabindex", "0");
       oncekiOdak.current = img;
-      setAcik({ src: img.currentSrc || img.src, alt: img.alt || "" });
+      const fig = img.closest("figure");
+      const caption = fig?.querySelector("figcaption")?.textContent?.trim() ?? "";
+      setYakin(false);
+      setAcik({ src: img.currentSrc || img.src, alt: img.alt || "", caption });
     };
 
     // Mevcut görselleri erişilebilir yap (public sayfada hepsi SSR'de mevcut).
-    const decoreEt = () => {
-      document.querySelectorAll<HTMLImageElement>(SECICI).forEach((img) => {
-        img.style.cursor = "zoom-in";
-        img.setAttribute("role", "button");
-        if (!img.hasAttribute("tabindex")) img.setAttribute("tabindex", "0");
-        if (!img.getAttribute("aria-label")) {
-          img.setAttribute("aria-label", `${img.alt || "Görsel"} — büyütmek için tıklayın`);
-        }
-      });
-    };
-    decoreEt();
+    document.querySelectorAll<HTMLImageElement>(SECICI).forEach((img) => {
+      img.style.cursor = "zoom-in";
+      img.setAttribute("role", "button");
+      if (!img.hasAttribute("tabindex")) img.setAttribute("tabindex", "0");
+      if (!img.getAttribute("aria-label")) {
+        img.setAttribute("aria-label", `${img.alt || "Görsel"} — büyütmek için tıklayın`);
+      }
+    });
 
-    // Etkileşim delegasyonla: görsel sonradan eklense de çalışır.
     const tikla = (e: MouseEvent) => {
       const t = (e.target as HTMLElement)?.closest?.(SECICI) as HTMLImageElement | null;
       if (t) ac(t);
@@ -64,16 +82,19 @@ export function GorselLightbox() {
     };
   }, []);
 
-  // Açıkken: Esc ile kapat (odaktan bağımsız), gövde kaydırmasını kilitle,
-  // kapat düğmesine odaklan.
+  // Açıkken: Esc ile kapat, gövde kaydırmasını kilitle, kapat düğmesine odaklan.
   useEffect(() => {
     if (!acik) return;
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") kapat();
+      if (e.key === "Escape") {
+        e.preventDefault();
+        kapat();
+      }
     };
     document.addEventListener("keydown", esc);
     const oncekiOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // Açılınca odak lightbox'a (kapat düğmesine) taşınıyor.
     kapatDugmesi.current?.focus();
     return () => {
       document.removeEventListener("keydown", esc);
@@ -81,35 +102,72 @@ export function GorselLightbox() {
     };
   }, [acik, kapat]);
 
+  // Basit focus trap: Tab, container içindeki odaklanabilir öğeler arasında döner.
+  const tabTuzagi = (e: React.KeyboardEvent) => {
+    if (e.key !== "Tab" || !kutu.current) return;
+    const odaklanabilir = kutu.current.querySelectorAll<HTMLElement>(
+      'button, [href], [tabindex]:not([tabindex="-1"])',
+    );
+    if (odaklanabilir.length === 0) return;
+    const ilk = odaklanabilir[0];
+    const son = odaklanabilir[odaklanabilir.length - 1];
+    const aktif = document.activeElement;
+    if (e.shiftKey && aktif === ilk) {
+      e.preventDefault();
+      son.focus();
+    } else if (!e.shiftKey && aktif === son) {
+      e.preventDefault();
+      ilk.focus();
+    }
+  };
+
   if (!acik) return null;
 
   return (
     <div
+      className="aea-lightbox"
       role="dialog"
       aria-modal="true"
       aria-label={acik.alt || "Görsel"}
       onClick={kapat}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") kapat();
-      }}
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 p-4"
+      onKeyDown={tabTuzagi}
     >
-      <button
-        ref={kapatDugmesi}
-        type="button"
-        onClick={kapat}
-        aria-label="Kapat"
-        className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-[22px] text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-      >
-        ×
-      </button>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={acik.src}
-        alt={acik.alt}
-        onClick={(e) => e.stopPropagation()}
-        className="max-h-[92vh] max-w-[92vw] rounded-[6px] object-contain shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
-      />
+      {/* Container: tıklaması backdrop kapatmasını tetiklemesin. */}
+      <div className="aea-lightbox__kap" ref={kutu} onClick={(e) => e.stopPropagation()}>
+        <div className="aea-lightbox__bar">
+          <button
+            ref={kapatDugmesi}
+            type="button"
+            onClick={kapat}
+            aria-label="Kapat"
+            className="aea-lightbox__kapat"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className={`aea-lightbox__govde${yakin ? " aea-lightbox__govde--yakin" : ""}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            ref={gorselRef}
+            src={acik.src}
+            alt={acik.alt}
+            className={`aea-lightbox__img${yakin ? " aea-lightbox__img--yakin" : ""}`}
+            role="button"
+            tabIndex={0}
+            aria-label={yakin ? "Görseli küçült" : "Görseli gerçek boyutta gör"}
+            onClick={() => setYakin((y) => !y)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setYakin((y) => !y);
+              }
+            }}
+          />
+        </div>
+
+        {acik.caption && <figcaption className="aea-lightbox__caption">{acik.caption}</figcaption>}
+      </div>
     </div>
   );
 }
