@@ -219,11 +219,11 @@ export async function icLinkHedefleri(): Promise<IcLinkHedef[]> {
     baslik: e.baslik,
     url: `/egitimler/${e.slug}/`,
   }));
-  // Yazılar /blog/{slug}/ altında sunuluyor (WordPress yapısı korundu).
+  // Yazılar kökte sunuluyor: /{slug}/ (WordPress yapısı korundu).
   const yaziHedef: IcLinkHedef[] = yazilar.map((y) => ({
     grup: "Blog yazısı",
     baslik: y.baslik,
-    url: `/blog/${y.slug}/`,
+    url: `/${y.slug}/`,
   }));
 
   return [...sayfalar, ...egitimHedef, ...yaziHedef];

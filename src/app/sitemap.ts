@@ -66,9 +66,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [yazilar, kategoriler] = await Promise.all([getYayindakiYazilar(), getKategoriler()]);
 
   /*
-    Yazılar /blog/{slug}/, kategoriler /blog/kategori/{slug}/ altında —
-    WordPress yapısı birebir korundu. Blog dizini ve yazılar yalnızca yayında
-    yazı varsa haritaya giriyor: boş bir dizini önermenin anlamı yok.
+    Yazılar ve kategoriler KÖKTE (/{slug}/) — WordPress yapısı birebir korundu.
+    /blog yalnızca dizin sayfası. Blog dizini ve yazılar yalnızca yayında yazı
+    varsa haritaya giriyor: boş bir dizini önermenin anlamı yok.
 
     Kategori arşivi yalnızca içinde yayında yazı varsa haritaya giriyor: boş bir
     kategori (ör. henüz yazısı olmayan) ince/yönlendirmesiz sayfa olur, dizine
@@ -81,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? [
           { url: adres("/blog"), lastModified: simdi, changeFrequency: "weekly", priority: 0.7 },
           ...yazilar.map((y) => ({
-            url: adres(`/blog/${y.slug}`),
+            url: adres(`/${y.slug}`),
             lastModified: y.yayinTarihi ? new Date(y.yayinTarihi) : new Date(y.guncelleme),
             changeFrequency: "monthly" as const,
             priority: 0.6,
@@ -89,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           ...kategoriler
             .filter((k) => dolukategoriSlug.has(k.slug))
             .map((k) => ({
-              url: adres(`/blog/kategori/${k.slug}`),
+              url: adres(`/${k.slug}`),
               lastModified: simdi,
               changeFrequency: "weekly" as const,
               priority: 0.5,

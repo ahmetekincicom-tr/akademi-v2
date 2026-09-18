@@ -25,7 +25,7 @@ export default async function KategorilerPage() {
         Kategoriler
       </h1>
       <p className="mt-[7px] text-[14.5px] text-[#5C6273]">
-        Kategoriler yazıları gruplar ve her biri kendi arşiv sayfasına (/blog/kategori/…) sahiptir.
+        Kategoriler yazıları gruplar ve her biri kendi arşiv sayfasına (kökte: /kategori-adı/) sahiptir.
       </p>
       <div className="mt-6">
         <KategoriYonetimi kategoriler={liste} />

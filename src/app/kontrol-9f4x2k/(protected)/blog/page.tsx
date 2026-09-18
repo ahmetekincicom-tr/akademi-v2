@@ -74,7 +74,7 @@ export default async function BlogListePage() {
             <div className="flex flex-none gap-2">
               {y.durum === "yayin" && (
                 <Link
-                  href={`/blog/${y.slug}`}
+                  href={`/${y.slug}`}
                   target="_blank"
                   className="flex h-[42px] items-center justify-center rounded-[9px] border border-ink/13 bg-white px-[15px] text-[13.5px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand sm:h-[38px]"
                 >
