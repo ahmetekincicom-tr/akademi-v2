@@ -17,11 +17,12 @@ export type CtaVaryant = "yan" | "ara" | "son";
 type CtaIcerik = { kicker?: string; baslik: string; metin: string; dugme: string };
 
 const ICERIK: Record<CtaVaryant, CtaIcerik> = {
-  // Masaüstü sidebar: İçindekiler altında, ölçülü.
+  // Masaüstü sidebar: İçindekiler altında, editoryal kutu.
   yan: {
-    kicker: "Birebir eğitim",
-    baslik: "Meta reklamlarını sadece kurmayın, veriyi okumayı da öğrenin.",
-    metin: "Birebir eğitimde kendi reklam hesabınız üzerinden kampanyaları birlikte analiz ediyoruz.",
+    kicker: "Birebir Eğitim",
+    baslik: "Meta Ads Eğitiminde kampanyaları birlikte analiz edin",
+    metin:
+      "Birebir eğitimde kendi reklam hesabınız üzerinden kampanyaları, hedef kitleleri ve performans verilerini birlikte değerlendiriyoruz.",
     dugme: "Birebir Meta Ads Eğitimini İncele →",
   },
   // Mobil/tablet içerik içi (~%40): kompakt, hafif.
@@ -32,7 +33,7 @@ const ICERIK: Record<CtaVaryant, CtaIcerik> = {
   },
   // Mobil/tablet yazı sonu: daha güçlü, dolgulu.
   son: {
-    kicker: "Birebir eğitim",
+    kicker: "Birebir Eğitim",
     baslik: "Meta reklamlarını veriyle yönetmeyi öğrenin",
     metin:
       "Kendi reklam hesabınız üzerinden, birebir. Kampanyaları birlikte kurar, birlikte analiz ederiz.",
