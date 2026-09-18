@@ -66,10 +66,18 @@ function htmlKacir(s: string): string {
 
 export function ZenginEditor({
   baslangicJson,
+  baslangicHtml = "",
   icHedefler = [],
   onDegisim,
 }: {
   baslangicJson: unknown;
+  /**
+   * JSON boşsa/geçersizse başlangıç içeriği bu HTML'den kuruluyor. WordPress'ten
+   * taşınan yazılarda icerik_json boş ('{}'); içerik yalnızca icerik_html'de
+   * duruyor. Bu olmadan taşınan bir yazı editörde boş açılır ve kaydedince
+   * içerik silinirdi.
+   */
+  baslangicHtml?: string;
   icHedefler?: IcLinkHedef[];
   onDegisim: (d: Deger) => void;
 }) {
@@ -77,10 +85,12 @@ export function ZenginEditor({
   const [gorselYukleniyor, setGorselYukleniyor] = useState(false);
   const [linkAcik, setLinkAcik] = useState(false);
 
+  // Geçerli bir ProseMirror belgesi varsa onu kullan; yoksa HTML'den kur.
+  // TipTap `content` hem JSON belge hem HTML string kabul ediyor.
   const gecerliDoc =
     baslangicJson && typeof baslangicJson === "object" && (baslangicJson as { type?: string }).type
       ? (baslangicJson as object)
-      : "";
+      : baslangicHtml || "";
 
   const editor = useEditor({
     immediatelyRender: false,

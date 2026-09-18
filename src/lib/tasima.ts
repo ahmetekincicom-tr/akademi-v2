@@ -94,14 +94,39 @@ export const YONLENDIRMELER: Yonlendirme[] = [
     eski: "/egitim/birebir-sosyal-medya-ve-reklam-uzmanligi-egitimi-2025",
     yeni: "/egitimler/sosyal-medya-ve-reklam-egitimi",
   },
-  // Bu isimde ayrı bir eğitim yok; en yakın hedef eğitim listesi.
-  { eski: "/birebir-influencer-ugc-olma-egitimi", yeni: "/egitimler" },
+  /*
+    UGC / Influencer, Photoshop, After Effects ve Freelance Mentorluk gibi
+    kaldırılan eğitimler burada YOK: karşılığı olan bir sayfa bulunmadığı için
+    301 yerine 410 Gone dönüyorlar (src/proxy.ts → GONE_YOLLARI). Karşılıksız
+    bir sayfayı /egitimler'e yönlendirmek Google'ın "soft 404" saydığı, değeri
+    silen davranış olurdu.
+  */
 
   // -------------------------------------------------------- yasal metin ---
   { eski: "/sartlar-ve-kosullar", yeni: "/uyelik-sozlesmesi" },
+  // WordPress'te ayrı bir "/sartlar/" sayfası da vardı; satış koşulları bugün
+  // satış sözleşmesinde.
+  { eski: "/sartlar", yeni: "/satis-sozlesmesi" },
+  // Ön bilgilendirme formu mesafeli satış sürecinin parçası; içerik satış
+  // sözleşmesinde toplandı.
+  { eski: "/on-bilgilendirme-formu", yeni: "/satis-sozlesmesi" },
   // Ayrı bir çerez politikası sayfası yok; konu gizlilik politikasının içinde
   // ve çerez bandı da oraya bağlanıyor.
   { eski: "/cerez-politikasi", yeni: "/gizlilik-politikasi" },
+
+  // -------------------------------------------------- hesap / eski sayfa ---
+  // İş ortakları sayfasının bugünkü karşılığı referanslar.
+  { eski: "/is-ortaklarimiz", yeni: "/referanslar" },
+  // WooCommerce mağaza sayfası; karşılığı eğitim listesi (yazı içeriğinde de
+  // "/magaza/" bağlantısı geçiyor).
+  { eski: "/magaza", yeni: "/egitimler" },
+  // Eski WordPress ana sayfa kopyası → gerçek ana sayfa.
+  { eski: "/ana-sayfa", yeni: "/" },
+  // Hesap / profil yönetimi artık üye girişinin arkasında.
+  { eski: "/hesabim", yeni: "/giris" },
+  { eski: "/manage-profile", yeni: "/giris" },
+  // Şifre sıfırlama akışının bugünkü adresi.
+  { eski: "/sifre-sifirlama", yeni: "/sifremi-unuttum" },
 ];
 
 /**
@@ -119,6 +144,7 @@ export const UYGULAMA_YOLLARI = [
   "/yorumlar",
   "/iletisim",
   "/giris",
+  "/sifremi-unuttum",
   "/kayit",
   "/gizlilik-politikasi",
   "/kisisel-verilerin-islenmesi",

@@ -110,29 +110,42 @@ const nextConfig: NextConfig = {
     şimdi tek sıçrama.
   */
   async redirects() {
-    return YONLENDIRMELER.map(({ eski, yeni }) => ({
-      source: eski,
-      destination: yeni.endsWith("/") ? yeni : `${yeni}/`,
-      permanent: true,
-    }));
+    return [
+      ...YONLENDIRMELER.map(({ eski, yeni }) => ({
+        source: eski,
+        destination: yeni.endsWith("/") ? yeni : `${yeni}/`,
+        permanent: true,
+      })),
+      /*
+        Eski WordPress RSS akışı → yeni RSS. Gerçek bir karşılığı var
+        (/blog/rss.xml), o yüzden 301. Hedef bir route handler; sondaki eğik
+        çizgi EKLENMİYOR (dosya benzeri uç, çizgi eklenirse gereksiz sıçrama).
+      */
+      { source: "/feed", destination: "/blog/rss.xml", permanent: true },
+    ];
   },
 
   /*
-    WordPress'te kalan içerik.
+    WordPress'ten SADECE dosya ve altyapı kaldı — sayfalar taşındı (Faz 3).
 
-    "fallback" grubu, Next kendi rotalarını VE dinamik rotalarını denedikten
-    sonra, tam 404 verecekken çalışıyor. Yani:
+    Blog yazıları (22) ve kategori arşivleri (4) artık kökte, bu uygulamada
+    sunuluyor (app/(blog-posts)/[slug]). Karşılığı olmayan eski sayfalar 301
+    (src/lib/tasima.ts) ya da 410 Gone (src/proxy.ts) dönüyor.
 
-      /egitimler/meta-ads-egitimi  → bu uygulama (kendi rotası)
-      /hakkimizda                  → bu uygulama
-      /meta-capi-nedir             → burada yok  → WordPress
-      /blog, /sosyal-medya         → WordPress (kategori arşivi)
-      /wp-content/...              → WordPress (görsel, stil)
+    Bu yüzden GENEL sayfa fallback'i KALDIRILDI: "bilmediğim her şey
+    WordPress'in" kuralı artık yanlış — bilinmeyen bir yol WordPress'e
+    sızdırılmak yerine bu uygulamada 404 dönmeli (yoksa taşınan içeriğin ikizi
+    WordPress'ten servis edilir ve 404'ler maskelenir).
 
-    Blog yazılarının kökte durması bunu zorunlu kılıyor: yazılar /blog/ altında
-    değil, doğrudan kökte (/meta-capi-nedir gibi). Tek tek liste yazmak yerine
-    "bilmediğim her şey WordPress'in" demek, yeni yazılan yazıların da kod
-    değişikliği olmadan çalışması demek.
+    Geriye kalan fallback yalnızca WordPress altyapısı:
+
+      /wp-content/uploads/...png  → WordPress (görseller; taşınan yazılar bu
+                                    adresleri MUTLAK olarak referanslıyor)
+      /wp-admin, /wp-json, ...    → WordPress (yönetim ve REST; henüz WP'de)
+      /...herhangi.uzanti         → WordPress (stil, script, robots dosyaları)
+
+    Görsellerin bir gün nesne depolamaya/CDN'e taşınması planlı (yollar
+    korunacak); o güne kadar bu fallback geçici köprü.
   */
   async rewrites() {
     if (!WORDPRESS_KAYNAK) return { beforeFiles: [], afterFiles: [], fallback: [] };
@@ -181,21 +194,24 @@ const nextConfig: NextConfig = {
       afterFiles: [],
       fallback: [
         /*
-          İki kural, çünkü sondaki eğik çizgi kritik.
-
-          trailingSlash açıkken Next eşleştirmeden önce sondaki çizgiyi
-          kaldırıyor; hedefe olduğu gibi geçirseydik WordPress "/meta-capi-nedir"
-          isteği alırdı. WordPress ise kanonik adresi çizgili tutuyor ve
-          çizgisiz gelen isteği home_url'e — yani PUBLIC alan adına — 301'liyor.
-          O da bizim başladığımız adres: sonsuz yönlendirme döngüsü.
-
-          Bu yüzden sayfalara çizgi geri ekleniyor. Ama dosyalara EKLENMEMELİ:
-          "/wp-content/.../gorsel.jpg/" diye bir dosya yok, görseller kırılırdı.
-          İlk kural noktalı (uzantılı) yolları yakalayıp olduğu gibi geçiriyor,
-          ikincisi geri kalan her şeye çizgiyi ekliyor.
+          Noktalı (uzantılı) yollar: görseller, stil, script, robots dosyaları.
+          Olduğu gibi geçiyor — "/wp-content/.../gorsel.jpg/" diye bir dosya
+          yok, çizgi eklenirse görseller kırılırdı. Taşınan yazılar görselleri
+          MUTLAK adresle (…ahmetekinciakademi.com/wp-content/uploads/…png)
+          referansladığı için bu kural onların da tek dayanağı.
         */
         { source: "/:dosya*\\.:uzanti", destination: `${WORDPRESS_KAYNAK}/:dosya*.:uzanti` },
-        { source: "/:yol*", destination: `${WORDPRESS_KAYNAK}/:yol*/` },
+        /*
+          WordPress altyapısı (yönetim, REST, çekirdek dizinler). Genel sayfa
+          fallback'i kaldırıldığı için bu yollar aksi halde 404 olurdu; oysa
+          WordPress hâlâ görselleri barındırıyor ve panelden yönetiliyor.
+          Sayfa DEĞİL altyapı oldukları için trailingSlash sıçraması sorun
+          değil; WordPress kendi kanonikini yönetiyor.
+        */
+        { source: "/wp-admin/:yol*", destination: `${WORDPRESS_KAYNAK}/wp-admin/:yol*` },
+        { source: "/wp-content/:yol*", destination: `${WORDPRESS_KAYNAK}/wp-content/:yol*` },
+        { source: "/wp-includes/:yol*", destination: `${WORDPRESS_KAYNAK}/wp-includes/:yol*` },
+        { source: "/wp-json/:yol*", destination: `${WORDPRESS_KAYNAK}/wp-json/:yol*` },
       ],
     };
   },

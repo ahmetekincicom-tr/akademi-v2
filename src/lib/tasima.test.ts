@@ -27,7 +27,8 @@ describe("taşıma yönlendirmeleri", () => {
       expect(eski.startsWith("/")).toBe(true);
       expect(yeni.startsWith("/")).toBe(true);
       expect(eski.endsWith("/")).toBe(false);
-      expect(yeni.endsWith("/")).toBe(false);
+      // Ana sayfa hedefi ("/") tek istisna: kökün kendisi eğik çizgidir.
+      if (yeni !== "/") expect(yeni.endsWith("/")).toBe(false);
     }
   });
 
@@ -43,8 +44,9 @@ describe("taşıma yönlendirmeleri", () => {
 
   it("hedefler ana sayfaya yığılmamış (soft 404 riski)", () => {
     // Ana sayfaya yönlendirme Google'ın yok saydığı desen; tek tük olabilir
-    // ama tabloya hâkim olmamalı.
+    // (ör. eski WordPress ana sayfa kopyası /ana-sayfa) ama tabloya hâkim
+    // olmamalı. Karşılıksız sayfalar 410 dönüyor, ana sayfaya yığılmıyor.
     const anaSayfaya = YONLENDIRMELER.filter((y) => y.yeni === "/").length;
-    expect(anaSayfaya).toBe(0);
+    expect(anaSayfaya).toBeLessThanOrEqual(1);
   });
 });
