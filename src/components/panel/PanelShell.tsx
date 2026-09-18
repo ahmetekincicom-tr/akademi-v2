@@ -99,7 +99,14 @@ export function PanelShell({
   /** Menü rozetleri; genel bakıştaki bildirim kutusuyla aynı kaynak. */
   bildirim: PanelBildirimleri;
 }) {
-  const pathname = usePathname();
+  const hamPathname = usePathname();
+  /*
+    trailingSlash:true açık → usePathname() sondaki eğik çizgiyle dönüyor
+    ("/panel/duyurular/"). Menü href'leri çizgisiz ("/panel/duyurular"), bu
+    yüzden düz "===" karşılaştırması hiçbir zaman tutmuyordu: aktif satır
+    vurgusu ve başlık kayboluyordu. Çizgiyi kırpıp karşılaştırıyoruz.
+  */
+  const pathname = hamPathname.length > 1 ? hamPathname.replace(/\/+$/, "") : hamPathname;
   const pageTitle = pageTitles[pathname] ?? "Panel";
   const [menuAcik, setMenuAcik] = useState(false);
   const native = useNativeUygulama();
