@@ -80,8 +80,14 @@ const cozumle = cache(async (slug: string): Promise<CozumSonuc> => {
 });
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const [yazilar, kategoriler] = await Promise.all([getYayindakiYazilar(), getKategoriler()]);
-  return [...yazilar.map((y) => ({ slug: y.slug })), ...kategoriler.map((k) => ({ slug: k.slug }))];
+  // Derleme, veritabanı/env erişilebilirliğine bağlı olmamalı: sorun olursa boş
+  // dön, sayfalar dynamicParams + ISR ile çalışma anında üretilir (build kırılmaz).
+  try {
+    const [yazilar, kategoriler] = await Promise.all([getYayindakiYazilar(), getKategoriler()]);
+    return [...yazilar.map((y) => ({ slug: y.slug })), ...kategoriler.map((k) => ({ slug: k.slug }))];
+  } catch {
+    return [];
+  }
 }
 
 function tarih(deger: string | null): string {
