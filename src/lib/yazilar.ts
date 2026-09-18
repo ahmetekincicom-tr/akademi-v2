@@ -28,7 +28,13 @@ export type YaziOzet = {
   durum: YaziDurum;
   yayinTarihi: string | null;
   yazar: string;
+  /** Teknik son kayıt (updated_at) — sıralama/yönetim için. */
   guncelleme: string;
+  /**
+   * İçeriğin gerçekten güncellendiği an; teknik updated_at'ten AYRI. null =
+   * yayından beri içerik güncellenmedi. dateModified ve UI bunu kullanır.
+   */
+  icerikGuncelleme: string | null;
   kategori: Kategori | null;
   etiketler: string[];
 };
@@ -46,7 +52,7 @@ export type Yazi = YaziOzet & {
 type Db = SupabaseClient<Database>;
 
 const OZET_SELECT =
-  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, yazar, updated_at, etiketler, kategori:categories(id, slug, ad)";
+  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, yazar, updated_at, icerik_guncelleme, etiketler, kategori:categories(id, slug, ad)";
 const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, seo_aciklama, kategori_id`;
 
 type KategoriGomulu = { id: string; slug: string; ad: string } | null;
@@ -61,6 +67,7 @@ type OzetSatir = {
   yayin_tarihi: string | null;
   yazar: string;
   updated_at: string;
+  icerik_guncelleme: string | null;
   etiketler: string[] | null;
   kategori: KategoriGomulu;
 };
@@ -84,6 +91,7 @@ function ozetle(r: OzetSatir): YaziOzet {
     yayinTarihi: r.yayin_tarihi,
     yazar: r.yazar,
     guncelleme: r.updated_at,
+    icerikGuncelleme: r.icerik_guncelleme,
     kategori: r.kategori ? { id: r.kategori.id, slug: r.kategori.slug, ad: r.kategori.ad } : null,
     etiketler: r.etiketler ?? [],
   };

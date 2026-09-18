@@ -23,6 +23,12 @@ export type YaziKaydetGirdi = {
   yazar: string;
   kategoriId: string | null;
   etiketler: string[];
+  /**
+   * İşaretliyse içeriğin GERÇEKTEN güncellendiğini damgalar (icerik_guncelleme
+   * = now()). Her kayıtta otomatik değişmiyor: yalnızca yazar bilinçli seçince.
+   * Teknik updated_at bundan bağımsız her kayıtta güncelleniyor.
+   */
+  icerikGuncellendi?: boolean;
 };
 
 export async function saveYazi(input: YaziKaydetGirdi): Promise<{ error?: string }> {
@@ -53,6 +59,10 @@ export async function saveYazi(input: YaziKaydetGirdi): Promise<{ error?: string
     // Boş etiketler ayıklanıyor; tekrarlar temizleniyor.
     etiketler: Array.from(new Set(input.etiketler.map((e) => e.trim()).filter(Boolean))),
     updated_at: new Date().toISOString(),
+    // İçerik güncelleme damgası YALNIZCA bilinçli işaretlendiğinde. Aksi halde
+    // alanı hiç yazmıyoruz (mevcut değeri korunur; migration/teknik kayıt bunu
+    // ileri atmaz).
+    ...(input.icerikGuncellendi ? { icerik_guncelleme: new Date().toISOString() } : {}),
   };
 
   let id: string | null = null;

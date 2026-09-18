@@ -295,8 +295,14 @@ export function makaleSemasi(m: {
   aciklama: string;
   gorsel: string | null;
   yayinTarihi: string | null;
-  guncelleme: string;
+  /**
+   * dateModified değeri: teknik updated_at DEĞİL, içeriğin gerçekten
+   * güncellendiği an (yoksa yayın tarihine düşer). Çağıran hesaplıyor.
+   */
+  dateModified: string;
   yazar: string;
+  /** Yazar profili URL'si (varsa); yoksa yalnızca ad yazılır. */
+  yazarUrl?: string | null;
 }) {
   // Yazılar kökte sunuluyor (WordPress yapısı birebir korundu): /{slug}.
   const adres = `${SITE_URL}/${m.slug}`;
@@ -310,9 +316,12 @@ export function makaleSemasi(m: {
     ...(m.gorsel ? { image: m.gorsel } : {}),
     inLanguage: "tr-TR",
     ...(m.yayinTarihi ? { datePublished: m.yayinTarihi } : {}),
-    dateModified: m.guncelleme,
-    // Yazar adı yazılmışsa kişi; yoksa akademinin kurucusu varlığına bağlanıyor.
-    author: m.yazar ? { "@type": "Person", name: m.yazar } : { "@id": `${SITE_URL}/hakkimizda#kisi` },
+    dateModified: m.dateModified,
+    // Yazar adı yazılmışsa kişi (varsa profil URL'siyle); yoksa akademinin
+    // kurucusu varlığına bağlanıyor.
+    author: m.yazar
+      ? { "@type": "Person", name: m.yazar, ...(m.yazarUrl ? { url: m.yazarUrl } : {}) }
+      : { "@id": `${SITE_URL}/hakkimizda#kisi` },
     publisher: { "@id": `${SITE_URL}/#kurum` },
   };
 }

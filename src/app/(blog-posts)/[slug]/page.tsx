@@ -19,6 +19,11 @@ import {
 import { iceriktenIcindekiler, type IcindekiSatir } from "@/lib/blog-icerik";
 import { grupla } from "@/lib/blog-toc";
 import { egitimCtaHtml } from "@/lib/blog-cta";
+import { getSiteIcerik } from "@/lib/site-icerik";
+import { yazariCoz } from "@/lib/yazar";
+import { okumaSuresi, dateModifiedDegeri } from "@/lib/blog-meta";
+import { YazarMeta } from "@/components/blog/YazarMeta";
+import { YazarKutusu } from "@/components/blog/YazarKutusu";
 import { IcindekilerYan } from "@/components/blog/IcindekilerYan";
 import { IcindekilerAccordion } from "@/components/blog/IcindekilerAccordion";
 import { EgitimCta } from "@/components/blog/EgitimCta";
@@ -143,10 +148,16 @@ export default async function KokSlugPage({ params }: { params: Promise<{ slug: 
 /* ------------------------------------------------------------- yazı --- */
 
 async function YaziDetay({ yazi }: { yazi: Yazi }) {
-  const [{ html: icerikHam, icindekiler }, ilgili] = await Promise.all([
+  const [{ html: icerikHam, icindekiler }, ilgili, site] = await Promise.all([
     Promise.resolve(iceriktenIcindekiler(yazi.icerikHtml)),
     ilgiliYazilar(yazi.id, yazi.kategoriId),
+    getSiteIcerik(),
   ]);
+
+  // Yazar bilgisi merkezî kaynaktan (site_icerik → egitmen_*); okuma süresi
+  // içerikten hesaplanıyor.
+  const yazar = yazariCoz(yazi.yazar, site);
+  const okuma = okumaSuresi(yazi.icerikHtml);
 
   // İçindekiler yapısı (yalnızca sunum): H2 grupları + düz H2 listesi.
   const gruplar = grupla(icindekiler);
@@ -163,8 +174,11 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
       aciklama: yazi.seoAciklama || yazi.ozet,
       gorsel: kapakMutlak,
       yayinTarihi: yazi.yayinTarihi,
-      guncelleme: yazi.guncelleme,
-      yazar: yazi.yazar,
+      // dateModified: teknik updated_at değil, gerçek içerik güncellemesi
+      // (yoksa yayın tarihine düşer).
+      dateModified: dateModifiedDegeri(yazi.yayinTarihi, yazi.icerikGuncelleme, yazi.guncelleme),
+      yazar: yazar.name,
+      yazarUrl: yazar.profileUrl,
     }),
     kirintiSemasi([
       { ad: "Ana sayfa", yol: "/" },
@@ -194,26 +208,27 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
             </nav>
 
             <header className="mt-6">
-            <div className="flex flex-wrap items-center gap-3 font-mono text-[11px] tracking-[0.08em] text-[#6B7080]">
-              {yazi.kategori && (
+            {yazi.kategori && (
+              <div className="font-mono text-[11px] tracking-[0.08em]">
                 <Link
                   href={`/${yazi.kategori.slug}`}
                   className="rounded-full bg-brand/10 px-[11px] py-[5px] font-semibold text-brand uppercase hover:bg-brand hover:text-white"
                 >
                   {yazi.kategori.ad}
                 </Link>
-              )}
-              {yazi.yayinTarihi && (
-                <span>
-                  {tarih(yazi.yayinTarihi)}
-                  {yazi.yazar ? ` · ${yazi.yazar}` : ""}
-                </span>
-              )}
-            </div>
+              </div>
+            )}
             <h1 className="mt-3 font-heading text-[34px] leading-[1.1] font-semibold tracking-[-0.035em] text-balance sm:text-[44px] sm:leading-[1.06]">
               {yazi.baslik}
             </h1>
             {yazi.ozet && <p className="mt-5 text-[18px] leading-[1.6] text-pretty text-[#5C6273]">{yazi.ozet}</p>}
+            {/* Kompakt yazar/meta alanı: H1 ve açıklamanın altında. */}
+            <YazarMeta
+              yazar={yazar}
+              yayinTarihi={yazi.yayinTarihi}
+              icerikGuncelleme={yazi.icerikGuncelleme}
+              okuma={okuma}
+            />
           </header>
 
             {yazi.kapak && (
@@ -251,6 +266,10 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
             {/* Mobil/tablet yazı sonu güçlü CTA (masaüstünde CSS ile gizli;
                 orada sidebar CTA'sı devrede). */}
             <EgitimCta varyant="son" />
+
+            {/* Yazı sonu yazar kutusu (ilgili yazılardan önce). Satış CTA'sı
+                değil; güven odaklı, CTA kartlarından görsel olarak ayrışır. */}
+            <YazarKutusu yazar={yazar} />
           </article>
 
           {/* Masaüstü sticky sidebar: İçindekiler (scroll-spy) + eğitim CTA.
