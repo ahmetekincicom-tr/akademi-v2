@@ -153,6 +153,7 @@ export function YaziEditoru({
           <span className={ETIKET}>İçerik</span>
           <ZenginEditor
             baslangicJson={mevcut?.icerikJson ?? null}
+            baslangicHtml={mevcut?.icerikHtml ?? ""}
             icHedefler={icHedefler}
             onDegisim={(d) => (icerik.current = d)}
           />

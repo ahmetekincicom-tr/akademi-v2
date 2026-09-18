@@ -110,43 +110,25 @@ export type BlogYazisi = { baslik: string; adres: string; ozet: string; tarih: s
  * kaybetmek olur.
  */
 export async function getBlogYazilari(limit = 60): Promise<BlogYazisi[]> {
-  const kaynak = process.env.WORDPRESS_KAYNAK?.replace(/\/$/, "");
-  if (!kaynak) return [];
+  /*
+    Kaynak artık Supabase (yazıların tek doğruluk kaynağı) — WordPress REST
+    API'si DEĞİL. Faz 3'te blog içeriği WordPress'ten Supabase'e taşındı;
+    llms.txt'nin WordPress'in ayakta olmasına bağlı kalması gerekmiyor.
 
+    Yazılar KÖKTE sunuluyor: adres /{slug}/ (WordPress yapısı birebir korundu).
+  */
   try {
-    /*
-      Zaman aşımı ŞART. Bu uç WordPress'e bağlı ve WordPress yavaşladığında
-      dosyayı üreten istek onunla birlikte bekler. Dosya saatlik yeniden
-      üretildiği için (revalidate) bedeli saatte bir kez; ama o bir kez de
-      sınırsız beklememeli.
-    */
-    const cevap = await fetch(
-      `${kaynak}/wp-json/wp/v2/posts?per_page=${limit}&orderby=date&order=desc&_fields=title,link,excerpt,modified`,
-      { signal: AbortSignal.timeout(6000), headers: { Accept: "application/json" } },
-    );
-    if (!cevap.ok) return [];
-
-    const veri: unknown = await cevap.json();
-    if (!Array.isArray(veri)) return [];
-
-    return veri
-      .map((y) => {
-        const kayit = y as {
-          title?: { rendered?: string };
-          link?: string;
-          excerpt?: { rendered?: string };
-          modified?: string;
-        };
-        return {
-          baslik: htmlsiz(kayit.title?.rendered ?? ""),
-          adres: typeof kayit.link === "string" ? kayit.link : "",
-          ozet: htmlsiz(kayit.excerpt?.rendered ?? ""),
-          tarih: (kayit.modified ?? "").slice(0, 10),
-        };
-      })
-      .filter((y) => y.baslik && y.adres);
+    const { getYayindakiYazilar } = await import("@/lib/yazilar");
+    const yazilar = await getYayindakiYazilar();
+    return yazilar.slice(0, limit).map((y) => ({
+      baslik: y.baslik,
+      adres: `${SITE_URL}/${y.slug}/`,
+      ozet: htmlsiz(y.ozet ?? ""),
+      tarih: (y.yayinTarihi ?? y.guncelleme ?? "").slice(0, 10),
+    }));
   } catch {
-    // Zaman aşımı, ağ hatası, bozuk JSON — hepsi aynı yere düşüyor.
+    // Veritabanı hatası: dosya yine üretilsin, blog bölümü yalnızca dizin
+    // bağlantısıyla kalsın.
     return [];
   }
 }

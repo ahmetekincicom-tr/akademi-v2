@@ -25,7 +25,7 @@ export async function GET() {
 
   const ogeler = yazilar
     .map((y) => {
-      const adres = `${SITE_URL}/blog/${y.slug}/`;
+      const adres = `${SITE_URL}/${y.slug}/`;
       const tarih = y.yayinTarihi ?? y.guncelleme;
       return `    <item>
       <title>${kacir(y.baslik)}</title>

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { getCourses } from "@/lib/courses";
-import { getYayindakiYazilar } from "@/lib/yazilar";
+import { getYayindakiYazilar, getKategoriler } from "@/lib/yazilar";
 import { getYasalSayfalar } from "@/lib/yasal";
 import { ON_YUZ_ACIK } from "@/proxy";
 
@@ -63,20 +63,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     program açıldığında sayfa dolduğunda haritaya kendiliğinden giriyor.
   */
   const egitimler = (await getCourses()).filter((e) => !e.cokYakinda);
-  const yazilar = await getYayindakiYazilar();
+  const [yazilar, kategoriler] = await Promise.all([getYayindakiYazilar(), getKategoriler()]);
 
-  // Blog dizini yalnızca yayında yazı varsa haritaya giriyor: boş bir dizin
-  // sayfasını önermenin anlamı yok.
+  /*
+    Yazılar ve kategoriler KÖKTE (/{slug}/) — WordPress yapısı birebir korundu.
+    /blog yalnızca dizin sayfası. Blog dizini ve yazılar yalnızca yayında yazı
+    varsa haritaya giriyor: boş bir dizini önermenin anlamı yok.
+
+    Kategori arşivi yalnızca içinde yayında yazı varsa haritaya giriyor: boş bir
+    kategori (ör. henüz yazısı olmayan) ince/yönlendirmesiz sayfa olur, dizine
+    önerilmez.
+  */
+  const dolukategoriSlug = new Set(yazilar.map((y) => y.kategori?.slug).filter(Boolean) as string[]);
+
   const blogGirdileri: MetadataRoute.Sitemap =
     yazilar.length > 0
       ? [
           { url: adres("/blog"), lastModified: simdi, changeFrequency: "weekly", priority: 0.7 },
           ...yazilar.map((y) => ({
-            url: adres(`/blog/${y.slug}`),
+            url: adres(`/${y.slug}`),
             lastModified: y.yayinTarihi ? new Date(y.yayinTarihi) : new Date(y.guncelleme),
             changeFrequency: "monthly" as const,
             priority: 0.6,
           })),
+          ...kategoriler
+            .filter((k) => dolukategoriSlug.has(k.slug))
+            .map((k) => ({
+              url: adres(`/${k.slug}`),
+              lastModified: simdi,
+              changeFrequency: "weekly" as const,
+              priority: 0.5,
+            })),
         ]
       : [];
 

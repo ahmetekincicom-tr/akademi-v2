@@ -206,6 +206,66 @@ function wordpressYolu(yol: string): boolean {
 }
 
 /**
+ * Kalıcı olarak kaldırılan WordPress sayfaları → 410 Gone.
+ *
+ * Bu sayfaların yeni projede KARŞILIĞI YOK: sepet/ödeme akışı (WooCommerce),
+ * bakım/elementor sistem sayfaları ve kaldırılan eğitimler (Photoshop, After
+ * Effects, UGC, Freelance Mentorluk). Karşılıksız bir sayfayı alakasız bir yere
+ * 301'lemek Google'ın "soft 404" saydığı, değeri silen davranış. 410 ise "bu
+ * içerik kalıcı olarak gitti" demenin doğru yolu: arama motoru adresi dizinden
+ * 404'e göre daha hızlı düşürüyor ve tarama bütçesini boşa harcamıyor.
+ *
+ * Gerçek karşılığı OLANLAR burada değil; onlar 301 (src/lib/tasima.ts).
+ */
+const GONE_YOLLARI = new Set([
+  "/sepet",
+  "/sepet-2",
+  "/checkout-3",
+  "/bakim",
+  "/elementor-12265",
+  "/birebir-adobe-photoshop-egitimi",
+  "/birebir-adobe-after-effects-egitimi-2025",
+  "/birebir-influencer-ugc-olma-egitimi",
+  "/freelance-mentorluk-programi",
+]);
+
+/**
+ * Kalıcı olarak kaldırılan WordPress ARŞİV önekleri → 410 Gone.
+ *
+ * Etiket (/tag) ve yazar (/author) arşivlerinin yeni projede karşılığı yok.
+ * Kategori arşivleri taşındı ve kökte sunuluyor; etiket/yazar sayfaları ise
+ * ince içerik oldukları için taşınmadı.
+ */
+const GONE_ONEKLER = ["/tag", "/author"];
+
+function goneMi(yolSade: string): boolean {
+  if (GONE_YOLLARI.has(yolSade)) return true;
+  return GONE_ONEKLER.some((k) => yolSade === k || yolSade.startsWith(k + "/"));
+}
+
+/** İnsan için kısa bir 410 gövdesi (arama motoru zaten durum kodunu okuyor). */
+function goneCevabi(): NextResponse {
+  const govde = `<!doctype html><html lang="tr"><head><meta charset="utf-8">
+<meta name="robots" content="noindex"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sayfa kaldırıldı</title></head>
+<body style="font-family:system-ui,sans-serif;max-width:32rem;margin:15vh auto;padding:0 1.25rem;color:#0A0D18">
+<h1 style="font-size:1.5rem">Bu sayfa kaldırıldı</h1>
+<p style="color:#5C6273;line-height:1.6">Aradığınız sayfa artık yayında değil.
+<a href="/" style="color:#16a34a">Ana sayfaya dönün</a> ya da
+<a href="/egitimler/" style="color:#16a34a">eğitimlerimize</a> göz atın.</p>
+</body></html>`;
+  return new NextResponse(govde, {
+    status: 410,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "X-Robots-Tag": "noindex",
+      // 410 kalıcı; CDN kısa süre önbelleğe alabilir.
+      "Cache-Control": "public, max-age=0, s-maxage=3600",
+    },
+  });
+}
+
+/**
  * Reklam tıklamasını çereze yazar.
  *
  * Meta reklamından gelen adreste `fbclid` parametresi bulunuyor. Pixel bunu
@@ -255,6 +315,14 @@ export async function proxy(request: NextRequest) {
   }
   // WordPress'e gidecek istek: burada yapılacak iş yok, dokunmadan geçir.
   if (wordpressYolu(yol)) return NextResponse.next({ request });
+
+  /*
+    Kalıcı olarak kaldırılan sayfalar → 410 Gone. Oturum tazelemesinden ÖNCE:
+    bu adreslerde yapılacak başka iş yok ve 410 kimlik gerektirmiyor. Sondaki
+    eğik çizgi eşleştirmeden önce atılıyor (trailingSlash açık).
+  */
+  const yolSade410 = yol.length > 1 ? yol.replace(/\/+$/, "") : yol;
+  if (goneMi(yolSade410)) return goneCevabi();
 
   let response = NextResponse.next({ request });
 
