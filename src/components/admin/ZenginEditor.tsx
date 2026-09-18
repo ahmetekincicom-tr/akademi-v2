@@ -5,11 +5,13 @@ import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
-import { useCallback, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { depoUrl } from "@/lib/depo";
 import { LinkSecici, type LinkSecim } from "@/components/admin/LinkSecici";
 import type { IcLinkHedef } from "@/lib/yazilar";
+import { BlogBloklari, blokEkle, notEtiketiniGuncelle } from "@/components/admin/tiptap/BlogBloklari";
+import { BLOKLAR } from "@/lib/blog-bloklar";
 
 /**
  * Zengin metin editörü (TipTap).
@@ -84,6 +86,18 @@ export function ZenginEditor({
   const dosyaGirdi = useRef<HTMLInputElement>(null);
   const [gorselYukleniyor, setGorselYukleniyor] = useState(false);
   const [linkAcik, setLinkAcik] = useState(false);
+  const [blokMenu, setBlokMenu] = useState(false);
+  const blokSarici = useRef<HTMLDivElement>(null);
+
+  // "Blok Ekle" menüsü dışarı tıklanınca kapansın.
+  useEffect(() => {
+    if (!blokMenu) return;
+    const kapat = (e: MouseEvent) => {
+      if (!blokSarici.current?.contains(e.target as Node)) setBlokMenu(false);
+    };
+    document.addEventListener("mousedown", kapat);
+    return () => document.removeEventListener("mousedown", kapat);
+  }, [blokMenu]);
 
   // Geçerli bir ProseMirror belgesi varsa onu kullan; yoksa HTML'den kur.
   // TipTap `content` hem JSON belge hem HTML string kabul ediyor.
@@ -103,6 +117,8 @@ export function ZenginEditor({
       }),
       Image.configure({ HTMLAttributes: { class: "blog-gorsel" } }),
       Placeholder.configure({ placeholder: "Yazmaya başla…" }),
+      // Özel bloklar: Bilgi, Uyarı, İpucu, Prompt.
+      ...BlogBloklari,
     ],
     content: gecerliDoc,
     editorProps: {
@@ -200,6 +216,60 @@ export function ZenginEditor({
         <AracDugmesi etiket={gorselYukleniyor ? "Yükleniyor…" : "Görsel ekle"} onTikla={() => dosyaGirdi.current?.click()}>
           {gorselYukleniyor ? "…" : "🖼"}
         </AracDugmesi>
+        <Ayrac />
+
+        {/* Özel blok ekleme menüsü. Aynı bloklar `/bilgi`, `/uyari`, `/ipucu`,
+            `/prompt` slash komutlarıyla da eklenebiliyor. */}
+        <div className="relative" ref={blokSarici}>
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setBlokMenu((a) => !a)}
+            aria-haspopup="menu"
+            aria-expanded={blokMenu}
+            className="flex h-9 items-center gap-1 rounded-[8px] border border-ink/12 bg-white px-2.5 text-[13px] font-semibold text-[#5C6273] transition hover:border-brand hover:text-brand"
+          >
+            Blok Ekle
+            <span aria-hidden className="text-[10px]">▾</span>
+          </button>
+          {blokMenu && (
+            <div
+              role="menu"
+              className="absolute left-0 top-[calc(100%+4px)] z-20 min-w-[160px] overflow-hidden rounded-[10px] border border-ink/12 bg-white py-1 shadow-[0_12px_30px_rgba(10,13,24,0.14)]"
+            >
+              {BLOKLAR.map((b) => (
+                <button
+                  key={b.tip}
+                  type="button"
+                  role="menuitem"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    blokEkle(editor, b.tip);
+                    setBlokMenu(false);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13.5px] text-ink transition hover:bg-mist"
+                >
+                  <span className={`aea-blok-ikon aea-blok-ikon--${b.data}`} aria-hidden />
+                  {b.menu}
+                  <span className="ml-auto font-mono text-[11px] text-[#9aa0ae]">/{b.komut}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {editor.isActive("tipBlock") && (
+          <AracDugmesi
+            etiket="Not etiketini düzenle"
+            onTikla={() => {
+              const mevcut = (editor.getAttributes("tipBlock").etiket as string) || "Ahmet'in Notu";
+              const yeni = window.prompt("Not etiketi", mevcut);
+              if (yeni != null) notEtiketiniGuncelle(editor, yeni);
+            }}
+          >
+            Etiket
+          </AracDugmesi>
+        )}
         <Ayrac />
         <AracDugmesi etiket="Geri al" onTikla={() => editor.chain().focus().undo().run()}>
           ↶

@@ -1086,3 +1086,203 @@ body[data-menu-acik="1"] {
   border-color: var(--color-ink);
   box-shadow: 0 16px 40px rgba(10, 13, 24, 0.28);
 }
+
+/* --------------------------------------------------- blog özel bloklar --- */
+/*
+  Bilgi / Uyarı (Dikkat) / İpucu (Ahmet'in Notu) / Prompt.
+
+  Ortak tasarım dili: yumuşak radius, ince border, hafif tonlu zemin, küçük
+  ikon + küçük etiket, altında içerik. Bloklar yalnızca renkle değil, ikon ve
+  etiketle de ayrışıyor. Aynı sınıflar hem editörde (.blog-icerik TipTap alanı)
+  hem public yazıda kullanıldığı için görünüm bire bir aynı. İkonlar CSS mask
+  ile geliyor; renk aksan değişkeninden (--aea-accent). Karakter korunuyor ama
+  SaaS pano görünümüne kaçmadan, editoryal ve sakin.
+*/
+.aea-blok {
+  --aea-accent: var(--color-brand);
+  --aea-zemin: #f5f7fc;
+  --aea-kenar: rgba(10, 13, 24, 0.1);
+  margin: 1.7em 0;
+  padding: 20px 22px;
+  border: 1px solid var(--aea-kenar);
+  border-radius: 16px;
+  background: var(--aea-zemin);
+  overflow: hidden; /* uzun içerik yatay taşma yaratmasın */
+}
+.aea-blok__ust {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  row-gap: 6px;
+  margin-bottom: 10px;
+}
+.aea-blok__ikon {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  background-color: var(--aea-accent);
+  -webkit-mask: var(--aea-ikon) center / contain no-repeat;
+  mask: var(--aea-ikon) center / contain no-repeat;
+}
+.aea-blok__etiket {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: var(--aea-accent);
+}
+.aea-blok__govde {
+  font-size: 16.5px;
+  line-height: 1.68;
+  color: #353a48;
+}
+.aea-blok__govde > :first-child {
+  margin-top: 0;
+}
+.aea-blok__govde > :last-child {
+  margin-bottom: 0;
+}
+.aea-blok__govde p {
+  margin: 0 0 0.7em;
+}
+
+/* Bilgi — nötr, çok hafif mavi; sakin, dikkat çekmeden ayrışan. */
+.aea-blok--info {
+  --aea-accent: #2f66e0;
+  --aea-zemin: #f2f6ff;
+  --aea-kenar: rgba(47, 102, 224, 0.16);
+  --aea-ikon: url("data:image/svg+xml,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27black%27 stroke-width%3D%271.8%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Ccircle cx%3D%2712%27 cy%3D%2712%27 r%3D%279%27%2F%3E%3Cline x1%3D%2712%27 y1%3D%2711%27 x2%3D%2712%27 y2%3D%2716%27%2F%3E%3Cline x1%3D%2712%27 y1%3D%277.5%27 x2%3D%2712.01%27 y2%3D%277.5%27%2F%3E%3C%2Fsvg%3E");
+}
+/* Dikkat — çok hafif sıcak ton; kırmızı alarm değil, kritik ama profesyonel. */
+.aea-blok--warning {
+  --aea-accent: #b9791a;
+  --aea-zemin: #fdf7ec;
+  --aea-kenar: rgba(185, 121, 26, 0.22);
+  --aea-ikon: url("data:image/svg+xml,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27black%27 stroke-width%3D%271.8%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Cpath d%3D%27M12 3.2 21.5 20H2.5z%27%2F%3E%3Cline x1%3D%2712%27 y1%3D%2710%27 x2%3D%2712%27 y2%3D%2714.5%27%2F%3E%3Cline x1%3D%2712%27 y1%3D%2717.3%27 x2%3D%2712.01%27 y2%3D%2717.3%27%2F%3E%3C%2Fsvg%3E");
+}
+/* Ahmet'in Notu — biraz daha karakterli (indigo); yine blog dilinden kopmuyor. */
+.aea-blok--tip {
+  --aea-accent: #6a58c8;
+  --aea-zemin: #f6f4fd;
+  --aea-kenar: rgba(106, 88, 200, 0.18);
+  --aea-ikon: url("data:image/svg+xml,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27black%27 stroke-width%3D%271.8%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Cpath d%3D%27M12 3l2.1 5.4L19.5 10l-5.4 1.6L12 17l-2.1-5.4L4.5 10l5.4-1.6z%27%2F%3E%3C%2Fsvg%3E");
+}
+/* Prompt — editoryal, temiz kart; nötr zemin. */
+.aea-blok--prompt {
+  --aea-accent: var(--color-ink);
+  --aea-zemin: #f6f7f9;
+  --aea-kenar: rgba(10, 13, 24, 0.1);
+  --aea-ikon: url("data:image/svg+xml,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27black%27 stroke-width%3D%271.8%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Crect x%3D%273%27 y%3D%274.5%27 width%3D%2718%27 height%3D%2715%27 rx%3D%272.5%27%2F%3E%3Cpolyline points%3D%278 9.5 11 12 8 14.5%27%2F%3E%3Cline x1%3D%2712.5%27 y1%3D%2715%27 x2%3D%2716%27 y2%3D%2715%27%2F%3E%3C%2Fsvg%3E");
+}
+.aea-blok--prompt .aea-blok__ust {
+  margin-bottom: 12px;
+}
+/* "Kopyala" düğmesi başlık satırının sağında; mobilde etiketle çakışmaz. */
+.aea-prompt__kopyala {
+  margin-left: auto;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1px solid rgba(10, 13, 24, 0.14);
+  border-radius: 8px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3a3f4e;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.aea-prompt__kopyala:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+}
+.aea-prompt__kopyala:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+.aea-prompt__kopyala--ok {
+  border-color: #1a8a4a;
+  color: #1a8a4a;
+}
+/* Editörde düğme atıl (kopyalama public tarafta); yine de düğme gibi görünsün. */
+.blog-icerik .aea-prompt__kopyala {
+  text-decoration: none;
+}
+/*
+  Prompt metni: kod bloğu gibi durmasın diye okunaklı gövde fontu, ama
+  satır sonları korunuyor (pre-wrap) ve uzun tek satırlar/URL'ler sarıyor.
+*/
+.aea-prompt__metin {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.7;
+  color: #2b303d;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  -webkit-user-select: text;
+  user-select: text;
+  tab-size: 2;
+}
+
+/* Satır içi kod (blok içi ve genel): sade, tipografiyi bozmayan. */
+.blog-icerik code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: rgba(10, 13, 24, 0.06);
+  padding: 0.12em 0.4em;
+  border-radius: 5px;
+  color: #b6316c;
+}
+.aea-prompt__metin code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-family: inherit;
+}
+
+/* "Blok Ekle" menüsündeki küçük ikonlar (editör toolbar'ı). */
+.aea-blok-ikon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: var(--i) center / contain no-repeat;
+  mask: var(--i) center / contain no-repeat;
+}
+.aea-blok-ikon--info {
+  color: #2f66e0;
+  --i: url("data:image/svg+xml,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27black%27 stroke-width%3D%271.8%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Ccircle cx%3D%2712%27 cy%3D%2712%27 r%3D%279%27%2F%3E%3Cline x1%3D%2712%27 y1%3D%2711%27 x2%3D%2712%27 y2%3D%2716%27%2F%3E%3Cline x1%3D%2712%27 y1%3D%277.5%27 x2%3D%2712.01%27 y2%3D%277.5%27%2F%3E%3C%2Fsvg%3E");
+}
+.aea-blok-ikon--warning {
+  color: #b9791a;
+  --i: url("data:image/svg+xml,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27black%27 stroke-width%3D%271.8%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Cpath d%3D%27M12 3.2 21.5 20H2.5z%27%2F%3E%3Cline x1%3D%2712%27 y1%3D%2710%27 x2%3D%2712%27 y2%3D%2714.5%27%2F%3E%3Cline x1%3D%2712%27 y1%3D%2717.3%27 x2%3D%2712.01%27 y2%3D%2717.3%27%2F%3E%3C%2Fsvg%3E");
+}
+.aea-blok-ikon--tip {
+  color: #6a58c8;
+  --i: url("data:image/svg+xml,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27black%27 stroke-width%3D%271.8%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Cpath d%3D%27M12 3l2.1 5.4L19.5 10l-5.4 1.6L12 17l-2.1-5.4L4.5 10l5.4-1.6z%27%2F%3E%3C%2Fsvg%3E");
+}
+.aea-blok-ikon--prompt {
+  color: #4a4f5e;
+  --i: url("data:image/svg+xml,%3Csvg xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27 viewBox%3D%270 0 24 24%27 fill%3D%27none%27 stroke%3D%27black%27 stroke-width%3D%271.8%27 stroke-linecap%3D%27round%27 stroke-linejoin%3D%27round%27%3E%3Crect x%3D%273%27 y%3D%274.5%27 width%3D%2718%27 height%3D%2715%27 rx%3D%272.5%27%2F%3E%3Cpolyline points%3D%278 9.5 11 12 8 14.5%27%2F%3E%3Cline x1%3D%2712.5%27 y1%3D%2715%27 x2%3D%2716%27 y2%3D%2715%27%2F%3E%3C%2Fsvg%3E");
+}
+
+@media (max-width: 640px) {
+  .aea-blok {
+    padding: 16px 16px;
+    border-radius: 14px;
+  }
+  .aea-prompt__metin {
+    font-size: 14.5px;
+  }
+}
