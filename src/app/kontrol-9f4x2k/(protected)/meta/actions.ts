@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { veriHatasi } from "@/lib/auth-hatalari";
 import { yoneticiMi } from "@/lib/panel-kapsam";
 import { OLAYLAR } from "@/lib/meta/olaylar";
@@ -67,8 +68,23 @@ export async function temasiKisiyeBagla(kod: string, userId: string) {
   const temiz = kod.trim().toUpperCase();
   if (!/^[A-Z0-9]{4,8}$/.test(temiz)) return { error: "Referans kodu okunamadı." };
 
-  const supabase = await createClient();
-  const { data: temas } = await supabase
+  /*
+    Yazımlar service anahtarıyla yapılıyor, cookie istemcisiyle DEĞİL.
+
+    profiles'ta authenticated rolüne yalnızca birkaç kolonda UPDATE yetkisi var
+    (ad, soyad, telefon, sirket, on_degerlendirme_tarihi …). Burada yazdığımız
+    reklam atıfı kolonları — fbp, fbc, ilk_ip, ilk_ua, temas_kodu, kaynak,
+    reklam_izni — o listede değil ve yalnızca service_role'a açık; bilerek
+    öyle, çünkü bunları normal kullanıcı kendi satırına yazabilseydi atıfı
+    elle uydurabilirdi. Yönetici cookie istemcisiyle yazmaya çalışınca UPDATE
+    RLS'e ulaşmadan kolon yetkisi katmanında 42501 ile düşüyordu ("yetkin yok").
+    Eylem zaten yukarıda yoneticiMi() ile korunuyor; ayrıcalıklı yazım için
+    service istemcisi doğru araç.
+  */
+  const servis = gorevIstemcisi();
+  if (!servis) return { error: "Sunucu yapılandırması eksik." };
+
+  const { data: temas } = await servis
     .from("temaslar")
     .select("id, fbp, fbc, ip, ua, izin, user_id")
     .eq("kod", temiz)
@@ -81,7 +97,7 @@ export async function temasiKisiyeBagla(kod: string, userId: string) {
     return { error: "Bu kod başka bir kişiye bağlanmış." };
   }
 
-  const { error } = await supabase
+  const { error } = await servis
     .from("profiles")
     .update({
       fbp: temas.fbp,
@@ -97,7 +113,7 @@ export async function temasiKisiyeBagla(kod: string, userId: string) {
 
   if (error) return { error: veriHatasi(error) };
 
-  await supabase
+  await servis
     .from("temaslar")
     .update({ user_id: userId, eslesme_zamani: new Date().toISOString() })
     .eq("id", temas.id);
