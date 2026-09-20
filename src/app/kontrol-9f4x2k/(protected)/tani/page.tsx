@@ -647,6 +647,18 @@ export default async function TaniPage() {
       deger: ga4Email && ga4Key ? "GA4 ile ortak (yukarıda)" : "eksik",
       not: "Search Console kimliği GA4_SA_CLIENT_EMAIL + GA4_SA_PRIVATE_KEY ile ortak.",
     },
+    {
+      // Sunucunun GERÇEKTE gördüğü ilgili değişken İSİMLERİ (değerler değil).
+      // Yazım hatasını (ör. GCS_SITE_URL) ve yanlış scope/redeploy'u anında ele verir.
+      ad: "Sunucudaki ilgili anahtarlar",
+      durum: gscSiteUrl ? "ok" : "uyari",
+      deger:
+        Object.keys(process.env)
+          .filter((k) => /^(GSC|GCS|GA4|SEARCH|CONSOLE)/i.test(k))
+          .sort()
+          .join(", ") || "hiçbiri",
+      not: "GSC_SITE_URL burada YOKSA: isim yanlış (GCS↔GSC), yanlış Environment (Production değil) ya da ekledikten sonra redeploy yapılmamış.",
+    },
   ];
 
   const posta: Satir[] = [
