@@ -454,6 +454,29 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["marka"]["Row"]>;
         Relationships: [];
       };
+      google_donusumleri: {
+        Row: {
+          created_at: string;
+          durum: string;
+          ga_client_id: string | null;
+          gclid: string | null;
+          gonderim_zamani: string | null;
+          hata: string | null;
+          http_kod: number | null;
+          id: string;
+          kaynak: string | null;
+          olay_zamani: string;
+          para_birimi: string;
+          payment_id: string;
+          tutar: number | null;
+          user_id: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["google_donusumleri"]["Row"]> & {
+          payment_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["google_donusumleri"]["Row"]>;
+        Relationships: [];
+      };
       meta_akislari: {
         Row: { acik: boolean; anahtar: string; guncelleme: string };
         Insert: Partial<Database["public"]["Tables"]["meta_akislari"]["Row"]> & { anahtar: string };
@@ -658,6 +681,8 @@ export type Database = {
           email: string | null;
           fbc: string | null;
           fbp: string | null;
+          ga_client_id: string | null;
+          gclid: string | null;
           hosgeldin_tarihi: string | null;
           id: string;
           ileti_izni: boolean;
@@ -930,6 +955,8 @@ export type Database = {
           eslesme_zamani: string | null;
           fbc: string | null;
           fbp: string | null;
+          ga_client_id: string | null;
+          gclid: string | null;
           hedef: string | null;
           id: string;
           ip: string | null;

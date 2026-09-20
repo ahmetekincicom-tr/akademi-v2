@@ -10,6 +10,7 @@ import { koltukAtandiBildir } from "@/lib/egitim-eposta";
 import { yoneticiMi } from "@/lib/panel-kapsam";
 import { veriHatasi } from "@/lib/auth-hatalari";
 import { satinAlmaOlayi } from "@/lib/meta/satis";
+import { kayitDonusumuGonder } from "@/lib/google/donusum";
 
 /**
  * Ödeme değiştiğinde tazelenmesi gereken her yer.
@@ -89,7 +90,10 @@ export async function odemeEkle(input: OdemeInput) {
 
     // Peşin işaretlenerek açılan kayıt da bir satıştır; kartla ödenmiş
     // olmadığı için kaynağı "other".
-    if (input.durum === "odendi") await satinAlmaOlayi(supabase, eklenen.id, "other");
+    if (input.durum === "odendi") {
+      await satinAlmaOlayi(supabase, eklenen.id, "other");
+      await kayitDonusumuGonder(eklenen.id);
+    }
   }
 
   odemeTazele();
@@ -174,6 +178,7 @@ export async function odemeDurumDegistir(id: string, durum: "odendi" | "bekliyor
       olmayan bir site trafiği bildirmek olurdu.
     */
     await satinAlmaOlayi(supabase, id, "other");
+    await kayitDonusumuGonder(id);
   }
   odemeTazele();
   return uyari ? { uyari } : {};
