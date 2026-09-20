@@ -86,3 +86,36 @@ export async function ga4RunReport(yapi: Ga4Yapi, govde: Record<string, unknown>
 
 export type Ga4Satir = { dimensionValues?: { value: string }[]; metricValues?: { value: string }[] };
 export type Ga4Rapor = { rows?: Ga4Satir[] };
+
+/**
+ * Servis hesabının ERİŞEBİLDİĞİ GA4 mülkleri (Admin API accountSummaries).
+ *
+ * Tanı için: "runReport 403" alındığında sorun çoğu zaman yanlış GA4_PROPERTY_ID
+ * ya da iznin başka bir mülke/e-postaya verilmiş olması. Bu liste, yapılandırılan
+ * kimliğin gerçekten erişilebilir olup olmadığını kesin gösterir.
+ *
+ * Not: Admin API (analyticsadmin) projede ayrıca enable edilmemişse bu çağrı da
+ * hata verebilir; çağıran tarafı bunu ayrı ele alıyor.
+ */
+export type Ga4Mulk = { id: string; ad: string };
+export async function ga4ErisilebilirMulkler(yapi: Ga4Yapi): Promise<Ga4Mulk[]> {
+  const token = await erisimTokeni(yapi);
+  const cevap = await fetch("https://analyticsadmin.googleapis.com/v1beta/accountSummaries?pageSize=200", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!cevap.ok) {
+    const detay = await cevap.text().catch(() => "");
+    throw new Error(`GA4 admin ${cevap.status}: ${detay.replace(/\s+/g, " ").slice(0, 180)}`);
+  }
+  const veri = (await cevap.json()) as {
+    accountSummaries?: { propertySummaries?: { property?: string; displayName?: string }[] }[];
+  };
+  const liste: Ga4Mulk[] = [];
+  for (const hesap of veri.accountSummaries ?? []) {
+    for (const p of hesap.propertySummaries ?? []) {
+      const id = (p.property ?? "").replace("properties/", "").trim();
+      if (id) liste.push({ id, ad: p.displayName ?? "" });
+    }
+  }
+  return liste;
+}

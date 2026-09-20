@@ -5,7 +5,7 @@ import { Icon } from "@/components/Icon";
 import { iyzicoAyari, odemeSorgula } from "@/lib/iyzico";
 import { epostaYapilandirildiMi } from "@/lib/eposta";
 import { EpostaTesti } from "@/components/admin/EpostaTesti";
-import { ga4Yapisi, ga4RunReport } from "@/lib/google/ga4-erisim";
+import { ga4Yapisi, ga4RunReport, ga4ErisilebilirMulkler } from "@/lib/google/ga4-erisim";
 
 export const dynamic = "force-dynamic";
 
@@ -512,8 +512,47 @@ export default async function TaniPage() {
     }
   }
 
+  // Servis hesabının GERÇEKTE erişebildiği mülkler — 403'ün kör noktasını açar:
+  // yapılandırılan PROPERTY_ID bu listede yoksa ya yanlış ID ya da izin başka
+  // mülke/e-postaya verilmiş demektir.
+  let mulkSatiri: Satir | null = null;
+  if (ga4Yapi) {
+    try {
+      const mulkler = await ga4ErisilebilirMulkler(ga4Yapi);
+      if (mulkler.length === 0) {
+        mulkSatiri = {
+          ad: "Erişilebilir mülkler (SA)",
+          durum: "hata",
+          deger: "hiçbiri",
+          not: "Bu servis hesabı HİÇBİR GA4 mülküne erişemiyor. İzni yanlış e-postaya vermiş olabilirsin ya da kayıt olmamış. GA4 → Admin → Property Access Management'a TAM olarak GA4_SA_CLIENT_EMAIL'i ekle.",
+        };
+      } else {
+        const eslesme = mulkler.some((m) => m.id === ga4PropId);
+        mulkSatiri = {
+          ad: "Erişilebilir mülkler (SA)",
+          durum: eslesme ? "ok" : "hata",
+          deger: mulkler.map((m) => `${m.id}${m.ad ? ` (${m.ad})` : ""}`).join(", "),
+          not: eslesme
+            ? "GA4_PROPERTY_ID bu listede — erişim doğru."
+            : `GA4_PROPERTY_ID (${ga4PropId || "boş"}) bu listede YOK. Doğru numarayı yukarıdaki listeden seç ya da izni doğru mülke ver. (Property ID; Data Stream ID veya UA görünüm kimliği DEĞİL.)`,
+        };
+      }
+    } catch (e) {
+      const mesaj = e instanceof Error ? e.message : "bilinmeyen hata";
+      mulkSatiri = {
+        ad: "Erişilebilir mülkler (SA)",
+        durum: "uyari",
+        deger: "listelenemedi",
+        not: /SERVICE_DISABLED|has not been used|disabled|403/i.test(mesaj)
+          ? "Mülk listesi alınamadı — 'Google Analytics Admin API' bu projede enable değil. Enable edersen bu satır SA'nın eriştiği tüm mülkleri gösterir. (Ana bağlantı için şart değil.)"
+          : mesaj.slice(0, 180),
+      };
+    }
+  }
+
   const ga4: Satir[] = [
     ga4Baglanti,
+    ...(mulkSatiri ? [mulkSatiri] : []),
     {
       ad: "GA4_PROPERTY_ID",
       durum: ga4PropId ? (ga4PropRakam ? "ok" : "hata") : "hata",
