@@ -77,6 +77,7 @@ export function ZenginEditor({
   baslangicHtml = "",
   icHedefler = [],
   yaziSlug,
+  geriYukle,
   onDegisim,
 }: {
   baslangicJson: unknown;
@@ -90,6 +91,12 @@ export function ZenginEditor({
   icHedefler?: IcLinkHedef[];
   /** Yeni görsellerin SEO dosya adı için yedek kaynak (yazının slug'ı). */
   yaziSlug?: string;
+  /**
+   * Dışarıdan içerik geri yükleme (otomatik kayıt taslağından "kaldığın yerden
+   * devam"). Yeni bir nesne geçildiğinde editörün içeriği bununla değiştirilir.
+   * null/aynı referans → dokunulmaz.
+   */
+  geriYukle?: Deger | null;
   onDegisim: (d: Deger) => void;
 }) {
   const dosyaGirdi = useRef<HTMLInputElement>(null);
@@ -252,6 +259,20 @@ export function ZenginEditor({
       }
     }
   };
+
+  // Taslaktan geri yükleme: yeni bir `geriYukle` nesnesi geldiğinde editör
+  // içeriğini onunla değiştir. emitUpdate=true → onDegisim tetiklenir, üst
+  // bileşendeki içerik referansı ve otomatik kayıt güncel kalır.
+  const geriYukleRef = useRef<Deger | null>(null);
+  useEffect(() => {
+    if (!editor || !geriYukle || geriYukleRef.current === geriYukle) return;
+    geriYukleRef.current = geriYukle;
+    const ic =
+      geriYukle.json && typeof geriYukle.json === "object" && (geriYukle.json as { type?: string }).type
+        ? (geriYukle.json as object)
+        : geriYukle.html || "";
+    editor.commands.setContent(ic, true);
+  }, [editor, geriYukle]);
 
   if (!editor) {
     return <div className="min-h-[420px] rounded-[12px] border border-ink/12 bg-mist" />;

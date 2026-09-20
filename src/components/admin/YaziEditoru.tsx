@@ -1,12 +1,22 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useBildirim } from "@/components/Bildirim";
 import { createClient } from "@/lib/supabase/client";
 import { depoUrl } from "@/lib/depo";
 import { slugYap } from "@/lib/duyuru";
 import { ZenginEditor } from "@/components/admin/ZenginEditor";
 import { saveYazi, silYazi, kategoriEkle } from "@/app/kontrol-9f4x2k/(protected)/blog/actions";
+import {
+  taslakAnahtar,
+  taslakOku,
+  taslakYaz,
+  taslakSil,
+  taslakDegerli,
+  taslakNispiZaman,
+  type BlogTaslak,
+  type TaslakAlanlar,
+} from "@/lib/blog-taslak";
 import type { Yazi, Kategori, IcLinkHedef } from "@/lib/yazilar";
 
 const ETIKET = "font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase";
@@ -73,6 +83,118 @@ export function YaziEditoru({
     json: mevcut?.icerikJson ?? null,
   });
 
+  /* -------------------------------------------------- otomatik kaydetme --- */
+  // Yerel taslak: her düzenlemede (debounce) localStorage'a yazılır; çökme/PC
+  // kapanması sonrası "kaldığın yerden devam" sağlar. Sunucuya kayıt akışı
+  // (Kaydet) değişmez.
+  const anahtar = useMemo(() => taslakAnahtar(mevcut?.id), [mevcut?.id]);
+  const [otoAktif, setOtoAktif] = useState(false); // banner çözülene kadar yazma
+  const [taslakUyari, setTaslakUyari] = useState<BlogTaslak | null>(null);
+  const [sonKayit, setSonKayit] = useState<number | null>(null);
+  const [geriYukleIcerik, setGeriYukleIcerik] = useState<{ html: string; json: unknown } | null>(null);
+
+  // Debounce yazıcısının okuyacağı güncel alan aynası (her render sonrası
+  // tazeleniyor; tuş başına state güncellemeden içerik referansıyla birlikte
+  // okunabilsin diye).
+  const alanlarRef = useRef<TaslakAlanlar | null>(null);
+  useEffect(() => {
+    alanlarRef.current = {
+      baslik,
+      slug,
+      slugElle,
+      ozet,
+      kapakYol,
+      durum,
+      yayinYerel,
+      seoBaslik,
+      seoAciklama,
+      yazar,
+      kategoriId,
+      etiketMetni,
+      icerikHtml: icerik.current.html,
+      icerikJson: icerik.current.json,
+    };
+  });
+
+  const otoAktifRef = useRef(false);
+  useEffect(() => {
+    otoAktifRef.current = otoAktif;
+  }, [otoAktif]);
+
+  const zamanlayici = useRef<number | null>(null);
+  const hemenYaz = useCallback(() => {
+    if (!otoAktifRef.current || !alanlarRef.current) return;
+    // İçerik state değil ref'te; form yeniden çizilmeden değiştiği için aynayı
+    // beklemeden doğrudan en güncel içeriği okuyoruz.
+    taslakYaz(
+      anahtar,
+      { ...alanlarRef.current, icerikHtml: icerik.current.html, icerikJson: icerik.current.json },
+      mevcut?.guncelleme ?? null,
+    );
+    setSonKayit(Date.now());
+  }, [anahtar, mevcut?.guncelleme]);
+
+  const planla = useCallback(() => {
+    if (!otoAktifRef.current) return;
+    if (zamanlayici.current) window.clearTimeout(zamanlayici.current);
+    zamanlayici.current = window.setTimeout(hemenYaz, 800);
+  }, [hemenYaz]);
+
+  // Açılışta: geçerli bir taslak var mı? Varsa banner göster (autosave askıda),
+  // yoksa bayat taslağı temizle ve otomatik kaydı aç. localStorage yalnız
+  // istemcide okunabildiği için bu karar montaj sonrası (effect) veriliyor;
+  // dış depodan okuyup ilk durumu belirlemek bu kuralın meşru istisnası.
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    const t = taslakOku(anahtar);
+    const sunucu = mevcut
+      ? { guncelleme: mevcut.guncelleme, baslik: mevcut.baslik, ozet: mevcut.ozet, icerikHtml: mevcut.icerikHtml }
+      : null;
+    if (taslakDegerli(t, sunucu)) {
+      setTaslakUyari(t);
+    } else {
+      if (t) taslakSil(anahtar);
+      setOtoAktif(true);
+    }
+    // Yalnızca ilk montajda çalışsın.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anahtar]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Form alanları değişince taslağı planla (autosave açıksa).
+  useEffect(() => {
+    planla();
+  }, [baslik, slug, slugElle, ozet, kapakYol, durum, yayinYerel, seoBaslik, seoAciklama, yazar, kategoriId, etiketMetni, planla]);
+
+  const taslaktanDevam = () => {
+    const t = taslakUyari;
+    if (!t) return;
+    setBaslik(t.baslik);
+    setSlug(t.slug);
+    setSlugElle(t.slugElle);
+    setOzet(t.ozet);
+    setKapakYol(t.kapakYol);
+    setDurum(t.durum);
+    setYayinYerel(t.yayinYerel);
+    setSeoBaslik(t.seoBaslik);
+    setSeoAciklama(t.seoAciklama);
+    setYazar(t.yazar);
+    setKategoriId(t.kategoriId);
+    setEtiketMetni(t.etiketMetni);
+    icerik.current = { html: t.icerikHtml, json: t.icerikJson };
+    setGeriYukleIcerik({ html: t.icerikHtml, json: t.icerikJson });
+    setSonKayit(t.kayitZamani);
+    setTaslakUyari(null);
+    setOtoAktif(true);
+    bildir.basarili("Taslaktan devam ediliyor.");
+  };
+
+  const taslagiYoksay = () => {
+    taslakSil(anahtar);
+    setTaslakUyari(null);
+    setOtoAktif(true);
+  };
+
   const baslikDegis = (v: string) => {
     setBaslik(v);
     if (!slugElle) setSlug(slugYap(v));
@@ -94,6 +216,9 @@ export function YaziEditoru({
   const kaydet = async () => {
     if (!baslik.trim() || !slug.trim()) return bildir.hata("Başlık ve URL zorunludur.");
     setKaydediliyor(true);
+    // Başarılı kayıt sunucuya yazıyor; yerel taslağa artık gerek yok. İyimser
+    // temizlik: başarılıysa action redirect eder, hata dönerse aşağıda geri yazılır.
+    taslakSil(anahtar);
     const r = await saveYazi({
       originalSlug: mevcut?.slug,
       slug: slug.trim(),
@@ -116,7 +241,10 @@ export function YaziEditoru({
     });
     // Başarılıysa action redirect ediyor; buraya yalnızca hata dönerse geliyoruz.
     setKaydediliyor(false);
-    if (r?.error) bildir.hata(r.error);
+    if (r?.error) {
+      bildir.hata(r.error);
+      hemenYaz(); // kayıt başarısız: yerel taslağı geri yaz, emek kaybolmasın
+    }
   };
 
   const sil = async () => {
@@ -134,6 +262,35 @@ export function YaziEditoru({
           sonsuza uzatmasın — içerik kırılıp sarabilsin diye kolon 0'a kadar
           küçülebilmeli (grid item varsayılan min-width:auto'yu geçersiz kılar). */}
       <div className="flex min-w-0 flex-col gap-5">
+        {taslakUyari && (
+          <div className="flex flex-col gap-3 rounded-[12px] border border-amber-300 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-2.5">
+              <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-amber-400/25 text-[12px]" aria-hidden>
+                ⏳
+              </span>
+              <div className="text-[13px] leading-[1.5] text-[#7c5b12]">
+                <span className="font-semibold">Kaydedilmemiş taslak bulundu</span> · {taslakNispiZaman(taslakUyari.kayitZamani)}{" "}
+                otomatik kaydedildi. Kaldığın yerden devam edebilir ya da bu taslağı yoksayabilirsin.
+              </div>
+            </div>
+            <div className="flex flex-none gap-2">
+              <button
+                type="button"
+                onClick={taslaktanDevam}
+                className="h-9 rounded-[9px] bg-brand px-3 text-[13px] font-semibold text-white transition hover:bg-ink"
+              >
+                Kaldığım yerden devam et
+              </button>
+              <button
+                type="button"
+                onClick={taslagiYoksay}
+                className="h-9 rounded-[9px] border border-ink/15 bg-white px-3 text-[13px] font-semibold text-[#5C6273] transition hover:border-danger/40 hover:text-danger"
+              >
+                Yoksay
+              </button>
+            </div>
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <span className={ETIKET}>Başlık</span>
           <input
@@ -156,13 +313,25 @@ export function YaziEditoru({
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className={ETIKET}>İçerik</span>
+          <div className="flex items-center justify-between gap-3">
+            <span className={ETIKET}>İçerik</span>
+            {sonKayit && (
+              <span className="flex items-center gap-1.5 font-mono text-[10px] tracking-[0.06em] text-[#8A90A0]">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
+                Otomatik kaydedildi · {taslakNispiZaman(sonKayit)}
+              </span>
+            )}
+          </div>
           <ZenginEditor
             baslangicJson={mevcut?.icerikJson ?? null}
             baslangicHtml={mevcut?.icerikHtml ?? ""}
             icHedefler={icHedefler}
             yaziSlug={slug}
-            onDegisim={(d) => (icerik.current = d)}
+            geriYukle={geriYukleIcerik}
+            onDegisim={(d) => {
+              icerik.current = d;
+              planla();
+            }}
           />
         </div>
       </div>
