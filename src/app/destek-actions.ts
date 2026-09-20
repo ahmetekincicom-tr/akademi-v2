@@ -54,7 +54,7 @@ export async function talepAc(baslik: string, ilkMesaj: string, courseId?: strin
   return {};
 }
 
-export async function mesajGonder(ticketId: string, metin: string) {
+export async function mesajGonder(ticketId: string, metin: string, icNot = false) {
   if (!metin.trim()) return { error: "Mesaj boş olamaz." };
 
   const supabase = await createClient();
@@ -63,13 +63,26 @@ export async function mesajGonder(ticketId: string, metin: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Oturum bulunamadı." };
 
-  const { error } = await supabase
-    .from("support_messages")
-    .insert({ ticket_id: ticketId, gonderen_id: user.id, metin: metin.trim() });
-  if (error) return { error: error.message };
-
   const { data: profil } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   const yoneticiYazdi = profil?.role === "admin";
+
+  // İç not yalnızca yöneticiye özel; öğrenci iç not gönderemez.
+  if (icNot && !yoneticiYazdi) return { error: "Bu işlem için yetkin yok." };
+
+  const { error } = await supabase
+    .from("support_messages")
+    .insert({ ticket_id: ticketId, gonderen_id: user.id, metin: metin.trim(), ic_not: icNot });
+  if (error) return { error: error.message };
+
+  /*
+    İç not: talebin durumunu ve öğrenciye giden bildirimi DEĞİŞTİRMEZ — yalnızca
+    ekip görür. Sadece güncelleme zamanı ilerlesin (kuyruk sıralaması için).
+  */
+  if (icNot) {
+    await supabase.from("support_tickets").update({ updated_at: new Date().toISOString() }).eq("id", ticketId);
+    revalidatePath("/kontrol-9f4x2k/destek");
+    return {};
+  }
 
   // An admin reply moves the ticket to "yanitlandi"; a student reply reopens it.
   await supabase
@@ -104,6 +117,22 @@ export async function mesajGonder(ticketId: string, metin: string) {
   }
 
   revalidatePath("/panel/soru-cevap");
+  revalidatePath("/kontrol-9f4x2k/destek");
+  return {};
+}
+
+/**
+ * Talebi bir eğitime bağlar (ya da bağını kaldırır). Yalnızca yönetici.
+ * Mevcut support_tickets.course_id kolonunu kullanır.
+ */
+export async function talebeEgitimBagla(ticketId: string, courseId: string | null) {
+  if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("support_tickets")
+    .update({ course_id: courseId || null })
+    .eq("id", ticketId);
+  if (error) return { error: veriHatasi(error) };
   revalidatePath("/kontrol-9f4x2k/destek");
   return {};
 }

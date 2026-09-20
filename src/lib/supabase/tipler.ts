@@ -893,7 +893,7 @@ export type Database = {
         Relationships: [];
       };
       support_messages: {
-        Row: { created_at: string; gonderen_id: string; id: string; metin: string; ticket_id: string };
+        Row: { created_at: string; gonderen_id: string; ic_not: boolean; id: string; metin: string; ticket_id: string };
         Insert: Partial<Database["public"]["Tables"]["support_messages"]["Row"]> & {
           gonderen_id: string;
           metin: string;
