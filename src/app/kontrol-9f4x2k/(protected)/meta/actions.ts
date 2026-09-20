@@ -86,7 +86,7 @@ export async function temasiKisiyeBagla(kod: string, userId: string) {
 
   const { data: temas } = await servis
     .from("temaslar")
-    .select("id, fbp, fbc, ip, ua, izin, user_id")
+    .select("id, fbp, fbc, gclid, ga_client_id, ip, ua, izin, user_id")
     .eq("kod", temiz)
     .maybeSingle();
 
@@ -102,6 +102,9 @@ export async function temasiKisiyeBagla(kod: string, userId: string) {
     .update({
       fbp: temas.fbp,
       fbc: temas.fbc,
+      // Google Ads atıf kimlikleri de fbp/fbc ile aynı anda taşınıyor.
+      gclid: temas.gclid,
+      ga_client_id: temas.ga_client_id,
       ilk_ip: temas.ip,
       ilk_ua: temas.ua,
       temas_kodu: temiz,

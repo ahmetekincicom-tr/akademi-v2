@@ -6,6 +6,7 @@ import { basariliMi, odemeSorgula, type IyzicoAyar, type SorgulamaCevabi } from 
 import { odemeTamamlandiBildir } from "@/lib/odeme-eposta";
 import { yoneticiBildirimi } from "@/lib/eposta";
 import { satinAlmaOlayi } from "@/lib/meta/satis";
+import { kayitDonusumuGonder } from "@/lib/google/donusum";
 
 /**
  * Bir ödeme denemesinin sonucunu iyzico'ya sorup kaydeder.
@@ -129,6 +130,8 @@ export async function denemeyiCoz(
   await odemeTamamlandiBildir(servis, deneme.payment_id);
   // Meta'ya da: kartla ödeme burada kesinleşiyor.
   await satinAlmaOlayi(servis, deneme.payment_id, "website");
+  // Google'a da (GA4 MP → Ads): reklamdan gelen kayıt dönüşümü.
+  await kayitDonusumuGonder(deneme.payment_id);
 
   return "basarili";
 }

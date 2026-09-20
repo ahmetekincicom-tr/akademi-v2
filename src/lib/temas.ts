@@ -8,6 +8,7 @@ import { istekIpsi } from "@/lib/meta/toplama";
 import { kimlikKur } from "@/lib/meta/kimlik";
 import { metaOlayiKuyrukla } from "@/lib/meta/kuyruk";
 import { openaiLeadGonder } from "@/lib/openai-ads/sunucu";
+import { gaClientId, gclidCoz } from "@/lib/google/gcl";
 
 /**
  * WhatsApp temasının kaydı.
@@ -32,6 +33,10 @@ export type TemasIzi = {
   hedef: string;
   fbp: string | null;
   fbc: string | null;
+  /** Google Ads tık kimliği (_gcl_aw çerezinden). */
+  gclid: string | null;
+  /** GA4 client_id (_ga çerezinden); Measurement Protocol atfı için. */
+  gaClientId: string | null;
   izin: boolean;
   ip: string | null;
   ua: string | null;
@@ -48,6 +53,9 @@ export function iziTopla(
     ...ortak,
     fbp: request.cookies.get(FBP_CEREZI)?.value ?? null,
     fbc: request.cookies.get(FBC_CEREZI)?.value ?? null,
+    // Google: gtag Conversion Linker'ı reklamdan gelişte bu çerezleri yazıyor.
+    gclid: gclidCoz(request.cookies.get("_gcl_aw")?.value),
+    gaClientId: gaClientId(request.cookies.get("_ga")?.value),
     izin: reklamIzniVar(izniCoz(request.cookies.get(IZIN_CEREZI)?.value)),
     ip: istekIpsi(request.headers),
     ua: request.headers.get("user-agent"),
@@ -76,6 +84,8 @@ export async function temasiKaydet(iz: TemasIzi): Promise<void> {
         hedef: iz.hedef,
         fbp: iz.fbp,
         fbc: iz.fbc,
+        gclid: iz.gclid,
+        ga_client_id: iz.gaClientId,
         ip: iz.ip,
         ua: iz.ua,
         referrer: iz.referrer,
