@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { blogPanelYazilari } from "@/lib/yazilar";
 import { blogPanelMetrikleri, type PanelSonuc, type PanelAralik } from "@/lib/google/ga4-rapor";
+import { gscPanelMetrikleri, type GscPanelSonuc } from "@/lib/google/gsc-rapor";
 import { BlogPanel } from "@/components/admin/BlogPanel";
 
 export const dynamic = "force-dynamic";
@@ -21,16 +22,19 @@ export default async function BlogListePage({
   const supabase = await createClient();
   const yazilar = await blogPanelYazilari(supabase);
 
-  // Performans (GA4) — tek batch, N+1 yok. Yapılandırma/hata olursa CMS bozulmaz.
+  // Performans — GA4 (trafik) + Search Console (SEO). İkisi de tek batch, N+1 yok;
+  // bağımsız ve CMS'ten ayrık: biri hata/eksik olsa da panel bozulmaz, "—" gösterir.
+  const yayindaSluglar = yazilar.filter((y) => y.durum === "yayin").map((y) => y.slug);
   let metrik: PanelSonuc = { yapilandirildi: false };
-  try {
-    metrik = await blogPanelMetrikleri(
-      yazilar.filter((y) => y.durum === "yayin").map((y) => y.slug),
-      gun,
-    );
-  } catch (e) {
-    console.error("[blog-panel] GA4 metrikleri alınamadı:", e);
-  }
+  let gscMetrik: GscPanelSonuc = { yapilandirildi: false };
+  const [ga4Y, gscY] = await Promise.allSettled([
+    blogPanelMetrikleri(yayindaSluglar, gun),
+    gscPanelMetrikleri(yayindaSluglar, gun),
+  ]);
+  if (ga4Y.status === "fulfilled") metrik = ga4Y.value;
+  else console.error("[blog-panel] GA4 metrikleri alınamadı:", ga4Y.reason);
+  if (gscY.status === "fulfilled") gscMetrik = gscY.value;
+  else console.error("[blog-panel] Search Console metrikleri alınamadı:", gscY.reason);
 
   const guncelSaat = new Intl.DateTimeFormat("tr-TR", {
     day: "numeric",
@@ -41,5 +45,5 @@ export default async function BlogListePage({
     timeZone: "Europe/Istanbul",
   }).format(new Date());
 
-  return <BlogPanel yazilar={yazilar} metrik={metrik} gun={gun} guncelSaat={guncelSaat} />;
+  return <BlogPanel yazilar={yazilar} metrik={metrik} gscMetrik={gscMetrik} gun={gun} guncelSaat={guncelSaat} />;
 }

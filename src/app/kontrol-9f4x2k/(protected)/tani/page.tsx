@@ -6,6 +6,8 @@ import { iyzicoAyari, odemeSorgula } from "@/lib/iyzico";
 import { epostaYapilandirildiMi } from "@/lib/eposta";
 import { EpostaTesti } from "@/components/admin/EpostaTesti";
 import { ga4Yapisi, ga4RunReport, ga4ErisilebilirMulkler } from "@/lib/google/ga4-erisim";
+import { gscYapisi, gscQuery } from "@/lib/google/gsc-erisim";
+import { gscGunOnce } from "@/lib/google/gsc-yardimci";
 
 export const dynamic = "force-dynamic";
 
@@ -582,6 +584,71 @@ export default async function TaniPage() {
     },
   ];
 
+  /*
+    Search Console (blog SEO performansı). GA4 ile aynı servis hesabı; ek olarak
+    yalnız GSC_SITE_URL gerekiyor ve SA, property'ye kullanıcı olarak eklenmeli.
+  */
+  const gscSiteUrl = process.env.GSC_SITE_URL?.trim() || "";
+  const gscYapi = gscYapisi();
+  let gscBaglanti: Satir;
+  if (!gscYapi) {
+    gscBaglanti = {
+      ad: "Search Console bağlantısı",
+      durum: "uyari",
+      deger: gscSiteUrl ? "kimlik eksik" : "kapalı — GSC_SITE_URL tanımsız",
+      not: "GSC_SITE_URL (ör. 'sc-domain:site.com' veya 'https://site.com/') + GA4 servis hesabı kimliği gerekli.",
+    };
+  } else {
+    try {
+      await gscQuery(gscYapi, {
+        startDate: gscGunOnce(7),
+        endDate: gscGunOnce(3),
+        dimensions: ["date"],
+        rowLimit: 1,
+        dataState: "final",
+      });
+      gscBaglanti = {
+        ad: "Search Console bağlantısı",
+        durum: "ok",
+        deger: "çalışıyor — test isteği başarılı",
+        not: "Blog performans ekranında SEO metrikleri ve sorgular görünmeli.",
+      };
+    } catch (e) {
+      const mesaj = e instanceof Error ? e.message : "bilinmeyen hata";
+      const kod = /\((4\d\d)\)|query (4\d\d)/.exec(mesaj)?.[0] ?? "";
+      gscBaglanti = {
+        ad: "Search Console bağlantısı",
+        durum: "hata",
+        deger: mesaj.slice(0, 200),
+        not: /403/.test(kod)
+          ? "İzin yok: servis hesabı e-postasını Search Console → Ayarlar → Kullanıcılar ve izinler'e ekle. GSC_SITE_URL property biçimiyle birebir aynı olmalı (sc-domain: mı, https:// mi)."
+          : /404/.test(kod)
+            ? "Property bulunamadı: GSC_SITE_URL yanlış. Domain property → 'sc-domain:site.com'; URL-prefix property → 'https://site.com/' (sondaki / dahil)."
+            : /token alınamadı|invalid_grant|signature/i.test(mesaj)
+              ? "Kimlik doğrulama reddedildi — GA4 servis hesabı anahtarıyla aynı sorun (GA4 bölümündeki nota bak)."
+              : undefined,
+      };
+    }
+  }
+
+  const gsc: Satir[] = [
+    gscBaglanti,
+    {
+      ad: "GSC_SITE_URL",
+      durum: gscSiteUrl ? "ok" : "hata",
+      deger: gscSiteUrl || "tanımsız",
+      not: gscSiteUrl
+        ? "Search Console'daki property kimliğiyle birebir aynı olmalı."
+        : "Domain property: 'sc-domain:site.com' · URL-prefix property: 'https://site.com/'",
+    },
+    {
+      ad: "Servis hesabı (ortak)",
+      durum: ga4Email && ga4Key ? "ok" : "hata",
+      deger: ga4Email && ga4Key ? "GA4 ile ortak (yukarıda)" : "eksik",
+      not: "Search Console kimliği GA4_SA_CLIENT_EMAIL + GA4_SA_PRIVATE_KEY ile ortak.",
+    },
+  ];
+
   const posta: Satir[] = [
     {
       ad: "RESEND_API_KEY",
@@ -643,6 +710,7 @@ export default async function TaniPage() {
       <Bolum baslik="E-posta bildirimleri" satirlar={posta} alt={<EpostaTesti />} />
       <Bolum baslik="Google Takvim" satirlar={takvim} />
       <Bolum baslik="Google Analytics (GA4)" satirlar={ga4} />
+      <Bolum baslik="Google Search Console (SEO)" satirlar={gsc} />
       <Bolum baslik="Tablolar (hangi migration uygulanmış)" satirlar={tabloDurumu} />
       <Bolum baslik="Ortam değişkenleri" satirlar={env} />
     </main>

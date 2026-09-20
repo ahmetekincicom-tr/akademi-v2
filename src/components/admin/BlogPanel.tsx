@@ -3,6 +3,7 @@ import { StatusBadge } from "@/lib/admin/shared";
 import { PerformansYenile } from "@/components/admin/PerformansYenile";
 import type { PanelYazi } from "@/lib/yazilar";
 import type { PanelSonuc, PanelSatir, PanelAralik } from "@/lib/google/ga4-rapor";
+import type { GscPanelSonuc, GscPanelSatir } from "@/lib/google/gsc-rapor";
 
 /**
  * Blog performans paneli (admin).
@@ -74,26 +75,37 @@ function SeoRozet({ tam }: { tam: boolean }) {
 
 const ARALIKLAR: PanelAralik[] = [7, 30, 90];
 
+// Tablo sütun şablonu tek yerde: başlık + satırlar aynı kalsın. GA4 (görüntülenme…)
+// ile Search Console (Google tık…) sütunları ayrı gruplar; SEO sütunundan önce
+// ince bir ayraçla ayrışıyorlar.
+const GRID =
+  "grid-cols-[minmax(190px,2.2fr)_96px_84px_78px_82px_86px_60px_58px_72px_96px_120px]";
+
 export function BlogPanel({
   yazilar,
   metrik,
+  gscMetrik,
   gun,
   guncelSaat,
 }: {
   yazilar: PanelYazi[];
   metrik: PanelSonuc;
+  gscMetrik: GscPanelSonuc;
   gun: PanelAralik;
   guncelSaat: string;
 }) {
   const yapili = metrik.yapilandirildi;
   const satirlar = yapili ? metrik.satir : null;
   const ozet = yapili ? metrik.ozet : null;
+  const gscSatir = gscMetrik.yapilandirildi ? gscMetrik.satir : null;
   const yayindaSayi = yazilar.filter((y) => y.durum === "yayin").length;
 
   // Görüntülenmeye göre sırala (verisi olan yazılar üste); veri yoksa mevcut sıra.
   const sirali = [...yazilar].sort((a, b) => (satirlar?.get(b.slug)?.views ?? -1) - (satirlar?.get(a.slug)?.views ?? -1));
 
   const m = (slug: string): PanelSatir | undefined => satirlar?.get(slug);
+  const g = (slug: string): GscPanelSatir | undefined => gscSatir?.get(slug);
+  const yuzde = (oran: number) => `%${(oran * 100).toFixed(1)}`;
 
   const kpis: { etiket: string; deger: string; delta: number | null; not: string }[] = ozet
     ? [
@@ -155,6 +167,13 @@ export function BlogPanel({
         </div>
       )}
 
+      {!gscMetrik.yapilandirildi && (
+        <div className="mt-3 rounded-[12px] border border-ink/12 bg-mist px-4 py-3 text-[13px] text-[#5C6273]">
+          Search Console bağlı değil; Google tıklama/gösterim/CTR/pozisyon “—” gösteriliyor. Bağlamak için servis
+          hesabını Search Console property’sine ekleyip sunucuda <code className="mx-1">GSC_SITE_URL</code> tanımlayın.
+        </div>
+      )}
+
       {/* KPI kartları */}
       {yapili && (
         <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5">
@@ -174,23 +193,29 @@ export function BlogPanel({
       {/* Tablo (sm+) */}
       <div className="mt-5 hidden overflow-hidden rounded-[14px] border border-ink/11 bg-white sm:block">
         <div className="overflow-x-auto">
-          <div className="min-w-[880px]">
-            <div className="grid grid-cols-[minmax(200px,2.4fr)_104px_96px_88px_78px_104px_124px] gap-3 border-b border-ink/10 bg-mist px-4 py-2.5 text-[10.5px] font-bold tracking-[0.08em] text-[#9aa0ae] uppercase">
+          <div className="min-w-[1140px]">
+            <div className={`grid ${GRID} gap-3 border-b border-ink/10 bg-mist px-4 py-2.5 text-[10.5px] font-bold tracking-[0.08em] text-[#9aa0ae] uppercase`}>
               <span>Yazı</span>
               <span className="text-right">Görüntülenme</span>
               <span className="text-right">Ort. süre</span>
               <span className="text-right">Dönüşüm</span>
-              <span className="text-right">SEO</span>
+              <span className="border-l border-ink/10 pl-2 text-right">Google tık</span>
+              <span className="text-right">Gösterim</span>
+              <span className="text-right">CTR</span>
+              <span className="text-right">Poz.</span>
+              <span className="border-l border-ink/10 pl-2 text-right">SEO</span>
               <span>30 gün trendi</span>
               <span className="text-right">İşlem</span>
             </div>
             {sirali.map((y) => {
               const d = m(y.slug);
+              const gd = g(y.slug);
+              const gVar = Boolean(gd && gd.impressions > 0);
               const veriVar = Boolean(d && d.views > 0);
               return (
                 <div
                   key={y.id}
-                  className="grid grid-cols-[minmax(200px,2.4fr)_104px_96px_88px_78px_104px_124px] items-center gap-3 border-b border-ink/[0.06] px-4 py-3 last:border-0 hover:bg-mist/60"
+                  className={`grid ${GRID} items-center gap-3 border-b border-ink/[0.06] px-4 py-3 last:border-0 hover:bg-mist/60`}
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     {y.kapak ? (
@@ -219,7 +244,14 @@ export function BlogPanel({
                   <span className="text-right font-mono text-[13px] text-[#334155]">
                     {veriVar && d!.cvr != null ? `%${d!.cvr.toFixed(2)}` : "—"}
                   </span>
-                  <div className="flex justify-end">
+                  <div className="flex flex-col items-end gap-0.5 border-l border-ink/[0.06] pl-2 text-right">
+                    <span className="font-mono text-[13.5px] font-semibold">{gVar ? sy.format(gd!.clicks) : "—"}</span>
+                    {gVar && <Delta d={gd!.degisim} />}
+                  </div>
+                  <span className="text-right font-mono text-[13px] text-[#334155]">{gVar ? sy.format(gd!.impressions) : "—"}</span>
+                  <span className="text-right font-mono text-[12.5px] text-[#334155]">{gVar ? yuzde(gd!.ctr) : "—"}</span>
+                  <span className="text-right font-mono text-[12.5px] text-[#334155]">{gVar ? gd!.position.toFixed(1) : "—"}</span>
+                  <div className="flex justify-end border-l border-ink/[0.06] pl-2">
                     <SeoRozet tam={y.seoTam} />
                   </div>
                   <div className="flex items-center">{veriVar ? <Mini veri={d!.gunluk} /> : <span className="text-[11px] text-[#c2c7d0]">—</span>}</div>
@@ -286,6 +318,22 @@ export function BlogPanel({
                   <div className="mt-0.5 font-mono text-[15px]">{veriVar && d!.cvr != null ? `%${d!.cvr.toFixed(2)}` : "—"}</div>
                 </div>
               </div>
+              {(() => {
+                const gd = g(y.slug);
+                const gVar = Boolean(gd && gd.impressions > 0);
+                return (
+                  <div className="mt-3 flex items-center justify-between gap-2 rounded-[9px] border border-ink/[0.07] bg-mist/60 px-3 py-2 font-mono text-[11.5px] text-[#5C6273]">
+                    <span className="font-sans text-[10.5px] font-semibold tracking-[0.04em] text-[#9aa0ae] uppercase">Google</span>
+                    {gVar ? (
+                      <span>
+                        {sy.format(gd!.clicks)} tık · {sy.format(gd!.impressions)} göst · {yuzde(gd!.ctr)} · poz {gd!.position.toFixed(1)}
+                      </span>
+                    ) : (
+                      <span className="text-[#9aa0ae]">veri yok</span>
+                    )}
+                  </div>
+                );
+              })()}
               <div className="mt-3 flex gap-2">
                 {y.durum === "yayin" && (
                   <Link href={`/${y.slug}`} target="_blank" className="flex-1 rounded-[8px] border border-ink/13 bg-white py-2 text-center text-[13px] font-semibold text-[#475569]">
