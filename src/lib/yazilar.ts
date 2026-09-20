@@ -249,6 +249,24 @@ export async function tumYazilarAdmin(client: Db): Promise<YaziOzet[]> {
   return (data as unknown as OzetSatir[]).map(ozetle);
 }
 
+/** Performans paneli için: özet alanlar + on-page SEO tamlığı (Supabase). */
+export type PanelYazi = YaziOzet & { seoTam: boolean };
+export async function blogPanelYazilari(client: Db): Promise<PanelYazi[]> {
+  const { data, error } = await client
+    .from("posts")
+    .select(`${OZET_SELECT}, seo_baslik, seo_aciklama`)
+    .order("updated_at", { ascending: false });
+  if (error) {
+    console.error("[yazilar] blogPanelYazilari:", error.message);
+    return [];
+  }
+  return (data as unknown as (OzetSatir & { seo_baslik: string | null; seo_aciklama: string | null })[]).map((r) => ({
+    ...ozetle(r),
+    // On-page SEO: başlık ve açıklama dolu mu (arama sıralamaları Faz 2 / Search Console).
+    seoTam: Boolean((r.seo_baslik ?? "").trim() && (r.seo_aciklama ?? "").trim()),
+  }));
+}
+
 /** Yönetim: tek yazının tamamı (taslak da olabilir). */
 export async function yaziGetirAdmin(slug: string, client: Db): Promise<Yazi | null> {
   const { data, error } = await client.from("posts").select(TAM_SELECT).eq("slug", slug).maybeSingle();
