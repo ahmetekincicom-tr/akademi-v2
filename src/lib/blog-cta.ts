@@ -41,12 +41,24 @@ const ICERIK: Record<CtaVaryant, CtaIcerik> = {
   },
 };
 
-/** CTA'yı HTML string olarak üretir (globals.css'teki .aea-cta* stilleriyle). */
+/** Analytics yerleşimi (blog_cta_click placement) — varyanta göre. */
+const PLACEMENT: Record<CtaVaryant, string> = {
+  yan: "sidebar",
+  ara: "mobile_inline",
+  son: "article_end",
+};
+
+/**
+ * CTA'yı HTML string olarak üretir (globals.css'teki .aea-cta* stilleriyle).
+ * data-* öznitelikleri BlogAnalitik'in tek delegasyon dinleyicisi tarafından
+ * okunuyor (blog_cta_click: placement, cta_id, cta_label).
+ */
 export function egitimCtaHtml(varyant: CtaVaryant): string {
   const c = ICERIK[varyant];
   const kicker = c.kicker ? `<span class="aea-cta__k">${c.kicker}</span>` : "";
   return (
-    `<a class="aea-cta aea-cta--${varyant}" href="${EGITIM_CTA_URL}">` +
+    `<a class="aea-cta aea-cta--${varyant}" href="${EGITIM_CTA_URL}"` +
+    ` data-cta-id="egitim-${varyant}" data-placement="${PLACEMENT[varyant]}" data-cta-label="${c.dugme}">` +
     kicker +
     `<span class="aea-cta__baslik">${c.baslik}</span>` +
     `<span class="aea-cta__metin">${c.metin}</span>` +

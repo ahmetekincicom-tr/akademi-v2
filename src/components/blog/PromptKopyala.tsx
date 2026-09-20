@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { analiz, blogBaglami } from "@/lib/analiz";
 
 /**
  * Public blog sayfasında Prompt bloklarının "Kopyala" düğmelerini bağlar.
@@ -61,6 +62,16 @@ export function PromptKopyala() {
       dugme.classList.toggle("aea-prompt__kopyala--ok", basarili);
       dugme.setAttribute("aria-label", basarili ? "Prompt kopyalandı" : "Kopyalanamadı");
       if (durumRef.current) durumRef.current.textContent = basarili ? "Prompt panoya kopyalandı." : "Kopyalama başarısız oldu.";
+
+      // Ölçüm (prompt METNİ değil; yalnızca sıra/etiket). Yazı bağlamı DOM'dan.
+      if (basarili) {
+        const bag = blogBaglami();
+        if (bag) {
+          const sira = dugmeler.indexOf(dugme);
+          const etiket = kutu?.querySelector(".aea-blok__etiket")?.textContent?.trim() || undefined;
+          analiz.blog.promptKopya({ ...bag, prompt_index: sira, prompt_label: etiket, block_id: kutu?.id || undefined });
+        }
+      }
 
       const zaman = window.setTimeout(() => {
         dugme.textContent = "Kopyala";

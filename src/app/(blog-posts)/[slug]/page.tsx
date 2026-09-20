@@ -29,6 +29,7 @@ import { IcindekilerAccordion } from "@/components/blog/IcindekilerAccordion";
 import { EgitimCta } from "@/components/blog/EgitimCta";
 import { PromptKopyala } from "@/components/blog/PromptKopyala";
 import { GorselLightbox } from "@/components/blog/GorselLightbox";
+import { BlogAnalitik } from "@/components/blog/BlogAnalitik";
 import { mutlakDepoUrl } from "@/lib/depo";
 import { sayfaMeta, makaleSemasi, kirintiSemasi, SITE_URL } from "@/lib/seo";
 
@@ -199,7 +200,22 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
           accordion'a, CTA içerik akışına dönüyor.
         */}
         <div className="mx-auto max-w-[1200px] px-5 pt-14 pb-20 sm:px-8 sm:pt-20 lg:grid lg:grid-cols-[minmax(0,1fr)_296px] lg:gap-12 xl:gap-16">
-          <article className="mx-auto w-full min-w-0 max-w-[760px] lg:mx-0">
+          <article
+            className="mx-auto w-full min-w-0 max-w-[760px] lg:mx-0"
+            data-blog-post
+            data-post-id={yazi.id}
+            data-post-slug={yazi.slug}
+          >
+            {/* Davranış ölçümü (blog_view, scroll, CTA, benzer yazı). Ölçümleme
+                kapalıysa sessiz; public bundle'a yalnız minimum kod giriyor. */}
+            <BlogAnalitik
+              postId={yazi.id}
+              slug={yazi.slug}
+              title={yazi.baslik}
+              category={yazi.kategori?.ad}
+              author={yazar.name}
+              published={yazi.yayinTarihi ?? undefined}
+            />
             <nav aria-label="Kırıntı yolu" className="font-mono text-[11px] tracking-[0.06em] text-[#8A90A0]">
               <Link href="/blog" className="inline-flex items-center gap-[6px] hover:text-brand">
                 <Icon name="arrowLeft" size={14} />
@@ -247,7 +263,7 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
             {/* İçerik editörde/WordPress'ten gelen HTML; yazarlar yönetici
                 olduğu için güvenilir kaynak. Başlıklara TOC için id eklendi.
                 Mobil ara CTA gövdeye enjekte edildi (masaüstünde CSS ile gizli). */}
-            <div className="blog-icerik mt-10" dangerouslySetInnerHTML={{ __html: icerikHtml }} />
+            <div className="blog-icerik mt-10" data-blog-icerik dangerouslySetInnerHTML={{ __html: icerikHtml }} />
             {/* Prompt kopyala + görsel lightbox: statik HTML üzerine bağlanan
                 küçük client adaları (içerik bunlarsız da doğru render olur). */}
             <PromptKopyala />
@@ -290,10 +306,12 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
             <div className="mx-auto max-w-[1080px] px-5 py-16 sm:px-8">
               <h2 className="font-heading text-[24px] leading-[1.15] font-semibold tracking-[-0.02em]">İlgili yazılar</h2>
               <div className="mt-7 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {ilgili.map((y) => (
+                {ilgili.map((y, i) => (
                   <Link
                     key={y.id}
                     href={`/${y.slug}`}
+                    data-ilgili-slug={y.slug}
+                    data-ilgili-pos={i + 1}
                     className="group flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[3px] hover:border-brand/45 hover:shadow-[0_18px_40px_rgba(10,13,24,0.1)]"
                   >
                     <div

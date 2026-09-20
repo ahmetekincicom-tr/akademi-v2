@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { analiz, blogBaglami } from "@/lib/analiz";
 
 /**
  * Public blog görselleri için lightbox.
@@ -50,6 +51,13 @@ export function GorselLightbox() {
       const caption = fig?.querySelector("figcaption")?.textContent?.trim() ?? "";
       setYakin(false);
       setAcik({ src: img.currentSrc || img.src, alt: img.alt || "", caption });
+
+      // Ölçüm: hangi görsel (sıra + alt); yazı bağlamı DOM'dan.
+      const bag = blogBaglami();
+      if (bag) {
+        const sira = Array.from(document.querySelectorAll<HTMLImageElement>(SECICI)).indexOf(img);
+        analiz.blog.gorselAcildi({ ...bag, image_index: sira, image_alt: img.alt || undefined });
+      }
     };
 
     // Mevcut görselleri erişilebilir yap (public sayfada hepsi SSR'de mevcut).
