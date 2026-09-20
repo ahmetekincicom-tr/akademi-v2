@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { yaziGetirAdmin } from "@/lib/yazilar";
 import { blogDetayMetrikleri, type DetaySonuc } from "@/lib/google/ga4-rapor";
+import { gscDetayMetrikleri, type GscDetaySonuc } from "@/lib/google/gsc-rapor";
 import { BlogSekmeler } from "@/components/admin/BlogSekmeler";
 import { BlogPerformans } from "@/components/admin/BlogPerformans";
 
@@ -13,14 +14,25 @@ export default async function YaziPerformansPage({ params }: { params: Promise<{
   const yazi = await yaziGetirAdmin(slug, supabase);
   if (!yazi) notFound();
 
-  // GA4 raporlaması CMS'ten bağımsız: hata olsa da sayfa açılır.
+  // GA4 ve Search Console raporlaması CMS'ten bağımsız ve birbirinden bağımsız:
+  // biri hata verse de sayfa açılır, diğeri gösterilir.
   let sonuc: DetaySonuc | null = null;
   let hata = false;
-  try {
-    sonuc = await blogDetayMetrikleri(slug);
-  } catch (e) {
-    console.error("[blog-performans] GA4 alınamadı:", e);
+  let gscSonuc: GscDetaySonuc | null = null;
+  let gscHata = false;
+  const [ga4Sonuc, gscYanit] = await Promise.allSettled([
+    blogDetayMetrikleri(slug),
+    gscDetayMetrikleri(slug),
+  ]);
+  if (ga4Sonuc.status === "fulfilled") sonuc = ga4Sonuc.value;
+  else {
+    console.error("[blog-performans] GA4 alınamadı:", ga4Sonuc.reason);
     hata = true;
+  }
+  if (gscYanit.status === "fulfilled") gscSonuc = gscYanit.value;
+  else {
+    console.error("[blog-performans] Search Console alınamadı:", gscYanit.reason);
+    gscHata = true;
   }
 
   return (
@@ -30,7 +42,7 @@ export default async function YaziPerformansPage({ params }: { params: Promise<{
       </h1>
       <BlogSekmeler slug={slug} aktif="performans" />
       <div className="mt-6">
-        <BlogPerformans sonuc={sonuc} hata={hata} />
+        <BlogPerformans sonuc={sonuc} hata={hata} gscSonuc={gscSonuc} gscHata={gscHata} />
       </div>
     </main>
   );
