@@ -1,16 +1,18 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import { TextSelection } from "@tiptap/pm/state";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { depoUrl } from "@/lib/depo";
 import { LinkSecici, type LinkSecim } from "@/components/admin/LinkSecici";
 import type { IcLinkHedef } from "@/lib/yazilar";
 import { BlogBloklari, blokEkle, notEtiketiniGuncelle } from "@/components/admin/tiptap/BlogBloklari";
+import { SlashKomut } from "@/components/admin/tiptap/SlashKomut";
 import { BlogGorsel } from "@/components/admin/tiptap/BlogGorsel";
 import { GorselPanel } from "@/components/admin/tiptap/GorselPanel";
 import { BLOKLAR } from "@/lib/blog-bloklar";
@@ -99,6 +101,15 @@ export function ZenginEditor({
   const [blokMenu, setBlokMenu] = useState(false);
   const blokSarici = useRef<HTMLDivElement>(null);
 
+  // Slash menüsündeki "Görsel" maddesi bir sayaç artırıyor; efekt dosya
+  // seçiciyi açıyor. Böylece editör yapılandırmasına ref okuyan bir fonksiyon
+  // GEÇİLMİYOR (render sırasında ref erişimi olmuyor).
+  const [gorselIstek, setGorselIstek] = useState(0);
+  const gorselAc = useCallback(() => setGorselIstek((n) => n + 1), []);
+  useEffect(() => {
+    if (gorselIstek > 0) dosyaGirdi.current?.click();
+  }, [gorselIstek]);
+
   // "Blok Ekle" menüsü dışarı tıklanınca kapansın.
   useEffect(() => {
     if (!blokMenu) return;
@@ -132,6 +143,9 @@ export function ZenginEditor({
       Placeholder.configure({ placeholder: "Yazmaya başla…" }),
       // Özel bloklar: Bilgi, Uyarı, İpucu, Prompt.
       ...BlogBloklari,
+      // "/" slash menüsü: H2/H3/Görsel/Bilgi/Uyarı/Not/Prompt. Görsel maddesi
+      // mevcut dosya seçiciyi tetikliyor (aynı yükleme akışı).
+      SlashKomut.configure({ onGorsel: gorselAc }),
     ],
     content: gecerliDoc,
     editorProps: {
@@ -169,8 +183,10 @@ export function ZenginEditor({
     editor.chain().focus().extendMarkRange("link").unsetLink().run();
   };
 
-  const gorselSec = useCallback(
-    async (dosya: File | undefined) => {
+  // React Compiler otomatik memoize ediyor; manuel useCallback kaldırıldı
+  // (davranış aynı — yalnız derleyici uyarısı gidiyor).
+  const gorselSec = async (dosya: File | undefined) => {
+    {
       // Kilit: yükleme sürerken aynı dosya ikinci kez eklenmesin.
       if (!dosya || !editor || yuklemeKilit.current) return;
       yuklemeKilit.current = true;
@@ -234,17 +250,25 @@ export function ZenginEditor({
         yuklemeKilit.current = false;
         setGorselYukleniyor(false);
       }
-    },
-    [editor, yaziSlug],
-  );
+    }
+  };
 
   if (!editor) {
     return <div className="min-h-[420px] rounded-[12px] border border-ink/12 bg-mist" />;
   }
 
   return (
-    <div className="overflow-hidden rounded-[12px] border border-ink/12 bg-white">
-      <div className="flex flex-wrap items-center gap-[6px] border-b border-ink/10 bg-mist px-3 py-2">
+    <div className="rounded-[12px] border border-ink/12 bg-white">
+      {/*
+        Sticky araç çubuğu: admin başlığının (66px + güvenli alan) hemen altında
+        sabit kalır; uzun yazılarda araçlara ulaşmak için başa dönmek gerekmez.
+        Sadece editör kolonu genişliğinde (sağ SEO sidebar'ına taşmaz, çünkü
+        grid kolonu içinde). Kök kutuda overflow yok — sticky çalışsın diye;
+        köşe yuvarlaklığı araç çubuğunun üst köşelerinde. z-30: sayfa
+        başlığının (z-40) altında, içeriğin üstünde. Sayfanın doğal scroll'u
+        korunur; editör içine ayrı scrollbar yok.
+      */}
+      <div className="sticky top-[calc(env(safe-area-inset-top)+66px)] z-30 flex flex-wrap items-center gap-[6px] rounded-t-[12px] border-b border-ink/10 bg-mist/85 px-3 py-2 backdrop-blur supports-[backdrop-filter]:bg-mist/70">
         <AracDugmesi etiket="Kalın" aktif={editor.isActive("bold")} onTikla={() => editor.chain().focus().toggleBold().run()}>
           <span className="font-bold">B</span>
         </AracDugmesi>
@@ -351,6 +375,63 @@ export function ZenginEditor({
 
       {/* Seçili görselin ayar paneli (alt, caption, dekoratif, lightbox, SEO). */}
       <GorselPanel editor={editor} />
+
+      {/*
+        Metin seçilince beliren küçük biçim menüsü (Kalın / İtalik / Bağlantı).
+        Mevcut komutlara bağlı; bağlantı düğmesi zaten var olan LinkSecici'yi
+        açıyor. Görsel/blok node seçimlerinde ve prompt/kod bloğunda gizli.
+      */}
+      <BubbleMenu
+        editor={editor}
+        tippyOptions={{ duration: 120, zIndex: 45 }}
+        shouldShow={({ editor, state }) => {
+          const { selection } = state;
+          if (selection.empty) return false;
+          if (!(selection instanceof TextSelection)) return false;
+          if (editor.isActive("promptBlock") || editor.isActive("codeBlock")) return false;
+          return true;
+        }}
+      >
+        <div className="flex items-center gap-1 rounded-[10px] border border-ink/12 bg-white p-1 shadow-[0_10px_28px_rgba(10,13,24,0.16)]">
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            aria-label="Kalın"
+            title="Kalın"
+            className={`flex h-8 min-w-8 items-center justify-center rounded-[7px] px-2 text-[13px] font-bold transition ${
+              editor.isActive("bold") ? "bg-brand/10 text-brand" : "text-[#5C6273] hover:bg-mist"
+            }`}
+          >
+            B
+          </button>
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            aria-label="İtalik"
+            title="İtalik"
+            className={`flex h-8 min-w-8 items-center justify-center rounded-[7px] px-2 text-[13px] italic transition ${
+              editor.isActive("italic") ? "bg-brand/10 text-brand" : "text-[#5C6273] hover:bg-mist"
+            }`}
+          >
+            I
+          </button>
+          <span className="mx-0.5 h-5 w-px bg-ink/12" />
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setLinkAcik(true)}
+            aria-label="Bağlantı"
+            title="Bağlantı"
+            className={`flex h-8 min-w-8 items-center justify-center rounded-[7px] px-2 text-[13px] transition ${
+              editor.isActive("link") ? "bg-brand/10 text-brand" : "text-[#5C6273] hover:bg-mist"
+            }`}
+          >
+            🔗
+          </button>
+        </div>
+      </BubbleMenu>
 
       <EditorContent editor={editor} />
 
