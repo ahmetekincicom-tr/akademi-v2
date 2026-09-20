@@ -2,6 +2,34 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatusBadge } from "@/lib/admin/shared";
 import { tumYazilarAdmin } from "@/lib/yazilar";
+import { blogListeMetrikleri, type ListeMetrik } from "@/lib/google/ga4-rapor";
+
+export const dynamic = "force-dynamic";
+
+const sayi = new Intl.NumberFormat("tr-TR");
+
+/** Satır başına kompakt performans; GA4 yoksa/veri yoksa sade davranır. */
+function PerformansSatiri({ m, yapili }: { m: ListeMetrik | undefined; yapili: boolean }) {
+  if (!yapili) return null;
+  if (!m || m.views30 === 0) {
+    return <span className="text-[11px] text-[#9aa0ae]">Henüz veri yok</span>;
+  }
+  const yon = m.degisim == null ? "" : m.degisim >= 0 ? "↑" : "↓";
+  const renk = m.degisim == null ? "text-[#9aa0ae]" : m.degisim >= 0 ? "text-emerald-600" : "text-red-500";
+  return (
+    <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11.5px] text-[#5C6273]">
+      <span>
+        <span className="font-semibold text-ink">{sayi.format(m.views30)}</span> görüntülenme
+        {m.degisim != null && <span className={`ml-1 font-medium ${renk}`}>{yon} %{Math.abs(m.degisim)}</span>}
+      </span>
+      <span className="text-[#9aa0ae]">·</span>
+      <span>
+        <span className="font-semibold text-ink">{sayi.format(m.cta30)}</span> CTA
+      </span>
+      <span className="text-[10.5px] text-[#9aa0ae]">son 30 gün</span>
+    </span>
+  );
+}
 
 const DURUM_ETIKET: Record<string, string> = { taslak: "Taslak", yayin: "Yayında" };
 
@@ -19,6 +47,16 @@ function tarih(deger: string | null): string {
 export default async function BlogListePage() {
   const supabase = await createClient();
   const yazilar = await tumYazilarAdmin(supabase);
+
+  // Performans (GA4) — tek batch, N+1 yok. Hata/yapılandırma yoksa CMS bozulmaz.
+  let metrikler: Map<string, ListeMetrik> | null = null;
+  try {
+    const sonuc = await blogListeMetrikleri(yazilar.map((y) => y.slug));
+    if (sonuc.yapilandirildi) metrikler = sonuc.metrikler;
+  } catch (e) {
+    console.error("[blog-liste] GA4 metrikleri alınamadı:", e);
+  }
+  const yapili = metrikler !== null;
 
   return (
     <main className="p-4 pb-14 sm:p-7">
@@ -68,6 +106,11 @@ export default async function BlogListePage() {
                 <div className="mt-[6px] font-mono text-[11px] text-[#656B7A]">
                   /blog/{y.slug} · {y.durum === "yayin" ? `Yayın: ${tarih(y.yayinTarihi)}` : `Güncellendi: ${tarih(y.guncelleme)}`}
                 </div>
+                {y.durum === "yayin" && (
+                  <div className="mt-[7px]">
+                    <PerformansSatiri m={metrikler?.get(y.slug)} yapili={yapili} />
+                  </div>
+                )}
               </div>
             </div>
 
