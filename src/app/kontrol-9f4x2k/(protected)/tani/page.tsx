@@ -5,6 +5,7 @@ import { Icon } from "@/components/Icon";
 import { iyzicoAyari, odemeSorgula } from "@/lib/iyzico";
 import { epostaYapilandirildiMi } from "@/lib/eposta";
 import { EpostaTesti } from "@/components/admin/EpostaTesti";
+import { ga4Yapisi, ga4RunReport } from "@/lib/google/ga4-erisim";
 
 export const dynamic = "force-dynamic";
 
@@ -447,6 +448,96 @@ export default async function TaniPage() {
     },
   ];
 
+  /*
+    Google Analytics (GA4).
+
+    "Panelde metrikler '—' görünüyor ama loglarda hata yok" sorununun cevabı
+    genelde: değişkenler çalışan sürüme ulaşmamış (ga4Yapisi() null → GA4'e hiç
+    istek atılmıyor, dolayısıyla log da olmuyor). Bu bölüm hem değişkenlerin
+    VAR/YOK durumunu (değerleri sızdırmadan) hem de gerçek bir test isteğinin
+    sonucunu (403/400/anahtar hatası) gösteriyor.
+  */
+  const ga4PropId = process.env.GA4_PROPERTY_ID?.trim() || "";
+  const ga4Email = process.env.GA4_SA_CLIENT_EMAIL?.trim() || "";
+  const ga4Key = process.env.GA4_SA_PRIVATE_KEY || "";
+  const ga4KeyPem = ga4Key.includes("BEGIN PRIVATE KEY");
+  const ga4PropRakam = /^\d+$/.test(ga4PropId);
+  const ga4MpSecret = Boolean(process.env.GA4_MP_API_SECRET?.trim());
+
+  const ga4Yapi = ga4Yapisi();
+  let ga4Baglanti: Satir;
+  if (!ga4Yapi) {
+    ga4Baglanti = {
+      ad: "Data API bağlantısı",
+      durum: "hata",
+      deger: "kapalı — değişkenler sunucuda görünmüyor",
+      not: "Aşağıdaki üç değişken 'tanımsız' ise Vercel'e ekleyip YENİDEN DEPLOY et; env yalnızca yeni deployment'a girer.",
+    };
+  } else {
+    try {
+      // Küçük bir gerçek istek: kimlik + mülke erişim çalışıyor mu?
+      await ga4RunReport(ga4Yapi, {
+        dimensions: [{ name: "date" }],
+        metrics: [{ name: "screenPageViews" }],
+        dateRanges: [{ startDate: "yesterday", endDate: "today" }],
+        limit: 1,
+      });
+      ga4Baglanti = {
+        ad: "Data API bağlantısı",
+        durum: "ok",
+        deger: "çalışıyor — test isteği başarılı",
+        not: "Metrikler panelde görünmeli. Görünmüyorsa 'Verileri yenile' ile 30 dk'lık önbelleği atla.",
+      };
+    } catch (e) {
+      const mesaj = e instanceof Error ? e.message : "bilinmeyen hata";
+      const kod = /\b(4\d\d)\b/.exec(mesaj)?.[1];
+      ga4Baglanti = {
+        ad: "Data API bağlantısı",
+        durum: "hata",
+        deger: mesaj.slice(0, 180),
+        not:
+          kod === "403"
+            ? "İzin yok: servis hesabı e-postasını GA4 mülküne ekle (Property Access) ve 'Google Analytics Data API'yi enable et."
+            : kod === "400"
+              ? "İstek/mülk hatalı: GA4_PROPERTY_ID yalnız rakam olmalı (G- ile başlayan Measurement ID değil)."
+              : /invalid_grant|DECODER|PEM|sign/i.test(mesaj)
+                ? "Özel anahtar bozuk: değeri tırnak İÇİNE ALMA; PEM bloğunu satır sonlarıyla ya da \\n kaçışlı olduğu gibi yapıştır."
+                : undefined,
+      };
+    }
+  }
+
+  const ga4: Satir[] = [
+    ga4Baglanti,
+    {
+      ad: "GA4_PROPERTY_ID",
+      durum: ga4PropId ? (ga4PropRakam ? "ok" : "hata") : "hata",
+      deger: ga4PropId ? ga4PropId : "tanımsız",
+      not: ga4PropId && !ga4PropRakam ? "Yalnız rakam olmalı (ör. 123456789), 'G-…' değil." : undefined,
+    },
+    {
+      ad: "GA4_SA_CLIENT_EMAIL",
+      durum: ga4Email ? "ok" : "hata",
+      deger: ga4Email || "tanımsız",
+      not: ga4Email ? "Bu e-posta GA4 mülküne (Property Access) Viewer olarak eklenmiş olmalı." : undefined,
+    },
+    {
+      ad: "GA4_SA_PRIVATE_KEY",
+      durum: ga4Key ? (ga4KeyPem ? "ok" : "hata") : "hata",
+      deger: ga4Key ? `tanımlı (${ga4Key.length} karakter)` : "tanımsız",
+      not:
+        ga4Key && !ga4KeyPem
+          ? "Değer PEM anahtarı gibi görünmüyor ('BEGIN PRIVATE KEY' yok) — tırnak içine alınmış ya da eksik yapıştırılmış olabilir."
+          : undefined,
+    },
+    {
+      ad: "GA4_MP_API_SECRET (dönüşümler)",
+      durum: ga4MpSecret ? "ok" : "uyari",
+      deger: ga4MpSecret ? "tanımlı" : "tanımsız",
+      not: "Server-side satın alma (dönüşüm) gönderimi için; blog metriklerinden ayrı.",
+    },
+  ];
+
   const posta: Satir[] = [
     {
       ad: "RESEND_API_KEY",
@@ -507,6 +598,7 @@ export default async function TaniPage() {
       <Bolum baslik="Zamanlanmış görevler" satirlar={gorevler} />
       <Bolum baslik="E-posta bildirimleri" satirlar={posta} alt={<EpostaTesti />} />
       <Bolum baslik="Google Takvim" satirlar={takvim} />
+      <Bolum baslik="Google Analytics (GA4)" satirlar={ga4} />
       <Bolum baslik="Tablolar (hangi migration uygulanmış)" satirlar={tabloDurumu} />
       <Bolum baslik="Ortam değişkenleri" satirlar={env} />
     </main>
