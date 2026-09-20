@@ -49,6 +49,7 @@ const groups: MenuGroup[] = [
       { href: "/kontrol-9f4x2k/hakkimizda", label: "Hakkımızda sayfası", icon: "file" },
       { href: "/kontrol-9f4x2k/kurumsal", label: "Kurumsal sayfası", icon: "users" },
       { href: "/kontrol-9f4x2k/seo", label: "SEO", icon: "eye" },
+      { href: "/kontrol-9f4x2k/seo-performans", label: "SEO performansı", icon: "search" },
     ],
   },
   {
@@ -86,6 +87,7 @@ const pageTitles: Record<string, string> = {
   "/kontrol-9f4x2k/site-icerik": "Duyuru ve eğitmen",
   "/kontrol-9f4x2k/hakkimizda": "Hakkımızda sayfası",
   "/kontrol-9f4x2k/seo": "SEO",
+  "/kontrol-9f4x2k/seo-performans": "SEO performansı",
   "/kontrol-9f4x2k/birebir-egitim": "Birebir eğitim",
   "/kontrol-9f4x2k/seanslar": "Takvim",
   "/kontrol-9f4x2k/gorusmeler": "Danışmanlık talepleri",
@@ -114,6 +116,11 @@ function breadcrumbAdimlari(pathname: string): BreadcrumbAdim[] {
       { label: "Eğitimler", href: "/kontrol-9f4x2k/egitimler" },
       { label: pathname.endsWith("/yeni") ? "Yeni eğitim" : "Eğitim düzenle" },
     ];
+  }
+
+  // SEO performans detayı liste sayfasının bir alt kademesinde.
+  if (pathname.startsWith("/kontrol-9f4x2k/seo-performans/")) {
+    return [kok, { label: "SEO performansı", href: "/kontrol-9f4x2k/seo-performans" }, { label: "Sayfa detayı" }];
   }
 
   // Blog editörü de liste sayfasının bir alt kademesinde.

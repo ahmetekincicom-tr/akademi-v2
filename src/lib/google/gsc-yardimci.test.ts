@@ -1,5 +1,28 @@
 import { describe, it, expect } from "vitest";
-import { gscYolaSlug, gscSlugRegex, agirlikliPozisyon } from "@/lib/google/gsc-yardimci";
+import { gscYolaSlug, gscSlugRegex, agirlikliPozisyon, gscYol, gscYolRegex } from "@/lib/google/gsc-yardimci";
+
+describe("gscYol", () => {
+  it("tam URL'den normalize yol (trailing slash yok, kök '/')", () => {
+    expect(gscYol("https://site.com/egitimler/meta-ads/")).toBe("/egitimler/meta-ads");
+    expect(gscYol("https://www.site.com/hakkimizda")).toBe("/hakkimizda");
+    expect(gscYol("https://site.com/")).toBe("/");
+    expect(gscYol("https://site.com/blog/?utm=1")).toBe("/blog");
+  });
+});
+
+describe("gscYolRegex", () => {
+  it("verilen yolu host-agnostik ve trailing-slash toleranslı yakalar", () => {
+    const re = new RegExp(gscYolRegex("/egitimler/meta-ads"));
+    expect(re.test("https://site.com/egitimler/meta-ads")).toBe(true);
+    expect(re.test("https://www.site.com/egitimler/meta-ads/")).toBe(true);
+    expect(re.test("https://site.com/egitimler/meta-ads-2/")).toBe(false);
+  });
+  it("kök için ana sayfayı yakalar", () => {
+    const re = new RegExp(gscYolRegex("/"));
+    expect(re.test("https://site.com/")).toBe(true);
+    expect(re.test("https://site.com/hakkimizda/")).toBe(false);
+  });
+});
 
 describe("gscYolaSlug", () => {
   it("tam URL'den kök slug çıkarır (trailing slash + host + protokol)", () => {

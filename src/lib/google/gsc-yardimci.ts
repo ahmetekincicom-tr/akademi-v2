@@ -37,6 +37,38 @@ export function gscSlugRegex(slug: string): string {
   return `^https?://[^/]+/${kacir}/?(\\?.*)?$`;
 }
 
+/**
+ * GSC page (tam URL) → normalize yol (pathname). Kök "/", diğerleri sondaki
+ * çizgi olmadan. Protokol/host/query/hash elenir. Site geneli sayfa eşlemesi
+ * için (blog + eğitim + statik + diğer).
+ */
+export function gscYol(pageUrl: string): string | null {
+  let yol = pageUrl;
+  if (/^https?:\/\//i.test(pageUrl)) {
+    try {
+      yol = new URL(pageUrl).pathname;
+    } catch {
+      return null;
+    }
+  }
+  yol = yol.split("?")[0].split("#")[0];
+  if (!yol.startsWith("/")) yol = `/${yol}`;
+  yol = yol.replace(/\/+$/, "");
+  const s = yol === "" ? "/" : yol;
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+}
+
+/** Belirli bir yol için GSC page filtre regex'i (host-agnostik; trailing slash + query). */
+export function gscYolRegex(yol: string): string {
+  const p = yol === "/" ? "" : yol.replace(/\/+$/, "");
+  const kacir = p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return `^https?://[^/]+${kacir}/?(\\?.*)?$`;
+}
+
 /** n gün önce, YYYY-MM-DD (UTC) — GSC tarih parametreleri "today" kabul etmez. */
 export function gscGunOnce(n: number): string {
   const d = new Date();
