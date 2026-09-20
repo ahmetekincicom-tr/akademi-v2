@@ -490,18 +490,23 @@ export default async function TaniPage() {
       };
     } catch (e) {
       const mesaj = e instanceof Error ? e.message : "bilinmeyen hata";
-      const kod = /\b(4\d\d)\b/.exec(mesaj)?.[1];
+      const kod = /\((4\d\d)\)/.exec(mesaj)?.[1];
+      // Token ucundan gelen hata (kimlik doğrulama) ile runReport hatasını ayır.
+      const tokenHatasi = /token alınamadı/i.test(mesaj);
+      const imzaHatasi = /invalid_grant|invalid jwt|signature|invalid_client|account not found/i.test(mesaj);
+      const anahtarBicim = /DECODER|PEM|routines|unsupported/i.test(mesaj);
       ga4Baglanti = {
         ad: "Data API bağlantısı",
         durum: "hata",
-        deger: mesaj.slice(0, 180),
-        not:
-          kod === "403"
-            ? "İzin yok: servis hesabı e-postasını GA4 mülküne ekle (Property Access) ve 'Google Analytics Data API'yi enable et."
-            : kod === "400"
-              ? "İstek/mülk hatalı: GA4_PROPERTY_ID yalnız rakam olmalı (G- ile başlayan Measurement ID değil)."
-              : /invalid_grant|DECODER|PEM|sign/i.test(mesaj)
-                ? "Özel anahtar bozuk: değeri tırnak İÇİNE ALMA; PEM bloğunu satır sonlarıyla ya da \\n kaçışlı olduğu gibi yapıştır."
+        deger: mesaj.slice(0, 200),
+        not: anahtarBicim
+          ? "Özel anahtar okunamıyor: değeri tırnak İÇİNE ALMA; PEM bloğunu satır sonlarıyla ya da \\n kaçışlı olduğu gibi yapıştır."
+          : tokenHatasi || imzaHatasi
+            ? "Kimlik doğrulama reddedildi (token ucu). Anahtar okunuyor ama Google kabul etmiyor. En olası: bu özel anahtar artık bu servis hesabına ait değil (silinmiş/yenilenmiş anahtar) ya da e-posta ile anahtar farklı hesaplardan. Çözüm: GCP'de TAM bu servis hesabı için YENİ bir JSON key üret, GA4_SA_PRIVATE_KEY'i onunla güncelle (e-posta aynı kalır) ve redeploy et. 'account not found' → servis hesabı silinmiş demektir."
+            : kod === "403"
+              ? "İzin yok: servis hesabı e-postasını GA4 mülküne ekle (Property Access → Viewer) ve o projede 'Google Analytics Data API'yi enable et."
+              : kod === "400"
+                ? "İstek/mülk hatalı: GA4_PROPERTY_ID yalnız rakam olmalı (G- ile başlayan Measurement ID değil)."
                 : undefined,
       };
     }

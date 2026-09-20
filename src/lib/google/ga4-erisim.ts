@@ -54,7 +54,13 @@ async function erisimTokeni(yapi: Ga4Yapi): Promise<string> {
       assertion: jwt,
     }),
   });
-  if (!cevap.ok) throw new Error(`GA4 token alınamadı (${cevap.status})`);
+  if (!cevap.ok) {
+    // Google'ın gövdesi ({error, error_description}) hatanın gerçek sebebini
+    // söyler (ör. "invalid_grant: Invalid JWT Signature" → anahtar servis
+    // hesabıyla eşleşmiyor). Tanıya taşımak için mesaja ekliyoruz.
+    const detay = await cevap.text().catch(() => "");
+    throw new Error(`GA4 token alınamadı (${cevap.status}): ${detay.replace(/\s+/g, " ").slice(0, 200)}`);
+  }
   const veri = (await cevap.json()) as { access_token: string; expires_in: number };
   tokenOnbellek = { token: veri.access_token, bitis: simdi + (veri.expires_in ?? 3600) };
   return veri.access_token;
