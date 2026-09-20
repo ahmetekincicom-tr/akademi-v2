@@ -876,44 +876,70 @@ body[data-menu-acik="1"] {
   görünen düzen yayındakiyle bire bir aynı.
 */
 .blog-icerik {
-  font-size: 17.5px;
-  line-height: 1.75;
-  color: #2b303d;
+  font-size: 18px;
+  line-height: 1.78;
+  color: #33384a;
   overflow-wrap: break-word;
+  /* Rakamlar gövde metninde orantılı otursun (editoryal his). */
+  font-variant-numeric: oldstyle-nums proportional-nums;
 }
 .blog-icerik > :first-child {
   margin-top: 0;
 }
 .blog-icerik p {
-  margin: 0 0 1.15em;
+  margin: 0 0 1.28em; /* ~23px: paragraflar arası belirgin nefes payı */
+}
+/*
+  Giriş (lede) paragrafı: gövdeden biraz büyük ve düşük kontrast. Yalnızca
+  içeriğin İLK bloğu paragrafsa uygulanır (başlık/görsel/blok ile başlayan
+  yazıları etkilemez). Editörde de aynı görünür (WYSIWYG korunur).
+*/
+.blog-icerik > p:first-child {
+  font-size: 1.16em; /* ~21px */
+  line-height: 1.62;
+  color: #5b6273; /* daha sakin, düşük kontrast giriş */
+  letter-spacing: -0.003em;
+  margin-bottom: 1.45em;
 }
 .blog-icerik h2 {
   font-family: var(--font-heading);
-  font-size: 27px;
-  line-height: 1.2;
+  font-size: clamp(26px, 5.4vw, 30px);
+  line-height: 1.22;
   font-weight: 600;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.022em;
   color: var(--color-ink);
-  margin: 1.8em 0 0.6em;
+  /* Başlık öncesi boşluk belirgin şekilde artırıldı: bölümler net ayrışsın. */
+  margin: 2.5em 0 0.7em;
+  text-wrap: balance;
 }
 .blog-icerik h3 {
   font-family: var(--font-heading);
   font-size: 21px;
-  line-height: 1.25;
+  line-height: 1.3;
   font-weight: 600;
   letter-spacing: -0.015em;
   color: var(--color-ink);
-  margin: 1.5em 0 0.5em;
+  margin: 2em 0 0.55em;
+  text-wrap: balance;
 }
 .blog-icerik h4 {
+  font-family: var(--font-heading);
+  font-size: 17.5px;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--color-ink);
-  margin: 1.3em 0 0.4em;
+  margin: 1.7em 0 0.45em;
+}
+/* Başlıktan hemen sonra gelen paragrafın üstündeki payı sıfırla (çift boşluk olmasın). */
+.blog-icerik h2 + p,
+.blog-icerik h3 + p,
+.blog-icerik h4 + p {
+  margin-top: 0;
 }
 .blog-icerik ul,
 .blog-icerik ol {
-  margin: 0 0 1.15em;
-  padding-left: 1.4em;
+  margin: 0 0 1.28em;
+  padding-left: 1.35em;
 }
 .blog-icerik ul {
   list-style: disc;
@@ -922,22 +948,58 @@ body[data-menu-acik="1"] {
   list-style: decimal;
 }
 .blog-icerik li {
-  margin: 0.35em 0;
+  margin: 0.5em 0;
+  padding-left: 0.2em;
+}
+/* Madde işaretleri sakin/muted; metinle yarışmasın. */
+.blog-icerik li::marker {
+  color: #9aa0ae;
+}
+.blog-icerik ol li::marker {
+  color: #8a90a0;
+  font-variant-numeric: proportional-nums;
 }
 .blog-icerik li > p {
   margin: 0;
 }
+.blog-icerik li > ul,
+.blog-icerik li > ol {
+  margin: 0.5em 0 0.2em;
+}
+/*
+  Bağlantılar: dingin. Marka rengi + ince, yarı saydam alt çizgi; okuma akışını
+  bölmez. Hover/focus'ta alt çizgi tam belirginleşir (etkileşim netleşir).
+*/
 .blog-icerik a {
   color: var(--color-brand);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--color-brand) 30%, transparent);
+  text-underline-offset: 3px;
+  transition:
+    text-decoration-color 0.15s ease,
+    color 0.15s ease;
+}
+.blog-icerik a:hover,
+.blog-icerik a:focus-visible {
+  text-decoration-color: currentColor;
+}
+.blog-icerik a:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand) 42%, transparent);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 .blog-icerik blockquote {
-  margin: 1.4em 0;
-  padding: 0.2em 0 0.2em 1.1em;
-  border-left: 3px solid var(--color-brand);
-  color: #4a4f5e;
-  font-style: italic;
+  margin: 1.9em 0;
+  padding: 0.35em 0 0.35em 1.35em;
+  border-left: 2px solid color-mix(in srgb, var(--color-brand) 55%, transparent);
+  color: #464c5c;
+  font-size: 1.06em;
+  line-height: 1.66;
+  font-style: normal; /* WordPress italik alıntı hissinden uzak, editoryal */
+}
+.blog-icerik blockquote p:last-child {
+  margin-bottom: 0;
 }
 .blog-icerik img,
 .blog-icerik .blog-gorsel {
@@ -974,14 +1036,52 @@ body[data-menu-acik="1"] {
   outline-offset: 3px;
   border-radius: 14px;
 }
-.blog-icerik strong {
-  font-weight: 700;
-  color: var(--color-ink);
+/*
+  Kalın metin: 700 yerine 600 + hafif koyulaşma. Sayfa "her yeri bold"
+  görünmesin; vurgu ölçülü kalsın (premium/editoryal his).
+*/
+.blog-icerik strong,
+.blog-icerik b {
+  font-weight: 600;
+  color: #1c202e;
 }
 .blog-icerik hr {
   border: 0;
   border-top: 1px solid rgba(10, 13, 24, 0.1);
-  margin: 2em 0;
+  margin: 2.6em 0;
+}
+
+/*
+  Tablolar: gövde tipografisiyle aynı sistem. İnce alt çizgiler, başlık satırı
+  heading fontuyla; kutu/zebra yok — sade editoryal tablo. İçerik HTML'i tek
+  kapta geldiği için sarmalayıcı yok; geniş tablo mobilde yatay kayar.
+*/
+.blog-icerik table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.9em 0;
+  font-size: 0.95em;
+  line-height: 1.55;
+}
+.blog-icerik th,
+.blog-icerik td {
+  padding: 11px 15px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(10, 13, 24, 0.09);
+}
+.blog-icerik thead th {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-ink);
+  border-bottom: 1.5px solid rgba(10, 13, 24, 0.18);
+}
+.blog-icerik tbody tr:last-child td {
+  border-bottom: 0;
+}
+.blog-icerik td > :last-child,
+.blog-icerik th > :last-child {
+  margin-bottom: 0;
 }
 /* TipTap boş editör yer tutucusu. */
 .blog-icerik p.is-editor-empty:first-child::before {
@@ -1311,6 +1411,27 @@ body[data-menu-acik="1"] {
   }
   .aea-prompt__metin {
     font-size: 14.5px;
+  }
+  /* Telefonda satır uzunluğu konforlu kalsın; başlık önü boşluğu biraz azalır. */
+  .blog-icerik {
+    font-size: 17px;
+    line-height: 1.72;
+  }
+  .blog-icerik > p:first-child {
+    font-size: 1.12em;
+  }
+  .blog-icerik h2 {
+    margin-top: 2em;
+  }
+  .blog-icerik h3 {
+    margin-top: 1.7em;
+  }
+  /* Geniş tablolar taşmasın, yatay kaydırılabilsin. */
+  .blog-icerik table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

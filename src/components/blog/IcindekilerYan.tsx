@@ -54,8 +54,8 @@ export function IcindekilerYan({ gruplar }: { gruplar: TocGrup[] }) {
 
   return (
     <nav aria-label="İçindekiler">
-      <div className="font-mono text-[10.5px] tracking-[0.16em] text-[#656B7A] uppercase">İçindekiler</div>
-      <ul className="mt-3 flex flex-col gap-[2px]">
+      <div className="font-mono text-[10.5px] tracking-[0.16em] text-[#7A8092] uppercase">İçindekiler</div>
+      <ul className="mt-3.5 flex flex-col gap-[3px]">
         {gruplar.map((g, gi) => {
           const grupAktif = gi === aktifGrup;
           return (
@@ -64,7 +64,7 @@ export function IcindekilerYan({ gruplar }: { gruplar: TocGrup[] }) {
                 href={`#${g.h2.id}`}
                 onClick={(e) => tikla(e, g.h2.id)}
                 aria-current={aktif === g.h2.id ? "true" : undefined}
-                className={`block border-l-2 py-[5px] pl-3 text-[13.5px] leading-[1.4] transition-colors ${
+                className={`block border-l-2 py-[6px] pl-3.5 text-[14px] leading-[1.5] transition-colors ${
                   grupAktif
                     ? "border-brand font-medium text-ink"
                     : "border-transparent text-[#6B7080] hover:border-ink/20 hover:text-ink"
@@ -80,10 +80,10 @@ export function IcindekilerYan({ gruplar }: { gruplar: TocGrup[] }) {
                         href={`#${a.id}`}
                         onClick={(e) => tikla(e, a.id)}
                         aria-current={aktif === a.id ? "true" : undefined}
-                        className={`block border-l-2 py-[4px] pl-6 text-[12.5px] leading-[1.4] transition-colors ${
+                        className={`block border-l-2 py-[5px] pl-6 text-[13px] leading-[1.45] transition-colors ${
                           aktif === a.id
                             ? "border-brand font-medium text-ink"
-                            : "border-transparent text-[#8A90A0] hover:text-ink"
+                            : "border-transparent text-[#868C9C] hover:text-ink"
                         }`}
                       >
                         {a.metin}
