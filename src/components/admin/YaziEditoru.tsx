@@ -129,9 +129,11 @@ export function YaziEditoru({
   const kapakUrl = depoUrl("kapaklar", kapakYol);
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
-      {/* Sol: başlık + içerik */}
-      <div className="flex flex-col gap-5">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+      {/* Sol: başlık + içerik. min-w-0: uzun/boşluksuz metin kolonu sağa doğru
+          sonsuza uzatmasın — içerik kırılıp sarabilsin diye kolon 0'a kadar
+          küçülebilmeli (grid item varsayılan min-width:auto'yu geçersiz kılar). */}
+      <div className="flex min-w-0 flex-col gap-5">
         <div className="flex flex-col gap-2">
           <span className={ETIKET}>Başlık</span>
           <input
