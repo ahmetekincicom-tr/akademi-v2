@@ -96,6 +96,80 @@ panelin adresine ayarlı olmalı; `{{ .SiteURL }}` oradan geliyor.
 `/auth/callback` (kod akışı) yerinde duruyor: şablonlar güncellenmemiş olsa
 bile eski bağlantılar çalışmaya devam ediyor.
 
+## Auth mailleri: Resend Custom SMTP
+
+Auth mailleri (doğrulama, şifre sıfırlama…) **Supabase tarafından** gönderilir;
+Supabase'e Resend SMTP olarak bağlanır. Next.js kodu doğrulama maili göndermez,
+Edge Function / Send Email Hook yoktur. Resend SMTP parolası **Next.js `.env`
+dosyasına eklenmez** — yalnızca Supabase Dashboard → Authentication → Emails →
+SMTP Settings alanına girilir.
+
+### Neden ayrı alt alan adı ve ayrı anahtar
+
+Uygulama mailleri `RESEND_API_KEY` ile kök alan adından (`bildirim@ahmetekinciakademi.com`)
+çıkıyor. Auth mailleri için ayrı bir alt alan adı (`auth.ahmetekinciakademi.com`)
+ve yalnız bu iş için ayrı bir API anahtarı:
+
+- Toplu/pazarlama gönderimlerindeki olası itibar sorunu doğrulama maillerini
+  spam'e düşürmesin.
+- Anahtar sızarsa yalnız auth gönderimi etkilenir; ayrı iptal edilir.
+- Takip (click/open tracking) alan adı bazında: auth alan adında kapalı tutmak
+  kolay, uygulama maillerini etkilemez.
+
+### SMTP ayarları (Supabase → Authentication → Emails → SMTP Settings)
+
+| Alan | Değer |
+| --- | --- |
+| Enable Custom SMTP | Açık |
+| Host | `smtp.resend.com` |
+| Port | `465` |
+| Username | `resend` |
+| Password | Resend'de **yalnız auth için** oluşturulan API key (Sending access, yalnız `auth.ahmetekinciakademi.com`) |
+| Sender name | `Ahmet Ekinci Akademi` |
+| Sender email | `hesap@auth.ahmetekinciakademi.com` |
+| Minimum interval per user | 60 sn (panel/kayıt ekranındaki geri sayımla aynı) |
+
+Custom SMTP açıldıktan sonra Supabase → Authentication → **Rate Limits** →
+"Rate limit for sending emails" değerini kontrol et (varsayılan saatte 30);
+toplu kayıt beklenen günlerde yükselt.
+
+### Resend tarafı
+
+1. Domains → Add Domain → `auth.ahmetekinciakademi.com`.
+2. Resend'in verdiği kayıtları DNS'e ekle (hepsi `auth.` alt alan adının altında;
+   kök alan adındaki mevcut kayıtlar SİLİNMEZ, ikinci bir kök SPF kaydı
+   OLUŞTURULMAZ):
+   - DKIM: `resend._domainkey.auth` (TXT)
+   - SPF/Return-Path: `send.auth` → MX ve TXT (`v=spf1 include:amazonses.com ~all`)
+3. DMARC: kökte `_dmarc.ahmetekinciakademi.com` zaten varsa DOKUNMA (alt alan
+   adları kökteki politikayı devralır). Yoksa yalnız alt alan adı için
+   `_dmarc.auth` TXT → `v=DMARC1; p=none; rua=mailto:<rapor-adresi>` ile başla;
+   sonuçlar temizse `p=quarantine`'e geçilir.
+4. Domain durumu **Verified** olana kadar SMTP'yi açma.
+5. Domain → Configuration: **Click tracking KAPALI, Open tracking KAPALI.**
+   Açık olursa Resend doğrulama bağlantısını kendi takip adresiyle yeniden
+   yazar; bağlantı tek kullanımlık olduğu için ön-tarama/yeniden yazma onu
+   bozabilir, ayrıca kullanıcı başka bir alan adı görür.
+6. API Keys → Create → Permission: **Sending access**, Domain:
+   `auth.ahmetekinciakademi.com`. Anahtarı yalnız Supabase SMTP Password
+   alanına yapıştır; repoya, `.env`'e, sohbete yazma.
+
+### Şablon
+
+"Confirm signup" → `docs/eposta-sablonlari/hesap-dogrulama.html`
+(konu: **E-posta adresini doğrula**). Tek düğme + düğme çalışmazsa düz bağlantı;
+görsel, sosyal medya ya da pazarlama metni yok; kullanıcı verisi basılmıyor.
+Bağlantı `{{ .ConfirmationURL }}` değil, projenin token-hash akışı:
+`{{ .SiteURL }}/auth/onayla?token_hash={{ .TokenHash }}&type=signup&next=/panel`.
+
+### Uygulama tarafı
+
+- Kayıt sonrası ekran ve süresi dolmuş bağlantı ekranı (`/giris?hata=1`)
+  "Doğrulama bağlantısını tekrar gönder" sunuyor:
+  `supabase.auth.resend({ type: "signup", email })` —
+  `src/components/auth/DogrulamaYenidenGonder.tsx`. 60 sn geri sayım, 429'da
+  Supabase'in bildirdiği süre.
+
 ## Hoş geldin maili
 
 Kişiye bir kez, **ilk girişinde** gönderiliyor (`src/lib/hosgeldin.ts`).

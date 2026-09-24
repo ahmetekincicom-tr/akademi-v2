@@ -8,6 +8,7 @@ import { PasswordField } from "@/components/auth/PasswordField";
 import { CheckToggle } from "@/components/auth/CheckToggle";
 import { TelefonAlani } from "@/components/auth/TelefonAlani";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
+import { DogrulamaYenidenGonder } from "@/components/auth/DogrulamaYenidenGonder";
 import { createClient } from "@/lib/supabase/client";
 import { Icon } from "@/components/Icon";
 import { VARSAYILAN_ULKE, e164, telefonGecerliMi } from "@/lib/telefon";
@@ -95,8 +96,15 @@ export function KayitFormu() {
           <span className="font-semibold break-all text-[#fafafa]">{email}</span> adresine gönderdiğimiz bağlantıya
           tıklayarak hesabını doğrula. Doğruladıktan sonra doğrudan panele yönlendirileceksin.
         </p>
-        <p className={`${YARDIM} mt-4`}>Birkaç dakika içinde gelmezse spam klasörüne de bak.</p>
-        <Link href="/giris" className={`${IKINCIL} mt-7`}>
+        <p className={`${YARDIM} mt-4`}>
+          Birkaç dakika içinde gelmezse spam / gereksiz klasörüne de bak. Bağlantı yalnızca bir kez çalışır.
+        </p>
+        {/* Mail az önce gitti: ilk 60 sn yeniden gönderme kapalı (Supabase de
+            aynı aralıkla sınırlıyor). */}
+        <div className="mt-7">
+          <DogrulamaYenidenGonder email={email} baslangicBekleme={60} />
+        </div>
+        <Link href="/giris" className={`${IKINCIL} mt-3`}>
           Girişe dön
         </Link>
       </div>

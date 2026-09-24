@@ -56,15 +56,22 @@ const onayAdresi = (tur, next) =>
   `{{ .SiteURL }}/auth/onayla?token_hash={{ .TokenHash }}&type=${tur}&next=${next}`;
 
 const sablonlar = {
+  /*
+    Sade ve tek eylemli: görsel yok (logo verilmiyor, şerit yazı işareti),
+    sosyal/pazarlama bağlantısı yok. Kullanıcı verisi ({{ .Email }} vb.)
+    HTML'e basılmıyor — yalnız Supabase'in doğrulama değişkenleri.
+    Konu (Supabase'e ayrıca yazılıyor): "E-posta adresini doğrula"
+  */
   "hesap-dogrulama": {
     baslik: "Confirm signup",
     icerik: {
       ustEtiket: "Hesap doğrulama",
       baslik: "E-posta adresini doğrula",
       ozet:
-        "Ahmet Ekinci Akademi üye alanı için hesap oluşturdun. Aşağıdaki düğmeye basınca hesabın " +
-        "açılıyor ve panele girebiliyorsun.",
-      eylem: { etiket: "Hesabımı doğrula", adres: onayAdresi("signup", "/panel") },
+        "Ahmet Ekinci Akademi üye alanı için hesap oluşturdun. Hesabını açmak için e-posta adresini " +
+        "doğrula; ardından panele doğrudan yönlendirileceksin.",
+      eylem: { etiket: "E-posta adresimi doğrula", adres: onayAdresi("signup", "/panel") },
+      yedekBaglanti: true,
       alinti: "Bu hesabı sen oluşturmadıysan bu maili yok sayabilirsin; hiçbir işlem yapılmaz.",
     },
   },
