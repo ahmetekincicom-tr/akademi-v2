@@ -118,7 +118,7 @@ export function KayitFormu() {
     <div>
       <div className="text-center">
         <h1 className={BASLIK}>Hesabını oluştur</h1>
-        <p className={ALT_BASLIK}>Eğitim kaydın sonrası aldığın davet e-postasındaki bilgilerle hesabını tamamla.</p>
+        <p className={ALT_BASLIK}>Eğitim kaydında kullandığın e-postayla devam et.</p>
       </div>
 
       {/* Google ile kayıtta sözleşme onayı ve telefon ilk girişte
@@ -139,11 +139,11 @@ export function KayitFormu() {
           e.preventDefault();
           if (sozlesme && !yukleniyor) handleSubmit();
         }}
-        className="mt-7 flex flex-col gap-4"
+        className="mt-6 flex flex-col gap-3.5"
         aria-busy={yukleniyor}
       >
         {/* Mobilde alt alta, 640px ve üstünde yan yana. */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 sm:gap-3">
           <div className="flex min-w-0 flex-col gap-1.5">
             <label htmlFor={`${kimlik}-ad`} className={ETIKET}>
               Ad
@@ -195,31 +195,35 @@ export function KayitFormu() {
           />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <TelefonAlani
-            ulkeKodu={ulkeKodu}
-            numara={telefon}
-            onUlkeKodu={setUlkeKodu}
-            onNumara={setTelefon}
-            hataId={telefonHatasi ? telefonHataId : undefined}
-            gecersiz={telefonHatasi}
-          />
-          {telefonHatasi && (
-            <p id={telefonHataId} role="alert" className={ALAN_HATASI}>
-              {hata}
-            </p>
-          )}
-        </div>
+        {/* Telefon ve şifre 640px ve üstünde yan yana: form bir ekrana sığsın. */}
+        <div className="grid grid-cols-1 items-start gap-3.5 sm:grid-cols-2 sm:gap-3">
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <TelefonAlani
+              ulkeKodu={ulkeKodu}
+              numara={telefon}
+              onUlkeKodu={setUlkeKodu}
+              onNumara={setTelefon}
+              hataId={telefonHatasi ? telefonHataId : undefined}
+              gecersiz={telefonHatasi}
+              yardimGizli
+            />
+            {telefonHatasi && (
+              <p id={telefonHataId} role="alert" className={ALAN_HATASI}>
+                {hata}
+              </p>
+            )}
+          </div>
 
-        <PasswordField
-          label="Şifre"
-          placeholder="En az 8 karakter"
-          value={password}
-          onChange={setPassword}
-          showStrength
-          autoComplete="new-password"
-          describedBy={genelHata ? hataId : undefined}
-        />
+          <PasswordField
+            label="Şifre"
+            placeholder="En az 8 karakter"
+            value={password}
+            onChange={setPassword}
+            showStrength
+            autoComplete="new-password"
+            describedBy={genelHata ? hataId : undefined}
+          />
+        </div>
 
         {genelHata && <UyariKutusu id={hataId} mesaj={hata} />}
 
@@ -231,9 +235,8 @@ export function KayitFormu() {
           kutuya konursa izin geçersiz olur; kaydolmanın şartı haline getirilmesi
           de aynı kapıya çıkıyor. Bu yüzden düğme yalnızca birincisine bakıyor.
         */}
-        <fieldset className="mt-1 flex flex-col gap-3 rounded-[12px] border border-white/[0.07] bg-[#0a0c12] p-3.5">
+        <fieldset className="mt-1 flex flex-col gap-2.5">
           <legend className="sr-only">Onaylar</legend>
-          <span className="font-mono text-[10.5px] tracking-[0.12em] text-[#8b8b95] uppercase">Zorunlu</span>
           <CheckToggle checked={sozlesme} onToggle={() => setSozlesme((v) => !v)} align="start">
             <Link href="/uyelik-sozlesmesi" target="_blank" className={`underline ${BAGLANTI}`}>
               Üyelik ve Kullanım Sözleşmesi
@@ -242,15 +245,12 @@ export function KayitFormu() {
             <Link href="/kisisel-verilerin-islenmesi" target="_blank" className={`underline ${BAGLANTI}`}>
               KVKK Aydınlatma Metni
             </Link>
-            {"'ni okudum, kabul ediyorum."}
+            {"'ni okudum, kabul ediyorum. "}
+            <span className="text-[#8b8b95]">(zorunlu)</span>
           </CheckToggle>
-
-          <span className="mt-1 border-t border-white/[0.06] pt-3 font-mono text-[10.5px] tracking-[0.12em] text-[#8b8b95] uppercase">
-            İsteğe bağlı
-          </span>
           <CheckToggle checked={iletiIzni} onToggle={() => setIletiIzni((v) => !v)} align="start">
             Kampanya, duyuru ve yeni eğitimlerden e-posta ile haberdar olmak istiyorum.{" "}
-            <span className="text-[#8b8b95]">Sonradan kapatabilirsin.</span>
+            <span className="text-[#8b8b95]">(isteğe bağlı, sonradan kapatabilirsin)</span>
           </CheckToggle>
         </fieldset>
 
