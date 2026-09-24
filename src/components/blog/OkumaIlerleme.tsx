@@ -11,6 +11,13 @@ import { okumaOrani } from "@/lib/okuma-ilerleme";
  * güncellenmiyor; rAF ile tek karede tek ölçüm, genişlik yerine transform
  * (scaleX) — yerleşim hesabı tetiklenmiyor. Görseller yüklenip içerik uzarsa
  * ResizeObserver yeniden ölçüyor. Dekoratif: ekran okuyuculardan gizli.
+ *
+ * Hareket: dolum scroll'u birebir izliyor (animasyon/geçiş yok); yalnız
+ * görünür olma anındaki kısa opaklık geçişi prefers-reduced-motion'da kapalı.
+ * z-[55]: yapışkan başlığın (z-60), mobil menünün (z-70) ve lightbox'ın (120)
+ * ALTINDA; İçindekiler sidebar'ı z-index'siz ve başlığın 24px altında başlıyor,
+ * çakışma yok. Yalnız yazı detay sayfasında mount ediliyor (kategori/diğer
+ * sayfalarda yok).
  */
 export function OkumaIlerleme() {
   const cubuk = useRef<HTMLDivElement>(null);
@@ -68,7 +75,7 @@ export function OkumaIlerleme() {
     >
       <div
         ref={cubuk}
-        className="h-full w-full origin-left bg-brand transition-opacity duration-200"
+        className="h-full w-full origin-left bg-brand transition-opacity duration-200 motion-reduce:transition-none"
         style={{ transform: "scaleX(0)", opacity: 0 }}
       />
     </div>
