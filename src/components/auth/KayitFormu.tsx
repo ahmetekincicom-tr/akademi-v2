@@ -9,6 +9,9 @@ import { CheckToggle } from "@/components/auth/CheckToggle";
 import { TelefonAlani } from "@/components/auth/TelefonAlani";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { DogrulamaYenidenGonder } from "@/components/auth/DogrulamaYenidenGonder";
+import { GoogleIleDevam, VeyaAyirici } from "@/components/auth/GoogleIleDevam";
+import { SadeceWeb } from "@/components/panel/SadeceWeb";
+import { GOOGLE_GIRIS_ACIK } from "@/lib/bolumler";
 import { createClient } from "@/lib/supabase/client";
 import { Icon } from "@/components/Icon";
 import { VARSAYILAN_ULKE, e164, telefonGecerliMi } from "@/lib/telefon";
@@ -117,6 +120,17 @@ export function KayitFormu() {
         <h1 className={BASLIK}>Hesabını oluştur</h1>
         <p className={ALT_BASLIK}>Eğitim kaydın sonrası aldığın davet e-postasındaki bilgilerle hesabını tamamla.</p>
       </div>
+
+      {/* Google ile kayıtta sözleşme onayı ve telefon ilk girişte
+          /kayit/tamamla ekranında alınıyor. */}
+      {GOOGLE_GIRIS_ACIK && (
+        <SadeceWeb>
+          <div className="mt-6 flex flex-col gap-5">
+            <GoogleIleDevam />
+            <VeyaAyirici />
+          </div>
+        </SadeceWeb>
+      )}
 
       {/* noValidate: doğrulama eskisi gibi handleSubmit'te. Onay kutusu
           işaretlenmeden düğme kapalı; kapalı düğmeyle Enter da gönderemez. */}

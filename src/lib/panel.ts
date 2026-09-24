@@ -46,6 +46,12 @@ export type PanelProfile = {
   tamAd: string;
   basHarfler: string;
   admin: boolean;
+  /**
+   * Google ile açılmış ama üyelik sözleşmesi/KVKK onayı henüz alınmamış
+   * hesap. E-postayla kayıtta onay formda alınıyor; Google'da form yok, onay
+   * ilk girişte /kayit/tamamla ekranında alınıyor (panel/layout.tsx).
+   */
+  kayitTamamlanmadi: boolean;
 };
 
 type EnrollmentRow = {
@@ -82,6 +88,12 @@ type EnrollmentRow = {
   React'in cache'i istek başına: iki farklı ziyaretçi birbirinin verisini
   görmüyor, aynı isteğin içindeki ikinci çağrı ilkinin sonucunu alıyor.
 */
+/** Hesaba Google kimliği bağlı mı (Supabase app_metadata.providers). */
+function googleHesabi(user: { app_metadata?: { provider?: string; providers?: string[] } }): boolean {
+  const m = user.app_metadata ?? {};
+  return m.provider === "google" || (m.providers ?? []).includes("google");
+}
+
 export const getPanelProfile = cache(async (): Promise<PanelProfile | null> => {
   const supabase = await createClient();
   const {
@@ -91,7 +103,7 @@ export const getPanelProfile = cache(async (): Promise<PanelProfile | null> => {
 
   const { data } = await supabase
     .from("profiles")
-    .select("id, ad, soyad, email, telefon, sirket, role")
+    .select("id, ad, soyad, email, telefon, sirket, role, sozlesme_onayi_tarihi")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -112,6 +124,7 @@ export const getPanelProfile = cache(async (): Promise<PanelProfile | null> => {
     tamAd: tamAd || email,
     basHarfler: [ad[0], soyad[0]].filter(Boolean).join("").toUpperCase() || email.slice(0, 2).toUpperCase(),
     admin: data?.role === "admin",
+    kayitTamamlanmadi: googleHesabi(user) && !data?.sozlesme_onayi_tarihi,
   };
 });
 

@@ -7,6 +7,8 @@ import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { DogrulamaYenidenGonder } from "@/components/auth/DogrulamaYenidenGonder";
+import { GoogleIleDevam, VeyaAyirici } from "@/components/auth/GoogleIleDevam";
+import { GOOGLE_GIRIS_ACIK } from "@/lib/bolumler";
 import { createClient } from "@/lib/supabase/client";
 import { oturumKaydet } from "@/app/oturum-actions";
 import { SadeceWeb } from "@/components/panel/SadeceWeb";
@@ -89,6 +91,17 @@ export function GirisFormu({ hedef, baglantiHatasi = false }: { hedef: string; b
             </div>
           </details>
         </div>
+      )}
+
+      {/* Google: bayrak açıkken ve yalnız web'de (uygulama içi tarayıcıda
+          Google girişi engelli). */}
+      {GOOGLE_GIRIS_ACIK && (
+        <SadeceWeb>
+          <div className="mt-6 flex flex-col gap-5">
+            <GoogleIleDevam hedef={hedef} />
+            <VeyaAyirici />
+          </div>
+        </SadeceWeb>
       )}
 
       {hata && (
