@@ -129,10 +129,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (sonuc.tip === "kategori") {
     const kategori = sonuc.kategori;
+    // Yazısı olmayan kategori ince bir sayfa: site haritasında da yok
+    // (sitemap.ts), dizine de girmesin. Yazı eklenince kendiliğinden açılır.
+    const yazilar = await getYazilarByKategori(kategori.slug);
     return sayfaMeta({
       baslik: `${kategori.ad} yazıları`,
       aciklama: `${kategori.ad} kategorisindeki dijital pazarlama yazıları, rehberler ve ipuçları.`,
       yol: `/${kategori.slug}`,
+      indeksleme: yazilar.length > 0,
     });
   }
 

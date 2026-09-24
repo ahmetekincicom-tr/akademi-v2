@@ -56,6 +56,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     */
     aciklama: course.seoAciklama || egitimTanitimCumlesi(course),
     yol: `/egitimler/${course.slug}`,
+    // "Çok yakında" sayfası ince (başlık + kısa açıklama); site haritasında
+    // da yok. İçerik gelene kadar dizine girmesin, bağlantılar izlensin.
+    indeksleme: !course.cokYakinda,
   });
 }
 
