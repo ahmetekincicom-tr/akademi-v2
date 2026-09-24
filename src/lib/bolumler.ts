@@ -13,3 +13,13 @@
  * olduğunu göstermek, sonradan hiç yoktan belirmesinden anlaşılır.
  */
 export const DERSLER_ACIK = false;
+
+/**
+ * İş fırsatları (/panel/firsatlar).
+ *
+ * Kapalıyken menüde "Çok yakında" etiketiyle duruyor ve öğrenci sayfaya
+ * giremiyor; yönetici ise ilk ilanları girip öğrencinin göreceği ekranı
+ * önizleyebilsin diye sayfayı açabiliyor. İlk ilan yayına alındığında burası
+ * true yapılacak — menü ve sayfa aynı bayrağa bakıyor.
+ */
+export const FIRSATLAR_ACIK = false;

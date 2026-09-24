@@ -41,6 +41,7 @@ const groups: MenuGroup[] = [
       { href: "/kontrol-9f4x2k/video", label: "Video kütüphanesi", icon: "playCircle", sayac: "video" },
       { href: "/kontrol-9f4x2k/dokumanlar", label: "Dokümanlar", icon: "folder" },
       { href: "/kontrol-9f4x2k/duyurular", label: "Gündem panosu", icon: "bell" },
+      { href: "/kontrol-9f4x2k/firsatlar", label: "İş ilanları", icon: "briefcase" },
       { href: "/kontrol-9f4x2k/yorumlar", label: "Katılımcı yorumları", icon: "message" },
       { href: "/kontrol-9f4x2k/referanslar", label: "Referans logoları", icon: "sparkle" },
       { href: "/kontrol-9f4x2k/yasal", label: "Yasal metinler", icon: "file" },
@@ -80,6 +81,7 @@ const pageTitles: Record<string, string> = {
   "/kontrol-9f4x2k/mesajlar": "Gelen mesajlar",
   "/kontrol-9f4x2k/dokumanlar": "Dokümanlar",
   "/kontrol-9f4x2k/duyurular": "Gündem panosu",
+  "/kontrol-9f4x2k/firsatlar": "İş ilanları",
   "/kontrol-9f4x2k/yorumlar": "Katılımcı yorumları",
   "/kontrol-9f4x2k/referanslar": "Referans logoları",
   "/kontrol-9f4x2k/yasal": "Yasal metinler",
@@ -115,6 +117,15 @@ function breadcrumbAdimlari(pathname: string): BreadcrumbAdim[] {
       kok,
       { label: "Eğitimler", href: "/kontrol-9f4x2k/egitimler" },
       { label: pathname.endsWith("/yeni") ? "Yeni eğitim" : "Eğitim düzenle" },
+    ];
+  }
+
+  // İlan editörü ilan listesinin bir alt kademesinde.
+  if (pathname.startsWith("/kontrol-9f4x2k/firsatlar/")) {
+    return [
+      kok,
+      { label: "İş ilanları", href: "/kontrol-9f4x2k/firsatlar" },
+      { label: pathname.endsWith("/yeni") ? "Yeni ilan" : "İlanı düzenle" },
     ];
   }
 

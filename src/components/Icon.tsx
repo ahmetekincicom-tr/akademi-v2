@@ -45,7 +45,10 @@ export type IconName =
   | "phone"
   | "pin"
   | "bell"
-  | "menu";
+  | "menu"
+  | "briefcase"
+  | "bookmark"
+  | "bookmarkDolu";
 
 const paths: Record<IconName, React.ReactNode> = {
   grid: (
@@ -84,6 +87,14 @@ const paths: Record<IconName, React.ReactNode> = {
   ),
   message: <path d="M20.5 11.6a8 8 0 0 1-8.6 8 9 9 0 0 1-3.8-.9L3.5 20.5l1.8-4.6a8 8 0 0 1-1.3-4.3 8 8 0 0 1 8.6-8 8.2 8.2 0 0 1 7.9 8z" />,
   plus: <path d="M12 5.5v13M5.5 12h13" />,
+  briefcase: (
+    <>
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7M3 12.5h18" />
+    </>
+  ),
+  bookmark: <path d="M6.5 4.5h11a1 1 0 0 1 1 1v15l-6.5-4.2-6.5 4.2v-15a1 1 0 0 1 1-1z" />,
+  bookmarkDolu: <path d="M6.5 4h11A1.5 1.5 0 0 1 19 5.5V21l-7-4.5L5 21V5.5A1.5 1.5 0 0 1 6.5 4z" />,
   user: (
     <>
       <path d="M20 21v-1.8a4.2 4.2 0 0 0-4.2-4.2H8.2A4.2 4.2 0 0 0 4 19.2V21" />
@@ -243,7 +254,7 @@ const paths: Record<IconName, React.ReactNode> = {
 };
 
 // Filled shapes read wrong with a stroke-only treatment.
-const dolu: IconName[] = ["play", "sparkle", "instagram", "linkedin", "whatsapp"];
+const dolu: IconName[] = ["play", "sparkle", "instagram", "linkedin", "whatsapp", "bookmarkDolu"];
 
 export function Icon({
   name,
