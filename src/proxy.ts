@@ -57,6 +57,8 @@ const ACIK_KOKLER = [
   // kalsalardı panelde tek bir görsel bile yüklenmezdi.
   "/dosya",
   "/indir",
+  // Destek mesajı ekleri (ekran görüntüsü / PDF) — /indir ile aynı desen.
+  "/destek-ek",
   "/cevrimdisi",
   "/gizlilik-politikasi",
   "/kisisel-verilerin-islenmesi",
@@ -105,6 +107,7 @@ const AYRICA_ACIK = [
   // doküman alıyor.
   "/dosya",
   "/indir",
+  "/destek-ek",
   /*
     Google Ads reklamı için Meta Ads detay sayfası tek başına açık.
 

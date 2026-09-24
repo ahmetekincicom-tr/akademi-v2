@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { yoneticiMi } from "@/lib/panel-kapsam";
 import { veriHatasi } from "@/lib/auth-hatalari";
 import { yoneticiBildirimi } from "@/lib/eposta";
+import { ekleriDogrula } from "@/lib/destek-ek";
 
 /** Bildirimlerde kullanılan görünen ad. */
 async function kisiAdi(supabase: Awaited<ReturnType<typeof createClient>>, userId: string) {
@@ -16,7 +17,13 @@ async function kisiAdi(supabase: Awaited<ReturnType<typeof createClient>>, userI
   return [data?.ad, data?.soyad].filter(Boolean).join(" ") || data?.email || "Bir katılımcı";
 }
 
-export async function talepAc(baslik: string, ilkMesaj: string, courseId?: string) {
+/** Ek varsa bildirim alıntısına not düşülüyor; metinsiz yalnız-ek mesajlar boş görünmesin. */
+function alintiMetni(metin: string, ekSayisi: number) {
+  const ek = ekSayisi ? `[${ekSayisi} ek dosya]` : "";
+  return [metin.trim(), ek].filter(Boolean).join("\n");
+}
+
+export async function talepAc(baslik: string, ilkMesaj: string, courseId?: string, ekler?: unknown) {
   if (!baslik.trim() || !ilkMesaj.trim()) return { error: "Konu ve mesaj zorunludur." };
 
   const supabase = await createClient();
@@ -24,6 +31,9 @@ export async function talepAc(baslik: string, ilkMesaj: string, courseId?: strin
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Oturum bulunamadı." };
+
+  const dogrulama = ekleriDogrula(ekler, user.id);
+  if ("hata" in dogrulama) return { error: dogrulama.hata };
 
   const { data: ticket, error } = await supabase
     .from("support_tickets")
@@ -34,7 +44,7 @@ export async function talepAc(baslik: string, ilkMesaj: string, courseId?: strin
 
   const { error: msgErr } = await supabase
     .from("support_messages")
-    .insert({ ticket_id: ticket.id, gonderen_id: user.id, metin: ilkMesaj.trim() });
+    .insert({ ticket_id: ticket.id, gonderen_id: user.id, metin: ilkMesaj.trim(), ekler: dogrulama.ekler });
   if (msgErr) return { error: msgErr.message };
 
   const isim = await kisiAdi(supabase, user.id);
@@ -44,24 +54,31 @@ export async function talepAc(baslik: string, ilkMesaj: string, courseId?: strin
     ustEtiket: "Destek talebi",
     baslik: baslik.trim(),
     ozet: `${isim} yeni bir talep açtı.`,
-    alinti: ilkMesaj.trim(),
+    alinti: alintiMetni(ilkMesaj, dogrulama.ekler.length),
     yol: "/kontrol-9f4x2k/destek",
     eylemEtiketi: "Talebi panelde aç",
   });
 
   revalidatePath("/panel/soru-cevap");
   revalidatePath("/kontrol-9f4x2k/destek");
-  return {};
+  return { id: ticket.id as string };
 }
 
-export async function mesajGonder(ticketId: string, metin: string, icNot = false) {
-  if (!metin.trim()) return { error: "Mesaj boş olamaz." };
-
+/**
+ * Mesaj gönder. `ekler` isteğe bağlı: tarayıcı dosyayı önce kişinin kendi
+ * depo klasörüne yüklüyor, burada yalnız yol/ad/tür/boyut doğrulanıp mesaja
+ * yazılıyor. Ekli mesajda metin boş olabilir (yalnız ekran görüntüsü).
+ */
+export async function mesajGonder(ticketId: string, metin: string, icNot = false, ekler?: unknown) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Oturum bulunamadı." };
+
+  const dogrulama = ekleriDogrula(ekler, user.id);
+  if ("hata" in dogrulama) return { error: dogrulama.hata };
+  if (!metin.trim() && dogrulama.ekler.length === 0) return { error: "Mesaj boş olamaz." };
 
   const { data: profil } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
   const yoneticiYazdi = profil?.role === "admin";
@@ -71,7 +88,7 @@ export async function mesajGonder(ticketId: string, metin: string, icNot = false
 
   const { error } = await supabase
     .from("support_messages")
-    .insert({ ticket_id: ticketId, gonderen_id: user.id, metin: metin.trim(), ic_not: icNot });
+    .insert({ ticket_id: ticketId, gonderen_id: user.id, metin: metin.trim(), ic_not: icNot, ekler: dogrulama.ekler });
   if (error) return { error: error.message };
 
   /*
@@ -110,7 +127,7 @@ export async function mesajGonder(ticketId: string, metin: string, icNot = false
       ustEtiket: "Destek talebi",
       baslik: talep?.baslik ?? "Destek talebi",
       ozet: `${isim} talebe yeni bir mesaj yazdı.`,
-      alinti: metin.trim(),
+      alinti: alintiMetni(metin, dogrulama.ekler.length),
       yol: "/kontrol-9f4x2k/destek",
       eylemEtiketi: "Yazışmayı aç",
     });
@@ -133,6 +150,71 @@ export async function talebeEgitimBagla(ticketId: string, courseId: string | nul
     .update({ course_id: courseId || null })
     .eq("id", ticketId);
   if (error) return { error: veriHatasi(error) };
+  revalidatePath("/kontrol-9f4x2k/destek");
+  return {};
+}
+
+/**
+ * Öğrenci: "Sorun çözüldü mü?" → Evet. Yalnız KENDİ talebini ve yalnız
+ * "kapandi"ya çekebilir; genel durum değiştirme (talepDurumDegistir) hâlâ
+ * yalnız yöneticide. Yeniden açmak için yeni mesaj yazmak yeterli değil —
+ * kapanan talepte yazma alanı yok; öğrenci yeni soru açıyor.
+ */
+export async function talebimiKapat(ticketId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Oturum bulunamadı." };
+
+  const { data, error } = await supabase
+    .from("support_tickets")
+    .update({ durum: "kapandi", updated_at: new Date().toISOString() })
+    .eq("id", ticketId)
+    .eq("user_id", user.id)
+    .neq("durum", "kapandi")
+    .select("id");
+  if (error) return { error: veriHatasi(error) };
+  if (!data?.length) return { error: "Talep bulunamadı ya da zaten kapalı." };
+
+  revalidatePath("/panel/soru-cevap");
+  revalidatePath("/kontrol-9f4x2k/destek");
+  return {};
+}
+
+/**
+ * Öğrenci: kendi talebini, KAYITLI olduğu bir eğitime bağlar (ya da genel
+ * yapar). Kayıtlı olmadığı eğitim seçilemiyor — yönetici tarafındaki
+ * talebeEgitimBagla ise tüm eğitimlere açık kalıyor.
+ */
+export async function talebimiEgitimeBagla(ticketId: string, courseId: string | null) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Oturum bulunamadı." };
+
+  if (courseId) {
+    const { data: kayit } = await supabase
+      .from("enrollments")
+      .select("course_id")
+      .eq("user_id", user.id)
+      .eq("course_id", courseId)
+      .neq("durum", "iptal")
+      .maybeSingle();
+    if (!kayit) return { error: "Bu eğitime kayıtlı değilsin." };
+  }
+
+  const { data, error } = await supabase
+    .from("support_tickets")
+    .update({ course_id: courseId || null })
+    .eq("id", ticketId)
+    .eq("user_id", user.id)
+    .select("id");
+  if (error) return { error: veriHatasi(error) };
+  if (!data?.length) return { error: "Talep bulunamadı." };
+
+  revalidatePath("/panel/soru-cevap");
   revalidatePath("/kontrol-9f4x2k/destek");
   return {};
 }
