@@ -16,7 +16,13 @@ import { getCourses } from "@/lib/courses";
 
 export type YaziDurum = "taslak" | "yayin";
 
-export type Kategori = { id: string; slug: string; ad: string };
+export type Kategori = {
+  id: string;
+  slug: string;
+  ad: string;
+  /** Arşiv sayfasının giriş metni ve meta açıklaması. Yazıya gömülü kategoride yok. */
+  aciklama?: string;
+};
 
 /** Liste kartı için yeterli alanlar (içerik gövdesi olmadan). */
 export type YaziOzet = {
@@ -186,7 +192,7 @@ export async function getYazilarByKategori(kategoriSlug: string, client?: Db): P
 /** Tüm kategoriler (sıraya göre). Herkese açık okuma. */
 export const getKategoriler = cache(async (client?: Db): Promise<Kategori[]> => {
   const supabase = client ?? createPublicClient();
-  const { data, error } = await supabase.from("categories").select("id, slug, ad").order("sira").order("ad");
+  const { data, error } = await supabase.from("categories").select("id, slug, ad, aciklama").order("sira").order("ad");
   if (error) {
     console.error("[yazilar] getKategoriler:", error.message);
     return [];
@@ -197,7 +203,7 @@ export const getKategoriler = cache(async (client?: Db): Promise<Kategori[]> => 
 /** Tek kategori (arşiv sayfası başlığı için). */
 export async function getKategoriBySlug(slug: string, client?: Db): Promise<Kategori | null> {
   const supabase = client ?? createPublicClient();
-  const { data } = await supabase.from("categories").select("id, slug, ad").eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("categories").select("id, slug, ad, aciklama").eq("slug", slug).maybeSingle();
   return (data as Kategori) ?? null;
 }
 

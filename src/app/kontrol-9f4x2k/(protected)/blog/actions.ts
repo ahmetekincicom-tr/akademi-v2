@@ -151,6 +151,22 @@ export async function kategoriGuncelle(id: string, ad: string): Promise<{ error?
   return {};
 }
 
+/**
+ * Kategori arşiv sayfasının giriş metni (aynı zamanda meta açıklaması).
+ * Yetki RLS'te (kategoriler yalnız yöneticiye yazılabilir), diğer kategori
+ * eylemleriyle aynı.
+ */
+export async function kategoriAciklamaGuncelle(id: string, aciklama: string): Promise<{ error?: string }> {
+  const temiz = aciklama.trim().slice(0, 600);
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("categories").update({ aciklama: temiz }).eq("id", id).select("slug");
+  if (error) return { error: error.message };
+  if (!data || data.length === 0) return { error: "Güncellenemedi (RLS)." };
+  revalidatePath("/kontrol-9f4x2k/blog/kategoriler");
+  revalidatePath(`/${data[0].slug}`);
+  return {};
+}
+
 export async function kategoriSil(id: string): Promise<{ error?: string }> {
   const supabase = await createClient();
   // FK on delete set null: silinen kategorinin yazıları kategorisiz kalır.

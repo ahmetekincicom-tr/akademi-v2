@@ -134,7 +134,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const yazilar = await getYazilarByKategori(kategori.slug);
     return sayfaMeta({
       baslik: `${kategori.ad} yazıları`,
-      aciklama: `${kategori.ad} kategorisindeki dijital pazarlama yazıları, rehberler ve ipuçları.`,
+      // Panelden yazılan kategori açıklaması varsa o; yoksa kalıp cümle.
+      aciklama: kategori.aciklama || `${kategori.ad} kategorisindeki dijital pazarlama yazıları, rehberler ve ipuçları.`,
       yol: `/${kategori.slug}`,
       indeksleme: yazilar.length > 0,
     });
@@ -371,6 +372,11 @@ async function KategoriArsiv({ kategori }: { kategori: Kategori }) {
             <h1 className="mx-auto mt-[18px] max-w-[640px] font-heading text-[36px] leading-[1.06] font-semibold tracking-[-0.035em] sm:text-[46px] lg:mx-0">
               {kategori.ad}
             </h1>
+            {kategori.aciklama && (
+              <p className="mx-auto mt-5 max-w-[640px] text-[16.5px] leading-[1.65] whitespace-pre-line text-white/72 lg:mx-0">
+                {kategori.aciklama}
+              </p>
+            )}
           </div>
         </section>
 
