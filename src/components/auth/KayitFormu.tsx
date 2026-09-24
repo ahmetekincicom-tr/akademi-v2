@@ -9,7 +9,7 @@ import { CheckToggle } from "@/components/auth/CheckToggle";
 import { TelefonAlani } from "@/components/auth/TelefonAlani";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { DogrulamaYenidenGonder } from "@/components/auth/DogrulamaYenidenGonder";
-import { GoogleIleDevam, VeyaAyirici } from "@/components/auth/GoogleIleDevam";
+import { GoogleIleDevam } from "@/components/auth/GoogleIleDevam";
 import { SadeceWeb } from "@/components/panel/SadeceWeb";
 import { GOOGLE_GIRIS_ACIK } from "@/lib/bolumler";
 import { createClient } from "@/lib/supabase/client";
@@ -125,9 +125,8 @@ export function KayitFormu() {
           /kayit/tamamla ekranında alınıyor. */}
       {GOOGLE_GIRIS_ACIK && (
         <SadeceWeb>
-          <div className="mt-6 flex flex-col gap-5">
-            <GoogleIleDevam />
-            <VeyaAyirici />
+          <div className="mt-6">
+            <GoogleIleDevam baglam="signup" />
           </div>
         </SadeceWeb>
       )}

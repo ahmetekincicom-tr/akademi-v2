@@ -1,62 +1,59 @@
 # Google ile giriş / kayıt
 
-Supabase Auth'un Google sağlayıcısı (OAuth, PKCE). Uygulama tarafı hazır;
-`src/lib/bolumler.ts → GOOGLE_GIRIS_ACIK` kurulum bitene kadar `false`.
+Google Identity Services (GIS) + Supabase `signInWithIdToken`.
+
+## Neden bu yöntem
+
+Supabase'in yönlendirmeli OAuth akışında (`signInWithOAuth`) Google'ın onay
+ekranı dönüş adresi olarak `…supabase.co` gösteriyor. GIS'te Google düğmesi
+bizim sayfamızda çiziliyor, onay açılır pencerede ve Google yalnızca
+uygulama adını ve **bizim alan adımızı** gösteriyor. Supabase'in ücretli özel
+alan adı eklentisi gerekmiyor.
 
 ## Akış
 
-1. `/giris` ya da `/kayit` → **Google ile devam et**
-   (`src/components/auth/GoogleIleDevam.tsx` → `signInWithOAuth`).
-2. Google → Supabase → `https://ahmetekinciakademi.com/auth/callback?next=…`
-   (mevcut route: `exchangeCodeForSession`, giriş kaydı, hoş geldin maili).
-3. Aynı e-postayla hesap varsa Supabase Google kimliğini o hesaba bağlar;
-   kişi kendi hesabına girer.
-4. Yeni hesapta sözleşme/KVKK onayı yok → panel bir kez `/kayit/tamamla`'ya
-   yönlendirir: ad, soyad, telefon, zorunlu onay, isteğe bağlı ileti izni.
-   Onay tarihi servis anahtarıyla, onay kaydı `rizaKaydet` ile (IP, tarayıcı,
-   metin parmak izi) — e-posta kaydıyla aynı ispat düzeyi.
+1. `/giris` ya da `/kayit` → Google'ın kendi düğmesi
+   (`src/components/auth/GoogleIleDevam.tsx`).
+2. Google açılır pencere → ID token → `supabase.auth.signInWithIdToken`
+   (nonce: Google'a SHA-256 özeti, Supabase'e ham değer).
+3. `oturumKaydet()` (giriş kaydı + hoş geldin maili) → hedef sayfa.
+4. Aynı e-postayla hesap varsa Supabase Google kimliğini o hesaba bağlar.
+5. Yeni hesapta sözleşme/KVKK onayı yok → panel bir kez `/kayit/tamamla`'ya
+   yönlendirir (ad, soyad, telefon, onaylar; `rizaKaydet` ile kayıt).
 
-iOS uygulamasında (WKWebView) düğme görünmüyor: Google gömülü tarayıcıda
-oturum açmayı engelliyor (`disallowed_useragent`).
+Düğme `NEXT_PUBLIC_GOOGLE_CLIENT_ID` doluyken çiziliyor
+(`src/lib/bolumler.ts`). iOS uygulamasında gösterilmiyor (Google gömülü
+tarayıcıda oturum açmayı engelliyor). Google betiği engellenirse (reklam
+engelleyici) düğme ve "veya" ayırıcı sessizce gizleniyor; e-postayla giriş
+etkilenmiyor.
 
 ## Kurulum
 
-### Google Cloud Console
-1. https://console.cloud.google.com → proje seç/oluştur.
-2. **APIs & Services → OAuth consent screen**
-   - User type: **External**
-   - App name: `Ahmet Ekinci Akademi`, destek e-postası, logo (isteğe bağlı)
-   - App domain: `https://ahmetekinciakademi.com`,
-     Privacy policy: `https://ahmetekinciakademi.com/gizlilik-politikasi`,
-     Terms: `https://ahmetekinciakademi.com/uyelik-sozlesmesi`
-   - Authorized domains: `ahmetekinciakademi.com`, `supabase.co`
-   - Scopes: yalnız `openid`, `email`, `profile` (hassas kapsam yok → Google
-     incelemesi gerekmez)
-   - **Publish app** (Testing'de kalırsa yalnız test kullanıcıları girebilir).
-3. **Credentials → Create credentials → OAuth client ID**
-   - Application type: **Web application**
-   - Authorized JavaScript origins:
-     `https://ahmetekinciakademi.com`, `https://panel.ahmetekinciakademi.com`
-   - Authorized redirect URIs:
-     `https://tlxqkzfohcxiwezidsih.supabase.co/auth/v1/callback`
-   - Client ID ve Client secret'ı kopyala (repoya/sohbete yazma).
+### Google Cloud Console → OAuth client (Web application)
+- **Authorized JavaScript origins** (zorunlu — düğme yalnız buralarda çalışır):
+  - `https://ahmetekinciakademi.com`
+  - `https://panel.ahmetekinciakademi.com`
+- Authorized redirect URIs: GIS için gerekmiyor (Supabase callback'i kalsa da
+  zararı yok).
+- OAuth consent screen: uygulama adı "Ahmet Ekinci Akademi", authorized
+  domain `ahmetekinciakademi.com`, gizlilik/koşullar bağlantıları, kapsamlar
+  `openid email profile`, **Published**.
 
-### Supabase
-1. **Authentication → Sign In / Providers → Google** → Enable,
-   Client ID + Client Secret yapıştır, kaydet.
-2. **URL Configuration → Redirect URLs**: `https://ahmetekinciakademi.com/**`
-   ve `https://panel.ahmetekinciakademi.com/**` zaten ekli olmalı.
+### Supabase → Authentication → Sign In / Providers → Google
+- Enabled.
+- **Client IDs**: Web client ID (virgülle birden fazla eklenebilir).
+- Client Secret: yönlendirmeli akış için; GIS'te kullanılmıyor, dolu kalabilir.
+- **Skip nonce checks: KAPALI** (nonce doğrulanıyor).
 
-### Açma
-`GOOGLE_GIRIS_ACIK = true` → deploy.
+### Vercel → Environment Variables
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` = Web client ID (`…apps.googleusercontent.com`)
+  — Production (ve istersen Preview). Gizli değil; sayfada görünür.
+- Değişkenden sonra **Redeploy** (NEXT_PUBLIC değerleri derleme anında gömülür).
 
 ## Test
-1. Yeni bir Gmail ile Google'dan kayıt → `/kayit/tamamla` → onayla → panel.
-   Yönetim → öğrenci detayı → "Verilen onaylar"da iki kayıt görünmeli.
-2. E-postayla kayıtlı bir hesabın Gmail'iyle Google'dan giriş → doğrudan
-   panel (tamamlama ekranı çıkmamalı; onay zaten var).
-3. Google hesap seçicide iptal → `/giris?hata=1` bilgi mesajı.
-
-Not: Google'ın onay ekranında kısa süre "tlxqkzfohcxiwezidsih.supabase.co"
-görünür. Kaldırmak için Supabase'in özel alan adı (Custom Domain) eklentisi
-gerekir; zorunlu değil.
+1. Yeni Gmail ile Google'dan kayıt → açılır pencerede "Ahmet Ekinci Akademi"
+   ve `ahmetekinciakademi.com` görünmeli (supabase.co yok) →
+   `/kayit/tamamla` → onayla → panel. Yönetim → öğrenci → "Verilen onaylar".
+2. E-postayla kayıtlı bir hesabın Gmail'iyle Google → doğrudan panel.
+3. Açılır pencereyi kapat → sayfada kal, hata yok.
+4. `panel.ahmetekinciakademi.com/giris` üzerinde de dene (ikinci origin).

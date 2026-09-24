@@ -7,7 +7,7 @@ import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { DogrulamaYenidenGonder } from "@/components/auth/DogrulamaYenidenGonder";
-import { GoogleIleDevam, VeyaAyirici } from "@/components/auth/GoogleIleDevam";
+import { GoogleIleDevam } from "@/components/auth/GoogleIleDevam";
 import { GOOGLE_GIRIS_ACIK } from "@/lib/bolumler";
 import { createClient } from "@/lib/supabase/client";
 import { oturumKaydet } from "@/app/oturum-actions";
@@ -97,9 +97,8 @@ export function GirisFormu({ hedef, baglantiHatasi = false }: { hedef: string; b
           Google girişi engelli). */}
       {GOOGLE_GIRIS_ACIK && (
         <SadeceWeb>
-          <div className="mt-6 flex flex-col gap-5">
+          <div className="mt-6">
             <GoogleIleDevam hedef={hedef} />
-            <VeyaAyirici />
           </div>
         </SadeceWeb>
       )}
