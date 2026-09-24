@@ -60,10 +60,10 @@ export function UlkeKoduSecici({
           gibi görünüyor. İki ayrı kutu yan yana durduğunda ülke kodu numaraya
           değil, kendi başına bir alana benziyordu.
         */
-        className="flex h-[50px] items-center gap-[6px] rounded-l-[11px] border border-r-0 border-ink/14 bg-white pr-[10px] pl-[13px] text-[15.5px] font-medium text-ink transition-colors hover:bg-mist"
+        className="flex h-11 items-center gap-[6px] rounded-l-[9px] border border-r-0 border-[#27272a] bg-[#111114] pr-[10px] pl-[12px] text-[15px] font-semibold text-[#d4d4d8] transition-colors hover:bg-[#18181b]"
       >
         {deger}
-        <span className={`text-[#8A90A0] transition-transform ${acik ? "rotate-180" : ""}`}>
+        <span className={`text-[#a1a1aa] transition-transform ${acik ? "rotate-180" : ""}`}>
           <Icon name="chevronDown" size={15} />
         </span>
       </button>
@@ -72,7 +72,7 @@ export function UlkeKoduSecici({
         <div
           role="listbox"
           aria-label="Ülke kodu"
-          className="absolute top-[calc(100%+6px)] left-0 z-30 max-h-[280px] w-[268px] overflow-y-auto overscroll-contain rounded-[13px] border border-ink/12 bg-white py-[6px] shadow-[0_18px_44px_rgba(10,13,24,0.16)]"
+          className="absolute top-[calc(100%+6px)] left-0 z-30 max-h-[280px] w-[268px] max-w-[calc(100vw-40px)] overflow-y-auto overscroll-contain rounded-[11px] border border-[#27272a] bg-[#111114] py-[6px] shadow-[0_18px_44px_rgba(0,0,0,0.55)]"
         >
           {ULKELER.map((u) => {
             const seciliMi = u.kod === deger;
@@ -86,17 +86,17 @@ export function UlkeKoduSecici({
                   onDegisim(u.kod);
                   setAcik(false);
                 }}
-                className="flex w-full items-center justify-between gap-3 px-[14px] py-[9px] text-left transition-colors hover:bg-mist"
-                style={{ background: seciliMi ? "rgba(28,86,243,0.08)" : undefined }}
+                className="flex w-full items-center justify-between gap-3 px-[14px] py-[9px] text-left transition-colors hover:bg-[#1c1c20]"
+                style={{ background: seciliMi ? "rgba(28,86,243,0.18)" : undefined }}
               >
-                <span className="truncate text-[14.5px]" style={{ color: seciliMi ? "#1C56F3" : "#3A3F4F" }}>
+                <span className="truncate text-[14.5px]" style={{ color: seciliMi ? "#c7d6ff" : "#d4d4d8" }}>
                   {u.ad}
                 </span>
                 {/* Kodlar mono ve sağa hizalı: göz aşağı inerken hep aynı
                     sütunda kalıyor, listeyi taramak kolaylaşıyor. */}
                 <span
                   className="flex-none font-mono text-[12.5px]"
-                  style={{ color: seciliMi ? "#1C56F3" : "#8A90A0" }}
+                  style={{ color: seciliMi ? "#c7d6ff" : "#a1a1aa" }}
                 >
                   {u.kod}
                 </span>

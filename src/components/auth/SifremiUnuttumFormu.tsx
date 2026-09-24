@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { authHatasi } from "@/lib/auth-hatalari";
 import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
@@ -9,12 +9,15 @@ import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { Icon } from "@/components/Icon";
 import { createClient } from "@/lib/supabase/client";
 import { SadeceWeb, SadeceUygulama } from "@/components/panel/SadeceWeb";
+import { ALAN, ALT_BASLIK, BAGLANTI, BASLIK, BIRINCIL, ETIKET } from "@/components/auth/stil";
 
 export function SifremiUnuttumFormu({ uyari }: { uyari?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState<string | null>(uyari ?? null);
+  const emailId = useId();
+  const hataId = useId();
 
   const handleSubmit = async () => {
     if (!email) return;
@@ -60,60 +63,71 @@ export function SifremiUnuttumFormu({ uyari }: { uyari?: string }) {
   };
 
   return (
-    <>
-      <div>
-        {/* Ok, metin karakteri olarak yazılıyordu ("←"); yazı tipine göre
-            kalınlığı ve dikey hizası satırdaki metinle tutmuyordu. */}
-        <Link
-          href="/giris"
-          className="inline-flex items-center gap-[7px] text-[13.5px] font-semibold text-[#5C6273] hover:text-brand"
-        >
-          <Icon name="arrowLeft" size={15} />
-          Girişe dön
-        </Link>
-        <h1 className="mt-5 font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">
-          Şifreni sıfırla
-        </h1>
-        <p className="mt-[10px] text-[15px] leading-[1.6] text-[#5C6273]">
-          Hesabına bağlı e-posta adresini yaz; sıfırlama bağlantısını hemen gönderelim. Bağlantı 30 dakika geçerli
-          olur.
-        </p>
-        <label className="mt-[26px] flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">E-posta</span>
+    <div>
+      {/* Ok gerçek ikon: metin karakteri ("←") yazı tipine göre kayıyordu. */}
+      <Link
+        href="/giris"
+        className="inline-flex items-center gap-[7px] rounded-[6px] py-1 text-[13px] font-semibold text-[#a1a1aa] hover:text-white"
+      >
+        <Icon name="arrowLeft" size={15} />
+        Girişe dön
+      </Link>
+      <h1 className={`mt-5 ${BASLIK}`}>Şifreni sıfırla</h1>
+      <p className={ALT_BASLIK}>
+        Hesabına bağlı e-posta adresini yaz; sıfırlama bağlantısını hemen gönderelim. Bağlantı 30 dakika geçerli olur.
+      </p>
+
+      <form
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (email && !yukleniyor) handleSubmit();
+        }}
+        className="mt-6 flex flex-col gap-4"
+        aria-busy={yukleniyor}
+      >
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={emailId} className={ETIKET}>
+            E-posta
+          </label>
           <input
+            id={emailId}
             type="email"
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            spellCheck={false}
             placeholder="ornek@sirket.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+            aria-describedby={hata ? hataId : undefined}
+            className={ALAN}
           />
-        </label>
-        {hata && (
-          <div className="mt-4">
-            <UyariKutusu mesaj={hata} />
-          </div>
-        )}
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!email || yukleniyor}
-          className="mt-6 h-[52px] w-full rounded-[11px] bg-brand text-base font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.28)] hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        </div>
+        {/* Süresi dolmuş bağlantıyla gelinmişse (uyari) bu bir bilgi, hata değil. */}
+        {hata && <UyariKutusu id={hataId} mesaj={hata} tur={hata === uyari ? "bilgi" : "hata"} />}
+        <button type="submit" disabled={!email || yukleniyor} className={BIRINCIL}>
           {yukleniyor ? "Gönderiliyor…" : "Sıfırlama bağlantısı gönder"}
         </button>
-        <p className="mt-[22px] text-sm leading-[1.6] text-[#656B7A]">
-          <SadeceWeb>
-            E-postana erişimin yoksa{" "}
-            <a href={whatsappLink(WHATSAPP_NUMARALAR[0].numara)} target="_blank" rel="noopener noreferrer">
-              WhatsApp&apos;tan yaz
-            </a>
-            ; kimliğini doğrulayıp adresi güncelleyelim.
-          </SadeceWeb>
-          <SadeceUygulama>
-            E-postana erişimin yoksa eğitmeninle iletişime geç; kimliğini doğrulayıp adresi güncelleyelim.
-          </SadeceUygulama>
-        </p>
-      </div>
-    </>
+      </form>
+
+      <p className="mt-6 text-[13px] leading-[1.6] text-[#a1a1aa]">
+        <SadeceWeb>
+          E-postana erişimin yoksa{" "}
+          <a
+            href={whatsappLink(WHATSAPP_NUMARALAR[0].numara)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={BAGLANTI}
+          >
+            WhatsApp&apos;tan yaz
+          </a>
+          ; kimliğini doğrulayıp adresi güncelleyelim.
+        </SadeceWeb>
+        <SadeceUygulama>
+          E-postana erişimin yoksa eğitmeninle iletişime geç; kimliğini doğrulayıp adresi güncelleyelim.
+        </SadeceUygulama>
+      </p>
+    </div>
   );
 }
