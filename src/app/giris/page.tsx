@@ -64,7 +64,7 @@ export default async function GirisPage({
   if (user) redirect(hedef);
 
   return (
-    <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
+    <AuthShell sekme="giris">
       <GirisFormu hedef={hedef} baglantiHatasi={hata === "1"} />
     </AuthShell>
   );

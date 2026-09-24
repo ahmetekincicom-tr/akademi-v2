@@ -21,7 +21,7 @@ export const ALAN_HATASI = "text-[12.5px] leading-[1.5] text-[#fca5a5]";
 
 /** Birincil eylem. */
 export const BIRINCIL =
-  "flex h-11 w-full items-center justify-center gap-2 rounded-[9px] bg-brand text-[14.5px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_8px_24px_-10px_rgba(28,86,243,0.9)] transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50";
+  "flex h-11 w-full items-center justify-center gap-2 rounded-[9px] bg-brand text-[14.5px] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60";
 
 /** İkincil eylem (koyu çerçeveli). */
 export const IKINCIL =
@@ -31,5 +31,6 @@ export const IKINCIL =
 export const BAGLANTI = "font-semibold text-[#c7d6ff] underline-offset-2 hover:text-white hover:underline";
 
 /** Başlık bloğu. */
-export const BASLIK = "font-heading text-[26px] leading-[1.15] font-semibold tracking-[-0.03em] text-[#fafafa]";
-export const ALT_BASLIK = "mt-2 text-[14.5px] leading-[1.6] text-[#a1a1aa]";
+/* Kartın içinde: sekmelerin altında yer aldığı için ölçülü. */
+export const BASLIK = "font-heading text-[22px] leading-[1.2] font-semibold tracking-[-0.025em] text-[#fafafa] sm:text-[24px]";
+export const ALT_BASLIK = "mt-1.5 text-[14px] leading-[1.6] text-[#a1a1aa]";

@@ -28,7 +28,7 @@ export function WhatsAppYuzenDugme() {
         gibi görünüyordu. -8 spread gölgeyi butonun altında tutuyor, kenara
         ulaşmıyor; yumuşak ama taşmayan bir marka gölgesi kalıyor.
       */
-      className="group fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_22px_-8px_rgba(37,211,102,0.6)] transition-transform duration-200 hover:scale-[1.06] active:scale-95 sm:right-6 sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] sm:h-[60px] sm:w-[60px]"
+      className="whatsapp-yuzen group fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_10px_22px_-8px_rgba(37,211,102,0.6)] transition-transform duration-200 hover:scale-[1.06] active:scale-95 sm:right-6 sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] sm:h-[60px] sm:w-[60px]"
     >
       <Icon name="whatsapp" size={30} className="sm:hidden" />
       <Icon name="whatsapp" size={32} className="hidden sm:block" />

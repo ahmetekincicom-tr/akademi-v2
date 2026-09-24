@@ -22,7 +22,7 @@ export default async function SifremiUnuttumPage({
   const { hata } = await searchParams;
 
   return (
-    <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
+    <AuthShell>
       {/* Süresi dolmuş ya da kullanılmış bağlantıyla gelenler buraya düşüyor;
           hiçbir açıklama olmadan boş forma bakmak kafa karıştırıyordu. */}
       <SifremiUnuttumFormu

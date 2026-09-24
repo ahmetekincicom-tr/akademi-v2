@@ -23,7 +23,7 @@ export default async function SifreBelirlePage() {
   if (!user) redirect("/sifremi-unuttum?hata=baglanti");
 
   return (
-    <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
+    <AuthShell>
       <SifreBelirleFormu />
     </AuthShell>
   );
