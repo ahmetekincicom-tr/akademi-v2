@@ -6,6 +6,7 @@ import { authHatasi } from "@/lib/auth-hatalari";
 import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
+import { DogrulamaYenidenGonder } from "@/components/auth/DogrulamaYenidenGonder";
 import { createClient } from "@/lib/supabase/client";
 import { oturumKaydet } from "@/app/oturum-actions";
 import { SadeceWeb } from "@/components/panel/SadeceWeb";
@@ -73,11 +74,20 @@ export function GirisFormu({ hedef, baglantiHatasi = false }: { hedef: string; b
         parametre daha önce hiç okunmuyordu; kişi sessizce boş formu görüyordu.
       */}
       {baglantiHatasi && !hata && (
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col gap-3">
           <UyariKutusu
             tur="bilgi"
             mesaj="Bağlantının süresi dolmuş ya da daha önce kullanılmış. Hesabını zaten doğruladıysan e-posta ve şifrenle giriş yapabilirsin."
           />
+          {/* Doğrulanmamış hesap için yeni bağlantı: aynı Supabase akışı. */}
+          <details className="rounded-[10px] border border-[#27272a] bg-[#0e0f12] px-[13px] py-[11px]">
+            <summary className="cursor-pointer text-[13.5px] font-semibold text-[#d4d4d8]">
+              Hesabım henüz doğrulanmadı, yeni bağlantı iste
+            </summary>
+            <div className="mt-3">
+              <DogrulamaYenidenGonder />
+            </div>
+          </details>
         </div>
       )}
 

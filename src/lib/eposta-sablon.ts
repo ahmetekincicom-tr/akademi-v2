@@ -46,6 +46,13 @@ export type BildirimIcerigi = {
    * düşülüyor — mail hiçbir zaman logosuz görünmüyor.
    */
   logo?: string | null;
+  /**
+   * Düğmenin altında, düğme çalışmazsa kopyalanabilecek düz bağlantı.
+   * İsteğe bağlı: yalnız auth şablonları açıyor (kurumsal filtreler ve bazı
+   * istemciler düğmeyi sıyırabiliyor). Varsayılan kapalı — diğer maillerin
+   * çıktısı değişmiyor.
+   */
+  yedekBaglanti?: boolean;
 };
 
 function kacir(s: string): string {
@@ -153,6 +160,14 @@ function html(i: BildirimIcerigi): string {
           <a href="${kacir(i.eylem.adres)}" style="display:inline-block;padding:12px 22px;font:600 14px/1 ${YAZI};color:#FFFFFF;text-decoration:none">${kacir(i.eylem.etiket)}</a>
         </td></tr>
       </table>`);
+
+    if (i.yedekBaglanti) {
+      // word-break: uzun token'lı adres dar ekranda kutudan taşmasın.
+      govde.push(
+        `<p style="margin:18px 0 0;font:400 12.5px/1.6 ${YAZI};color:${GRI}">Düğme çalışmazsa bu bağlantıyı tarayıcına kopyala:</p>`,
+        `<p style="margin:6px 0 0;font:400 12.5px/1.6 ${YAZI};word-break:break-all"><a href="${kacir(i.eylem.adres)}" style="color:${BRAND};text-decoration:underline">${kacir(i.eylem.adres)}</a></p>`,
+      );
+    }
   }
 
   return `<!doctype html>
