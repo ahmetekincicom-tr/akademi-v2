@@ -48,6 +48,7 @@ export type Database = {
       };
       categories: {
         Row: {
+          aciklama: string;
           ad: string;
           created_at: string;
           id: string;

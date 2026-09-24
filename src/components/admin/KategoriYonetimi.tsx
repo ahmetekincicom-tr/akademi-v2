@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBildirim } from "@/components/Bildirim";
-import { kategoriEkle, kategoriGuncelle, kategoriSil } from "@/app/kontrol-9f4x2k/(protected)/blog/actions";
+import {
+  kategoriAciklamaGuncelle,
+  kategoriEkle,
+  kategoriGuncelle,
+  kategoriSil,
+} from "@/app/kontrol-9f4x2k/(protected)/blog/actions";
 import type { Kategori } from "@/lib/yazilar";
 
 export function KategoriYonetimi({ kategoriler }: { kategoriler: (Kategori & { adet: number })[] }) {
@@ -11,6 +16,19 @@ export function KategoriYonetimi({ kategoriler }: { kategoriler: (Kategori & { a
   const bildir = useBildirim();
   const [yeniAd, setYeniAd] = useState("");
   const [islemde, setIslemde] = useState(false);
+  // Açıklaması düzenlenen kategori ve taslak metni.
+  const [aciklamaId, setAciklamaId] = useState<string | null>(null);
+  const [aciklama, setAciklama] = useState("");
+
+  const aciklamaKaydet = async (k: Kategori) => {
+    setIslemde(true);
+    const r = await kategoriAciklamaGuncelle(k.id, aciklama);
+    setIslemde(false);
+    if (r.error) return bildir.hata(r.error);
+    setAciklamaId(null);
+    bildir.basarili("Açıklama kaydedildi.");
+    router.refresh();
+  };
 
   const ekle = async () => {
     if (!yeniAd.trim()) return;
@@ -66,25 +84,65 @@ export function KategoriYonetimi({ kategoriler }: { kategoriler: (Kategori & { a
 
       <div className="mt-5 flex flex-col gap-2">
         {kategoriler.map((k) => (
-          <div key={k.id} className="flex items-center gap-3 rounded-[12px] border border-ink/10 bg-white p-3">
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[15px] font-semibold">{k.ad}</div>
-              <div className="font-mono text-[11px] text-[#8A90A0]">/{k.slug} · {k.adet} yazı</div>
+          <div key={k.id} className="rounded-[12px] border border-ink/10 bg-white p-3">
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[15px] font-semibold">{k.ad}</div>
+                <div className="font-mono text-[11px] text-[#8A90A0]">
+                  /{k.slug} · {k.adet} yazı{k.aciklama ? "" : " · açıklama yok"}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setAciklamaId(aciklamaId === k.id ? null : k.id);
+                  setAciklama(k.aciklama ?? "");
+                }}
+                className="rounded-[8px] border border-ink/13 bg-white px-3 py-[7px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+              >
+                Açıklama
+              </button>
+              <button
+                type="button"
+                onClick={() => yenidenAdlandir(k)}
+                className="rounded-[8px] border border-ink/13 bg-white px-3 py-[7px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+              >
+                Adı değiştir
+              </button>
+              <button
+                type="button"
+                onClick={() => sil(k)}
+                className="rounded-[8px] border border-ink/13 bg-white px-3 py-[7px] text-[13px] font-semibold text-[#5C6273] hover:border-danger/45 hover:text-danger"
+              >
+                Sil
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => yenidenAdlandir(k)}
-              className="rounded-[8px] border border-ink/13 bg-white px-3 py-[7px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
-            >
-              Adı değiştir
-            </button>
-            <button
-              type="button"
-              onClick={() => sil(k)}
-              className="rounded-[8px] border border-ink/13 bg-white px-3 py-[7px] text-[13px] font-semibold text-[#5C6273] hover:border-danger/45 hover:text-danger"
-            >
-              Sil
-            </button>
+            {aciklamaId === k.id && (
+              <div className="mt-3 flex flex-col gap-2 border-t border-ink/8 pt-3">
+                <span className="text-[12.5px] text-[#5C6273]">
+                  Kategori sayfasının başında görünür ve arama sonucundaki açıklama olarak kullanılır (2–3 cümle).
+                </span>
+                <textarea
+                  value={aciklama}
+                  onChange={(e) => setAciklama(e.target.value)}
+                  rows={3}
+                  maxLength={600}
+                  aria-label={`${k.ad} açıklaması`}
+                  className="w-full rounded-[10px] border border-ink/14 bg-white p-3 text-[14px] leading-[1.55] outline-none focus:border-brand"
+                />
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[11px] text-[#8A90A0]">{aciklama.length} karakter</span>
+                  <button
+                    type="button"
+                    onClick={() => aciklamaKaydet(k)}
+                    disabled={islemde}
+                    className="rounded-[8px] bg-brand px-4 py-[7px] text-[13px] font-semibold text-white hover:bg-ink disabled:opacity-50"
+                  >
+                    Kaydet
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ))}
         {kategoriler.length === 0 && (

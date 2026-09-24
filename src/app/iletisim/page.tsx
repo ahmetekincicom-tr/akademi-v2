@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
@@ -85,6 +86,63 @@ const kanallar: {
   { baslik: "Ofis", deger: ADRES_KART, altSatir: `${ADRES_ILCE} · ${OFIS_BINA}`, ikon: "pin" },
 ];
 
+/*
+  Form altındaki iki bölüm: süreç ve konu yönlendirmesi. SEO denetimi sayfayı
+  "ince içerik" diye işaretliyordu; metinler sitede zaten söylenen şeylerden
+  (dönüş süresi, Ankara ofisi / online görüşme, form konuları) kuruldu, yeni
+  bir vaat eklenmedi.
+*/
+const adimlar = [
+  {
+    baslik: "Yazın",
+    metin: `Formu doldurun ya da WhatsApp hattından (${WHATSAPP_NUMARALAR[0].gosterim}) yazın. Sesli görüşmeyi tercih ederseniz ${WHATSAPP_NUMARALAR[1].gosterim} numarasını arayabilirsiniz.`,
+  },
+  { baslik: "Dönüş", metin: "Mesajınıza genellikle aynı gün içinde dönüş yapıyoruz." },
+  {
+    baslik: "Birlikte karar",
+    metin: "Ankara ofisinde yüz yüze ya da online bir görüşmede hedeflerinizi konuşup size uygun programı birlikte belirliyoruz.",
+  },
+];
+
+const konuKartlari: {
+  baslik: string;
+  metin: string;
+  href: string;
+  eylem: string;
+  /**
+   * Aynı sayfaya dönen bağlantı: form konuyu adresten yalnız ilk yüklemede
+   * okuyor (IletisimFormu), istemci geçişinde seçim değişmezdi. Tam
+   * yüklemeyle sayfa en üstte, konu seçili açılıyor.
+   */
+  tamYukleme?: boolean;
+}[] = [
+  {
+    baslik: "Birebir eğitimler",
+    metin: "Programların içeriğini, süresini ve formatını inceleyin; aklınıza takılanı formdan sorun.",
+    href: "/egitimler",
+    eylem: "Eğitimleri incele",
+  },
+  {
+    baslik: "Kurumsal eğitim",
+    metin: "Ekibinize özel, Ankara'da yerinde ya da tamamen uzaktan dijital pazarlama eğitimi.",
+    href: "/kurumsal",
+    eylem: "Kurumsal eğitim",
+  },
+  {
+    baslik: "Ücretsiz ön görüşme",
+    metin: "Hangi programın size uyduğundan emin değilseniz önce kısa bir ön görüşmeyle başlayalım.",
+    href: "/iletisim/?konu=on-gorusme",
+    eylem: "Ön görüşme iste",
+    tamYukleme: true,
+  },
+  {
+    baslik: "Katılımcı paneli",
+    metin: "Kayıtlı katılımcılar derslerine ve dokümanlarına panelden ulaşır; teknik sorunlar için formda “Panel / teknik destek” konusunu seçin.",
+    href: "/giris",
+    eylem: "Panele giriş",
+  },
+];
+
 export default function IletisimPage() {
   return (
     <div className="bg-white">
@@ -167,6 +225,54 @@ export default function IletisimPage() {
                 <div key={k.baslik} className={ortak}>
                   {icerik}
                 </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-t border-ink/8 bg-[#FAFBFE]">
+        <div className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
+          <SectionKicker>Süreç</SectionKicker>
+          <h2 className="mt-[14px] font-heading text-[28px] leading-[1.12] font-semibold tracking-[-0.03em] sm:text-[34px]">
+            Nasıl ilerliyoruz?
+          </h2>
+          <ol className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {adimlar.map((a, i) => (
+              <li key={a.baslik} className="rounded-2xl border border-ink/10 bg-white p-6">
+                <span className="font-mono text-[12px] text-brand">0{i + 1}</span>
+                <h3 className="mt-2 font-heading text-[18px] font-semibold tracking-[-0.02em] text-ink">{a.baslik}</h3>
+                <p className="mt-2 text-[15px] leading-[1.6] text-[#5C6273]">{a.metin}</p>
+              </li>
+            ))}
+          </ol>
+
+          <h2 className="mt-16 font-heading text-[24px] leading-[1.15] font-semibold tracking-[-0.03em] sm:text-[28px]">
+            Hangi konuda yazabilirsiniz?
+          </h2>
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {konuKartlari.map((k) => {
+              const kart =
+                "group flex flex-col rounded-2xl border border-ink/10 bg-white p-6 transition hover:border-brand/40 hover:shadow-[0_14px_32px_rgba(10,13,24,0.07)]";
+              const icerik = (
+                <>
+                  <h3 className="font-heading text-[17px] font-semibold tracking-[-0.02em] text-ink">{k.baslik}</h3>
+                  <p className="mt-2 flex-1 text-[14.5px] leading-[1.6] text-[#5C6273]">{k.metin}</p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-brand">
+                    {k.eylem}
+                    <Icon name="arrowRight" size={14} />
+                  </span>
+                </>
+              );
+              return k.tamYukleme ? (
+                // Bilerek düz <a>: tam yükleme (bkz. tamYukleme).
+                <a key={k.baslik} href={k.href} className={kart}>
+                  {icerik}
+                </a>
+              ) : (
+                <Link key={k.baslik} href={k.href} className={kart}>
+                  {icerik}
+                </Link>
               );
             })}
           </div>
