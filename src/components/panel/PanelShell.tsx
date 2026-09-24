@@ -9,7 +9,7 @@ import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
 import type { PanelBildirimleri } from "@/lib/bildirimler";
-import { DERSLER_ACIK } from "@/lib/bolumler";
+import { DERSLER_ACIK, FIRSATLAR_ACIK } from "@/lib/bolumler";
 
 type MenuItem = {
   href: string;
@@ -58,6 +58,13 @@ const groups: MenuGroup[] = [
     ],
   },
   {
+    title: "Kariyer",
+    items: [
+      // Bayrak lib/bolumler.ts'te; ilk ilan yayına alınınca açılacak.
+      { href: "/panel/firsatlar", label: "İş fırsatları", icon: "briefcase", yakinda: !FIRSATLAR_ACIK },
+    ],
+  },
+  {
     title: "Hesap",
     items: [
       { href: "/panel/odemelerim", label: "Ödemelerim", icon: "card", uyari: true },
@@ -81,6 +88,7 @@ const pageTitles: Record<string, string> = {
   "/panel/duyurular": "Gündem",
   "/panel/gorusmeler": "Danışmanlık görüşmeleri",
   "/panel/soru-cevap": "Soru-cevap",
+  "/panel/firsatlar": "İş fırsatları",
   "/panel/yeni-egitimler": "Yeni eğitimler",
   "/panel/hesabim": "Hesabım",
 };
@@ -107,7 +115,9 @@ export function PanelShell({
     vurgusu ve başlık kayboluyordu. Çizgiyi kırpıp karşılaştırıyoruz.
   */
   const pathname = hamPathname.length > 1 ? hamPathname.replace(/\/+$/, "") : hamPathname;
-  const pageTitle = pageTitles[pathname] ?? "Panel";
+  // İlan detayı (/panel/firsatlar/<id>) listenin bir alt kademesi.
+  const ilanDetayi = pathname.startsWith("/panel/firsatlar/");
+  const pageTitle = ilanDetayi ? "İlan detayı" : (pageTitles[pathname] ?? "Panel");
   const [menuAcik, setMenuAcik] = useState(false);
   const native = useNativeUygulama();
 
@@ -148,7 +158,11 @@ export function PanelShell({
   }, [menuAcik]);
 
   const adimlar: BreadcrumbAdim[] =
-    pathname === "/panel" ? [{ label: "Panel" }] : [{ label: "Panel", href: "/panel" }, { label: pageTitle }];
+    pathname === "/panel"
+      ? [{ label: "Panel" }]
+      : ilanDetayi
+        ? [{ label: "Panel", href: "/panel" }, { label: "İş fırsatları", href: "/panel/firsatlar" }, { label: pageTitle }]
+        : [{ label: "Panel", href: "/panel" }, { label: pageTitle }];
 
   return (
     <div className="flex min-h-screen bg-paper">
@@ -262,7 +276,7 @@ export function PanelShell({
                 {g.title}
               </div>
               {g.items.map((m) => {
-                const active = pathname === m.href;
+                const active = pathname === m.href || (m.href === "/panel/firsatlar" && ilanDetayi);
                 const sayi = m.rozet ? bildirim.sayac[m.rozet] : 0;
                 // Ödeme sayı taşımıyor: "kaç tane" değil "hâlâ duruyor"
                 // bilgisi. Nokta o yüzden sayıdan ayrı.

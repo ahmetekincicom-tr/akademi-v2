@@ -143,6 +143,64 @@ export type Database = {
         Update: Partial<Database["public"]["Tables"]["duyurular"]["Row"]>;
         Relationships: [];
       };
+      is_ilanlari: {
+        Row: {
+          aciklama: string;
+          aranan_ozellikler: string[];
+          basvuru_adresi: string;
+          basvuru_tipi: string;
+          calisma_modeli: string;
+          calisma_tipi: string;
+          created_at: string;
+          durum: string;
+          id: string;
+          kategori: string;
+          olusturan: string | null;
+          one_cikan: boolean;
+          pozisyon: string;
+          sehir: string | null;
+          seviye: string;
+          sirket_adi: string;
+          sirket_logo: string | null;
+          sirket_web: string | null;
+          son_basvuru: string | null;
+          sorumluluklar: string[];
+          tercihen_ozellikler: string[];
+          ucret: string | null;
+          updated_at: string;
+          yayin_tarihi: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["is_ilanlari"]["Row"]> & {
+          basvuru_adresi: string;
+          basvuru_tipi: string;
+          calisma_modeli: string;
+          calisma_tipi: string;
+          pozisyon: string;
+          sirket_adi: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["is_ilanlari"]["Row"]>;
+        Relationships: [];
+      };
+      is_ilani_kayitlar: {
+        Row: { created_at: string; ilan_id: string; user_id: string };
+        Insert: Partial<Database["public"]["Tables"]["is_ilani_kayitlar"]["Row"]> & { ilan_id: string; user_id: string };
+        Update: Partial<Database["public"]["Tables"]["is_ilani_kayitlar"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "is_ilani_kayitlar_ilan_id_fkey";
+            columns: ["ilan_id"];
+            isOneToOne: false;
+            referencedRelation: "is_ilanlari";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      is_ilani_olaylar: {
+        Row: { created_at: string; gun: string; id: number; ilan_id: string; tur: string; user_id: string };
+        Insert: { ilan_id: string; tur: string; user_id: string; gun?: string; created_at?: string };
+        Update: Partial<Database["public"]["Tables"]["is_ilani_olaylar"]["Row"]>;
+        Relationships: [];
+      };
       egitim_kayit_arsivi: {
         Row: {
           aciklama: string | null;
@@ -1033,6 +1091,10 @@ export type Database = {
       };
     };
     Views: {
+      is_ilani_metrikleri: {
+        Row: { basvuru_tiklama: number; goruntulenme: number; ilan_id: string; kayit: number };
+        Relationships: [];
+      };
       banka_ayarlari: {
         Row: {
           aciklama: string | null;
