@@ -21,6 +21,7 @@ export function TelefonAlani({
   onNumara,
   hataId,
   gecersiz,
+  yardimGizli = false,
 }: {
   ulkeKodu: string;
   numara: string;
@@ -29,6 +30,8 @@ export function TelefonAlani({
   /** Alan hatası gösteriliyorsa onun id'si (aria-describedby). */
   hataId?: string;
   gecersiz?: boolean;
+  /** Yardım metni yalnız ekran okuyucuya (dar yerleşimlerde). */
+  yardimGizli?: boolean;
 }) {
   const id = useId();
   const yardimId = `${id}-yardim`;
@@ -49,16 +52,16 @@ export function TelefonAlani({
           type="tel"
           inputMode="numeric"
           autoComplete="tel-national"
-          placeholder={ulkeKodu === "+90" ? "532 123 45 67" : "Numara"}
+          placeholder={ulkeKodu === "+90" ? "5xx xxx xx xx" : "Numara"}
           value={numara}
           onChange={(e) => onNumara(okunurYaz(ulkeKodu, sadeceRakam(e.target.value)))}
           aria-describedby={[hataId, yardimId].filter(Boolean).join(" ")}
           aria-invalid={gecersiz || undefined}
-          className="h-11 min-w-0 flex-1 rounded-r-[9px] border border-[#27272a] bg-[#111114] px-[13px] text-[15px] text-[#fafafa] outline-none placeholder:text-[#71717a] hover:border-[#3f3f46] aria-[invalid=true]:border-[#f87171]"
+          className="h-11 min-w-0 flex-1 rounded-r-[9px] border border-[#27272a] bg-[#111114] px-[11px] text-[15px] tracking-[-0.01em] text-[#fafafa] outline-none placeholder:text-[#71717a] hover:border-[#3f3f46] aria-[invalid=true]:border-[#f87171]"
         />
       </div>
 
-      <span id={yardimId} className={YARDIM}>
+      <span id={yardimId} className={yardimGizli ? "sr-only" : YARDIM}>
         Seans hatırlatmaları için. Başında sıfır olmadan yazabilirsin.
       </span>
     </div>

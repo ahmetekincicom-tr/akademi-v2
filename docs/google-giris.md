@@ -12,8 +12,9 @@ alan adı eklentisi gerekmiyor.
 
 ## Akış
 
-1. `/giris` ya da `/kayit` → Google'ın kendi düğmesi
-   (`src/components/auth/GoogleIleDevam.tsx`).
+1. `/giris` ya da `/kayit` → "Google ile devam et" düğmesi
+   (`src/components/auth/GoogleIleDevam.tsx`): görünen kısım bizim tasarımımız,
+   tıklamayı üstündeki görünmez Google düğmesi (GIS iframe'i) alıyor.
 2. Google açılır pencere → ID token → `supabase.auth.signInWithIdToken`
    (nonce: Google'a SHA-256 özeti, Supabase'e ham değer).
 3. `oturumKaydet()` (giriş kaydı + hoş geldin maili) → hedef sayfa.
