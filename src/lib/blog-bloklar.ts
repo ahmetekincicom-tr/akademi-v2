@@ -9,12 +9,12 @@
  * `data` → HTML'de data-blok değeri (public renderer ve CSS bununla eşleşiyor).
  */
 
-export type BlokTipi = "infoBlock" | "warningBlock" | "tipBlock" | "promptBlock";
+export type BlokTipi = "infoBlock" | "warningBlock" | "tipBlock" | "promptBlock" | "kaynakBlock";
 
 export type BlokTanim = {
   tip: BlokTipi;
   /** HTML gövdesindeki data-blok değeri. */
-  data: "info" | "warning" | "tip" | "prompt";
+  data: "info" | "warning" | "tip" | "prompt" | "kaynak";
   /** Blok içinde görünen varsayılan etiket. */
   etiket: string;
   /** "Blok Ekle" menüsündeki ad. */
@@ -28,4 +28,6 @@ export const BLOKLAR: BlokTanim[] = [
   { tip: "warningBlock", data: "warning", etiket: "Dikkat", menu: "Uyarı", komut: "uyari" },
   { tip: "tipBlock", data: "tip", etiket: "Ahmet'in Notu", menu: "İpucu", komut: "ipucu" },
   { tip: "promptBlock", data: "prompt", etiket: "Örnek Prompt", menu: "Prompt", komut: "prompt" },
+  // Kaynak: gövdesi yok, alanları (ad/url/not) node attribute'u — atom blok.
+  { tip: "kaynakBlock", data: "kaynak", etiket: "Kaynak", menu: "Kaynak", komut: "kaynak" },
 ];

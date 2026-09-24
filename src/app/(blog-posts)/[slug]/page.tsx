@@ -30,6 +30,7 @@ import { EgitimCta } from "@/components/blog/EgitimCta";
 import { PromptKopyala } from "@/components/blog/PromptKopyala";
 import { GorselLightbox } from "@/components/blog/GorselLightbox";
 import { BlogAnalitik } from "@/components/blog/BlogAnalitik";
+import { OkumaIlerleme } from "@/components/blog/OkumaIlerleme";
 import { mutlakDepoUrl } from "@/lib/depo";
 import { sayfaMeta, makaleSemasi, kirintiSemasi, SITE_URL } from "@/lib/seo";
 
@@ -193,6 +194,8 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(semalar) }} />
       <div className="bg-white">
         <PublicHeader />
+        {/* Okuma ilerlemesi: yapışkan başlığın hemen altında ince çizgi. */}
+        <OkumaIlerleme />
 
         {/*
           Masaüstü (≥1024px): iki kolon — içerik (≤760px) + sticky sidebar

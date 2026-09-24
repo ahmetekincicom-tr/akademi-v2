@@ -1,7 +1,11 @@
-import { Node, mergeAttributes, InputRule, type Editor } from "@tiptap/core";
+import { Node, mergeAttributes, InputRule, type Editor, type CommandProps } from "@tiptap/core";
 import CodeBlock from "@tiptap/extension-code-block";
-import { TextSelection } from "@tiptap/pm/state";
+import { NodeSelection, TextSelection } from "@tiptap/pm/state";
+import type { DOMOutputSpec } from "@tiptap/pm/model";
+import { ReactNodeViewRenderer } from "@tiptap/react";
 import { BLOKLAR, type BlokTipi } from "@/lib/blog-bloklar";
+import { kaynakBaglanti, KAYNAK_REL } from "@/lib/blog-kaynak";
+import { KaynakGorunum } from "@/components/admin/tiptap/KaynakGorunum";
 
 /**
  * Blog için özel Tiptap blokları: Bilgi, Uyarı (Dikkat), İpucu (Ahmet'in Notu)
@@ -169,7 +173,105 @@ export const PromptBlock = CodeBlock.extend({
   },
 });
 
-export const BlogBloklari = [InfoBlock, WarningBlock, TipBlock, PromptBlock];
+/* ------------------------------------------------------------- Kaynak --- */
+/*
+  Kaynak (atıf) kutusu. Diğer bloklardan farklı olarak serbest metin gövdesi
+  yok: yapılandırılmış üç alan (ad, url, not) node attribute'u olarak JSON'da
+  saklanıyor — bu yüzden `atom`. Böylece içerik yapısı semantik kalıyor
+  (JSON'da `kaynakBlock`), tasarım değişse de veri korunuyor.
+
+  Public HTML: renderHTML. Başlık h2/h3 DEĞİL (<div>), bu yüzden İçindekiler
+  toplamıyor. Link yalnız güvenli http(s) ise yazılıyor, yeni sekme + rel.
+  Editör: React NodeView (KaynakGorunum) — alanlar kartın içinde yerinde.
+  Bir yazıda istenildiği kadar kaynak kutusu kullanılabilir.
+*/
+export const KaynakBlock = Node.create({
+  name: "kaynakBlock",
+  group: "block",
+  atom: true,
+  selectable: true,
+  draggable: true,
+
+  addAttributes() {
+    // Değerler data-* üzerinden round-trip ediliyor; data yoksa (elle yazılmış
+    // HTML) görünen metinden okunuyor. DOM'a yazım renderHTML içinde.
+    const metinAlani = (ad: "ad" | "not", secici: string) => ({
+      default: "",
+      parseHTML: (el: HTMLElement) =>
+        el.getAttribute(`data-${ad}`) ?? (el.querySelector(secici)?.textContent ?? "").trim(),
+      renderHTML: () => ({}),
+    });
+    return {
+      ad: metinAlani("ad", ".aea-kaynak__ad"),
+      not: metinAlani("not", ".aea-kaynak__not"),
+      url: {
+        default: "",
+        parseHTML: (el: HTMLElement) =>
+          el.getAttribute("data-url") ?? el.querySelector("a.aea-kaynak__link")?.getAttribute("href") ?? "",
+        renderHTML: () => ({}),
+      },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'aside[data-blok="kaynak"]' }];
+  },
+
+  renderHTML({ node }) {
+    const ad = String(node.attrs.ad ?? "").trim();
+    const url = String(node.attrs.url ?? "").trim();
+    const not = String(node.attrs.not ?? "").trim();
+    const baglanti = kaynakBaglanti(url);
+
+    const kok: Record<string, string> = {
+      class: "aea-blok aea-blok--kaynak",
+      "data-blok": "kaynak",
+      "data-ad": ad,
+      "data-url": url,
+      "data-not": not,
+    };
+    // Boş kutu (ne ad ne geçerli link) yayında gizlenir (CSS: [data-bos]).
+    if (!ad && !baglanti) kok["data-bos"] = "1";
+
+    const cocuklar: DOMOutputSpec[] = [
+      [
+        "div",
+        { class: "aea-blok__ust" },
+        ["span", { class: "aea-blok__ikon", "aria-hidden": "true" }],
+        ["span", { class: "aea-blok__etiket" }, "Kaynak"],
+      ],
+    ];
+    if (ad) cocuklar.push(["div", { class: "aea-kaynak__ad" }, ad]);
+    if (not) cocuklar.push(["div", { class: "aea-kaynak__not" }, not]);
+    if (baglanti) {
+      cocuklar.push([
+        "div",
+        { class: "aea-kaynak__alt" },
+        ["a", { class: "aea-kaynak__link", href: baglanti.href, target: "_blank", rel: KAYNAK_REL }, "Kaynağı görüntüle"],
+        ["span", { class: "aea-kaynak__alan" }, baglanti.alan],
+      ]);
+    }
+    return ["aside", kok, ...cocuklar];
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(KaynakGorunum);
+  },
+
+  addInputRules() {
+    // `/kaynak ` → boş kaynak kutusu ekle ve seç (alanlar hemen düzenlenir).
+    return [
+      new InputRule({
+        find: slashDeseni("kaynak"),
+        handler: ({ range, chain }) => {
+          chain().deleteRange(range).command(blokEkleKomutu("kaynakBlock")).run();
+        },
+      }),
+    ];
+  },
+});
+
+export const BlogBloklari = [InfoBlock, WarningBlock, TipBlock, PromptBlock, KaynakBlock];
 
 /* --------------------------------------------------------- yardımcılar --- */
 
@@ -181,24 +283,42 @@ export const BlogBloklari = [InfoBlock, WarningBlock, TipBlock, PromptBlock];
  * taşıyoruz.
  */
 export function blokEkle(editor: Editor, tip: BlokTipi): void {
-  editor
-    .chain()
-    .focus()
-    .command(({ tr, state, dispatch }) => {
-      const type = state.schema.nodes[tip];
-      if (!type) return false;
-      const node = type.createAndFill();
-      if (!node) return false;
-      if (dispatch) {
-        const pos = tr.selection.from;
-        tr.replaceSelectionWith(node, false);
+  editor.chain().focus().command(blokEkleKomutu(tip)).run();
+}
+
+/**
+ * Blok ekleme komutu (menü, slash menüsü ve `/komut ` kuralları ortak).
+ *
+ * İçerikli bloklarda (Bilgi/Uyarı/İpucu/Prompt) imleç bloğun içine konur —
+ * önceki davranışın aynısı. Atom bloklarda (Kaynak) içine yazılamadığı için
+ * node SEÇİLİR; editör görünümü seçili boş kaynakta ilk alanı odaklar.
+ */
+function blokEkleKomutu(tip: BlokTipi) {
+  return ({ tr, state, dispatch }: CommandProps): boolean => {
+    const type = state.schema.nodes[tip];
+    if (!type) return false;
+    const node = type.createAndFill();
+    if (!node) return false;
+    if (dispatch) {
+      const pos = tr.selection.from;
+      tr.replaceSelectionWith(node, false);
+      if (node.isAtom) {
+        // Eklenen node aynı nesne olarak belgede duruyor; konumunu bul ve seç.
+        let bulunan = -1;
+        tr.doc.descendants((n, p) => {
+          if (bulunan === -1 && n === node) bulunan = p;
+          return bulunan === -1;
+        });
+        if (bulunan >= 0) tr.setSelection(NodeSelection.create(tr.doc, bulunan));
+        tr.scrollIntoView();
+      } else {
         // Yeni bloğun ilk içerik konumuna (pos + 1) en yakın metin seçimi.
         const sel = TextSelection.near(tr.doc.resolve(Math.min(pos + 1, tr.doc.content.size)));
         tr.setSelection(sel).scrollIntoView();
       }
-      return true;
-    })
-    .run();
+    }
+    return true;
+  };
 }
 
 /**

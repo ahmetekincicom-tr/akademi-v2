@@ -12,7 +12,7 @@ import { blokEkle } from "@/components/admin/tiptap/BlogBloklari";
  * "/" slash komut menüsü.
  *
  * Metin akışını bölmeden hızlı blok ekleme: boş bir paragrafta `/` yazınca
- * filtrelenebilir bir menü açılır (H2, H3, Görsel, Bilgi, Uyarı, Ahmet'in Notu,
+ * filtrelenebilir bir menü açılır (H2, H3, Görsel, Bilgi, Uyarı, Ahmet'in Notu, Kaynak,
  * Prompt). Her madde MEVCUT editör komutlarına/`blokEkle` yardımcısına bağlı;
  * yeni veri yapısı ya da yeni node tanımı YOK. Görsel yükleme akışı editörde
  * zaten var olan dosya seçiciyi tetikliyor (onGorsel).
@@ -27,7 +27,7 @@ export type SlashItem = {
   /** Menüde solda görünen kısa rozet (H2, H3 vb.) — yoksa nokta gösterilir. */
   rozet?: string;
   /** Kutu blokları için ikon sınıfı aksanı (info/warning/tip/prompt). */
-  ikonData?: "info" | "warning" | "tip" | "prompt";
+  ikonData?: "info" | "warning" | "tip" | "prompt" | "kaynak";
   arama: string[];
   komut: (editor: Editor, range: Range) => void;
 };
@@ -101,6 +101,16 @@ function maddeler(opts: SlashSecenek): SlashItem[] {
       ikonData: "prompt",
       arama: ["prompt", "komut", "örnek", "ornek"],
       komut: (e, r) => e.chain().focus().deleteRange(r).setNode("promptBlock").run(),
+    },
+    {
+      baslik: "Kaynak",
+      aciklama: "Atıf / kaynak kutusu",
+      ikonData: "kaynak",
+      arama: ["kaynak", "kaynakca", "kaynakça", "atif", "atıf", "referans", "source"],
+      komut: (e, r) => {
+        e.chain().focus().deleteRange(r).run();
+        blokEkle(e, "kaynakBlock");
+      },
     },
   ];
 }
