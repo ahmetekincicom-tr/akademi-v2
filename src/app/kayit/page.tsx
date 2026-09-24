@@ -18,7 +18,7 @@ export function generateMetadata(): Promise<Metadata> {
 
 export default function KayitPage() {
   return (
-    <AuthShell topText="Zaten hesabın var mı?" topLinkLabel="Giriş yap" topLinkHref="/giris">
+    <AuthShell sekme="kayit">
       <KayitFormu />
     </AuthShell>
   );

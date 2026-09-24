@@ -26,7 +26,7 @@ export default async function EPostaKontrolPage({
   const { email } = await searchParams;
 
   return (
-    <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
+    <AuthShell>
       <div className="text-center">
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[14px] border border-brand/40 bg-brand/15 text-[#8fb0ff]">
           <Icon name="mail" size={22} />

@@ -5,7 +5,7 @@ import { ALT_BASLIK, BASLIK, BIRINCIL, IKINCIL } from "@/components/auth/stil";
 
 export default function SifreBelirleTamamPage() {
   return (
-    <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
+    <AuthShell>
       <div className="text-center" role="status">
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[14px] bg-brand text-white shadow-[0_12px_28px_-8px_rgba(28,86,243,0.7)]">
           <Icon name="check" size={24} strokeWidth={2.6} />

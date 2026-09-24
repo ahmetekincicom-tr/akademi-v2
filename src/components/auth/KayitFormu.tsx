@@ -129,8 +129,8 @@ export function KayitFormu() {
         className="mt-7 flex flex-col gap-4"
         aria-busy={yukleniyor}
       >
-        {/* Çok dar ekranda iki sütun isimleri okunmaz yapıyordu: 380px altı tek sütun. */}
-        <div className="grid grid-cols-1 gap-4 min-[380px]:grid-cols-2 min-[380px]:gap-3">
+        {/* Mobilde alt alta, 640px ve üstünde yan yana. */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-3">
           <div className="flex min-w-0 flex-col gap-1.5">
             <label htmlFor={`${kimlik}-ad`} className={ETIKET}>
               Ad
@@ -218,7 +218,9 @@ export function KayitFormu() {
           kutuya konursa izin geçersiz olur; kaydolmanın şartı haline getirilmesi
           de aynı kapıya çıkıyor. Bu yüzden düğme yalnızca birincisine bakıyor.
         */}
-        <div className="mt-1 flex flex-col gap-3">
+        <fieldset className="mt-1 flex flex-col gap-3 rounded-[12px] border border-white/[0.07] bg-[#0a0c12] p-3.5">
+          <legend className="sr-only">Onaylar</legend>
+          <span className="font-mono text-[10.5px] tracking-[0.12em] text-[#8b8b95] uppercase">Zorunlu</span>
           <CheckToggle checked={sozlesme} onToggle={() => setSozlesme((v) => !v)} align="start">
             <Link href="/uyelik-sozlesmesi" target="_blank" className={`underline ${BAGLANTI}`}>
               Üyelik ve Kullanım Sözleşmesi
@@ -230,23 +232,19 @@ export function KayitFormu() {
             {"'ni okudum, kabul ediyorum."}
           </CheckToggle>
 
+          <span className="mt-1 border-t border-white/[0.06] pt-3 font-mono text-[10.5px] tracking-[0.12em] text-[#8b8b95] uppercase">
+            İsteğe bağlı
+          </span>
           <CheckToggle checked={iletiIzni} onToggle={() => setIletiIzni((v) => !v)} align="start">
             Kampanya, duyuru ve yeni eğitimlerden e-posta ile haberdar olmak istiyorum.{" "}
-            <span className="text-[#71717a]">(isteğe bağlı, sonradan kapatabilirsin)</span>
+            <span className="text-[#8b8b95]">Sonradan kapatabilirsin.</span>
           </CheckToggle>
-        </div>
+        </fieldset>
 
         <button type="submit" disabled={!sozlesme || yukleniyor} className={`${BIRINCIL} mt-1`}>
           {yukleniyor ? "Hesap oluşturuluyor…" : "Hesabı oluştur"}
         </button>
       </form>
-
-      <p className="mt-6 text-center text-[13.5px] text-[#a1a1aa]">
-        Zaten hesabın var mı?{" "}
-        <Link href="/giris" className={BAGLANTI}>
-          Giriş yap
-        </Link>
-      </p>
     </div>
   );
 }
