@@ -25,11 +25,13 @@ export const DERSLER_ACIK = false;
 export const FIRSATLAR_ACIK = false;
 
 /**
- * Google ile giriş / kayıt.
+ * Google ile giriş / kayıt (Google Identity Services + signInWithIdToken).
  *
- * Supabase → Authentication → Providers → Google açılıp Google Cloud OAuth
- * istemcisi girilene kadar KAPALI: sağlayıcı kapalıyken düğme, Supabase'in
- * ham JSON hata sayfasına götürüyor. Kurulum bitince true yapılacak
- * (adımlar: docs/google-giris.md).
+ * Google Cloud'daki OAuth "Web application" istemcisinin Client ID'si. GİZLİ
+ * DEĞİL (sayfada zaten görünür); Vercel → Environment Variables →
+ * NEXT_PUBLIC_GOOGLE_CLIENT_ID. Boşken düğme hiç çizilmiyor — değişken
+ * girilip yeniden deploy edilince kendiliğinden açılıyor.
+ * Kurulum: docs/google-giris.md
  */
-export const GOOGLE_GIRIS_ACIK = false;
+export const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ?? "";
+export const GOOGLE_GIRIS_ACIK = GOOGLE_CLIENT_ID.length > 0;
