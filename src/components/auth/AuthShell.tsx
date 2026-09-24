@@ -1,14 +1,23 @@
 import Link from "next/link";
 import { ON_YUZ_ACIK } from "@/proxy";
 import { Logo } from "@/components/site/Logo";
-import { UygulamadaPasif } from "@/components/panel/SadeceWeb";
+import { SadeceWeb, UygulamadaPasif } from "@/components/panel/SadeceWeb";
+import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
 
-const solStats = [
-  { n: "400+", t: "katılımcı" },
-  { n: "5 yıl", t: "birebir eğitim" },
-  { n: "24/7", t: "panel erişimi" },
-];
-
+/**
+ * Oturum ekranlarının kabuğu — koyu, ortalanmış, sade (giriş, kayıt, şifre
+ * sıfırlama ve bunların sonuç ekranları).
+ *
+ * Tek sütun: solda duran tanıtım paneli kaldırıldı; bu ekranlara gelen kişi
+ * zaten katılımcı, ikna değil geçiş arıyor. Form ~360 px'te ortada, yükseklik
+ * 100dvh — mobilde tarayıcı çubuğu açılıp kapanınca zıplamıyor. İçerik
+ * ekrandan uzunsa (klavye açıkken, kayıt formu) sayfa normal kayıyor; hiçbir
+ * yerde dikey taşma kırpılmıyor.
+ *
+ * Renkler proje token'larından (brand, font-heading); koyu zemin ve gri
+ * tonları yalnız bu kabukta. `auth-koyu` sınıfı odak halkasını koyu zemine
+ * göre güçlendiriyor (globals.css).
+ */
 export function AuthShell({
   topText,
   topLinkLabel,
@@ -21,78 +30,70 @@ export function AuthShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-paper">
+    <div className="auth-koyu relative flex min-h-[100dvh] flex-col overflow-x-clip bg-[#08090c] text-[#fafafa] antialiased">
       {/*
         Durum çubuğu şeridi — panel ve yönetim ekranlarındakiyle aynı. Uygulama
-        tam ekran çalıştığı için saat ve piller sayfanın üstüne biniyor; arkası
-        açık kalınca beyaz sistem yazısı okunmuyordu.
-
+        tam ekran çalıştığında saat ve piller sayfanın üstüne biniyor.
         Tarayıcıda env() sıfır döndüğü için yüksekliği sıfır — web değişmiyor.
       */}
       <div aria-hidden className="fixed inset-x-0 top-0 z-[45] h-[env(safe-area-inset-top)] bg-brand" />
-      <aside className="relative hidden w-[46%] max-w-[640px] flex-none flex-col justify-between overflow-hidden bg-ink p-11 px-11 pt-[calc(38px+env(safe-area-inset-top))] pb-[calc(40px+env(safe-area-inset-bottom))] text-white lg:flex">
-        <div
-          className="bg-grid-dark absolute inset-0"
-          style={{
-            backgroundSize: "64px 64px",
-            maskImage: "radial-gradient(120% 80% at 25% 20%, #000 30%, transparent 78%)",
-            WebkitMaskImage: "radial-gradient(120% 80% at 25% 20%, #000 30%, transparent 78%)",
-          }}
-        />
-        <div className="absolute -bottom-50 -left-30 h-[560px] w-[560px] rounded-full bg-brand opacity-20 blur-[120px]" />
 
-        {/* Uygulamada logo tıklanmıyor: pazarlama sitesine açılan kapı olurdu. */}
+      {/* Üstte hafif mavi ışıma: dekoratif, tıklamaları engellemiyor. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-[-340px] left-1/2 h-[600px] w-[1100px] max-w-none -translate-x-1/2 rounded-[50%]"
+        style={{ background: "radial-gradient(closest-side, rgba(28,86,243,0.24), transparent)" }}
+      />
+
+      <header className="relative flex flex-wrap items-center justify-between gap-x-4 gap-y-3 px-5 pt-[calc(20px+env(safe-area-inset-top))] pb-2 sm:px-9 sm:pt-[calc(28px+env(safe-area-inset-top))]">
+        {/* Uygulamada logo tıklanmıyor: pazarlama sitesine açılan kapı olurdu.
+            Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor. */}
         <UygulamadaPasif>
-          {/* Ön yüz kapalıyken logo ana sayfaya değil giriş ekranına bakıyor;
-              aksi halde tıklayan kişi yönlendirmeyle buraya geri düşüyordu. */}
-          <Logo href={ON_YUZ_ACIK ? "/" : "/giris"} variant="light" yer="giris" subline="Öğrenci paneli" />
+          <Logo href={ON_YUZ_ACIK ? "/" : "/giris"} variant="light" yer="baslik" subline="Öğrenci paneli" />
         </UygulamadaPasif>
-
-        <div className="relative max-w-[460px]">
-          <h2 className="font-heading text-[32px] leading-[1.08] font-semibold tracking-[-0.035em] sm:text-[38px]">
-            Eğitimin bittiği yerde <span className="text-brand">panel başlıyor.</span>
-          </h2>
-          <p className="mt-5 text-[16px] leading-[1.65] text-white/62">
-            Ders kayıtların, şablonlar, birebir seans takvimin ve soru-cevap kanalı tek yerde. Katılımcı hesabınla
-            giriş yap.
-          </p>
-          <div className="mt-[34px] rounded-[15px] border border-white/13 bg-white/4 px-6 py-[22px]">
-            <div className="font-heading text-2xl leading-none text-brand">&ldquo;</div>
-            <p className="mt-3 text-[15.5px] leading-[1.65] text-white/85">
-              Eğitim sonrasında da her zaman destek vereceğini garanti etmesi insanı güvende hissettiriyor.
-            </p>
-            <div className="mt-[18px]">
-              <span className="block text-sm font-semibold">Seren Aker</span>
-              <span className="mt-[3px] block font-mono text-[10.5px] text-white/45">Lojistik</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative flex gap-9">
-          {solStats.map((s) => (
-            <div key={s.t}>
-              <div className="font-heading text-[22px] font-semibold tracking-[-0.025em]">{s.n}</div>
-              <div className="mt-1 text-[12.5px] text-white/50">{s.t}</div>
-            </div>
-          ))}
-        </div>
-      </aside>
-
-      <main className="flex min-w-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center justify-end gap-4 px-6 pt-[calc(24px+env(safe-area-inset-top))] sm:px-10">
-          <span className="text-sm text-[#5C6273]">{topText}</span>
+        {/* <div>, <p> değil: globals.css'teki "p a" kuralı bağlantının altını çiziyordu. */}
+        <div className="text-[13.5px] text-[#a1a1aa]">
+          {topText}{" "}
           <Link
             href={topLinkHref}
-            className="inline-flex h-[38px] items-center rounded-[9px] border border-ink/13 bg-white px-4 text-sm font-semibold text-ink hover:border-brand hover:text-brand"
+            className="inline-flex items-center rounded-[6px] py-2 font-semibold text-white hover:text-[#c7d6ff]"
           >
-            {topLinkLabel}
+            {topLinkLabel} <span aria-hidden className="ml-1">→</span>
           </Link>
         </div>
+      </header>
 
-        <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
-          <div className="w-full max-w-[452px]">{children}</div>
-        </div>
+      <main className="relative flex flex-1 flex-col px-5 py-8 sm:py-12">
+        {/* my-auto: kısa içerik ortada, uzun içerik üstten başlayıp kayıyor. */}
+        <div className="mx-auto my-auto w-full max-w-[360px]">{children}</div>
       </main>
+
+      {/* Mobilde alt boşluk sağ alttaki WhatsApp düğmesini (56px) aşacak kadar:
+          yoksa düğme "Destek" bağlantısının üstüne biniyordu. */}
+      <footer className="relative px-5 pt-4 pb-[calc(84px+env(safe-area-inset-bottom))] sm:pb-[calc(24px+env(safe-area-inset-bottom))]">
+        <nav aria-label="Yasal ve destek" className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[12.5px]">
+          <Link href="/uyelik-sozlesmesi" className="py-1 text-[#a1a1aa] hover:text-white">
+            Kullanım Koşulları
+          </Link>
+          <Link href="/gizlilik-politikasi" className="py-1 text-[#a1a1aa] hover:text-white">
+            Gizlilik
+          </Link>
+          <Link href="/kisisel-verilerin-islenmesi" className="py-1 text-[#a1a1aa] hover:text-white">
+            KVKK
+          </Link>
+          {/* Uygulamada dış bağlantı yok (App Store yönergesi; bkz. SadeceWeb). */}
+          <SadeceWeb>
+            <a
+              href={whatsappLink(WHATSAPP_NUMARALAR[0].numara)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="py-1 text-[#a1a1aa] hover:text-white"
+            >
+              Destek
+            </a>
+          </SadeceWeb>
+        </nav>
+      </footer>
     </div>
   );
 }

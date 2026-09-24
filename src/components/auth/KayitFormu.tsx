@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { authHatasi } from "@/lib/auth-hatalari";
 import { useRouter } from "next/navigation";
@@ -11,6 +11,10 @@ import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
 import { Icon } from "@/components/Icon";
 import { VARSAYILAN_ULKE, e164, telefonGecerliMi } from "@/lib/telefon";
+import { ALAN, ALAN_HATASI, ALT_BASLIK, BAGLANTI, BASLIK, BIRINCIL, ETIKET, IKINCIL, YARDIM } from "@/components/auth/stil";
+
+/** handleSubmit'in telefon mesajı; alanın yanında gösterilsin diye adlı. */
+const TELEFON_HATASI = "Telefon numaranı kontrol eder misin?";
 
 export function KayitFormu() {
   const router = useRouter();
@@ -28,9 +32,23 @@ export function KayitFormu() {
 
   const telefonTamam = telefonGecerliMi(ulkeKodu, telefon);
 
+  // Sunum: kimlikler (label/aria-describedby) ve telefon hatasının genel
+  // kutu yerine alanın yanında gösterilmesi.
+  const kimlik = useId();
+  const hataId = `${kimlik}-hata`;
+  const telefonHataId = `${kimlik}-tel-hata`;
+  const telefonHatasi = hata === TELEFON_HATASI;
+  const genelHata = hata !== null && !telefonHatasi;
+  const sonucBaslik = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    // Form yerini sonuç ekranına bırakınca odak başlığa: ekran okuyucu
+    // değişikliği duyurur, klavye kullanıcısı sayfanın başından devam eder.
+    if (gonderildi) sonucBaslik.current?.focus();
+  }, [gonderildi]);
+
   const handleSubmit = async () => {
     if (!telefonTamam) {
-      setHata("Telefon numaranı kontrol eder misin?");
+      setHata(TELEFON_HATASI);
       return;
     }
     setYukleniyor(true);
@@ -66,21 +84,19 @@ export function KayitFormu() {
 
   if (gonderildi) {
     return (
-      <div>
-        <span className="flex h-13 w-13 items-center justify-center rounded-2xl bg-brand/12 text-brand">
+      <div className="text-center" role="status" aria-live="polite">
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[14px] border border-brand/40 bg-brand/15 text-[#8fb0ff]">
           <Icon name="mail" size={22} />
         </span>
-        <h1 className="mt-6 font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">
+        <h1 ref={sonucBaslik} tabIndex={-1} className={`mt-6 outline-none ${BASLIK}`}>
           E-postana bir bağlantı gönderdik
         </h1>
-        <p className="mt-[10px] text-[15px] leading-[1.6] text-[#5C6273]">
-          <span className="font-semibold text-ink">{email}</span> adresine gönderdiğimiz bağlantıya tıklayarak
-          hesabını doğrula. Doğruladıktan sonra doğrudan panele yönlendirileceksin.
+        <p className={`${ALT_BASLIK} mt-3`}>
+          <span className="font-semibold break-all text-[#fafafa]">{email}</span> adresine gönderdiğimiz bağlantıya
+          tıklayarak hesabını doğrula. Doğruladıktan sonra doğrudan panele yönlendirileceksin.
         </p>
-        <Link
-          href="/giris"
-          className="mt-[26px] flex h-[50px] w-full items-center justify-center rounded-[11px] border border-ink/14 bg-white text-[15px] font-semibold text-ink hover:border-brand hover:text-brand"
-        >
+        <p className={`${YARDIM} mt-4`}>Birkaç dakika içinde gelmezse spam klasörüne de bak.</p>
+        <Link href="/giris" className={`${IKINCIL} mt-7`}>
           Girişe dön
         </Link>
       </div>
@@ -89,56 +105,90 @@ export function KayitFormu() {
 
   return (
     <div>
-      <h1 className="font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">Hesabını oluştur</h1>
-      <p className="mt-[10px] text-[15px] text-[#5C6273]">
-        Eğitim kaydın sonrası aldığın davet e-postasındaki bilgilerle hesabını tamamla.
-      </p>
-
-      {/* Dar ekranda iki sütun 150px'e düşüp isim alanları okunmaz oluyordu. */}
-      <div className="mt-[26px] grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Ad</span>
-          <input
-            type="text"
-            autoComplete="given-name"
-            placeholder="Selin"
-            value={ad}
-            onChange={(e) => setAd(e.target.value)}
-            className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
-          />
-        </label>
-        <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Soyad</span>
-          <input
-            type="text"
-            autoComplete="family-name"
-            placeholder="Kaya"
-            value={soyad}
-            onChange={(e) => setSoyad(e.target.value)}
-            className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
-          />
-        </label>
+      <div className="text-center">
+        <h1 className={BASLIK}>Hesabını oluştur</h1>
+        <p className={ALT_BASLIK}>Eğitim kaydın sonrası aldığın davet e-postasındaki bilgilerle hesabını tamamla.</p>
       </div>
 
-      <div className="mt-4 flex flex-col gap-4">
-        <label className="flex flex-col gap-2">
-          <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">E-posta</span>
+      {/* noValidate: doğrulama eskisi gibi handleSubmit'te. Onay kutusu
+          işaretlenmeden düğme kapalı; kapalı düğmeyle Enter da gönderemez. */}
+      <form
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (sozlesme && !yukleniyor) handleSubmit();
+        }}
+        className="mt-7 flex flex-col gap-4"
+        aria-busy={yukleniyor}
+      >
+        {/* Çok dar ekranda iki sütun isimleri okunmaz yapıyordu: 380px altı tek sütun. */}
+        <div className="grid grid-cols-1 gap-4 min-[380px]:grid-cols-2 min-[380px]:gap-3">
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <label htmlFor={`${kimlik}-ad`} className={ETIKET}>
+              Ad
+            </label>
+            <input
+              id={`${kimlik}-ad`}
+              type="text"
+              autoComplete="given-name"
+              placeholder="Selin"
+              value={ad}
+              onChange={(e) => setAd(e.target.value)}
+              aria-describedby={genelHata ? hataId : undefined}
+              className={ALAN}
+            />
+          </div>
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <label htmlFor={`${kimlik}-soyad`} className={ETIKET}>
+              Soyad
+            </label>
+            <input
+              id={`${kimlik}-soyad`}
+              type="text"
+              autoComplete="family-name"
+              placeholder="Kaya"
+              value={soyad}
+              onChange={(e) => setSoyad(e.target.value)}
+              aria-describedby={genelHata ? hataId : undefined}
+              className={ALAN}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={`${kimlik}-email`} className={ETIKET}>
+            E-posta
+          </label>
           <input
+            id={`${kimlik}-email`}
             type="email"
             autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            spellCheck={false}
             placeholder="ornek@sirket.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
+            aria-describedby={genelHata ? hataId : undefined}
+            className={ALAN}
           />
-        </label>
+        </div>
 
-        <TelefonAlani
-          ulkeKodu={ulkeKodu}
-          numara={telefon}
-          onUlkeKodu={setUlkeKodu}
-          onNumara={setTelefon}
-        />
+        <div className="flex flex-col gap-1.5">
+          <TelefonAlani
+            ulkeKodu={ulkeKodu}
+            numara={telefon}
+            onUlkeKodu={setUlkeKodu}
+            onNumara={setTelefon}
+            hataId={telefonHatasi ? telefonHataId : undefined}
+            gecersiz={telefonHatasi}
+          />
+          {telefonHatasi && (
+            <p id={telefonHataId} role="alert" className={ALAN_HATASI}>
+              {hata}
+            </p>
+          )}
+        </div>
 
         <PasswordField
           label="Şifre"
@@ -146,52 +196,46 @@ export function KayitFormu() {
           value={password}
           onChange={setPassword}
           showStrength
+          autoComplete="new-password"
+          describedBy={genelHata ? hataId : undefined}
         />
-      </div>
 
-      {hata && (
-        <div className="mt-5">
-          <UyariKutusu mesaj={hata} />
+        {genelHata && <UyariKutusu id={hataId} mesaj={hata} />}
+
+        {/*
+          İki onay AYRI duruyor ve ikincisi işaretsiz başlıyor.
+
+          6563 sayılı Kanun ticari elektronik ileti iznini ayrı, açık ve önceden
+          işaretlenmemiş biçimde almayı şart koşuyor. Üyelik sözleşmesiyle aynı
+          kutuya konursa izin geçersiz olur; kaydolmanın şartı haline getirilmesi
+          de aynı kapıya çıkıyor. Bu yüzden düğme yalnızca birincisine bakıyor.
+        */}
+        <div className="mt-1 flex flex-col gap-3">
+          <CheckToggle checked={sozlesme} onToggle={() => setSozlesme((v) => !v)} align="start">
+            <Link href="/uyelik-sozlesmesi" target="_blank" className={`underline ${BAGLANTI}`}>
+              Üyelik ve Kullanım Sözleşmesi
+            </Link>
+            {"'ni ve "}
+            <Link href="/kisisel-verilerin-islenmesi" target="_blank" className={`underline ${BAGLANTI}`}>
+              KVKK Aydınlatma Metni
+            </Link>
+            {"'ni okudum, kabul ediyorum."}
+          </CheckToggle>
+
+          <CheckToggle checked={iletiIzni} onToggle={() => setIletiIzni((v) => !v)} align="start">
+            Kampanya, duyuru ve yeni eğitimlerden e-posta ile haberdar olmak istiyorum.{" "}
+            <span className="text-[#71717a]">(isteğe bağlı, sonradan kapatabilirsin)</span>
+          </CheckToggle>
         </div>
-      )}
 
-      {/*
-        İki onay AYRI duruyor ve ikincisi işaretsiz başlıyor.
+        <button type="submit" disabled={!sozlesme || yukleniyor} className={`${BIRINCIL} mt-1`}>
+          {yukleniyor ? "Hesap oluşturuluyor…" : "Hesabı oluştur"}
+        </button>
+      </form>
 
-        6563 sayılı Kanun ticari elektronik ileti iznini ayrı, açık ve önceden
-        işaretlenmemiş biçimde almayı şart koşuyor. Üyelik sözleşmesiyle aynı
-        kutuya konursa izin geçersiz olur; kaydolmanın şartı haline getirilmesi
-        de aynı kapıya çıkıyor. Bu yüzden düğme yalnızca birincisine bakıyor.
-      */}
-      <div className="mt-5 flex flex-col gap-[14px]">
-        <CheckToggle checked={sozlesme} onToggle={() => setSozlesme((v) => !v)} align="start">
-          <Link href="/uyelik-sozlesmesi" target="_blank" className="font-semibold text-brand underline">
-            Üyelik ve Kullanım Sözleşmesi
-          </Link>
-          {"'ni ve "}
-          <Link href="/kisisel-verilerin-islenmesi" target="_blank" className="font-semibold text-brand underline">
-            KVKK Aydınlatma Metni
-          </Link>
-          {"'ni okudum, kabul ediyorum."}
-        </CheckToggle>
-
-        <CheckToggle checked={iletiIzni} onToggle={() => setIletiIzni((v) => !v)} align="start">
-          Kampanya, duyuru ve yeni eğitimlerden e-posta ile haberdar olmak istiyorum.{" "}
-          <span className="text-[#656B7A]">(isteğe bağlı, sonradan kapatabilirsin)</span>
-        </CheckToggle>
-      </div>
-
-      <button
-        type="button"
-        disabled={!sozlesme || yukleniyor}
-        onClick={handleSubmit}
-        className="mt-6 h-[52px] w-full rounded-[11px] bg-brand text-base font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.28)] hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"
-      >
-        {yukleniyor ? "Hesap oluşturuluyor…" : "Hesabı oluştur"}
-      </button>
-      <p className="mt-5 text-sm text-[#656B7A]">
+      <p className="mt-6 text-center text-[13.5px] text-[#a1a1aa]">
         Zaten hesabın var mı?{" "}
-        <Link href="/giris" className="font-semibold text-brand">
+        <Link href="/giris" className={BAGLANTI}>
           Giriş yap
         </Link>
       </p>

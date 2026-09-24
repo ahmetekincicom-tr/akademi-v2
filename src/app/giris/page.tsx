@@ -42,10 +42,11 @@ export function generateMetadata(): Promise<Metadata> {
 export default async function GirisPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ next?: string; hata?: string }>;
 }) {
   // Set by the proxy when it bounces a signed-out visitor off a /panel page.
-  const { next } = await searchParams;
+  // hata=1: /auth/onayla ya da /auth/callback bağlantıyı doğrulayamadı.
+  const { next, hata } = await searchParams;
   const hedef = next?.startsWith("/panel") ? next : "/panel";
 
   /*
@@ -64,7 +65,7 @@ export default async function GirisPage({
 
   return (
     <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
-      <GirisFormu hedef={hedef} />
+      <GirisFormu hedef={hedef} baglantiHatasi={hata === "1"} />
     </AuthShell>
   );
 }

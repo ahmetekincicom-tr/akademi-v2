@@ -1,8 +1,12 @@
 import { Icon } from "@/components/Icon";
 
 /**
- * Onay kutusu. Tik işareti metin olarak "✓" basılıyordu; yazı tipine göre
- * boyutu ve hizası değişip kutunun içinde kayıyordu.
+ * Onay kutusu — gerçek <input type="checkbox">, görünümü özel.
+ *
+ * Eskiden bir <button> idi ve içine bağlantılar konuyordu (iç içe etkileşimli
+ * öğe; ekran okuyucu da "düğme" diyordu, "onay kutusu" değil). Artık kutu
+ * yerleşik denetim: Boşluk tuşu, aria-checked ve form davranışı tarayıcıdan.
+ * Metindeki bağlantılar kutunun dışında, etiketin içinde kalıyor.
  */
 export function CheckToggle({
   checked,
@@ -16,21 +20,22 @@ export function CheckToggle({
   align?: "center" | "start";
 }) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      className={`flex gap-[11px] text-left font-sans text-[#3A3F4F] ${align === "start" ? "items-start" : "items-center"}`}
-    >
-      <span
-        className={`flex h-[19px] w-[19px] flex-none items-center justify-center rounded-[6px] border text-white transition-colors ${align === "start" ? "mt-[1px]" : ""}`}
-        style={{
-          background: checked ? "#1C56F3" : "#FFFFFF",
-          borderColor: checked ? "#1C56F3" : "rgba(10,13,24,0.2)",
-        }}
-      >
-        {checked && <Icon name="check" size={12} strokeWidth={3} />}
+    <label className={`flex cursor-pointer gap-[10px] text-left ${align === "start" ? "items-start" : "items-center"}`}>
+      <span className={`relative flex h-[18px] w-[18px] flex-none ${align === "start" ? "mt-[2px]" : ""}`}>
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={onToggle}
+          className="peer h-[18px] w-[18px] cursor-pointer appearance-none rounded-[5px] border border-[#52525b] bg-[#111114] transition-colors checked:border-brand checked:bg-brand"
+        />
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 hidden items-center justify-center text-white peer-checked:flex"
+        >
+          <Icon name="check" size={12} strokeWidth={3} />
+        </span>
       </span>
-      <span className="text-sm">{children}</span>
-    </button>
+      <span className="text-[13px] leading-[1.55] text-[#a1a1aa]">{children}</span>
+    </label>
   );
 }

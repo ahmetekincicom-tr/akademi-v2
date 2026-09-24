@@ -511,6 +511,35 @@ select:focus-visible {
   border-color: transparent;
 }
 
+/*
+  Oturum ekranları koyu zeminde (AuthShell → .auth-koyu). Açık zemine göre
+  ayarlı %13'lük halka #08090c üstünde neredeyse görünmüyordu; burada daha
+  belirgin. Düğme/bağlantı odak çizgisi de koyu zeminde okunur bir maviye
+  açılıyor (#1c56f3 koyu zeminde düşük kontrastlı kalıyordu).
+*/
+.auth-koyu :focus-visible {
+  outline-color: #7ea2ff;
+}
+.auth-koyu input:focus-visible {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(28, 86, 243, 0.45);
+}
+/* Telefon: halka ülke kodu + numarayı saran kapta (TelefonAlani). */
+.auth-koyu .auth-telefon input:focus-visible {
+  box-shadow: none;
+}
+/* Tarayıcının otomatik doldurma zemini koyu alanı açık renge boyamasın. */
+.auth-koyu input:-webkit-autofill {
+  -webkit-text-fill-color: #fafafa;
+  box-shadow: 0 0 0 1000px #111114 inset;
+  caret-color: #fafafa;
+}
+.auth-koyu input:-webkit-autofill:focus-visible {
+  box-shadow:
+    0 0 0 1000px #111114 inset,
+    0 0 0 3px rgba(28, 86, 243, 0.45);
+}
+
 /* iOS Safari, 16px altındaki bir alana odaklanınca sayfayı yakınlaştırıyor ve
    düzen zıplıyor. Tailwind sınıfları eleman seçicisini geçtiği için !important
    şart; onay kutuları hariç tutuldu, orada yazı boyutu görünürlüğü etkilemiyor. */

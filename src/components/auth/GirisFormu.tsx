@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { authHatasi } from "@/lib/auth-hatalari";
 import { WHATSAPP_NUMARALAR, whatsappLink } from "@/lib/iletisim";
@@ -9,6 +9,7 @@ import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
 import { oturumKaydet } from "@/app/oturum-actions";
 import { SadeceWeb } from "@/components/panel/SadeceWeb";
+import { ALAN, ALT_BASLIK, BAGLANTI, BASLIK, BIRINCIL, ETIKET } from "@/components/auth/stil";
 
 /**
  * `hedef` is resolved on the server from the query string. Reading it here
@@ -16,11 +17,13 @@ import { SadeceWeb } from "@/components/panel/SadeceWeb";
  * and leave the server rendering nothing — which is exactly how this page
  * once ended up blank.
  */
-export function GirisFormu({ hedef }: { hedef: string }) {
+export function GirisFormu({ hedef, baglantiHatasi = false }: { hedef: string; baglantiHatasi?: boolean }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hata, setHata] = useState<string | null>(null);
   const [yukleniyor, setYukleniyor] = useState(false);
+  const hataId = useId();
+  const emailId = useId();
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -59,64 +62,106 @@ export function GirisFormu({ hedef }: { hedef: string }) {
 
   return (
     <div>
-        <h1 className="font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">Panele giriş</h1>
-        <p className="mt-[10px] text-[15px] text-[#5C6273]">Katılımcı hesabınla devam et.</p>
+      <div className="text-center">
+        <h1 className={BASLIK}>Panele giriş</h1>
+        <p className={ALT_BASLIK}>Katılımcı hesabınla devam et.</p>
+      </div>
 
-        {hata && (
-          <div className="mt-[22px]">
-            <UyariKutusu mesaj={hata} />
-          </div>
-        )}
+      {/*
+        Doğrulama / giriş bağlantısı geçersiz ya da süresi dolmuşsa
+        /auth/onayla ve /auth/callback buraya ?hata=1 ile gönderiyor. Bu
+        parametre daha önce hiç okunmuyordu; kişi sessizce boş formu görüyordu.
+      */}
+      {baglantiHatasi && !hata && (
+        <div className="mt-6">
+          <UyariKutusu
+            tur="bilgi"
+            mesaj="Bağlantının süresi dolmuş ya da daha önce kullanılmış. Hesabını zaten doğruladıysan e-posta ve şifrenle giriş yapabilirsin."
+          />
+        </div>
+      )}
 
-        <div className="mt-[26px] flex flex-col gap-4">
-          <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">E-posta</span>
-            <input
-              type="email"
-              placeholder="ornek@sirket.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
-            />
+      {hata && (
+        <div className="mt-6">
+          <UyariKutusu id={hataId} mesaj={hata} />
+        </div>
+      )}
+
+      {/*
+        Gerçek <form>: Enter ile gönderilir. noValidate — doğrulama eskisi
+        gibi handleSubmit'te; tarayıcının kendi balonları devreye girmesin.
+        Yüklenirken ikinci gönderim yok (düğme kapalı + koşul).
+      */}
+      <form
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!yukleniyor) handleSubmit();
+        }}
+        className="mt-6 flex flex-col gap-4"
+        aria-busy={yukleniyor}
+      >
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={emailId} className={ETIKET}>
+            E-posta
           </label>
-          <PasswordField label="Şifre" placeholder="••••••••" value={password} onChange={setPassword} />
+          <input
+            id={emailId}
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            spellCheck={false}
+            placeholder="ornek@sirket.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            aria-describedby={hata ? hataId : undefined}
+            aria-invalid={hata ? true : undefined}
+            className={ALAN}
+          />
         </div>
 
-        {/* "Beni hatırla" kutusu kaldırıldı: durumu hiçbir yerde okunmuyordu,
-            yani işaretlense de işaretlenmese de aynı şey oluyordu. Oturum
-            zaten kalıcı — çalışmayan bir denetim, olmayandan kötü. */}
-        {/* Dolgu + küçültülmüş üst boşluk: görsel yer aynı, dokunma alanı
-            20px'ten 34px'e çıkıyor. Cümle içinde değil, tek başına duran bir
-            bağlantı — parmakla ıskalanması can sıkıcı. */}
-        <div className="mt-[9px] flex justify-end">
-          <Link href="/sifremi-unuttum" className="py-[7px] text-sm font-semibold text-brand">
-            Şifremi unuttum
-          </Link>
+        <div className="flex flex-col gap-1">
+          <PasswordField
+            label="Şifre"
+            placeholder="••••••••"
+            value={password}
+            onChange={setPassword}
+            autoComplete="current-password"
+            describedBy={hata ? hataId : undefined}
+            invalid={Boolean(hata)}
+          />
+          {/* "Beni hatırla" yok: oturum zaten kalıcı, çalışmayan bir denetim
+              olmayandan kötü. Bağlantı tek başına durduğu için dokunma alanı
+              geniş (py). */}
+          <div className="flex justify-end">
+            <Link href="/sifremi-unuttum" className={`py-2 text-[13px] ${BAGLANTI}`}>
+              Şifremi unuttum
+            </Link>
+          </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={yukleniyor}
-          className="mt-6 h-[52px] w-full rounded-[11px] bg-brand text-base font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.28)] hover:bg-ink disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <button type="submit" disabled={yukleniyor} className={BIRINCIL}>
           {yukleniyor ? "Giriş yapılıyor…" : "Giriş yap"}
         </button>
+      </form>
 
-        {/* Uygulamada iletişim bağlantısı yok: pazarlama sitesine açılıyor ve
-            oradan tüm site gezilebiliyordu. Cümle bağlantısız kalıyor. */}
-        <p className="mt-[26px] text-sm leading-[1.6] text-[#656B7A]">
-          Panel erişimi yalnızca eğitime katılan kişiler içindir.{" "}
-          <SadeceWeb>
-            {/* Doğrudan WhatsApp: iletişim sayfası ön yüzle birlikte kapalı,
-                ayrıca giriş yapamayan biri için en kısa yol zaten bu. */}
-            Sorun yaşarsan{" "}
-            <a href={whatsappLink(WHATSAPP_NUMARALAR[0].numara)} target="_blank" rel="noopener noreferrer">
-              WhatsApp&apos;tan yaz
-            </a>
-            .
-          </SadeceWeb>
-        </p>
+      {/* Uygulamada iletişim bağlantısı yok: pazarlama sitesine açılıyordu. */}
+      <p className="mt-6 text-center text-[13px] leading-[1.6] text-[#a1a1aa]">
+        Panel erişimi yalnızca eğitime katılan kişiler içindir.{" "}
+        <SadeceWeb>
+          Sorun yaşarsan{" "}
+          <a
+            href={whatsappLink(WHATSAPP_NUMARALAR[0].numara)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={BAGLANTI}
+          >
+            WhatsApp&apos;tan yaz
+          </a>
+          .
+        </SadeceWeb>
+      </p>
     </div>
   );
 }

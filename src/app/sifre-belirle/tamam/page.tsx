@@ -1,31 +1,26 @@
 import Link from "next/link";
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Icon } from "@/components/Icon";
+import { ALT_BASLIK, BASLIK, BIRINCIL, IKINCIL } from "@/components/auth/stil";
 
 export default function SifreBelirleTamamPage() {
   return (
     <AuthShell topText="Hesabın yok mu?" topLinkLabel="Hesap oluştur" topLinkHref="/kayit">
-      <div>
-        <span className="flex h-13 w-13 items-center justify-center rounded-2xl bg-brand text-white shadow-[0_12px_28px_rgba(28,86,243,0.3)]">
+      <div className="text-center" role="status">
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[14px] bg-brand text-white shadow-[0_12px_28px_-8px_rgba(28,86,243,0.7)]">
           <Icon name="check" size={24} strokeWidth={2.6} />
         </span>
-        <h1 className="mt-6 font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">Hazırsın</h1>
-        <p className="mt-3 text-[15.5px] leading-[1.65] text-[#5C6273]">
-          Şifren güncellendi. Panelde kaldığın yerden devam edebilirsin.
-        </p>
-        <Link
-          href="/panel"
-          className="mt-[26px] flex h-[52px] items-center justify-center gap-[9px] rounded-[11px] bg-brand text-base font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.28)] hover:bg-ink"
-        >
-          Panele git
-          <Icon name="arrowRight" size={17} />
-        </Link>
-        <Link
-          href="/giris"
-          className="mt-3 flex h-[50px] items-center justify-center rounded-[11px] border border-ink/14 bg-white text-[15px] font-semibold text-ink hover:border-brand hover:text-brand"
-        >
-          Girişe dön
-        </Link>
+        <h1 className={`mt-6 ${BASLIK}`}>Hazırsın</h1>
+        <p className={`${ALT_BASLIK} mt-3`}>Şifren güncellendi. Panelde kaldığın yerden devam edebilirsin.</p>
+        <div className="mt-7 flex flex-col gap-2.5">
+          <Link href="/panel" className={BIRINCIL}>
+            Panele git
+            <Icon name="arrowRight" size={16} />
+          </Link>
+          <Link href="/giris" className={IKINCIL}>
+            Girişe dön
+          </Link>
+        </div>
       </div>
     </AuthShell>
   );

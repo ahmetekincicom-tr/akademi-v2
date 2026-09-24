@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authHatasi } from "@/lib/auth-hatalari";
 import { PasswordField } from "@/components/auth/PasswordField";
 import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
+import { ALAN_HATASI, ALT_BASLIK, BASLIK, BIRINCIL, YARDIM } from "@/components/auth/stil";
 
 export function SifreBelirleFormu() {
   const router = useRouter();
@@ -15,6 +16,15 @@ export function SifreBelirleFormu() {
   const [hata, setHata] = useState<string | null>(null);
 
   const canSubmit = password.length >= 8 && password === confirm;
+
+  // Sunum: kural aynı (canSubmit); yalnız neden kapalı olduğu alanın yanında
+  // söyleniyor. Kişi yazmayı bitirmeden kırmızı görmesin diye koşullu.
+  const kimlik = useId();
+  const uzunlukId = `${kimlik}-uzunluk`;
+  const eslesmeId = `${kimlik}-eslesme`;
+  const hataId = `${kimlik}-hata`;
+  const kisa = password.length > 0 && password.length < 8;
+  const eslesmiyor = confirm.length > 0 && password !== confirm;
 
   const handleSubmit = async () => {
     setYukleniyor(true);
@@ -30,39 +40,55 @@ export function SifreBelirleFormu() {
   };
 
   return (
-    <>
-      <div>
-        <h1 className="font-heading text-[32px] leading-[1.12] font-semibold tracking-[-0.03em]">Yeni şifre belirle</h1>
-        <p className="mt-[10px] text-[15px] text-[#5C6273]">
-          Şifren en az 8 karakter olmalı; bir büyük harf ve bir rakam içermesi önerilir.
-        </p>
-        <div className="mt-[26px] flex flex-col gap-4">
-          <PasswordField label="Yeni şifre" placeholder="En az 8 karakter" value={password} onChange={setPassword} showStrength />
-          <label className="flex flex-col gap-2">
-            <span className="font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase">Şifreyi tekrar yaz</span>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              className="h-[50px] rounded-[11px] border border-ink/14 bg-white px-[15px] text-[15.5px] text-ink outline-none focus:border-brand focus:shadow-[0_0_0_3px_rgba(28,86,243,0.14)]"
-            />
-          </label>
+    <div>
+      <h1 className={BASLIK}>Yeni şifre belirle</h1>
+      <p className={ALT_BASLIK}>Şifren en az 8 karakter olmalı; bir büyük harf ve bir rakam içermesi önerilir.</p>
+
+      <form
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (canSubmit && !yukleniyor) handleSubmit();
+        }}
+        className="mt-6 flex flex-col gap-4"
+        aria-busy={yukleniyor}
+      >
+        <div className="flex flex-col gap-1.5">
+          <PasswordField
+            label="Yeni şifre"
+            placeholder="En az 8 karakter"
+            value={password}
+            onChange={setPassword}
+            showStrength
+            autoComplete="new-password"
+            describedBy={[uzunlukId, hata ? hataId : ""].filter(Boolean).join(" ")}
+            invalid={kisa}
+          />
+          <p id={uzunlukId} className={kisa ? ALAN_HATASI : YARDIM}>
+            {kisa ? `En az 8 karakter olmalı (${password.length}/8).` : "En az 8 karakter."}
+          </p>
         </div>
-        {hata && (
-          <div className="mt-4">
-            <UyariKutusu mesaj={hata} />
-          </div>
-        )}
-        <button
-          type="button"
-          disabled={!canSubmit || yukleniyor}
-          onClick={handleSubmit}
-          className="mt-6 h-[52px] w-full rounded-[11px] bg-brand text-base font-semibold text-white shadow-[0_12px_28px_rgba(28,86,243,0.28)] hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"
-        >
+        <div className="flex flex-col gap-1.5">
+          <PasswordField
+            label="Şifreyi tekrar yaz"
+            placeholder="••••••••"
+            value={confirm}
+            onChange={setConfirm}
+            autoComplete="new-password"
+            describedBy={eslesmiyor ? eslesmeId : undefined}
+            invalid={eslesmiyor}
+          />
+          {eslesmiyor && (
+            <p id={eslesmeId} className={ALAN_HATASI} aria-live="polite">
+              Şifreler eşleşmiyor.
+            </p>
+          )}
+        </div>
+        {hata && <UyariKutusu id={hataId} mesaj={hata} />}
+        <button type="submit" disabled={!canSubmit || yukleniyor} className={BIRINCIL}>
           {yukleniyor ? "Güncelleniyor…" : "Şifreyi güncelle"}
         </button>
-      </div>
-    </>
+      </form>
+    </div>
   );
 }

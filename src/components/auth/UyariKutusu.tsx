@@ -1,33 +1,35 @@
 import { Icon } from "@/components/Icon";
 
 /**
- * Oturum ekranlarının hata/uyarı kutusu.
+ * Oturum ekranlarının durum kutusu (koyu tema).
  *
- * Dört ekranda ayrı ayrı kopyalanmıştı ve hepsinde simge yerine metin olarak
- * "!" basılıyordu: yazı tipine göre hizası kayıyor, kalınlığı tutmuyordu.
- * Tek yerde toplandı, simge de gerçek ikon setinden geliyor.
+ * hata  → role="alert" (hemen okunur)
+ * bilgi → role="status" (sırasını bekler)
+ * Simge gerçek ikon setinden; metin rengi koyu zeminde AA kontrastlı.
  */
-export function UyariKutusu({ mesaj, tur = "hata" }: { mesaj: string; tur?: "hata" | "bilgi" }) {
+export function UyariKutusu({
+  mesaj,
+  tur = "hata",
+  id,
+}: {
+  mesaj: string;
+  tur?: "hata" | "bilgi";
+  /** Alanlar aria-describedby ile bu kutuya bağlanabilsin. */
+  id?: string;
+}) {
   const hata = tur === "hata";
   return (
     <div
-      role="alert"
-      className="flex items-start gap-[11px] rounded-[11px] border px-[15px] py-[13px]"
-      style={{
-        borderColor: hata ? "rgba(217,60,60,0.35)" : "rgba(28,86,243,0.3)",
-        background: hata ? "rgba(217,60,60,0.07)" : "rgba(28,86,243,0.06)",
-      }}
+      id={id}
+      role={hata ? "alert" : "status"}
+      className={`flex items-start gap-[10px] rounded-[10px] border px-[13px] py-[11px] ${
+        hata ? "border-[#f87171]/35 bg-[#f87171]/[0.08]" : "border-brand/45 bg-brand/[0.12]"
+      }`}
     >
-      <span
-        className="mt-[1px] flex-none"
-        style={{ color: hata ? "#D93C3C" : "#1C56F3" }}
-        aria-hidden
-      >
-        <Icon name="alert" size={17} strokeWidth={2} />
+      <span className={`mt-[1px] flex-none ${hata ? "text-[#f87171]" : "text-[#8fb0ff]"}`} aria-hidden>
+        <Icon name="alert" size={16} strokeWidth={2} />
       </span>
-      <span className="text-sm leading-[1.5]" style={{ color: hata ? "#8E2226" : "#1F3E9E" }}>
-        {mesaj}
-      </span>
+      <span className={`text-[13.5px] leading-[1.5] ${hata ? "text-[#fecaca]" : "text-[#dbe5ff]"}`}>{mesaj}</span>
     </div>
   );
 }
