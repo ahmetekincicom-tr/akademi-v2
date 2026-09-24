@@ -18,5 +18,5 @@ export default async function AdminDestekPage() {
   ]);
   const kurslar = (kursSatirlari ?? []).map((k) => ({ id: k.id, ad: k.baslik }));
 
-  return <DestekMasasi talepler={talepler} kullanicilar={kullanicilar} kurslar={kurslar} />;
+  return <DestekMasasi benimId={user.id} talepler={talepler} kullanicilar={kullanicilar} kurslar={kurslar} />;
 }

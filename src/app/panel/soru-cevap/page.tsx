@@ -1,23 +1,32 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { getTalepler } from "@/lib/destek";
+import { getTalepler, destekYanitSuresi } from "@/lib/destek";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
-import { TalepGorunumu } from "@/components/destek/TalepGorunumu";
+import { OgrenciDestek } from "@/components/destek/OgrenciDestek";
 import { GorulduIsareti } from "@/components/panel/GorulduIsareti";
 
 export default async function SoruCevapPage() {
-  const [profil, talepler, courses] = await Promise.all([getPanelProfile(), getTalepler("kendi"), getPanelCourses()]);
+  const [profil, talepler, courses, yanitSuresiDk] = await Promise.all([
+    getPanelProfile(),
+    getTalepler("kendi"),
+    getPanelCourses(),
+    destekYanitSuresi(),
+  ]);
   if (!profil) redirect("/giris");
 
   return (
     <>
       {/* Sayfa açıldı: yeni yanıt rozeti düşüyor. */}
       <GorulduIsareti alan="soru_cevap" />
-      <TalepGorunumu
-        talepler={talepler}
-        benimId={profil.id}
-        rol="ogrenci"
-        kurslar={courses.map((c) => ({ id: c.id, ad: c.baslik }))}
-      />
+      {/* useSearchParams (?talep=) için sınır. */}
+      <Suspense>
+        <OgrenciDestek
+          talepler={talepler}
+          benimId={profil.id}
+          kurslar={courses.map((c) => ({ id: c.id, ad: c.baslik, yuzde: c.yuzde }))}
+          yanitSuresiDk={yanitSuresiDk}
+        />
+      </Suspense>
     </>
   );
 }

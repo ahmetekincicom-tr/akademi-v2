@@ -1,20 +1,24 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import { useBildirim } from "@/components/Bildirim";
 import { mesajGonder, talepDurumDegistir, talebeEgitimBagla } from "@/app/destek-actions";
 import { HAZIR_CEVAPLAR } from "@/lib/destek-hazir";
 import type { DestekTalep, DestekKullanici } from "@/lib/destek";
+import { EK_TIPLERI } from "@/lib/destek-ek";
+import { BekleyenEkler, MesajEkleri, useEkYukleme } from "@/components/destek/Ekler";
 
 /**
  * Destek masası (yönetici) — 3 panel: talep listesi · konuşma · öğrenci detayı.
  *
  * Tasarım referansındaki yapı projenin design token'larıyla uyarlandı (marka/
- * ink renkleri, mevcut spacing/radius). Öğrenci panelindeki TalepGorunumu'na
- * DOKUNULMADI; bu bileşen yalnız admin sayfasında. Tüm eylemler mevcut server
- * action'lara bağlı (mesajGonder / talepDurumDegistir / talebeEgitimBagla).
+ * ink renkleri, mevcut spacing/radius). Öğrenci tarafı ayrı bileşen
+ * (components/destek/OgrenciDestek); bu yalnız admin sayfasında. Tüm eylemler
+ * mevcut server action'lara bağlı (mesajGonder / talepDurumDegistir /
+ * talebeEgitimBagla). Ekler (ekran görüntüsü/PDF) iki tarafta ortak
+ * (components/destek/Ekler).
  *
- * Not: SLA / atama / birleştirme / dosya eki veri modelinde yok; uydurulmadı.
+ * Not: SLA / atama / birleştirme veri modelinde yok; uydurulmadı.
  * "Yanıt bekliyor" gerçek sinyalden türetiliyor (son mesaj katılımcıdan &
  * talep kapanmamış).
  */
@@ -62,10 +66,12 @@ function Rozet({ durum }: { durum: Durum }) {
 }
 
 export function DestekMasasi({
+  benimId,
   talepler,
   kullanicilar,
   kurslar,
 }: {
+  benimId: string;
   talepler: DestekTalep[];
   kullanicilar: Record<string, DestekKullanici>;
   kurslar: { id: string; ad: string }[];
@@ -79,6 +85,9 @@ export function DestekMasasi({
   const [metin, setMetin] = useState("");
   const [gorunum, setGorunum] = useState<"liste" | "konusma">("liste"); // mobil drill-down
   const [detayAcik, setDetayAcik] = useState(false); // mobil öğrenci çekmecesi
+  const dosyaRef = useRef<HTMLInputElement>(null);
+  const ekHata = useCallback((m: string) => bildir.hata(m), [bildir]);
+  const ekler = useEkYukleme(benimId, ekHata);
 
   const sayac = useMemo(() => {
     const s = { hepsi: talepler.length, acik: 0, inceleniyor: 0, yanitlandi: 0, kapandi: 0, bekleyen: 0 };
@@ -115,11 +124,12 @@ export function DestekMasasi({
   };
 
   const gonder = () => {
-    if (!secili || !metin.trim()) return;
+    if (!secili || (!metin.trim() && !ekler.hazirEkler.length) || ekler.yukleniyor) return;
     basla(async () => {
-      const r = await mesajGonder(secili.id, metin, mod === "icnot");
+      const r = await mesajGonder(secili.id, metin, mod === "icnot", ekler.hazirEkler);
       if (r?.error) return bildir.hata(r.error);
       setMetin("");
+      ekler.temizle();
       bildir.basarili(mod === "icnot" ? "İç not eklendi." : "Yanıt gönderildi.");
     });
   };
@@ -325,6 +335,7 @@ export function DestekMasasi({
                           }`}
                         >
                           {mesaj.metin}
+                          <MesajEkleri ekler={mesaj.ekler} koyu={ben && !mesaj.icNot} />
                         </div>
                         <span className="mt-1 text-[10.5px] text-[#9aa0ae]">{saatFmt.format(new Date(mesaj.tarih))}</span>
                       </div>
@@ -366,6 +377,13 @@ export function DestekMasasi({
                 <textarea
                   value={metin}
                   onChange={(e) => setMetin(e.target.value)}
+                  onPaste={(e) => {
+                    const dosyalar = Array.from(e.clipboardData.files);
+                    if (dosyalar.length) {
+                      e.preventDefault();
+                      void ekler.ekle(dosyalar);
+                    }
+                  }}
                   onKeyDown={(e) => {
                     if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                       e.preventDefault();
@@ -378,12 +396,38 @@ export function DestekMasasi({
                     mod === "icnot" ? "border-amber-300 bg-amber-50/40 focus:border-amber-400" : "border-ink/13 bg-white focus:border-brand"
                   }`}
                 />
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-[11.5px] text-[#9aa0ae]">⌘↵ ile gönder</span>
+                {ekler.liste.length > 0 && (
+                  <div className="mt-2">
+                    <BekleyenEkler liste={ekler.liste} onKaldir={ekler.kaldir} />
+                  </div>
+                )}
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <span className="flex items-center gap-2">
+                    <input
+                      ref={dosyaRef}
+                      type="file"
+                      accept={EK_TIPLERI.join(",")}
+                      multiple
+                      hidden
+                      onChange={(e) => {
+                        if (e.target.files) void ekler.ekle(e.target.files);
+                        e.target.value = "";
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => dosyaRef.current?.click()}
+                      disabled={ekler.dolu}
+                      className="rounded-[7px] border border-ink/13 bg-white px-2.5 py-1 text-[12px] font-medium text-[#475569] hover:border-brand hover:text-brand disabled:opacity-40"
+                    >
+                      Dosya ekle
+                    </button>
+                    <span className="text-[11.5px] text-[#9aa0ae]">⌘↵ ile gönder</span>
+                  </span>
                   <button
                     type="button"
                     onClick={gonder}
-                    disabled={islemde || !metin.trim()}
+                    disabled={islemde || ekler.yukleniyor || (!metin.trim() && !ekler.hazirEkler.length)}
                     className="rounded-[9px] bg-brand px-4 py-2 text-[13px] font-semibold text-white hover:bg-ink disabled:opacity-50"
                   >
                     {mod === "icnot" ? "Notu kaydet" : "Gönder"}
@@ -466,8 +510,24 @@ function OgrenciDetay({
         ) : (
           <div className="flex flex-col gap-1.5">
             {detay.egitimler.map((e, i) => (
-              <div key={i} className="rounded-[8px] border border-ink/10 bg-mist px-2.5 py-1.5 text-[12.5px] text-ink">
-                {e}
+              <div key={i} className="rounded-[8px] border border-ink/10 bg-mist px-2.5 py-2 text-[12.5px] text-ink">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className={`truncate font-medium ${e.iptal ? "text-[#9aa0ae] line-through" : ""}`}>{e.baslik}</span>
+                  <span className="flex-none font-mono text-[11px] font-semibold text-[#5C6273]">%{e.yuzde}</span>
+                </div>
+                <div
+                  className="mt-1.5 h-[5px] overflow-hidden rounded-full bg-ink/[0.08]"
+                  role="progressbar"
+                  aria-valuenow={e.yuzde}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${e.baslik} ilerlemesi`}
+                >
+                  <div className="h-full rounded-full bg-brand" style={{ width: `${e.yuzde}%` }} />
+                </div>
+                <div className="mt-1 font-mono text-[10.5px] text-[#9aa0ae]">
+                  {e.tamamlanan}/{e.dersSayisi} ders{e.iptal ? " · iptal" : ""}
+                </div>
               </div>
             ))}
           </div>
