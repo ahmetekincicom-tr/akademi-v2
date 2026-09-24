@@ -112,7 +112,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: adres("/referanslar"), lastModified: simdi, changeFrequency: "monthly", priority: 0.6 },
     { url: adres("/yorumlar"), lastModified: simdi, changeFrequency: "monthly", priority: 0.6 },
     { url: adres("/iletisim"), lastModified: simdi, changeFrequency: "yearly", priority: 0.5 },
-    ...giris,
+    // Giriş ekranı ön yüz açıkken haritada yok (noindex; bkz. giris/page.tsx).
     ...yasalGirdileri,
   ];
 }

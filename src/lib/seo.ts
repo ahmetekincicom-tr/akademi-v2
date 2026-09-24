@@ -132,7 +132,13 @@ export async function sayfaMeta({
   const tamBaslik = yol === "/" ? baslik : `${baslik} — ${SITE_ADI}`;
 
   return {
-    title: baslik,
+    /*
+      Kök düzen başlığa " — Ahmet Ekinci Akademi" ekliyor (layout.tsx
+      template). Ek, başlığı arama sonucunun gösterdiği ~60 karakterin
+      ötesine taşıyorsa düşülüyor: kesilen bir başlığın sonunda marka zaten
+      görünmüyor, üstüne sayfanın asıl kelimelerini "…" ile yiyordu.
+    */
+    title: baslikMetasi(baslik, yol),
     description: aciklama,
     alternates: { canonical: tamAdres },
     robots: indeksleme ? undefined : { index: false, follow: true },
@@ -154,6 +160,19 @@ export async function sayfaMeta({
       ...(gorsel ? { images: [gorsel.url] } : {}),
     },
   };
+}
+
+/** Arama sonucunda görünen başlık uzunluğu (yaklaşık). */
+export const BASLIK_SINIRI = 60;
+
+/**
+ * Sayfa başlığı: kısa ise kök şablona bırakılıyor (marka eklenir), marka
+ * ekiyle sınırı aşıyorsa `absolute` — yalnız sayfanın kendi başlığı.
+ * Ana sayfa her zaman olduğu gibi.
+ */
+export function baslikMetasi(baslik: string, yol = ""): string | { absolute: string } {
+  if (yol === "/") return baslik;
+  return `${baslik} — ${SITE_ADI}`.length > BASLIK_SINIRI ? { absolute: baslik } : baslik;
 }
 
 /* ------------------------------------------------------ yapısal veri --- */

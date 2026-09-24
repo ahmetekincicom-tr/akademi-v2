@@ -3,6 +3,7 @@ import { GirisFormu } from "@/components/auth/GirisFormu";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { sayfaMeta } from "@/lib/seo";
+import { ON_YUZ_ACIK } from "@/proxy";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -12,7 +13,9 @@ import { createClient } from "@/lib/supabase/server";
  * fallback, goes completely blank.
  */
 /**
- * Bu sayfa indekslenebilir, diğer oturum sayfaları değil.
+ * Bu sayfa YALNIZ ön yüz kapalıyken indekslenebilir, diğer oturum sayfaları
+ * hiç değil. Ön yüz açıkken site kendi sayfalarıyla aranıyor; giriş ekranı
+ * dizinden ve site haritasından çıkıyor.
  *
  * Ön yüz kapalıyken bu alan adının arama motoruna açık tek yüzü burası:
  * ana alan adının başlık ve alt bilgisinden "üye girişi" bağlantısı buraya
@@ -30,6 +33,9 @@ export function generateMetadata(): Promise<Metadata> {
   aciklama:
     "Ahmet Ekinci Akademi katılımcı paneli. Derslerine, ders kayıtlarına, dokümanlarına ve ödeme bilgilerine buradan ulaşırsın.",
   yol: "/giris",
+  // Ön yüz açıkken arama sonucunda öğrenci giriş ekranının işi yok; kapalıyken
+  // alan adının tek yüzü olduğu için açık kalıyor (yukarıdaki not).
+  indeksleme: !ON_YUZ_ACIK,
 });
 }
 

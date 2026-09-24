@@ -91,6 +91,13 @@ function ayristir(icerik: string): Blok[] {
 
 export function YasalIcerik({ icerik }: { icerik: string }) {
   const bloklar = ayristir(icerik);
+  /*
+    Metinde hiç ## yoksa "MADDE n" satırları sayfanın H1'inden hemen sonra H3
+    olarak çıkıyor ve başlık sırası bir kademe atlıyordu (erişilebilirlik ve
+    SEO denetimi ikisi de bunu işaretliyor). O durumda bu başlıklar H2
+    etiketiyle basılıyor; görünüşleri değişmiyor.
+  */
+  const h2Var = bloklar.some((b) => b.tip === "baslik" && b.seviye === 2);
 
   return (
     <div className="flex flex-col gap-[18px]">
@@ -102,10 +109,14 @@ export function YasalIcerik({ icerik }: { icerik: string }) {
                 {/* Başlık zaten kalın; olası ** işaretleri metne sızmasın diye ayıklanıyor. */}
                 {kalinsiz(b.metin)}
               </h2>
-            ) : (
+            ) : h2Var ? (
               <h3 className="mt-3 font-heading text-[17px] leading-[1.3] font-semibold tracking-[-0.02em] text-ink">
                 {kalinsiz(b.metin)}
               </h3>
+            ) : (
+              <h2 className="mt-3 font-heading text-[17px] leading-[1.3] font-semibold tracking-[-0.02em] text-ink">
+                {kalinsiz(b.metin)}
+              </h2>
             ))}
 
           {b.tip === "paragraf" && (

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { baslikMetasi } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { YasalSayfaGorunumu } from "@/components/site/YasalSayfaGorunumu";
 import { getYasalSayfa, getYasalSayfalar } from "@/lib/yasal";
@@ -11,7 +12,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const sayfa = await getYasalSayfa(SLUG);
   return {
-    title: `${sayfa?.baslik ?? "Kişisel Verilerin İşlenmesi (KVKK)"} — Ahmet Ekinci Akademi`,
+    // Marka ekini kök şablon koyuyor (layout.tsx); burada yazılınca iki kez çıkıyordu.
+    title: baslikMetasi(sayfa?.baslik ?? "Kişisel Verilerin İşlenmesi (KVKK)"),
     description: sayfa?.ozet || undefined,
   };
 }
