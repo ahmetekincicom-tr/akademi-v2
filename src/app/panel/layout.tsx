@@ -12,6 +12,8 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     getBildirimler(),
   ]);
   if (!profil) redirect("/giris");
+  // Google ile açılan hesap: sözleşme/KVKK onayı ve telefon bir kez alınıyor.
+  if (profil.kayitTamamlanmadi) redirect("/kayit/tamamla");
 
   /*
     İzin ve tıklama kimliği her panel ziyaretinde tazeleniyor.

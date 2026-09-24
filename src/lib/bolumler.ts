@@ -23,3 +23,13 @@ export const DERSLER_ACIK = false;
  * true yapılacak — menü ve sayfa aynı bayrağa bakıyor.
  */
 export const FIRSATLAR_ACIK = false;
+
+/**
+ * Google ile giriş / kayıt.
+ *
+ * Supabase → Authentication → Providers → Google açılıp Google Cloud OAuth
+ * istemcisi girilene kadar KAPALI: sağlayıcı kapalıyken düğme, Supabase'in
+ * ham JSON hata sayfasına götürüyor. Kurulum bitince true yapılacak
+ * (adımlar: docs/google-giris.md).
+ */
+export const GOOGLE_GIRIS_ACIK = false;
