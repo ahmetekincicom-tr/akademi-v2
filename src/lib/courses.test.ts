@@ -17,6 +17,18 @@ describe("basligiIkiSatir", () => {
     });
   });
 
+  // Bağlaç ikinci satırın başına düşmüyor; mümkünse bağlaçtan sonra bölünüyor.
+  it("bağlaçtan sonra böler", () => {
+    expect(basligiIkiSatir("Birebir Sosyal Medya & Reklam Eğitimi")).toEqual({
+      ilk: "Birebir Sosyal Medya &",
+      kalan: "Reklam Eğitimi",
+    });
+    expect(basligiIkiSatir("Birebir Sosyal Medya ve Reklam Eğitimi")).toEqual({
+      ilk: "Birebir Sosyal Medya ve",
+      kalan: "Reklam Eğitimi",
+    });
+  });
+
   // İki kelimelik başlıkta bölmek düzelttiğinden fazlasını bozuyor:
   // "Yapay" / "Zekâ" iki tek kelimelik satır demek.
   it("üç kelimeden azsa bölmez", () => {

@@ -382,7 +382,19 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               <h1 className="font-heading text-[42px] leading-[1.06] font-semibold tracking-[-0.038em] text-balance sm:text-[46px] sm:leading-[1.05] sm:tracking-[-0.04em] lg:text-[56px] lg:leading-[1.04]">
                 {ikiSatir ? (
                   <>
-                    <span className="sm:hidden">
+                    {/*
+                      Punto en uzun satıra göre: iki satır da tek satırda
+                      kalsın, kendi içinde yeniden kırılmasın. 0.48em ≈ bu
+                      yazı tipinde bir karakterin genişliği; 40px yan boşluk.
+                    */}
+                    <span
+                      className="sm:hidden"
+                      style={{
+                        fontSize: `clamp(24px, calc((100vw - 40px) / ${(
+                          Math.max(ikiSatir.ilk.length, ikiSatir.kalan.length) * 0.48
+                        ).toFixed(2)}), 42px)`,
+                      }}
+                    >
                       {ikiSatir.ilk}
                       <br />
                       {ikiSatir.kalan}

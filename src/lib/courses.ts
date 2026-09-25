@@ -297,6 +297,28 @@ export function basligiIkiSatir(baslik: string): { ilk: string; kalan: string } 
     return null;
   }
 
+  /*
+    Bağlaç ("&", "ve", "ile") ikinci satırın başına düşmesin: "Birebir Sosyal
+    Medya" / "& Reklam Eğitimi" hem kopuk okunuyor hem de ilk satır dar
+    ekranda kendi içinde yeniden kırılıyordu. Bağlacın hemen ardından bölmek
+    yeterince dengeliyse o tercih ediliyor: "Birebir Sosyal Medya &" /
+    "Reklam Eğitimi" — iki konu kendi satırında.
+  */
+  const BAGLAC = new Set(["&", "+", "ve", "ile"]);
+  let enIyiBaglac: { ilk: string; kalan: string; fark: number } | null = null;
+  for (let i = 1; i < kelimeler.length - 1; i++) {
+    if (!BAGLAC.has(kelimeler[i].toLocaleLowerCase("tr"))) continue;
+    const ust = kelimeler.slice(0, i + 1).join(" ");
+    const alt = kelimeler.slice(i + 1).join(" ");
+    const fark = Math.abs(ust.length - alt.length);
+    if (Math.min(ust.length, alt.length) < Math.max(ust.length, alt.length) * 0.5) continue;
+    if (!enIyiBaglac || fark < enIyiBaglac.fark) enIyiBaglac = { ilk: ust, kalan: alt, fark };
+  }
+  if (enIyiBaglac) return { ilk: enIyiBaglac.ilk, kalan: enIyiBaglac.kalan };
+  // Bağlaç yine de ikinci satırın başına düştüyse ilk satıra taşı.
+  const [bas, ...son] = kalan.split(" ");
+  if (son.length && BAGLAC.has(bas.toLocaleLowerCase("tr"))) return { ilk: `${ilk} ${bas}`, kalan: son.join(" ") };
+
   return { ilk, kalan };
 }
 
