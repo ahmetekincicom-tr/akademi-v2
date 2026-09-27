@@ -118,7 +118,6 @@ export function KayitFormu() {
     <div>
       <div className="text-center">
         <h1 className={BASLIK}>Hesabını oluştur</h1>
-        <p className={ALT_BASLIK}>Eğitim kaydında kullandığın e-postayla devam et.</p>
       </div>
 
       {/* Google ile kayıtta sözleşme onayı ve telefon ilk girişte
