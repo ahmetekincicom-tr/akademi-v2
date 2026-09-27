@@ -460,6 +460,20 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
+
+        {/* Dar ekranda yorumların sonunda da: liste uzun, üstteki düğmeye
+            dönmek için yeniden yukarı kaydırmak gerekiyordu. */}
+        <Link
+          href="/yorumlar"
+          className="group/tumu mt-1 flex h-[50px] items-center justify-center gap-[9px] rounded-[11px] border border-ink/15 px-[22px] text-[15px] font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white sm:hidden"
+        >
+          Tüm yorumları gör
+          <Icon
+            name="arrowRight"
+            size={16}
+            className="transition-transform duration-200 group-hover/tumu:translate-x-[3px]"
+          />
+        </Link>
       </section>
 
       {/*
