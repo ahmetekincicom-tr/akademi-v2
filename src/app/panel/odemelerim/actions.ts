@@ -269,7 +269,9 @@ export async function havaleBildir(
   */
   await servis
     .from("payments")
-    .update({ havale_bildirimi_tarihi: new Date().toISOString() })
+    // Yöntem de burada yazılıyor: yönetici kaydı yöntemsiz açıyor, öğrenci
+    // havaleyi seçip bildirdiğinde belli oluyor.
+    .update({ havale_bildirimi_tarihi: new Date().toISOString(), yontem: "Havale / EFT" })
     .eq("id", kayit.id)
     .eq("user_id", user.id)
     .eq("durum", "bekliyor");

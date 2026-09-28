@@ -20,7 +20,8 @@ export default async function OdemelerPage() {
         "id, user_id, tutar, yontem, durum, odeme_tarihi, fatura_no, online_odeme, havale_bildirimi_tarihi, koltuk_sayisi, profiles(ad, soyad, email), courses(baslik)",
       )
       .order("odeme_tarihi", { ascending: false }),
-    supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
+    // En yeni kayıt en üstte: ödeme formunda son kaydolan öğrenci listenin başında.
+    supabase.from("profiles").select("id, ad, soyad, email").order("created_at", { ascending: false }),
     /*
       Kurumsal katılımcılar. Yalnızca kimlikler okunuyor, isimler GÖMÜLMÜYOR.
 

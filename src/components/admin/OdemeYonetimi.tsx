@@ -39,6 +39,15 @@ export type OdemeSatir = {
 
 export type SecimOgesi = { id: string; ad: string };
 
+/*
+  Tablo ızgarası başlıkta ve satırda aynı. Dar ekranda (<640px) globals.css
+  select'lere 16px veriyor (iOS yakınlaştırmasın diye); durum kutusu o
+  puntoda 190px'lik eylem sütununa sığmayıp tutarın üstüne biniyordu. Orada
+  sütun geniş.
+*/
+const IZGARA =
+  "grid min-w-[1000px] grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_250px] sm:min-w-[940px] sm:grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_190px]";
+
 const filtreler: { id: "hepsi" | "odendi" | "bekliyor" | "iade"; ad: string }[] = [
   { id: "hepsi", ad: "Tümü" },
   { id: "odendi", ad: "Ödendi" },
@@ -62,14 +71,18 @@ export function OdemeYonetimi({
   const [hata, setHata] = useState<string | null>(null);
   const [islemde, startTransition] = useTransition();
 
-  const bugun = new Date().toISOString().slice(0, 10);
+  /*
+    Yöntem ve tarih formda yok: yöntemi öğrenci öderken seçiyor (kart →
+    "Kart (iyzico)", havale bildirimi → "Havale / EFT"), tarih kaydın
+    girildiği an (sunucu boş tarihte şimdiyi yazıyor).
+  */
   const [form, setForm] = useState({
     userId: "",
     courseId: "",
     tutar: "",
-    yontem: "Havale / EFT",
+    yontem: "",
     durum: "odendi" as "odendi" | "bekliyor" | "iade",
-    odemeTarihi: bugun,
+    odemeTarihi: "",
     faturaNo: "",
     onlineOdeme: true,
     koltukSayisi: "1",
@@ -295,25 +308,6 @@ export function OdemeYonetimi({
               />
             </label>
             <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Yöntem</span>
-              <input
-                type="text"
-                value={form.yontem}
-                onChange={(e) => setForm({ ...form, yontem: e.target.value })}
-                placeholder="Havale / EFT"
-                className="h-[46px] rounded-[10px] border border-ink/13 bg-white px-[13px] text-sm text-ink outline-none focus:border-brand"
-              />
-            </label>
-            <label className="flex flex-col gap-2">
-              <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Tarih</span>
-              <input
-                type="date"
-                value={form.odemeTarihi}
-                onChange={(e) => setForm({ ...form, odemeTarihi: e.target.value })}
-                className="h-[46px] rounded-[10px] border border-ink/13 bg-white px-[13px] text-sm text-ink outline-none focus:border-brand"
-              />
-            </label>
-            <label className="flex flex-col gap-2">
               <span className="font-mono text-[10px] tracking-[0.12em] text-[#656B7A] uppercase">Durum</span>
               <select
                 value={form.durum}
@@ -405,7 +399,7 @@ export function OdemeYonetimi({
 
       <div className="mt-[18px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
         <div className="overflow-x-auto">
-          <div className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_190px] min-w-[940px] gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase">
+          <div className={`${IZGARA} gap-4 border-b border-ink/8 bg-mist px-[22px] py-[13px] font-mono text-[9.5px] tracking-[0.12em] text-[#656B7A] uppercase`}>
             <span>Öğrenci</span>
             <span>Eğitim</span>
             <span>Tarih</span>
@@ -424,9 +418,7 @@ export function OdemeYonetimi({
               const st = durumStil(etiket);
               return (
                 <div key={o.id} className="border-b border-ink/7 last:border-b-0">
-                <div
-                  className="grid grid-cols-[1.6fr_1.6fr_1fr_1fr_1fr_190px] min-w-[940px] items-center gap-4 px-[22px] py-[14px] hover:bg-[#F7F9FF]"
-                >
+                <div className={`${IZGARA} items-center gap-4 px-[22px] py-[14px] hover:bg-[#F7F9FF]`}>
                   <div className="min-w-0">
                     <div className="truncate text-sm font-semibold">{o.isim}</div>
                     {o.faturaNo && (
@@ -468,7 +460,7 @@ export function OdemeYonetimi({
                       value={o.durum}
                       disabled={islemde}
                       onChange={(e) => durumDegistir(o.id, e.target.value as OdemeSatir["durum"])}
-                      className="h-8 rounded-[7px] border-0 px-[7px] font-mono text-[9.5px] tracking-[0.08em] uppercase outline-none"
+                      className="h-8 shrink-0 rounded-[7px] border-0 px-[7px] font-mono text-[9.5px] tracking-[0.08em] uppercase outline-none"
                       style={{ background: st.bg, color: st.renk }}
                     >
                       <option value="odendi">Ödendi</option>
@@ -536,7 +528,7 @@ export function OdemeYonetimi({
                 </div>
 
                 {acikKatilimci === o.id && (
-                  <div className="min-w-[940px] border-t border-ink/7 bg-[#FBFCFF] px-[22px] py-4">
+                  <div className="min-w-[1000px] border-t border-ink/7 bg-[#FBFCFF] sm:min-w-[940px] px-[22px] py-4">
                     <div className="font-mono text-[9px] tracking-[0.12em] text-[#656B7A] uppercase">
                       Kurumsal katılımcılar
                     </div>
