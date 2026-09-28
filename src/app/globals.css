@@ -527,6 +527,18 @@ select:focus-visible {
 /* Oturum ekranlarında yüzen WhatsApp balonu gizli: forma odaklanan kişinin
    dikkatini dağıtıyor ve mobilde alanların/CTA'nın üstüne biniyordu. Aynı
    iş altbilgideki "Destek" bağlantısında. Diğer sayfalar etkilenmiyor. */
+/*
+  Panel ve yönetim ekranlarında kök zemin kabuğun rengiyle aynı (paper).
+  iOS 26 Safari alt adres çubuğunun altını kök zeminden örnekliyor; kök beyaz,
+  kabuk açık gri kalınca yönetim panelinde çubuğun arkasında gri bir bant
+  ayrışıyordu. Katmansız kural: body'deki bg-white yardımcı sınıfını geçmesi
+  için.
+*/
+html:has(.acik-kabuk),
+body:has(.acik-kabuk) {
+  background-color: var(--color-paper);
+}
+
 body:has(.auth-koyu) .whatsapp-yuzen {
   display: none;
 }
