@@ -180,7 +180,7 @@ export function AdminShell({
   }, [menuAcik]);
 
   return (
-    <div className="flex min-h-screen bg-paper">
+    <div className="acik-kabuk flex min-h-screen bg-paper">
       {/*
         Durum çubuğu şeridi — öğrenci panelindekiyle aynı. Uygulama tam ekran
         çalıştığı için saat ve piller sayfanın üstüne biniyor; arkası açık

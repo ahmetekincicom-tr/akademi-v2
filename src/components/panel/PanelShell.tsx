@@ -165,7 +165,7 @@ export function PanelShell({
         : [{ label: "Panel", href: "/panel" }, { label: pageTitle }];
 
   return (
-    <div className="flex min-h-screen bg-paper">
+    <div className="acik-kabuk flex min-h-screen bg-paper">
       {/*
         Durum çubuğu şeridi. Uygulama tam ekran çalıştığı için saat ve piller
         sayfanın üstüne biniyor; arkası beyaz kalınca beyaz yazı okunmuyordu.
