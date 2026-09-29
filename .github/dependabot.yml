@@ -1,0 +1,21 @@
+# Güvenlik güncellemeleri: bilinen açığı olan bağımlılık için Dependabot
+# otomatik PR açıyor; Denetim iş akışı (tsc, lint, test, derleme) her PR'da
+# çalışıyor. Sürüm yükseltme PR'ları haftalık ve gruplu, gürültü olmasın.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      next:
+        patterns: ["next", "eslint-config-next", "@next/*"]
+      diger:
+        patterns: ["*"]
+        exclude-patterns: ["next", "eslint-config-next", "@next/*"]
+        update-types: ["patch", "minor"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

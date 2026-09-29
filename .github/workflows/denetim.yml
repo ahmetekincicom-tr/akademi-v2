@@ -36,6 +36,12 @@ jobs:
       # sessizce yükseltebilir ve CI, yerelde olmayan bir kodu doğrulardı.
       - run: npm ci
 
+      # Bilinen açığı olan bağımlılık: yüksek ve kritik seviyede denetim
+      # kırmızı. Orta seviye (çoğu yalnız kırıcı sürüm atlamasıyla
+      # düzeliyor) raporlanıyor ama engellemiyor; Dependabot PR'ları topluyor.
+      - name: Güvenlik taraması (npm audit)
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Tip denetimi
         run: npx tsc --noEmit
 
