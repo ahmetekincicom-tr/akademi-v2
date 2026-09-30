@@ -225,7 +225,7 @@ export function AdminShell({
           </button>
         </div>
 
-        <nav className="flex flex-col gap-[14px] overflow-auto px-3 pt-[14px] pb-2">
+        <nav className="flex flex-col gap-[14px] min-h-0 overflow-auto overscroll-contain px-3 pt-[14px] pb-2">
           {groups.map((g) => (
             <div key={g.title} className="flex flex-col gap-[2px]">
               <div className="px-3 pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/55 uppercase">{g.title}</div>

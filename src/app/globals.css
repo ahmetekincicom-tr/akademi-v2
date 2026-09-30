@@ -845,10 +845,12 @@ body:has(.auth-koyu) .whatsapp-yuzen {
   açıkken menünün dışında parmağı kaydırınca arkadaki sayfa kayıyordu.
   Artık her yerde geçerli.
 
-  html'e de konuyor: iOS Safari yalnızca body'deki overflow:hidden ile
-  durmuyor, kaydırmayı belge kökünden sürdürüyor.
+  Kilit YALNIZCA body'de, html'de DEĞİL. html'e overflow:hidden konunca
+  iOS 26 Safari belgeyi kaydırılamaz sayıp yüzen alt adres çubuğunu opak
+  gri bir panele çeviriyordu (menü açıkken URL'nin arkasında gri alan).
+  Ana sayfadaki mobil menü de yalnızca body'yi kilitliyor ve orada sorun
+  yok. Menünün kendi listesi overscroll-contain; kaydırma arkaya geçmiyor.
 */
-html:has(body[data-menu-acik="1"]),
 body[data-menu-acik="1"] {
   overflow: hidden;
   /* Kaydırma menünün içinde kalsın, sınıra gelince arkaya geçmesin. */
@@ -858,7 +860,6 @@ body[data-menu-acik="1"] {
 /* Masaüstünde menü kalıcı olarak açık (lg:translate-x-0) ve bir katman
    değil; orada kilit yanlış olurdu — sayfa kaydırılamaz hale gelirdi. */
 @media (min-width: 1024px) {
-  html:has(body[data-menu-acik="1"]),
   body[data-menu-acik="1"] {
     overflow: visible;
     overscroll-behavior: auto;
