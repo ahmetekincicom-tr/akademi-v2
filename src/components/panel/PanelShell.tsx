@@ -187,12 +187,20 @@ export function PanelShell({
           type="button"
           aria-label="Menüyü kapat"
           onClick={() => setMenuAcik(false)}
-          className="fixed inset-0 z-40 bg-ink/55 lg:hidden"
+          className="fixed inset-x-0 top-0 z-40 h-[100lvh] bg-ink/55 lg:hidden"
         />
       )}
 
       <aside
-        // h-dvh: iOS'ta h-screen tarayıcı çubuklarını hesaba katmıyor ve menü
+        /*
+          h-[100lvh] + pb-[calc(100lvh-100dvh)]: menü ekranın fiziksel altına
+          kadar uzanıyor (iOS 26 Safari'nin yüzen alt çubuğunun ARKASI dahil),
+          içerik ise görünür alanın (dvh) içinde kalıyor. Yalnız h-dvh iken
+          menü çubuğun üstünde bitiyor, altında karartılmış sayfa gri bir kutu
+          gibi görünüyordu. Çubuk küçülünce fark sıfır. Arka örtü de lvh.
+          (Yönetim menüsünde aynısı: AdminShell.)
+        */
+        // Eskiden h-dvh: iOS'ta h-screen tarayıcı çubuklarını hesaba katmıyor ve menü
         // ekrandan taşıyordu, alttaki çıkış düğmesi kesiliyordu.
         /*
           Zemin düz bg-ink değil, hafif bir dikey degrade: üstte biraz açılıp
@@ -200,7 +208,7 @@ export function PanelShell({
           kazanıyor. Sağ kenardaki ince beyaz çizgi de menüyü içerikten
           "kesiyor" — tek başına kenarlık koymaktan daha yumuşak duruyor.
         */
-        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[276px] flex-none flex-col bg-ink bg-gradient-to-b from-[#111629] via-ink to-[#070a12] text-white/66 shadow-[inset_-1px_0_0_rgba(255,255,255,0.07)] transition-transform duration-300 ease-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[276px] flex-none flex-col bg-ink bg-gradient-to-b from-[#111629] via-ink to-[#070a12] text-white/66 shadow-[inset_-1px_0_0_rgba(255,255,255,0.07)] transition-transform duration-300 ease-out pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
