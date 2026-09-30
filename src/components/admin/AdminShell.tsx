@@ -196,12 +196,12 @@ export function AdminShell({
           type="button"
           aria-label="Menüyü kapat"
           onClick={() => setMenuAcik(false)}
-          className="fixed inset-0 z-40 bg-ink/55 lg:hidden"
+          className="fixed inset-x-0 top-0 z-40 h-[100lvh] bg-ink/55 lg:hidden"
         />
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[250px] flex-none flex-col bg-ink text-white/64 transition-transform duration-200 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[250px] flex-none flex-col bg-ink text-white/64 transition-transform duration-200 pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
