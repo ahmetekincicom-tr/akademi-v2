@@ -261,37 +261,51 @@ export function OgrenciDestek({
     if (id) sec(id);
   };
 
-  return (
-    <main className="flex flex-col gap-4 p-4 pb-10 sm:gap-[18px] sm:p-7">
-      {/* Başlık şeridi */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
-            Soru-cevap
-          </h1>
-          <p className="mt-[7px] text-[14.5px] text-[#5C6273]">
-            Eğitim boyunca takıldığın her konuyu buradan sorabilirsin.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setYeniAcik((v) => !v)}
-          aria-expanded={yeniAcik}
-          className="inline-flex h-11 items-center gap-[7px] rounded-[10px] bg-brand px-5 text-sm font-semibold text-white transition hover:bg-ink"
-        >
-          {!yeniAcik && <Icon name="plus" size={15} />}
-          {yeniAcik ? "Vazgeç" : "Yeni soru"}
-        </button>
-      </div>
+  const ortYanit = yanitSuresiDk === null ? null : yanitSuresiDk < 60 ? `~${yanitSuresiDk} dk` : `~${Math.round(yanitSuresiDk / 60)} sa`;
+  const basHarf = (ad: string) =>
+    ad
+      .split(/\s+/)
+      .map((p) => p[0])
+      .join("")
+      .slice(0, 2)
+      .toLocaleUpperCase("tr") || "E";
 
-      {/* Özet */}
-      {talepler.length > 0 && (
-        <div className="grid grid-cols-3 gap-2 sm:max-w-[520px] sm:gap-3">
-          <Ozet etiket="Açık" deger={sayilar.acik} renk="#1C56F3" />
-          <Ozet etiket="Yanıtlandı" deger={sayilar.yanitlandi} renk="#157A4E" />
-          <Ozet etiket="Kapandı" deger={sayilar.kapandi} renk="#5C6273" />
+  return (
+    <main className="flex flex-col gap-4 p-4 pb-10 sm:gap-[18px] sm:px-[34px] sm:pt-7 sm:pb-9">
+      {/* Başlık bandı: özet sayılar + yeni soru (tasarım). */}
+      <section
+        className="relative flex flex-col gap-4 overflow-hidden rounded-[20px] px-[18px] py-5 text-white sm:px-[26px] lg:flex-row lg:items-center lg:gap-6"
+        style={{ background: "linear-gradient(135deg,#1A3FCC 0%,#0F1E5C 39%,#070B16 100%)" }}
+      >
+        <div
+          aria-hidden
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)",
+            backgroundSize: "32px 32px",
+            maskImage: "linear-gradient(120deg,#000 10%,transparent 85%)",
+            WebkitMaskImage: "linear-gradient(120deg,#000 10%,transparent 85%)",
+          }}
+        />
+        <div className="relative flex min-w-0 items-start gap-3">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-[26px] leading-[1.1] font-extrabold tracking-[-0.03em] sm:text-[28px]">Soru-cevap</h1>
+            <p className="mt-1.5 text-[14px] text-[#C9D0E0]">Eğitim boyunca takıldığın her konuyu buradan sorabilirsin.</p>
+          </div>
+          {/* Telefonda düğme başlığın yanında. */}
+          <YeniDugme acik={yeniAcik} onClick={() => setYeniAcik((v) => !v)} className="inline-flex lg:hidden" />
         </div>
-      )}
+        {talepler.length > 0 && (
+          <div className={`relative grid lg:ml-auto lg:flex ${ortYanit ? "grid-cols-4" : "grid-cols-3"}`}>
+            <BantSayi etiket="Açık" deger={String(sayilar.acik)} />
+            <BantSayi etiket="Yanıtlandı" deger={String(sayilar.yanitlandi)} renk={sayilar.yanitlandi ? "#3DDC97" : undefined} />
+            <BantSayi etiket="Kapandı" deger={String(sayilar.kapandi)} />
+            {ortYanit && <BantSayi etiket="Ort. yanıt" deger={ortYanit} />}
+          </div>
+        )}
+        <YeniDugme acik={yeniAcik} onClick={() => setYeniAcik((v) => !v)} className="relative hidden lg:inline-flex" />
+      </section>
 
       {yeniAcik && (
         <YeniSoru
@@ -307,24 +321,22 @@ export function OgrenciDestek({
       {talepler.length === 0 ? (
         !yeniAcik && <BosDurum onYeni={() => setYeniAcik(true)} />
       ) : (
-        <div className="grid grid-cols-1 gap-[18px] lg:h-[calc(100dvh-300px)] lg:min-h-[560px] lg:grid-cols-[minmax(300px,370px)_1fr]">
+        <div className="grid grid-cols-1 gap-[18px] lg:h-[calc(100dvh-260px)] lg:min-h-[560px] lg:grid-cols-[minmax(300px,380px)_1fr]">
           {/* SOL: liste */}
-          <section className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-ink/10 bg-white">
-            <div className="flex flex-none flex-col gap-3 border-b border-ink/8 px-4 py-[14px]">
-              <label className="relative block">
-                <span className="pointer-events-none absolute top-1/2 left-[12px] -translate-y-1/2 text-[#8A90A0]">
-                  <Icon name="search" size={15} />
-                </span>
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-[18px] border border-[#E6E8EF] bg-white">
+            <div className="flex flex-none flex-col gap-3 p-4">
+              <label className="flex h-11 items-center gap-2.5 rounded-[12px] bg-[#F1F3F8] px-3.5 text-[#8A92A6] focus-within:ring-2 focus-within:ring-brand/30">
+                <Icon name="search" size={15} />
                 <input
                   type="search"
                   value={arama}
                   onChange={(e) => setArama(e.target.value)}
                   placeholder="Konu, mesaj veya #no ara"
                   aria-label="Sorularında ara"
-                  className="h-10 w-full rounded-[9px] border border-ink/12 bg-mist pr-3 pl-[34px] text-[14px] text-ink outline-none focus:border-brand focus:bg-white"
+                  className="min-w-0 flex-1 bg-transparent text-[14px] text-ink outline-none placeholder:text-[#8A92A6]"
                 />
               </label>
-              <div className="-mx-1 flex gap-[6px] overflow-x-auto px-1 pb-0.5" role="group" aria-label="Duruma göre süz">
+              <div className="grid grid-cols-4 gap-1 rounded-[12px] bg-[#F1F3F8] p-1" role="group" aria-label="Duruma göre süz">
                 {SUZGECLER.map((s) => {
                   const secim = suzgec === s.deger;
                   return (
@@ -333,19 +345,19 @@ export function OgrenciDestek({
                       type="button"
                       onClick={() => setSuzgec(s.deger)}
                       aria-pressed={secim}
-                      className={`inline-flex h-[32px] flex-none items-center gap-[6px] rounded-full border px-[12px] text-[12.5px] font-medium transition ${
-                        secim ? "border-brand bg-brand/8 text-brand" : "border-ink/12 bg-white text-[#5C6273] hover:text-ink"
+                      className={`flex h-9 items-center justify-center gap-1.5 rounded-[9px] text-[12.5px] font-semibold whitespace-nowrap transition ${
+                        secim ? "bg-white text-ink shadow-[0_1px_2px_rgba(14,21,38,.08)]" : "text-[#3A3F4F] hover:text-ink"
                       }`}
                     >
                       {s.etiket}
-                      <span className="font-mono text-[10.5px] opacity-70">{sayilar[s.deger]}</span>
+                      <span className={`font-mono text-[10px] ${secim ? "text-brand" : "text-[#8A92A6]"}`}>{sayilar[s.deger]}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="min-h-0 flex-1 lg:overflow-y-auto">
+            <div className="min-h-0 flex-1 border-t border-[#EEF0F5] lg:overflow-y-auto">
               {listelenen.length === 0 ? (
                 <p className="px-5 py-10 text-center text-[13.5px] text-[#656B7A]">Bu aramayla eşleşen soru yok.</p>
               ) : (
@@ -356,43 +368,44 @@ export function OgrenciDestek({
                     const son = t.mesajlar[t.mesajlar.length - 1];
                     const yeniYanit = t.durum === "yanitlandi" && son?.egitmenMi;
                     return (
-                      <li key={t.id} className="border-b border-ink/7 last:border-b-0">
+                      <li key={t.id} className="border-b border-[#EEF0F5] last:border-b-0">
                         <button
                           type="button"
                           onClick={() => sec(t.id)}
                           aria-current={secim ? "true" : undefined}
-                          className={`flex w-full flex-col gap-[5px] border-l-[3px] px-4 py-[13px] text-left transition ${
-                            secim ? "lg:border-l-brand lg:bg-[#F5F8FF]" : ""
+                          className={`flex w-full flex-col gap-1.5 border-l-[3px] px-4 py-3.5 text-left transition ${
+                            secim ? "lg:border-l-brand lg:bg-[#F5F7FC]" : ""
                           } border-l-transparent hover:bg-[#FAFBFE]`}
                         >
-                          <span className="flex items-center gap-2 font-mono text-[10px] text-[#8A90A0]">
+                          <span className="flex items-center gap-2 font-mono text-[10.5px] text-[#8A92A6]">
                             <span className="truncate">
-                              #{kisaNo(t.id)} · {t.program}
+                              <span className="text-brand">#{kisaNo(t.id)}</span> · {t.program}
                             </span>
                             <span className="ml-auto flex-none" title={gunUzun.format(new Date(t.guncelleme))}>
                               {kisaYas(t.guncelleme)}
                             </span>
                           </span>
                           <span className="flex items-center gap-2">
-                            <span className={`min-w-0 flex-1 truncate text-[14.5px] text-ink ${yeniYanit ? "font-bold" : "font-semibold"}`}>
+                            <span className={`min-w-0 flex-1 truncate text-[15px] text-ink ${yeniYanit ? "font-extrabold" : "font-bold"}`}>
                               {t.baslik}
                             </span>
                             {yeniYanit && <span className="h-2 w-2 flex-none rounded-full bg-brand" aria-label="Yeni yanıt" />}
                           </span>
                           {son && (
-                            <span className="block truncate text-[12.5px] text-[#656B7A]">
+                            <span className="block truncate text-[13px] text-[#3A3F4F]">
                               {son.egitmenMi ? "Eğitmen: " : "Sen: "}
                               {son.metin || (son.ekler.length ? "Ek gönderildi" : "")}
                             </span>
                           )}
-                          <span>
+                          <span className="flex items-center">
                             <span
-                              className="inline-flex items-center gap-[5px] rounded-full px-[8px] py-[2px] font-mono text-[9px] tracking-[0.08em] uppercase"
+                              className="inline-flex items-center gap-[5px] rounded-full px-2 py-[2px] font-mono text-[9.5px] tracking-[0.08em] uppercase"
                               style={{ background: st.bg, color: st.fg }}
                             >
                               <span className="h-[5px] w-[5px] rounded-full" style={{ background: st.nokta }} />
                               {st.etiket}
                             </span>
+                            <span className="ml-auto font-mono text-[10px] text-[#8A92A6] uppercase">{t.mesajlar.length} mesaj</span>
                           </span>
                         </button>
                       </li>
@@ -408,136 +421,142 @@ export function OgrenciDestek({
             <section
               aria-label="Konuşma"
               className={`${
-                mobilKonusmaAcik ? "fixed inset-0 z-[46] flex pt-[env(safe-area-inset-top)]" : "hidden"
-              } min-h-0 flex-col overflow-hidden bg-white lg:static lg:z-auto lg:flex lg:rounded-2xl lg:border lg:border-ink/10 lg:pt-0`}
+                mobilKonusmaAcik ? "fixed inset-0 z-[46] flex" : "hidden"
+              } min-h-0 flex-col overflow-hidden bg-white lg:static lg:z-auto lg:flex lg:rounded-[18px] lg:border lg:border-[#E6E8EF]`}
             >
-              <header className="flex flex-none items-start gap-2 border-b border-ink/8 px-3 py-3 sm:px-5 lg:px-6 lg:py-[15px]">
+              {/* Telefon: koyu başlık (tasarım). */}
+              <header
+                className="relative flex flex-none items-center gap-3 px-4 pt-[calc(12px+env(safe-area-inset-top))] pb-3.5 text-white lg:hidden"
+                style={{ background: "linear-gradient(135deg,#1A3FCC 0%,#0F1E5C 45%,#070B16 100%)" }}
+              >
                 <button
                   type="button"
                   onClick={listeyeDon}
                   aria-label="Soru listesine dön"
-                  className="grid h-10 w-10 flex-none place-items-center rounded-[10px] text-ink transition hover:bg-mist lg:hidden"
+                  className="grid h-11 w-11 flex-none place-items-center rounded-[12px] bg-white/10 transition active:bg-white/20"
                 >
                   <Icon name="arrowLeft" size={19} />
                 </button>
-                <div className="min-w-0 flex-1 pt-[2px] lg:pt-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h2 className="min-w-0 truncate font-heading text-[16.5px] font-semibold tracking-[-0.02em] sm:text-[17px]">
-                      {secili.baslik}
-                    </h2>
-                    <span
-                      className="flex-none rounded-full px-[9px] py-[3px] font-mono text-[9px] tracking-[0.08em] uppercase"
-                      style={{ background: DURUM_STIL[secili.durum].bg, color: DURUM_STIL[secili.durum].fg }}
-                    >
-                      {DURUM_STIL[secili.durum].etiket}
-                    </span>
+                    <h2 className="min-w-0 truncate text-[17px] font-bold">{secili.baslik}</h2>
+                    <DurumRozeti durum={secili.durum} koyu />
                   </div>
-                  <div className="mt-[4px] truncate font-mono text-[10.5px] text-[#656B7A]">
-                    #{kisaNo(secili.id)} · açıldı {gunUzun.format(new Date(secili.tarih))} · {secili.mesajlar.length} mesaj
+                  <div className="mt-0.5 truncate font-mono text-[10.5px] text-[#AFC2FF]">
+                    #{kisaNo(secili.id)} · {secili.program}
                   </div>
                 </div>
               </header>
 
-              {/* Bilgi şeridi: bağlı eğitim + tahmini yanıt */}
-              <div className="flex flex-none flex-wrap items-center gap-x-4 gap-y-2 border-b border-ink/8 bg-[#FBFCFE] px-4 py-2.5 text-[12.5px] sm:px-6">
-                {kurslar.length > 0 && secili.durum !== "kapandi" ? (
-                  <label className="flex min-w-0 items-center gap-2">
-                    <span className="flex-none text-[#656B7A]">
-                      <Icon name="book" size={14} />
-                    </span>
-                    <span className="sr-only">İlgili eğitim</span>
-                    <select
-                      value={secili.courseId ?? ""}
-                      onChange={(e) => egitimBagla(e.target.value)}
-                      disabled={islemde}
-                      className="h-8 max-w-[240px] min-w-0 truncate rounded-[8px] border border-ink/12 bg-white px-2 text-[12.5px] font-medium text-ink outline-none focus:border-brand"
-                    >
-                      <option value="">Eğitime bağla (genel)</option>
-                      {secili.courseId && !bagliKurs && <option value={secili.courseId}>{secili.program}</option>}
-                      {kurslar.map((k) => (
-                        <option key={k.id} value={k.id}>
-                          {k.ad}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ) : (
-                  <span className="flex items-center gap-2 text-[#5C6273]">
-                    <Icon name="book" size={14} />
-                    {secili.program}
-                  </span>
+              {/* Masaüstü başlığı: konu, durum, eğitim seçimi, kapat. */}
+              <header className="hidden flex-none flex-wrap items-center gap-3 border-b border-[#EEF0F5] px-6 py-4 lg:flex">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="min-w-0 truncate text-[18px] font-bold text-ink">{secili.baslik}</h2>
+                    <DurumRozeti durum={secili.durum} />
+                  </div>
+                  <div className="mt-1 truncate font-mono text-[10.5px] text-[#8A92A6]">
+                    #{kisaNo(secili.id)} · açıldı {gunUzun.format(new Date(secili.tarih))} · {secili.mesajlar.length} mesaj
+                    {yanitBekleniyor && yanitSuresiDk !== null ? ` · tahmini yanıt ${sureMetni(yanitSuresiDk)}` : ""}
+                  </div>
+                </div>
+                <EgitimSecimi
+                  secili={secili}
+                  kurslar={kurslar}
+                  bagliKurs={bagliKurs}
+                  islemde={islemde}
+                  onSec={egitimBagla}
+                />
+                {secili.durum !== "kapandi" && (
+                  <button
+                    type="button"
+                    onClick={kapat}
+                    disabled={islemde}
+                    className="h-10 rounded-[10px] border border-[#E1E4EC] bg-white px-3.5 text-[13px] font-semibold text-ink transition hover:border-[#188C5A] hover:text-[#157A4E] disabled:opacity-50"
+                  >
+                    Çözüldü olarak kapat
+                  </button>
                 )}
-                {bagliKurs && (
-                  <span className="font-mono text-[10.5px] text-[#656B7A]">%{bagliKurs.yuzde} tamamlandı</span>
-                )}
+              </header>
+
+              {/* Telefon bilgi şeridi: eğitim + tahmini yanıt + kapat. */}
+              <div className="flex flex-none flex-wrap items-center gap-x-3 gap-y-2 border-b border-[#EEF0F5] px-4 py-2.5 text-[12.5px] lg:hidden">
+                <EgitimSecimi secili={secili} kurslar={kurslar} bagliKurs={bagliKurs} islemde={islemde} onSec={egitimBagla} />
                 {yanitBekleniyor && yanitSuresiDk !== null && (
-                  <span className="flex items-center gap-[6px] text-[#5C6273] sm:ml-auto">
-                    <Icon name="clock" size={14} />
-                    Tahmini yanıt: genellikle {sureMetni(yanitSuresiDk)} içinde
+                  <span className="flex items-center gap-1.5 text-[#5C6273]">
+                    <Icon name="clock" size={13} />~{sureMetni(yanitSuresiDk)}
                   </span>
+                )}
+                {secili.durum !== "kapandi" && (
+                  <button type="button" onClick={kapat} disabled={islemde} className="ml-auto font-semibold text-[#157A4E] disabled:opacity-50">
+                    Çözüldü, kapat
+                  </button>
                 )}
               </div>
 
-              {/* Akış */}
-              <div ref={akisRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#FBFCFE] px-4 py-5 sm:px-6">
+              {/* Akış — ızgaralı zemin, gün ayracı hap. */}
+              <div
+                ref={akisRef}
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#FBFCFE] px-4 py-5 sm:px-6"
+                style={{
+                  backgroundImage: "linear-gradient(#EEF0F5 1px,transparent 1px),linear-gradient(90deg,#EEF0F5 1px,transparent 1px)",
+                  backgroundSize: "24px 24px",
+                }}
+              >
                 {secili.mesajlar.map((m, i) => {
                   const onceki = secili.mesajlar[i - 1];
                   const gunDegisti = !onceki || new Date(onceki.tarih).toDateString() !== new Date(m.tarih).toDateString();
                   const ayniKisi = onceki && onceki.egitmenMi === m.egitmenMi && !gunDegisti;
-                  const benim = m.gonderenId === benimId;
                   return (
                     <div key={m.id}>
                       {gunDegisti && (
-                        <div className="my-4 flex items-center gap-3 first:mt-0">
-                          <span className="h-px flex-1 bg-ink/8" />
-                          <span className="font-mono text-[9.5px] tracking-[0.12em] text-[#8A90A0] uppercase">
+                        <div className="my-4 flex justify-center first:mt-0">
+                          <span className="rounded-full border border-[#E6E8EF] bg-white px-3 py-1 font-mono text-[10.5px] tracking-[0.06em] text-[#8A92A6]">
                             {gunEtiketi(m.tarih)}
                           </span>
-                          <span className="h-px flex-1 bg-ink/8" />
                         </div>
                       )}
-                      <div className={`flex flex-col ${m.egitmenMi ? "items-start" : "items-end"} ${ayniKisi ? "mt-[6px]" : "mt-4"}`}>
-                        {!ayniKisi && (
-                          <span className="mb-[6px] flex items-center gap-[7px] px-1">
-                            <span
-                              className="rounded-full px-[8px] py-[2px] font-mono text-[9px] tracking-[0.09em] uppercase"
-                              style={
-                                m.egitmenMi
-                                  ? { background: "rgba(28,86,243,0.13)", color: "#1C56F3" }
-                                  : { background: "rgba(10,13,24,0.07)", color: "#5C6273" }
-                              }
-                            >
-                              {m.egitmenMi ? "Eğitmen" : "Sen"}
-                            </span>
-                            {!benim && <span className="font-mono text-[10px] text-[#8A90A0]">{m.gonderenAd}</span>}
+                      {m.egitmenMi ? (
+                        /* Eğitmen: solda, avatarlı beyaz balon. */
+                        <div className={`flex items-start gap-2.5 ${ayniKisi ? "mt-1.5" : "mt-4"}`}>
+                          <span
+                            className={`flex h-9 w-9 flex-none items-center justify-center rounded-full bg-ink text-[11px] font-bold text-white ${
+                              ayniKisi ? "invisible" : ""
+                            }`}
+                            aria-hidden
+                          >
+                            {basHarf(m.gonderenAd)}
                           </span>
-                        )}
-                        <div
-                          className="max-w-[88%] px-[15px] py-[11px] text-[14.5px] leading-[1.62] whitespace-pre-line sm:max-w-[74%]"
-                          style={
-                            m.egitmenMi
-                              ? {
-                                  background: "#1C56F3",
-                                  color: "#FFFFFF",
-                                  borderRadius: ayniKisi ? "6px 14px 14px 6px" : "14px 14px 14px 5px",
-                                  boxShadow: "0 1px 2px rgba(28,86,243,0.25)",
-                                }
-                              : {
-                                  background: "#FFFFFF",
-                                  color: "#2B303D",
-                                  border: "1px solid rgba(10,13,24,0.09)",
-                                  borderRadius: ayniKisi ? "14px 6px 6px 14px" : "14px 14px 5px 14px",
-                                  boxShadow: "0 1px 2px rgba(10,13,24,0.04)",
-                                }
-                          }
-                        >
-                          {m.metin}
-                          <MesajEkleri ekler={m.ekler} koyu={m.egitmenMi} />
+                          <div className="flex max-w-[85%] min-w-0 flex-col items-start sm:max-w-[70%]">
+                            {!ayniKisi && (
+                              <span className="mb-1.5 flex items-center gap-2 text-[13px] font-bold text-ink">
+                                {m.gonderenAd}
+                                <span className="rounded-full bg-[#EEF2FF] px-1.5 py-[1px] font-mono text-[9px] tracking-[0.08em] text-brand uppercase">
+                                  Eğitmen
+                                </span>
+                              </span>
+                            )}
+                            <div className="rounded-[4px_16px_16px_16px] border border-[#E6E8EF] bg-white px-4 py-3 text-[14.5px] leading-[1.6] whitespace-pre-line text-ink shadow-[0_1px_2px_rgba(10,13,24,.04)]">
+                              {m.metin}
+                              <MesajEkleri ekler={m.ekler} koyu={false} />
+                            </div>
+                            <span className="mt-1 font-mono text-[10px] text-[#8A92A6]" title={gunUzun.format(new Date(m.tarih))}>
+                              {saat.format(new Date(m.tarih))}
+                            </span>
+                          </div>
                         </div>
-                        <span className="mt-[4px] px-1 font-mono text-[9.5px] text-[#8A90A0]" title={gunUzun.format(new Date(m.tarih))}>
-                          {saat.format(new Date(m.tarih))}
-                        </span>
-                      </div>
+                      ) : (
+                        /* Öğrenci: sağda mavi balon. */
+                        <div className={`flex flex-col items-end ${ayniKisi ? "mt-1.5" : "mt-4"}`}>
+                          <div className="max-w-[85%] rounded-[16px_16px_4px_16px] bg-brand px-4 py-3 text-[14.5px] leading-[1.6] whitespace-pre-line text-white shadow-[0_6px_16px_-8px_rgba(28,86,243,.6)] sm:max-w-[70%]">
+                            {m.metin}
+                            <MesajEkleri ekler={m.ekler} koyu />
+                          </div>
+                          <span className="mt-1 font-mono text-[10px] text-[#8A92A6]" title={gunUzun.format(new Date(m.tarih))}>
+                            Sen · {saat.format(new Date(m.tarih))}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -545,7 +564,7 @@ export function OgrenciDestek({
 
               {/* Sorun çözüldü mü? — yalnız eğitmen yanıtından sonra */}
               {cozulduSor && (
-                <div className="flex flex-none flex-wrap items-center gap-3 border-t border-ink/8 bg-[rgba(24,140,90,0.06)] px-4 py-3 sm:px-6">
+                <div className="flex flex-none flex-wrap items-center gap-3 border-t border-[#EEF0F5] bg-[rgba(24,140,90,0.06)] px-4 py-3 sm:px-6">
                   <span className="flex min-w-0 flex-1 items-center gap-2 text-[13.5px] font-semibold text-[#157A4E]">
                     <Icon name="check" size={15} />
                     Sorun çözüldü mü?
@@ -573,12 +592,38 @@ export function OgrenciDestek({
 
               {/* Yazma alanı */}
               {secili.durum !== "kapandi" ? (
-                <div className="flex-none border-t border-ink/8 px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6 sm:py-4">
-                  <div className="overflow-hidden rounded-[12px] border border-ink/13 bg-white transition focus-within:border-brand focus-within:ring-[3px] focus-within:ring-brand/12">
+                <div className="flex-none border-t border-[#EEF0F5] bg-white px-3 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-5 sm:py-4">
+                  <input
+                    ref={dosyaRef}
+                    type="file"
+                    accept={EK_KABUL}
+                    multiple
+                    hidden
+                    onChange={(e) => {
+                      if (e.target.files) void ekler.ekle(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                  {ekler.liste.length > 0 && (
+                    <div className="mb-2">
+                      <BekleyenEkler liste={ekler.liste} onKaldir={ekler.kaldir} />
+                    </div>
+                  )}
+                  <div className="flex items-end gap-2 sm:block sm:overflow-hidden sm:rounded-[14px] sm:border sm:border-[#E1E4EC] sm:transition sm:focus-within:border-brand sm:focus-within:ring-[3px] sm:focus-within:ring-brand/12">
+                    {/* Telefon: ek düğmesi solda (kare). */}
+                    <button
+                      type="button"
+                      onClick={() => dosyaRef.current?.click()}
+                      disabled={ekler.dolu}
+                      aria-label="Ekran görüntüsü veya dosya ekle"
+                      className="grid h-11 w-11 flex-none place-items-center rounded-[12px] bg-[#F1F3F8] text-[#3A3F4F] disabled:opacity-40 sm:hidden"
+                    >
+                      <Icon name="upload" size={17} />
+                    </button>
                     <textarea
                       ref={yaziRef}
                       data-odak="sarmal"
-                      rows={2}
+                      rows={1}
                       value={yanit}
                       onChange={(e) => setYanit(e.target.value)}
                       onPaste={(e) => {
@@ -595,54 +640,44 @@ export function OgrenciDestek({
                           gonder();
                         }
                       }}
-                      placeholder="Mesajını yaz… (ekran görüntüsü eklemek sorunu hızlandırır)"
+                      placeholder="Mesajını yaz…"
                       aria-label="Mesajın"
-                      className="block max-h-[200px] w-full resize-none appearance-none border-0 bg-transparent px-[14px] py-3 text-[15px] leading-[1.6] text-ink outline-none"
+                      className="block max-h-[200px] min-h-11 min-w-0 flex-1 resize-none appearance-none rounded-[12px] border border-[#E1E4EC] bg-white px-3.5 py-2.5 text-[15px] leading-[1.5] text-ink outline-none focus:border-brand sm:w-full sm:rounded-none sm:border-0 sm:px-4 sm:py-3"
                     />
-                    {ekler.liste.length > 0 && (
-                      <div className="px-[12px] pb-[10px]">
-                        <BekleyenEkler liste={ekler.liste} onKaldir={ekler.kaldir} />
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between gap-3 border-t border-ink/7 bg-[#FBFCFE] px-[10px] py-[8px]">
-                      <div className="flex items-center gap-1">
-                        <input
-                          ref={dosyaRef}
-                          type="file"
-                          accept={EK_KABUL}
-                          multiple
-                          hidden
-                          onChange={(e) => {
-                            if (e.target.files) void ekler.ekle(e.target.files);
-                            e.target.value = "";
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => dosyaRef.current?.click()}
-                          disabled={ekler.dolu}
-                          className="inline-flex h-9 items-center gap-[6px] rounded-[8px] px-2.5 text-[13px] font-medium text-[#5C6273] transition hover:bg-mist hover:text-ink disabled:opacity-40"
-                        >
-                          <Icon name="upload" size={15} />
-                          <span>Ekran görüntüsü / dosya</span>
-                        </button>
-                        <span className="hidden font-mono text-[10px] text-[#8A90A0] lg:inline">· ⌘/Ctrl + Enter</span>
-                      </div>
+                    <button
+                      type="button"
+                      onClick={gonder}
+                      disabled={islemde || ekler.yukleniyor || (!yanit.trim() && !ekler.hazirEkler.length)}
+                      aria-label="Gönder"
+                      className="grid h-11 w-11 flex-none place-items-center rounded-[12px] bg-brand text-white transition disabled:opacity-45 sm:hidden"
+                    >
+                      <Icon name="arrowRight" size={17} />
+                    </button>
+                    <div className="hidden items-center gap-3 border-t border-[#EEF0F5] px-3 py-2.5 sm:flex">
+                      <button
+                        type="button"
+                        onClick={() => dosyaRef.current?.click()}
+                        disabled={ekler.dolu}
+                        className="inline-flex h-9 items-center gap-2 rounded-[9px] border border-[#E1E4EC] px-3 text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand disabled:opacity-40"
+                      >
+                        <Icon name="upload" size={14} />
+                        Ekran görüntüsü / dosya
+                      </button>
+                      <span className="hidden font-mono text-[10.5px] text-[#8A92A6] lg:inline">⌘/Ctrl + Enter</span>
                       <button
                         type="button"
                         onClick={gonder}
                         disabled={islemde || ekler.yukleniyor || (!yanit.trim() && !ekler.hazirEkler.length)}
-                        className="inline-flex h-[38px] flex-none items-center gap-[7px] rounded-[9px] bg-brand px-[16px] text-[13.5px] font-semibold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"
+                        className="ml-auto inline-flex h-10 items-center gap-2 rounded-[10px] bg-brand px-[18px] text-[13.5px] font-bold text-white transition hover:bg-ink disabled:cursor-not-allowed disabled:opacity-45"
                       >
-                        <Icon name="arrowRight" size={14} />
-                        {islemde ? "Gönderiliyor…" : "Gönder"}
+                        {islemde ? "Gönderiliyor…" : "Gönder →"}
                       </button>
                     </div>
                   </div>
                   {hata && <div className="mt-2 text-sm text-danger-ink">{hata}</div>}
                 </div>
               ) : (
-                <div className="flex flex-none flex-wrap items-center justify-between gap-3 border-t border-ink/8 px-4 pt-4 pb-[max(16px,env(safe-area-inset-bottom))] sm:px-6">
+                <div className="flex flex-none flex-wrap items-center justify-between gap-3 border-t border-[#EEF0F5] px-4 pt-4 pb-[max(16px,env(safe-area-inset-bottom))] sm:px-6">
                   <span className="text-[13.5px] text-[#656B7A]">Bu talep kapatıldı. Başka bir konuda yeni soru açabilirsin.</span>
                   <button
                     type="button"
@@ -660,13 +695,94 @@ export function OgrenciDestek({
               )}
             </section>
           ) : (
-            <section className="hidden min-h-[320px] items-center justify-center rounded-2xl border border-ink/10 bg-white lg:flex">
+            <section className="hidden min-h-[320px] items-center justify-center rounded-[18px] border border-[#E6E8EF] bg-white lg:flex">
               <p className="px-6 text-center text-[14px] text-[#656B7A]">Soldan bir soru seç.</p>
             </section>
           )}
         </div>
       )}
     </main>
+  );
+}
+
+/** "+ Yeni soru"; görünürlük sınıfları (inline-flex / hidden) çağırandan. */
+function YeniDugme({ acik, onClick, className }: { acik: boolean; onClick: () => void; className: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={acik}
+      className={`h-11 flex-none items-center gap-1.5 rounded-[12px] bg-white px-4 text-[14px] font-bold text-[#1A44CC] transition hover:bg-[#EEF2FF] sm:h-12 sm:px-5 ${className}`}
+    >
+      {acik ? "Vazgeç" : "+ Yeni soru"}
+    </button>
+  );
+}
+
+function BantSayi({ etiket, deger, renk }: { etiket: string; deger: string; renk?: string }) {
+  return (
+    <div className="flex min-w-0 flex-col gap-0.5 border-l border-white/14 px-3 first:border-l-0 first:pl-0 lg:px-5">
+      <span className="text-[20px] leading-none font-extrabold lg:text-[24px]" style={{ color: renk }}>
+        {deger}
+      </span>
+      <span className="truncate font-mono text-[9px] tracking-[0.12em] text-[#AFC2FF] uppercase lg:text-[10px] lg:tracking-[0.14em]">{etiket}</span>
+    </div>
+  );
+}
+
+function DurumRozeti({ durum, koyu = false }: { durum: Durum; koyu?: boolean }) {
+  const st = DURUM_STIL[durum];
+  return (
+    <span
+      className="flex-none rounded-full px-2 py-[2px] font-mono text-[9.5px] tracking-[0.08em] uppercase"
+      style={koyu ? { background: "rgba(61,220,151,.15)", color: durum === "kapandi" ? "#C9D0E0" : "#3DDC97" } : { background: st.bg, color: st.fg }}
+    >
+      {st.etiket}
+    </span>
+  );
+}
+
+/** Sorunun bağlı olduğu eğitim: açık talepte değiştirilebilir hap. */
+function EgitimSecimi({
+  secili,
+  kurslar,
+  bagliKurs,
+  islemde,
+  onSec,
+}: {
+  secili: DestekTalep;
+  kurslar: { id: string; ad: string; yuzde: number }[];
+  bagliKurs: { id: string; ad: string; yuzde: number } | undefined;
+  islemde: boolean;
+  onSec: (id: string) => void;
+}) {
+  if (kurslar.length === 0 || secili.durum === "kapandi") {
+    return (
+      <span className="flex items-center gap-2 text-[12.5px] font-semibold text-[#3A3F4F]">
+        <span className="h-2 w-2 rounded-[2px] bg-brand" />
+        {secili.program}
+      </span>
+    );
+  }
+  return (
+    <label className="relative flex h-10 max-w-[260px] min-w-0 items-center gap-2 rounded-[10px] border border-[#E1E4EC] bg-[#F7F8FB] pr-2 pl-3">
+      <span className="h-2 w-2 flex-none rounded-[2px] bg-brand" />
+      <span className="sr-only">İlgili eğitim</span>
+      <select
+        value={secili.courseId ?? ""}
+        onChange={(e) => onSec(e.target.value)}
+        disabled={islemde}
+        className="min-w-0 flex-1 truncate bg-transparent text-[13px] font-semibold text-ink outline-none"
+      >
+        <option value="">Genel (eğitime bağlı değil)</option>
+        {secili.courseId && !bagliKurs && <option value={secili.courseId}>{secili.program}</option>}
+        {kurslar.map((k) => (
+          <option key={k.id} value={k.id}>
+            {k.ad}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -810,17 +926,6 @@ function YeniSoru({
         >
           Vazgeç
         </button>
-      </div>
-    </div>
-  );
-}
-
-function Ozet({ etiket, deger, renk }: { etiket: string; deger: number; renk: string }) {
-  return (
-    <div className="rounded-[12px] border border-ink/10 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
-      <div className="font-mono text-[9px] tracking-[0.13em] text-[#656B7A] uppercase">{etiket}</div>
-      <div className="mt-[4px] font-heading text-[21px] leading-none font-semibold tracking-[-0.02em]" style={{ color: deger > 0 ? renk : "#8A90A0" }}>
-        {deger}
       </div>
     </div>
   );
