@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/panel/actions";
 import { Icon, type IconName } from "@/components/Icon";
+import { MenuAlt, MenuGrup, MenuMarka, MenuOgesi, MenuYakinda, YAN_MENU_ZEMIN } from "@/components/YanMenu";
 import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
@@ -96,14 +97,10 @@ const pageTitles: Record<string, string> = {
 export function PanelShell({
   children,
   profil,
-  aktifProgram,
-  programSayisi,
   bildirim,
 }: {
   children: React.ReactNode;
   profil: PanelProfile;
-  aktifProgram: { baslik: string; slug: string } | null;
-  programSayisi: number;
   /** Menü rozetleri; genel bakıştaki bildirim kutusuyla aynı kaynak. */
   bildirim: PanelBildirimleri;
 }) {
@@ -148,8 +145,8 @@ export function PanelShell({
     */
     const etiket = document.querySelector('meta[name="theme-color"]');
     const eskiRenk = etiket?.getAttribute("content") ?? null;
-    // --color-ink; menünün zemini.
-    if (etiket && menuAcik) etiket.setAttribute("content", "#0a0d18");
+    // Menünün zemini (YAN_MENU_ZEMIN).
+    if (etiket && menuAcik) etiket.setAttribute("content", "#0B1120");
 
     return () => {
       delete document.body.dataset.menuAcik;
@@ -197,213 +194,59 @@ export function PanelShell({
           kadar uzanıyor (iOS 26 Safari'nin yüzen alt çubuğunun ARKASI dahil),
           içerik ise görünür alanın (dvh) içinde kalıyor. Yalnız h-dvh iken
           menü çubuğun üstünde bitiyor, altında karartılmış sayfa gri bir kutu
-          gibi görünüyordu. Çubuk küçülünce fark sıfır. Arka örtü de lvh.
-          (Yönetim menüsünde aynısı: AdminShell.)
+          gibi görünüyordu. (Yönetim menüsünde aynısı: AdminShell.)
+
+          Görünüm ortak bileşenden: components/YanMenu.tsx ("Sidebar" 2b).
         */
-        // Eskiden h-dvh: iOS'ta h-screen tarayıcı çubuklarını hesaba katmıyor ve menü
-        // ekrandan taşıyordu, alttaki çıkış düğmesi kesiliyordu.
-        /*
-          Zemin düz bg-ink değil, hafif bir dikey degrade: üstte biraz açılıp
-          altta koyulaşınca menü düz bir blok olmaktan çıkıp derinlik
-          kazanıyor. Sağ kenardaki ince beyaz çizgi de menüyü içerikten
-          "kesiyor" — tek başına kenarlık koymaktan daha yumuşak duruyor.
-        */
-        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[276px] flex-none flex-col bg-ink bg-gradient-to-b from-[#111629] via-ink to-[#070a12] text-white/66 shadow-[inset_-1px_0_0_rgba(255,255,255,0.07)] transition-transform duration-300 ease-out pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[264px] flex-none flex-col gap-[22px] ${YAN_MENU_ZEMIN} transition-transform duration-300 ease-out pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Yan menü de tam ekran yüksekliğinde: üstü çentiğe girmesin. */}
-        <div className="flex items-center justify-between border-b border-white/10 px-[22px] pt-[calc(26px+env(safe-area-inset-top))] pb-5">
-          <Link
-            href={native ? "/panel" : "/"}
-            className="flex items-center gap-[11px] text-white"
-            onClick={() => setMenuAcik(false)}
-          >
-            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-heading text-[15px] font-bold">
-              AE
-            </span>
-            <span className="flex flex-col leading-[1.15]">
-              <span className="font-heading text-sm font-semibold">Ahmet Ekinci</span>
-              <span className="font-mono text-[9px] tracking-[0.2em] text-white/45 uppercase">Öğrenci paneli</span>
-            </span>
-          </Link>
-          <button
-            type="button"
-            aria-label="Menüyü kapat"
-            onClick={() => setMenuAcik(false)}
-            className="flex h-8 w-8 items-center justify-center rounded-[8px] text-white/55 transition hover:bg-white/10 hover:text-white lg:hidden"
-          >
-            <Icon name="x" size={16} />
-          </button>
-        </div>
-
-        <div className="border-b border-white/8 px-[18px] pt-4 pb-[14px]">
-          {aktifProgram && DERSLER_ACIK ? (
-            <Link
-              href="/panel/dersler"
-              className="group flex w-full items-center gap-[11px] rounded-[11px] border border-white/12 bg-white/[0.04] px-3 py-[11px] text-left transition hover:border-brand/60 hover:bg-white/[0.07]"
-            >
-              <span className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[8px] bg-brand/20 text-[#7FA0FF]">
-                <Icon name="play" size={13} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-mono text-[9px] tracking-[0.16em] text-white/55 uppercase">
-                  {programSayisi > 1 ? `Aktif program · ${programSayisi} kayıt` : "Aktif program"}
-                </span>
-                <span className="mt-[3px] block truncate text-[13px] font-semibold text-white">
-                  {aktifProgram.baslik}
-                </span>
-              </span>
-              <Icon name="chevronRight" size={14} className="flex-none text-white/55 transition group-hover:text-white/70" />
-            </Link>
-          ) : (
-            /* Dersler kapalıyken kutu duruyor ama tıklanmıyor: programın adı
-               bilgi, oynatıcıya çıkan yol ise henüz yok. */
-            <div className="rounded-[11px] border border-white/12 bg-white/[0.04] px-3 py-[11px]">
-              <span className="block font-mono text-[9px] tracking-[0.16em] text-white/55 uppercase">
-                Aktif program
-              </span>
-              <span className="mt-[3px] block truncate text-[13px] font-semibold text-white/70">
-                {aktifProgram ? aktifProgram.baslik : "Henüz kayıt yok"}
-              </span>
-            </div>
-          )}
-        </div>
+        <MenuMarka
+          href={native ? "/panel" : "/"}
+          baslik="Ahmet Ekinci"
+          alt="Öğrenci paneli"
+          onGit={() => setMenuAcik(false)}
+          onKapat={() => setMenuAcik(false)}
+        />
 
         {/*
           min-h-0 + flex-1 şart: flex çocuğu varsayılan olarak içeriğinin
           altına küçülmüyor, o yüzden overflow-auto hiç devreye girmiyor ve
-          liste alttaki profil/çıkış bloğunun altına taşıyordu (menü uzayınca
-          "Ödemelerim" yarıdan kesiliyordu). Bu ikisiyle liste kendi içinde
-          kayıyor, alt blok her zaman yerinde duruyor.
+          liste alttaki profil/çıkış bloğunun altına taşıyordu. Bu ikisiyle
+          liste kendi içinde kayıyor, alt blok her zaman yerinde duruyor.
         */}
-        <nav className="panel-menu-liste flex min-h-0 flex-1 flex-col gap-[14px] overflow-y-auto overscroll-contain px-[14px] pt-[14px] pb-2">
-          {gorunenGruplar.map((g) => (
-            <div key={g.title} className="flex flex-col gap-[2px]">
-              <div className="px-[13px] pb-[7px] font-mono text-[9px] tracking-[0.2em] text-white/55 uppercase">
-                {g.title}
-              </div>
-              {g.items.map((m) => {
-                const active = pathname === m.href || (m.href === "/panel/firsatlar" && ilanDetayi);
-                const sayi = m.rozet ? bildirim.sayac[m.rozet] : 0;
-                // Ödeme sayı taşımıyor: "kaç tane" değil "hâlâ duruyor"
-                // bilgisi. Nokta o yüzden sayıdan ayrı.
-                const uyariVar = Boolean(m.uyari && bildirim.odemeBekliyor);
-
-                if (m.yakinda) {
-                  return (
-                    <div
-                      key={m.href}
-                      aria-disabled
-                      /* Ölçüler aktif satırlarla birebir aynı: farklı dolgu
-                         ya da kenarlık, kapalı bölümleri listede kaydırıyordu. */
-                      className="flex cursor-not-allowed items-center gap-[11px] rounded-[11px] px-3 py-[11px] text-sm"
-                      style={{ color: "rgba(255,255,255,0.34)", fontWeight: 500 }}
-                    >
-                      <span className="flex flex-none opacity-45">
-                        <Icon name={m.icon} size={17} />
-                      </span>
-                      <span className="flex-1 truncate">{m.label}</span>
-                      <span className="flex-none rounded-full bg-white/10 px-[7px] py-[2px] font-mono text-[9px] tracking-[0.06em] text-white/55 uppercase">
-                        Çok yakında
-                      </span>
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
+        <nav className="panel-menu-liste flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto overscroll-contain px-4">
+          {gorunenGruplar.map((g, gi) => (
+            <MenuGrup key={g.title} baslik={g.title} ilk={gi === 0}>
+              {g.items.map((m) =>
+                m.yakinda ? (
+                  <MenuYakinda key={m.href} etiket={m.label} />
+                ) : (
+                  <MenuOgesi
                     key={m.href}
                     href={m.href}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => setMenuAcik(false)}
-                    /*
-                      Sol kenarlık yerine tam yuvarlatılmış bir satır: seçili
-                      öğe soldan sağa sönen bir marka degradesi, ince bir iç
-                      çerçeve ve yumuşak bir gölge taşıyor. Düz renk bloğuna
-                      göre daha katmanlı duruyor. Dikey dolgu da büyüdü —
-                      hem daha ferah hem parmakla daha kolay.
-                    */
-                    className={`relative flex items-center gap-[11px] rounded-[11px] px-3 py-[11px] text-sm transition-colors duration-150 hover:bg-white/[0.07] hover:text-white ${
-                      active ? "shadow-[inset_0_0_0_1px_rgba(28,86,243,0.42),0_6px_18px_-8px_rgba(28,86,243,0.65)]" : ""
-                    }`}
-                    style={{
-                      background: active
-                        ? "linear-gradient(90deg, rgba(28,86,243,0.34) 0%, rgba(28,86,243,0.10) 100%)"
-                        : m.vurgulu || sayi > 0 || uyariVar
-                          ? "rgba(255,255,255,0.06)"
-                          : "transparent",
-                      color:
-                        active || m.vurgulu || sayi > 0 || uyariVar ? "#FFFFFF" : "rgba(255,255,255,0.62)",
-                      fontWeight: m.vurgulu || sayi > 0 || uyariVar ? 600 : 500,
-                    }}
-                  >
-                    <span
-                      className="relative flex flex-none"
-                      style={{
-                        opacity: m.vurgulu || sayi > 0 || uyariVar ? 1 : 0.8,
-                        color: uyariVar ? "#FFB4B6" : (m.vurgulu || sayi > 0) && !active ? "#A9C0FF" : undefined,
-                      }}
-                    >
-                      <Icon name={m.icon} size={17} />
-                      {/*
-                        Ödeme uyarısı simgenin köşesinde nokta olarak duruyor.
-                        Sayı yazılmıyor: bekleyen ödeme adedi kullanıcının
-                        aklında tuttuğu bir sayı değil, "bir şey duruyor"
-                        bilgisi yeterli. Kırmızı, çünkü diğer rozetlerden
-                        farklı olarak bu eylem bekliyor.
-                      */}
-                      {uyariVar && (
-                        <span className="absolute -top-[3px] -right-[3px] h-[7px] w-[7px] rounded-full bg-[#E5484D] ring-2 ring-ink" />
-                      )}
-                    </span>
-                    <span className="flex-1 truncate">{m.label}</span>
-                    {/* Sayı yalnızca okunmamış varken çıkıyor; sıfır rozeti
-                        her gün duran bir gürültüye dönüşüyor. */}
-                    {sayi > 0 && (
-                      <span className="flex-none rounded-full bg-brand px-[7px] py-[2px] font-mono text-[9.5px] font-semibold text-white">
-                        {sayi > 9 ? "9+" : sayi}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
+                    etiket={m.label}
+                    aktif={pathname === m.href || (m.href === "/panel/firsatlar" && ilanDetayi)}
+                    // Sayı yalnızca okunmamış varken; sıfır rozeti gürültü.
+                    sayi={m.rozet ? bildirim.sayac[m.rozet] : 0}
+                    // Ödeme sayı değil "hâlâ duruyor" bilgisi: kırmızı nokta.
+                    uyari={Boolean(m.uyari && bildirim.odemeBekliyor)}
+                    onGit={() => setMenuAcik(false)}
+                  />
+                ),
+              )}
+            </MenuGrup>
           ))}
         </nav>
 
-        {/* Alt güvenli alan: ana ekran çubuğu çıkış düğmesini kesiyordu. */}
-        <div className="mt-auto px-[18px] pt-4 pb-[calc(22px+env(safe-area-inset-bottom))]">
-          {profil.admin && (
-            <Link
-              href="/kontrol-9f4x2k"
-              className="mb-4 flex h-10 items-center justify-center gap-2 rounded-[10px] border border-brand/45 bg-brand/12 text-[13.5px] font-semibold text-[#A9C0FF] transition hover:bg-brand hover:text-white"
-            >
-              <Icon name="shield" size={15} />
-              Yönetim paneli
-            </Link>
-          )}
-          {/* Profil kutusu: eskiden çıplak bir satırdı; kendi zemini olunca
-              menünün geri kalanından ayrılıyor ve alt blok toparlanıyor. */}
-          <div className="flex items-center gap-[10px] rounded-[12px] border border-white/10 bg-white/[0.04] px-[11px] py-[10px]">
-            <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-brand/25 font-mono text-[11px] font-semibold text-[#A9C0FF]">
-              {profil.basHarfler}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-[13.5px] font-semibold text-white">{profil.tamAd}</span>
-              <span className="block truncate font-mono text-[10px] text-white/55">{profil.email}</span>
-            </span>
-          </div>
-          <form action={cikisYap}>
-            <button
-              type="submit"
-              className="mt-3 flex h-9 w-full items-center justify-center gap-2 rounded-[9px] border border-[#E5484D]/35 text-[13px] font-semibold text-[#FF9A9D] transition hover:border-[#E5484D] hover:bg-[#E5484D] hover:text-white"
-            >
-              <Icon name="logout" size={15} />
-              Çıkış yap
-            </button>
-          </form>
-        </div>
+        <MenuAlt
+          basHarf={profil.basHarfler}
+          ad={profil.tamAd}
+          eposta={profil.email}
+          ikincil={profil.admin ? { href: "/kontrol-9f4x2k", etiket: "Yönetim paneli" } : null}
+          cikis={cikisYap}
+        />
       </aside>
 
       {/* Alt güvenli alan: içerik ana ekran çubuğunun altında kalmasın. */}
