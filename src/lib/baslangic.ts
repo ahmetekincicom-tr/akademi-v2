@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getOdemelerim, paraBicimi } from "@/lib/odeme";
 import { egitimPlanlandiMi } from "@/lib/egitim-oturumu";
@@ -31,7 +32,7 @@ export type Baslangic = { adimlar: Adim[]; tamamlandi: boolean; uyari: Uyari | n
  * Tek istisna ön değerlendirme: cevaplar Tally'de kaldığı için panelin
  * elinde yalnızca profiles.on_degerlendirme_tarihi damgası var.
  */
-export async function getBaslangic(): Promise<Baslangic> {
+async function baslangicHesapla(): Promise<Baslangic> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -168,3 +169,9 @@ export async function getBaslangic(): Promise<Baslangic> {
 
   return { adimlar, tamamlandi: adimlar.every((a) => a.tamam), uyari };
 }
+
+/**
+ * İstek başına bir kez: yan menüdeki program kartı (panel/layout) ve genel
+ * bakış aynı adımları okuyor; sorgular tekrarlanmasın.
+ */
+export const getBaslangic = cache(baslangicHesapla);

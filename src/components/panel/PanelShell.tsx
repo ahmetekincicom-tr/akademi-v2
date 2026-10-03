@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/panel/actions";
 import { Icon, type IconName } from "@/components/Icon";
-import { MenuAlt, MenuGrup, MenuMarka, MenuOgesi, MenuYakinda, YAN_MENU_ZEMIN } from "@/components/YanMenu";
+import { MenuAlt, MenuGrup, MenuMarka, MenuOgesi, MenuProgram, MenuYakinda, YanMenuZemin, YAN_MENU_RENK, YAN_MENU_ZEMIN } from "@/components/YanMenu";
 import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
@@ -54,7 +54,7 @@ const groups: MenuGroup[] = [
       // "Birebir seanslar" buradan kaldırıldı: birebir eğitimin kendi
       // takvimi ve kayıtları artık Birebir eğitim sayfasında, iki ayrı
       // takvim sekmesi aynı şeyi anlatıyordu.
-      { href: "/panel/gorusmeler", label: "Danışmanlık görüşmeleri", icon: "calendar" },
+      { href: "/panel/gorusmeler", label: "Danışmanlık görüşmeleri", icon: "users" },
       { href: "/panel/soru-cevap", label: "Soru-cevap", icon: "message", rozet: "soruCevap" },
     ],
   },
@@ -98,9 +98,12 @@ export function PanelShell({
   children,
   profil,
   bildirim,
+  program,
 }: {
   children: React.ReactNode;
   profil: PanelProfile;
+  /** Menünün üstündeki "Aktif program" kartı; kayıt yoksa null. */
+  program: { baslik: string; ilerleme: { etiket: string; yuzde: number } | null } | null;
   /** Menü rozetleri; genel bakıştaki bildirim kutusuyla aynı kaynak. */
   bildirim: PanelBildirimleri;
 }) {
@@ -145,8 +148,8 @@ export function PanelShell({
     */
     const etiket = document.querySelector('meta[name="theme-color"]');
     const eskiRenk = etiket?.getAttribute("content") ?? null;
-    // Menünün zemini (YAN_MENU_ZEMIN).
-    if (etiket && menuAcik) etiket.setAttribute("content", "#0B1120");
+    // Menünün zemini.
+    if (etiket && menuAcik) etiket.setAttribute("content", YAN_MENU_RENK);
 
     return () => {
       delete document.body.dataset.menuAcik;
@@ -198,14 +201,15 @@ export function PanelShell({
 
           Görünüm ortak bileşenden: components/YanMenu.tsx ("Sidebar" 2b).
         */
-        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[264px] flex-none flex-col gap-[22px] ${YAN_MENU_ZEMIN} transition-transform duration-300 ease-out pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[264px] flex-none flex-col gap-5 overflow-hidden ${YAN_MENU_ZEMIN} transition-transform duration-300 ease-out pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
+        <YanMenuZemin />
         <MenuMarka
           href={native ? "/panel" : "/"}
           baslik="Ahmet Ekinci"
-          alt="Öğrenci paneli"
+          alt="Akademi"
           onGit={() => setMenuAcik(false)}
           onKapat={() => setMenuAcik(false)}
         />
@@ -216,17 +220,20 @@ export function PanelShell({
           liste alttaki profil/çıkış bloğunun altına taşıyordu. Bu ikisiyle
           liste kendi içinde kayıyor, alt blok her zaman yerinde duruyor.
         */}
-        <nav className="panel-menu-liste flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto overscroll-contain px-4">
-          {gorunenGruplar.map((g, gi) => (
-            <MenuGrup key={g.title} baslik={g.title} ilk={gi === 0}>
+        {program && <MenuProgram baslik={program.baslik} ilerleme={program.ilerleme} />}
+
+        <nav className="panel-menu-liste relative flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto overscroll-contain px-3">
+          {gorunenGruplar.map((g) => (
+            <MenuGrup key={g.title} baslik={g.title}>
               {g.items.map((m) =>
                 m.yakinda ? (
-                  <MenuYakinda key={m.href} etiket={m.label} />
+                  <MenuYakinda key={m.href} etiket={m.label} ikon={m.icon} />
                 ) : (
                   <MenuOgesi
                     key={m.href}
                     href={m.href}
                     etiket={m.label}
+                    ikon={m.icon}
                     aktif={pathname === m.href || (m.href === "/panel/firsatlar" && ilanDetayi)}
                     // Sayı yalnızca okunmamış varken; sıfır rozeti gürültü.
                     sayi={m.rozet ? bildirim.sayac[m.rozet] : 0}
