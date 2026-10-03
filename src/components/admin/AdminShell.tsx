@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cikisYap } from "@/app/kontrol-9f4x2k/logout-action";
 import { initials } from "@/lib/admin/shared";
 import { Icon, type IconName } from "@/components/Icon";
-import { MenuAlt, MenuGrup, MenuMarka, MenuOgesi, YAN_MENU_ZEMIN } from "@/components/YanMenu";
+import { MenuAlt, MenuGrup, MenuMarka, MenuOgesi, YanMenuZemin, YAN_MENU_RENK, YAN_MENU_ZEMIN } from "@/components/YanMenu";
 import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 
 export type AdminSayilar = {
@@ -179,7 +179,7 @@ export function AdminShell({
     // (PanelShell) aynı davranış, gerekçesi orada uzun uzun yazılı.
     const etiket = document.querySelector('meta[name="theme-color"]');
     const eskiRenk = etiket?.getAttribute("content") ?? null;
-    if (etiket && menuAcik) etiket.setAttribute("content", "#0B1120");
+    if (etiket && menuAcik) etiket.setAttribute("content", YAN_MENU_RENK);
 
     return () => {
       delete document.body.dataset.menuAcik;
@@ -211,26 +211,28 @@ export function AdminShell({
       <aside
         // Görünüm ortak bileşenden (components/YanMenu.tsx, "Sidebar" 2b);
         // yükseklik/güvenli alan açıklaması PanelShell'de.
-        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[264px] flex-none flex-col gap-[22px] ${YAN_MENU_ZEMIN} transition-transform duration-200 pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[264px] flex-none flex-col gap-5 overflow-hidden ${YAN_MENU_ZEMIN} transition-transform duration-200 pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
+        <YanMenuZemin />
         <MenuMarka
           href="/kontrol-9f4x2k"
           baslik="Akademi Yönetim"
-          alt="Admin"
+          alt="Yönetim"
           onGit={() => setMenuAcik(false)}
           onKapat={() => setMenuAcik(false)}
         />
 
-        <nav className="panel-menu-liste flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto overscroll-contain px-4">
-          {groups.map((g, gi) => (
-            <MenuGrup key={g.title} baslik={g.title} ilk={gi === 0}>
+        <nav className="panel-menu-liste relative flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto overscroll-contain px-3">
+          {groups.map((g) => (
+            <MenuGrup key={g.title} baslik={g.title}>
               {g.items.map((m) => (
                 <MenuOgesi
                   key={m.href}
                   href={m.href}
                   etiket={m.label}
+                  ikon={m.icon}
                   aktif={isActive(pathname, m.href)}
                   sayi={m.sayac ? sayilar[m.sayac] : 0}
                   onGit={() => setMenuAcik(false)}
