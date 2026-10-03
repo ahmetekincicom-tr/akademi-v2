@@ -256,7 +256,7 @@ export function AktifProgram({
   odemeBekliyor: PanelBildirimleri["odemeBekliyor"];
 }) {
   return (
-    <div className={`${KART} flex flex-col overflow-hidden sm:flex-row sm:gap-5 sm:p-[18px]`}>
+    <div className={`${KART} flex h-full flex-col overflow-hidden sm:flex-row sm:gap-5 sm:p-[18px]`}>
       <div className="relative h-[130px] flex-none overflow-hidden bg-[repeating-linear-gradient(135deg,#EEF1F7_0_8px,#E6EAF2_8px_16px)] sm:h-auto sm:min-h-[170px] sm:w-[230px] sm:rounded-[12px]">
         {kurs.kapak && <Image src={kurs.kapak} alt="" fill sizes="(min-width: 640px) 230px, 100vw" className="object-cover" />}
         {!DERSLER_ACIK && (
@@ -370,7 +370,7 @@ export function YaklasanDers({ oturum, kurulumBitti }: { oturum: EgitimOturumu |
   const tarih = oturum ? new Date(oturum.baslangic) : null;
 
   return (
-    <div className={`${KART} flex flex-col gap-3 p-4 sm:p-5`}>
+    <div className={`${KART} flex h-full flex-col gap-3 p-4 sm:p-5`}>
       <div className="flex items-center">
         <h2 className="text-[16px] font-bold text-ink">Yaklaşan ders</h2>
         <Link href="/panel/birebir-egitim" className="ml-auto text-[13px] font-semibold text-brand hover:text-ink">
@@ -409,14 +409,15 @@ export function YaklasanDers({ oturum, kurulumBitti }: { oturum: EgitimOturumu |
           )}
         </>
       ) : (
-        <div className="flex flex-col gap-1.5 rounded-[12px] border border-dashed border-[#D5DAE5] p-4">
-          <div className="text-[15px] font-semibold text-ink">Planlanmış oturum yok</div>
-          <div className="text-[13px] leading-[1.5] text-[#5B6478]">
-            {kurulumBitti
+        <BosDurum
+          ikon="calendar"
+          baslik="Planlanmış oturum yok"
+          metin={
+            kurulumBitti
               ? "Yeni bir oturum planlandığında burada görünecek."
-              : "Kurulumu tamamladığında ilk eğitimini buradan planlayabilirsin."}
-          </div>
-        </div>
+              : "Kurulumu tamamladığında ilk eğitimini buradan planlayabilirsin."
+          }
+        />
       )}
     </div>
   );
@@ -433,11 +434,12 @@ const KISAYOLLAR = [
 
 export function Kisayollar() {
   return (
-    <section aria-labelledby="kisayollar-baslik">
+    <section aria-labelledby="kisayollar-baslik" className="flex h-full flex-col">
       <h2 id="kisayollar-baslik" className="mb-3 px-1 text-[16px] font-bold text-ink sm:sr-only">
         Kısayollar
       </h2>
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      {/* flex-1: kartlar yandaki bildirim kutusuyla aynı boyda. */}
+      <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-4">
         {KISAYOLLAR.map((k) => (
           <Link
             key={k.yol}
@@ -486,7 +488,7 @@ export function Bildirimler({ bildirim }: { bildirim: PanelBildirimleri }) {
   const { liste, odemeBekliyor } = bildirim;
 
   return (
-    <div className={`${KART} flex flex-col gap-2.5 px-5 py-[18px]`}>
+    <div className={`${KART} flex h-full flex-col gap-3 p-4 sm:p-5`}>
       <div className="flex items-center gap-2">
         <h2 className="text-[16px] font-bold text-ink">Bildirimler</h2>
         <span
@@ -499,9 +501,11 @@ export function Bildirimler({ bildirim }: { bildirim: PanelBildirimleri }) {
       </div>
 
       {liste.length === 0 ? (
-        <p className="text-[13px] leading-[1.55] text-[#5B6478]">
-          Yeni bir ders planlandığında, kaydın eklendiğinde ya da sorun cevaplandığında burada görünecek.
-        </p>
+        <BosDurum
+          ikon="bell"
+          baslik="Yeni bildirim yok"
+          metin="Yeni bir ders planlandığında, kaydın eklendiğinde ya da sorun cevaplandığında burada görünecek."
+        />
       ) : (
         <ul className="-mx-2 flex flex-col">
           {liste.map((b) => {
@@ -533,6 +537,26 @@ export function Bildirimler({ bildirim }: { bildirim: PanelBildirimleri }) {
           })}
         </ul>
       )}
+    </div>
+  );
+}
+
+/**
+ * Yaklaşan ders ve bildirimlerin boş hâli — ikisi aynı sütunda alt alta
+ * duruyor; biri kesik çizgili kutu, öteki düz metin olunca sütun dağınık
+ * görünüyordu. Kutu kartın kalan yüksekliğini dolduruyor: kart, yanındaki
+ * program/kısayol satırıyla aynı boyda.
+ */
+function BosDurum({ ikon, baslik, metin }: { ikon: "calendar" | "bell"; baslik: string; metin: string }) {
+  return (
+    <div className="flex flex-1 items-center gap-3.5 rounded-[12px] border border-dashed border-[#D5DAE5] bg-[#FAFBFD] p-4">
+      <span className="flex h-10 w-10 flex-none items-center justify-center rounded-[11px] border border-[#E6E8EF] bg-white text-[#8A92A6]">
+        <Icon name={ikon} size={18} />
+      </span>
+      <span className="flex min-w-0 flex-col gap-1">
+        <span className="text-[15px] font-semibold text-ink">{baslik}</span>
+        <span className="text-[13px] leading-[1.5] text-[#5B6478]">{metin}</span>
+      </span>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
-import { UygulamaKurulum } from "@/components/panel/UygulamaKurulum";
 import { PushKayit } from "@/components/panel/PushKayit";
 import {
   AktifProgram,
@@ -18,19 +17,23 @@ import { seansAyir } from "@/lib/seans";
 import { gunSelami } from "@/lib/selam";
 import { TR_ZAMAN } from "@/lib/zaman";
 
-const UZUN_TARIH = new Intl.DateTimeFormat("tr-TR", {
+const TARIH_PARCA = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
   weekday: "long",
   day: "numeric",
   month: "long",
   year: "numeric",
 });
-const KISA_TARIH = new Intl.DateTimeFormat("tr-TR", { timeZone: TR_ZAMAN, weekday: "long", day: "numeric", month: "long" });
 
-/** "Cumartesi 3 Ekim 2026" → "CUMARTESİ · 3 EKİM 2026" (Türkçe büyük harf). */
-function ustSatir(bicim: Intl.DateTimeFormat, an: Date): string {
-  const [gun, ...kalan] = bicim.format(an).replace(",", "").split(" ");
-  return `${gun} · ${kalan.join(" ")}`.toLocaleUpperCase("tr");
+/**
+ * "CUMARTESİ · 3 EKİM 2026". Parça parça kuruluyor: tarayıcılar ve Node
+ * tr-TR'de gün adını farklı yere koyuyor ("3 Ekim 2026 Cumartesi" ↔
+ * "Cumartesi 3 Ekim 2026"); metni bölmek bir ortamda "3 · EKİM 2026
+ * CUMARTESİ" çıkarıyordu.
+ */
+function ustSatir(an: Date, yilli: boolean): string {
+  const p = Object.fromEntries(TARIH_PARCA.formatToParts(an).map((x) => [x.type, x.value]));
+  return `${p.weekday} · ${p.day} ${p.month}${yilli ? ` ${p.year}` : ""}`.toLocaleUpperCase("tr");
 }
 
 /*
@@ -64,10 +67,9 @@ export default async function PanelOverviewPage() {
 
   return (
     <main className="flex flex-col gap-4 p-4 pb-14 sm:gap-5 sm:px-[34px] sm:pt-7 sm:pb-9">
-      <UygulamaKurulum />
       <PushKayit />
 
-      <Karsilama tarih={ustSatir(UZUN_TARIH, simdi)} kisaTarih={ustSatir(KISA_TARIH, simdi)} baslik={baslik} />
+      <Karsilama tarih={ustSatir(simdi, true)} kisaTarih={ustSatir(simdi, false)} baslik={baslik} />
 
       {/* Kurulum bitince (ya da eğitim ilişkisi yoksa) bant çekiliyor. */}
       {!baslangic.tamamlandi && <KurulumBandi adimlar={baslangic.adimlar} />}
