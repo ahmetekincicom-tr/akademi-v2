@@ -435,7 +435,11 @@ export function PanelShell({
             <Link
               href="/panel/soru-cevap"
               aria-label="Destek talebi"
-              className="inline-flex h-[38px] flex-none items-center gap-2 rounded-[9px] bg-ink px-[11px] text-[13.5px] font-semibold text-white transition hover:bg-brand sm:px-[15px]"
+              // Genel bakışta masaüstünde aynı düğme sayfanın başlığında; iki
+              // kez görünmesin. Mobilde (yan menü düğmesinin karşısında) kalıyor.
+              className={`inline-flex h-[38px] flex-none items-center gap-2 rounded-[9px] bg-ink px-[11px] text-[13.5px] font-semibold text-white transition hover:bg-brand sm:px-[15px] ${
+                pathname === "/panel" ? "sm:hidden" : ""
+              }`}
             >
               <Icon name="message" size={15} />
               <span className="hidden sm:inline">Destek talebi</span>

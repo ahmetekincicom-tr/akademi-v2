@@ -28,6 +28,8 @@ export type PanelCourse = {
   baslik: string;
   etiket: string;
   sure: string;
+  /** Kapak görselinin adresi; yoksa null (genel bakışta desenli yer tutucu). */
+  kapak: string | null;
   atanmaTarihi: string;
   modules: PanelModule[];
   dersSayisi: number;
@@ -61,6 +63,7 @@ type EnrollmentRow = {
     slug: string;
     baslik: string;
     sure: string | null;
+    kapak_gorsel: string | null;
     content: { etiket?: string } | null;
     modules: {
       id: string;
@@ -138,7 +141,7 @@ export const getPanelCourses = cache(async (): Promise<PanelCourse[]> => {
   const { data: enrollments } = await supabase
     .from("enrollments")
     .select(
-      "atanma_tarihi, courses(id, slug, baslik, sure, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure, video_url, aciklama)))",
+      "atanma_tarihi, courses(id, slug, baslik, sure, kapak_gorsel, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure, video_url, aciklama)))",
     )
     .eq("user_id", user.id)
     .neq("durum", "iptal")
@@ -202,6 +205,7 @@ export const getPanelCourses = cache(async (): Promise<PanelCourse[]> => {
         baslik: c.baslik,
         etiket: c.content?.etiket ?? "",
         sure: c.sure ?? "",
+        kapak: kapakUrl(c.kapak_gorsel),
         atanmaTarihi: e.atanma_tarihi,
         modules,
         dersSayisi,
