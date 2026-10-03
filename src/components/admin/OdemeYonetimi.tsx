@@ -59,14 +59,17 @@ export function OdemeYonetimi({
   odemeler,
   ogrenciler,
   kurslar,
+  ilkFiltre = "hepsi",
 }: {
   odemeler: OdemeSatir[];
   ogrenciler: SecimOgesi[];
   kurslar: SecimOgesi[];
+  /** Adresten gelen başlangıç süzgeci (?durum=bekliyor). */
+  ilkFiltre?: "hepsi" | "odendi" | "bekliyor" | "iade";
 }) {
   const router = useRouter();
   const bildir = useBildirim();
-  const [filtre, setFiltre] = useState<"hepsi" | "odendi" | "bekliyor" | "iade">("hepsi");
+  const [filtre, setFiltre] = useState<"hepsi" | "odendi" | "bekliyor" | "iade">(ilkFiltre);
   const [formAcik, setFormAcik] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [islemde, startTransition] = useTransition();

@@ -308,7 +308,11 @@ export function AdminShell({
             <Link
               href="/kontrol-9f4x2k/egitimler/yeni"
               aria-label="Yeni eğitim"
-              className="inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-ink px-[11px] text-[13.5px] font-semibold text-white transition hover:bg-brand sm:px-[15px]"
+              // Genel bakışta masaüstünde aynı düğme sayfa başlığında; iki kez
+              // görünmesin. Telefonda (+ simgesi) kalıyor.
+              className={`inline-flex h-9 flex-none items-center gap-[6px] rounded-[9px] bg-ink px-[11px] text-[13.5px] font-semibold text-white transition hover:bg-brand sm:px-[15px] ${
+                pathname.replace(/\/$/, "") === "/kontrol-9f4x2k" ? "sm:hidden" : ""
+              }`}
             >
               <Icon name="plus" size={15} />
               <span className="hidden sm:inline">Yeni eğitim</span>
