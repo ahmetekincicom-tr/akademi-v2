@@ -113,7 +113,12 @@ export function OgrenciDestek({
   const [arama, setArama] = useState("");
   const [yanit, setYanit] = useState("");
   const [hata, setHata] = useState<string | null>(null);
-  const [yeniAcik, setYeniAcik] = useState(false);
+  /*
+    ?yeni=1&baslik=…&mesaj=… : başka bir ekrandan hazır doldurulmuş yeni soru
+    (birebir eğitimdeki "Erteleme talebi"). Öğrenci metni görüp düzeltebiliyor,
+    gönderen yine kendisi.
+  */
+  const [yeniAcik, setYeniAcik] = useState(aramaParam.get("yeni") === "1");
   /** "Hayır, devam" denen talepler: soru o talepte tekrar sorulmuyor (bu oturumda). */
   const [devamEdilen, setDevamEdilen] = useState<string[]>([]);
   const gecmiseEklendi = useRef(false);
@@ -289,7 +294,14 @@ export function OgrenciDestek({
       )}
 
       {yeniAcik && (
-        <YeniSoru benimId={benimId} kurslar={kurslar} onAcildi={yeniSoruAcildi} onVazgec={() => setYeniAcik(false)} />
+        <YeniSoru
+          benimId={benimId}
+          kurslar={kurslar}
+          ilkBaslik={aramaParam.get("baslik") ?? ""}
+          ilkMesaj={aramaParam.get("mesaj") ?? ""}
+          onAcildi={yeniSoruAcildi}
+          onVazgec={() => setYeniAcik(false)}
+        />
       )}
 
       {talepler.length === 0 ? (
@@ -661,17 +673,21 @@ export function OgrenciDestek({
 function YeniSoru({
   benimId,
   kurslar,
+  ilkBaslik = "",
+  ilkMesaj = "",
   onAcildi,
   onVazgec,
 }: {
   benimId: string;
   kurslar: { id: string; ad: string }[];
+  ilkBaslik?: string;
+  ilkMesaj?: string;
   onAcildi: (id?: string) => void;
   onVazgec: () => void;
 }) {
   const bildir = useBildirim();
-  const [baslik, setBaslik] = useState("");
-  const [mesaj, setMesaj] = useState("");
+  const [baslik, setBaslik] = useState(ilkBaslik.slice(0, 200));
+  const [mesaj, setMesaj] = useState(ilkMesaj.slice(0, 2000));
   const [kurs, setKurs] = useState("");
   const [hata, setHata] = useState<string | null>(null);
   const [islemde, startTransition] = useTransition();
