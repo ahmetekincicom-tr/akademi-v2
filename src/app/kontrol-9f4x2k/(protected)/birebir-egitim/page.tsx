@@ -19,7 +19,7 @@ export default async function AdminBirebirEgitimPage() {
         "id, baslangic, sure_dk, konu, toplanti_link, kayit_link, durum, profiles(ad, soyad, email), courses(baslik)",
       )
       .order("baslangic", { ascending: true }),
-    supabase.from("profiles").select("id, ad, soyad, email").order("created_at"),
+    supabase.from("profiles").select("id, ad, soyad, email").order("created_at", { ascending: false }),
     supabase.from("courses").select("id, baslik").order("created_at"),
     /*
       Kurumsal kayıtlar: hangi ödemede kimler var. Ödeyen de gruba dahil —

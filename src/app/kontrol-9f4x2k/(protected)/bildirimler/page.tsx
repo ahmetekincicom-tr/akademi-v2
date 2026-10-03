@@ -7,7 +7,7 @@ export default async function AdminBildirimlerPage() {
 
   const [{ data: cihazlar }, { data: profiller }, { data: gecmis }] = await Promise.all([
     supabase.from("push_cihazlar").select("user_id, platform, son_gorulme").is("gecersiz_tarihi", null),
-    supabase.from("profiles").select("id, ad, soyad, email").neq("role", "admin").order("created_at"),
+    supabase.from("profiles").select("id, ad, soyad, email").neq("role", "admin").order("created_at", { ascending: false }),
     supabase
       .from("push_gonderimler")
       .select("id, baslik, govde, cihaz_sayisi, basarili, hata_metni, created_at, hedef_user_id")
