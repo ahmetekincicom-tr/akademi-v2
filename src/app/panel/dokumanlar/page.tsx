@@ -6,13 +6,15 @@ export default async function DokumanlarPage() {
   // RLS narrows this to global files plus the ones for courses the user owns.
   const { data } = await supabase
     .from("documents")
-    .select("id, baslik, dosya_yolu, dosya_tipi, boyut, created_at, courses(baslik)")
+    .select("id, baslik, dosya_yolu, dosya_tipi, boyut, created_at, courses(baslik, content)")
     .order("created_at", { ascending: false });
 
   const dokumanlar: OgrenciDokuman[] = (data ?? []).map((d) => ({
     id: d.id,
     baslik: d.baslik,
     program: d.courses?.baslik ?? "Genel",
+    // Telefondaki süzgeçte kısa ad: eğitimin etiketi ("Meta Business").
+    programKisa: (d.courses?.content as { etiket?: string } | null)?.etiket?.trim() || d.courses?.baslik || "Genel",
     dosyaYolu: d.dosya_yolu,
     dosyaTipi: d.dosya_tipi ?? "",
     boyut: d.boyut,

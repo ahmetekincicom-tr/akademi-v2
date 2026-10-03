@@ -70,7 +70,10 @@ export async function GET(istek: Request, { params }: { params: Promise<{ id: st
     panelin kaynağında çalışırdı. Doküman kovasına SVG yüklemek olağan değil
     ama mümkün; indirmeye zorlamak o kapıyı görüntülemeyi bozmadan kapatıyor.
   */
-  const yerlesim = tip.startsWith("image/svg") ? "attachment" : "inline";
+  // ?indir=1: kütüphanedeki "İndir" düğmesi — dosya her zaman kaydedilsin.
+  // Parametresiz adres "Önizle": tarayıcı açabiliyorsa açar.
+  const indirmeZorunlu = new URL(istek.url).searchParams.get("indir") === "1";
+  const yerlesim = indirmeZorunlu || tip.startsWith("image/svg") ? "attachment" : "inline";
   baslik.set(
     "Content-Disposition",
     `${yerlesim}; filename*=UTF-8''${encodeURIComponent(dosyaAdi(dokuman.baslik as string, yol))}`,
