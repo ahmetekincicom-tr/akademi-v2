@@ -8,6 +8,7 @@ import type { EgitimOturumu } from "@/lib/egitim-oturumu";
 import { paraBicimi } from "@/lib/odeme";
 import { DERSLER_ACIK } from "@/lib/bolumler";
 import { TR_ZAMAN } from "@/lib/zaman";
+import { platformAdi as platform } from "@/lib/platform";
 
 /**
  * Öğrenci panelinin genel bakışı — "Genel Bakış Final" tasarımı (3a masaüstü,
@@ -354,17 +355,6 @@ export function ProgramYok() {
 }
 
 /* --------------------------------------------------------- yaklaşan ders */
-
-/** Toplantı bağlantısından platform adı; tanınmıyorsa "Çevrim içi". */
-function platform(link: string): string {
-  try {
-    const host = new URL(link).hostname;
-    if (host.includes("meet.google")) return "Google Meet";
-    if (host.includes("zoom")) return "Zoom";
-    if (host.includes("teams")) return "Microsoft Teams";
-  } catch {}
-  return "Çevrim içi";
-}
 
 export function YaklasanDers({ oturum, kurulumBitti }: { oturum: EgitimOturumu | null; kurulumBitti: boolean }) {
   const tarih = oturum ? new Date(oturum.baslangic) : null;
