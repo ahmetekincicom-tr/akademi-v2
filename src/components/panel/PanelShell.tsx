@@ -438,7 +438,7 @@ export function PanelShell({
               // Genel bakışta masaüstünde aynı düğme sayfanın başlığında; iki
               // kez görünmesin. Mobilde (yan menü düğmesinin karşısında) kalıyor.
               className={`inline-flex h-[38px] flex-none items-center gap-2 rounded-[9px] bg-ink px-[11px] text-[13.5px] font-semibold text-white transition hover:bg-brand sm:px-[15px] ${
-                pathname === "/panel" ? "sm:hidden" : ""
+                pathname.replace(/\/$/, "") === "/panel" ? "sm:hidden" : ""
               }`}
             >
               <Icon name="message" size={15} />

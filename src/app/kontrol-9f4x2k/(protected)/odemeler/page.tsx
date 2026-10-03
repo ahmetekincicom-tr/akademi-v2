@@ -4,7 +4,12 @@ import { AyarFormu } from "@/components/admin/AyarFormu";
 import { AskidakiDenemeler, type AskidaDeneme } from "@/components/admin/AskidakiDenemeler";
 import { getAyarlar, bankaGrubu } from "@/lib/admin/ayarlar";
 
-export default async function OdemelerPage() {
+const FILTRELER = ["hepsi", "odendi", "bekliyor", "iade"] as const;
+
+export default async function OdemelerPage({ searchParams }: { searchParams: Promise<{ durum?: string }> }) {
+  // Genel bakıştaki "Onayla →" bu ekranı "Onay bekliyor" süzgeciyle açıyor.
+  const { durum } = await searchParams;
+  const ilkFiltre = FILTRELER.find((f) => f === durum) ?? "hepsi";
   const supabase = await createClient();
 
   const [
@@ -124,7 +129,7 @@ export default async function OdemelerPage() {
 
   return (
     <>
-      <OdemeYonetimi odemeler={odemeler} ogrenciler={ogrenciler} kurslar={kurslar} />
+      <OdemeYonetimi odemeler={odemeler} ogrenciler={ogrenciler} kurslar={kurslar} ilkFiltre={ilkFiltre} />
       <div className="px-4 sm:px-7">
         <AskidakiDenemeler denemeler={askidakiler} />
       </div>

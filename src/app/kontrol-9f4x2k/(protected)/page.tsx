@@ -1,9 +1,19 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { durumStil, initials } from "@/lib/admin/shared";
-import { para, odemeDurumEtiket, kisaTarihBicimi } from "@/lib/admin/format";
+import { para, kisaTarihBicimi } from "@/lib/admin/format";
+import { ayAnahtari, tarihSatiri } from "@/lib/tarih-satiri";
+import {
+  AksiyonBekleyenler,
+  DurumBandi,
+  ProgramPerformansi,
+  SonIslemler,
+  YonetimBasligi,
+  type Aksiyon,
+  type Islem,
+  type ProgramSatiri,
+} from "@/components/admin/AdminGenelBakis";
+import { GelirGrafigi, type GelirAyi } from "@/components/admin/GelirGrafigi";
 
-const AY_ADLARI = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+const AY_ADLARI = ["OCA", "ŞUB", "MAR", "NİS", "MAY", "HAZ", "TEM", "AĞU", "EYL", "EKİ", "KAS", "ARA"];
 
 export default async function AdminGenelBakisPage() {
   const supabase = await createClient();
@@ -20,7 +30,7 @@ export default async function AdminGenelBakisPage() {
   ] = await Promise.all([
     supabase.from("profiles").select("id, ad, soyad, email, role, created_at"),
     supabase.from("enrollments").select("user_id, course_id"),
-    supabase.from("courses").select("id, baslik, durum, modules(lessons(id))"),
+    supabase.from("courses").select("id, baslik, durum, content, modules(lessons(id))"),
     supabase.from("lesson_progress").select("user_id, lesson_id").eq("tamamlandi", true),
     supabase
       .from("payments")
@@ -40,7 +50,13 @@ export default async function AdminGenelBakisPage() {
     supabase.from("iletisim_mesajlari").select("id").eq("okundu", false),
   ]);
 
-  type CourseRow = { id: string; baslik: string; durum: string; modules: { lessons: { id: string }[] }[] };
+  type CourseRow = {
+    id: string;
+    baslik: string;
+    durum: string;
+    content: { etiket?: string } | null;
+    modules: { lessons: { id: string }[] }[];
+  };
   const courseRows = (courses ?? []) as unknown as CourseRow[];
 
   const dersKursu = new Map<string, string>();
@@ -75,240 +91,170 @@ export default async function AdminGenelBakisPage() {
   const toplamTamamlanan = (progress ?? []).filter((p) => dersKursu.has(p.lesson_id as string)).length;
   const genelTamamlanma = toplamDersAtamasi ? Math.round((toplamTamamlanan / toplamDersAtamasi) * 100) : 0;
 
+  /*
+    Aylar Türkiye saatine göre (ayAnahtari): Vercel UTC'de çalışıyor; ayın
+    ilk gecesi 00:00–03:00 arası alınan ödeme önceki aya yazılıyordu.
+  */
   const simdi = new Date();
-  const buAy = ogrenciler.filter((p) => {
-    const d = new Date(p.created_at);
-    return d.getFullYear() === simdi.getFullYear() && d.getMonth() === simdi.getMonth();
-  }).length;
+  const buAyAnahtari = ayAnahtari(simdi);
+  const buAyKatilan = ogrenciler.filter((p) => ayAnahtari(new Date(p.created_at)) === buAyAnahtari).length;
 
-  const kpiler = [
-    { etiket: "Toplam gelir", deger: para(toplamGelir), alt: `${odenmis.length} ödeme` },
-    { etiket: "Öğrenci", deger: String(ogrenciler.length), alt: `${buAy}'i bu ay katıldı` },
-    { etiket: "Tamamlanma oranı", deger: `%${genelTamamlanma}`, alt: "ortalama ders bitirme" },
-    { etiket: "Açık talep", deger: String(acikTalep), alt: `${(tickets ?? []).length} toplam talep` },
-  ];
-
-  // Last six months of paid revenue, oldest first.
-  const aylar: { ay: string; tutar: number }[] = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(simdi.getFullYear(), simdi.getMonth() - i, 1);
-    const tutar = odenmis
-      .filter((p) => {
-        const pd = new Date(p.odeme_tarihi);
-        return pd.getFullYear() === d.getFullYear() && pd.getMonth() === d.getMonth();
-      })
-      .reduce((n, p) => n + Number(p.tutar), 0);
-    aylar.push({ ay: AY_ADLARI[d.getMonth()], tutar });
+  const ayGeliri = new Map<string, number>();
+  for (const p of odenmis) {
+    const k = ayAnahtari(new Date(p.odeme_tarihi));
+    ayGeliri.set(k, (ayGeliri.get(k) ?? 0) + Number(p.tutar));
   }
-  const enYuksekAy = Math.max(...aylar.map((a) => a.tutar), 1);
+  // Son 12 ay, eskiden yeniye. Ay başına gitmek için yıl/ay aritmetiği.
+  const [yil, ay] = buAyAnahtari.split("-").map(Number);
+  const aylar: GelirAyi[] = [];
+  for (let i = 11; i >= 0; i--) {
+    const toplamAy = yil * 12 + (ay - 1) - i;
+    const k = `${Math.floor(toplamAy / 12)}-${String((toplamAy % 12) + 1).padStart(2, "0")}`;
+    aylar.push({ ay: AY_ADLARI[toplamAy % 12], tutar: ayGeliri.get(k) ?? 0, simdi: i === 0 });
+  }
+  // Banttaki yeşil rozet: bu ayın geliri; bu ay henüz tahsilat yoksa geçen ay.
+  const rozetAyi = aylar[11].tutar > 0 ? aylar[11] : aylar[10];
 
   const kayitSayisi = new Map<string, number>();
   for (const e of enrollments ?? []) {
     kayitSayisi.set(e.course_id, (kayitSayisi.get(e.course_id) ?? 0) + 1);
   }
-  const enCokKayit = Math.max(...courseRows.map((c) => kayitSayisi.get(c.id) ?? 0), 1);
 
-  const programPerf = courseRows
-    .filter((c) => c.durum === "yayinda")
+  const yayindakiler = courseRows.filter((c) => c.durum === "yayinda");
+  const toplamKayit = yayindakiler.reduce((n, c) => n + (kayitSayisi.get(c.id) ?? 0), 0);
+  const programPerf: ProgramSatiri[] = yayindakiler
     .map((c) => {
       const kayit = kayitSayisi.get(c.id) ?? 0;
-      const dersBasina = kursDersSayisi.get(c.id) ?? 0;
-      const beklenen = kayit * dersBasina;
+      const dersSayisi = kursDersSayisi.get(c.id) ?? 0;
+      const beklenen = kayit * dersSayisi;
       const bitti = kursTamamlanan.get(c.id) ?? 0;
       return {
+        id: c.id,
         ad: c.baslik,
+        // Telefonda kısa ad: eğitimin etiketi ("Meta Business"), yoksa başlık.
+        kisaAd: c.content?.etiket?.trim() || c.baslik,
         kayit,
-        genislik: Math.round((kayit / enCokKayit) * 100),
+        // Kayıt payı: tüm kayıtların bu programa düşen yüzdesi.
+        pay: toplamKayit ? Math.round((kayit / toplamKayit) * 100) : 0,
+        dersSayisi,
         tamamlanma: beklenen ? Math.round((bitti / beklenen) * 100) : 0,
-        dersSayisi: dersBasina,
       };
     })
     .sort((a, b) => b.kayit - a.kayit);
 
-  const kayitsizOgrenci = ogrenciler.filter(
-    (p) => !(enrollments ?? []).some((e) => e.user_id === p.id),
-  ).length;
+  const kayitliKisiler = new Set((enrollments ?? []).map((e) => e.user_id));
+  const kayitsizOgrenci = ogrenciler.filter((p) => !kayitliKisiler.has(p.id)).length;
 
-  const bekleyenler = [
-    (okunmamisMesajlar ?? []).length > 0 && {
-      baslik: `${(okunmamisMesajlar ?? []).length} okunmamış mesaj`,
-      alt: "Siteden gelen iletişim ve teklif talepleri",
-      nokta: "#1C56F3",
-      href: "/kontrol-9f4x2k/mesajlar",
-    },
+  const isimOf = (k: { ad: string | null; soyad: string | null; email: string | null } | null) =>
+    [k?.ad, k?.soyad].filter(Boolean).join(" ") || k?.email || "—";
+
+  // Ödemeler odeme_tarihi'ne göre yeniden eskiye geliyor: ilki en yenisi.
+  const ilkBekleyen = bekleyenOdeme[0];
+  const bekleyenToplam = bekleyenOdeme.reduce((n, p) => n + Number(p.tutar), 0);
+  const okunmamis = (okunmamisMesajlar ?? []).length;
+  const yaklasan = (yaklasanOturumlar ?? []).length;
+
+  const aksiyonlar = [
     bekleyenOdeme.length > 0 && {
       baslik: `${bekleyenOdeme.length} ödeme onay bekliyor`,
-      alt: para(bekleyenOdeme.reduce((n, p) => n + Number(p.tutar), 0)),
-      nokta: "#A5711A",
-      href: "/kontrol-9f4x2k/odemeler",
+      alt:
+        bekleyenOdeme.length === 1
+          ? `${para(bekleyenToplam)} · ${isimOf(ilkBekleyen.profiles)}`
+          : `Toplam ${para(bekleyenToplam)}`,
+      href: "/kontrol-9f4x2k/odemeler?durum=bekliyor",
+      ikon: "card",
+      ton: 60,
     },
     acikTalep > 0 && {
       baslik: `${acikTalep} destek talebi açık`,
       alt: "Yanıt bekliyor",
-      nokta: "#1C56F3",
       href: "/kontrol-9f4x2k/destek",
+      ikon: "message",
+      ton: 250,
+    },
+    okunmamis > 0 && {
+      baslik: `${okunmamis} okunmamış mesaj`,
+      alt: "Siteden gelen iletişim ve teklif talepleri",
+      href: "/kontrol-9f4x2k/mesajlar",
+      ikon: "mail",
+      ton: 220,
     },
     kayitsizOgrenci > 0 && {
       baslik: `${kayitsizOgrenci} öğrencide eğitim kaydı yok`,
       alt: "Panelden eğitim atayabilirsin",
-      nokta: "#A5711A",
       href: "/kontrol-9f4x2k/ogrenciler",
+      ikon: "users",
+      ton: 300,
     },
-    (yaklasanOturumlar ?? []).length > 0 && {
-      baslik: `${(yaklasanOturumlar ?? []).length} yaklaşan oturum`,
+    yaklasan > 0 && {
+      baslik: `${yaklasan} yaklaşan oturum`,
       alt: "Takvimini kontrol et",
-      nokta: "rgba(10,13,24,0.25)",
       href: "/kontrol-9f4x2k/seanslar",
+      ikon: "calendar",
+      ton: 165,
     },
-  ].filter(Boolean) as { baslik: string; alt: string; nokta: string; href: string }[];
+  ].filter(Boolean) as Aksiyon[];
 
-  const sonIslemler = (payments ?? []).slice(0, 5);
+  const sonIslemler: Islem[] = (payments ?? []).slice(0, 4).map((p) => ({
+    id: p.id,
+    isim: isimOf(p.profiles),
+    tarih: kisaTarihBicimi.format(new Date(p.odeme_tarihi)),
+    yontem: p.yontem,
+    durum: p.durum as Islem["durum"],
+    tutar: Number(p.tutar),
+  }));
 
+  /*
+    Yerleşim (tasarım): başlık → özet bandı → [aylık gelir | aksiyon
+    bekleyenler] → [son işlemler | program performansı]. Telefonda aksiyon
+    bekleyenler grafiğin ÜSTÜNDE: yöneticinin panele girme sebebi önce o.
+  */
   return (
-    <main className="flex flex-col gap-5 p-7 pb-14">
-      <div>
-        <div className="font-mono text-[10px] tracking-[0.14em] text-[#656B7A] uppercase">Genel bakış</div>
-        <h1 className="mt-[9px] font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">
-          Akademi durumu
-        </h1>
-      </div>
+    <main className="flex flex-col gap-4 p-4 pb-14 sm:gap-5 sm:px-9 sm:pt-7 sm:pb-9">
+      <YonetimBasligi tarih={tarihSatiri(simdi)} kisaTarih={tarihSatiri(simdi, { yil: false }).split(" · ")[1]} />
 
-      <div className="grid grid-cols-2 gap-[14px] lg:grid-cols-4">
-        {kpiler.map((k) => (
-          <div key={k.etiket} className="rounded-[14px] border border-ink/10 bg-white p-[19px] px-[19px] pt-[17px] pb-[15px]">
-            <span className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">{k.etiket}</span>
-            <div className="mt-[13px]">
-              <div className="font-heading text-2xl leading-none font-semibold tracking-[-0.03em]">{k.deger}</div>
-              <div className="mt-[6px] text-[12.5px] text-[#656B7A]">{k.alt}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <DurumBandi
+        toplamGelir={toplamGelir}
+        odemeAdedi={odenmis.length}
+        buAy={rozetAyi}
+        ogrenci={ogrenciler.length}
+        buAyKatilan={buAyKatilan}
+        tamamlanma={genelTamamlanma}
+        acikTalep={acikTalep}
+        toplamTalep={(tickets ?? []).length}
+        bekleyen={
+          ilkBekleyen
+            ? {
+                adet: bekleyenOdeme.length,
+                isim: isimOf(ilkBekleyen.profiles),
+                tutar: Number(ilkBekleyen.tutar),
+                yontem: ilkBekleyen.yontem,
+              }
+            : null
+        }
+      />
 
-      <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[1.5fr_1fr]">
-        <div className="flex min-w-0 flex-col gap-5">
-          <div className="rounded-2xl border border-ink/10 bg-white p-[22px] px-[22px] pt-5 pb-[22px]">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Aylık gelir</h2>
-              <span className="font-mono text-[10px] tracking-[0.1em] text-[#656B7A] uppercase">Son 6 ay</span>
-            </div>
-            {toplamGelir === 0 ? (
-              <p className="mt-6 text-sm text-[#656B7A]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] xl:gap-[18px]">
+        <div className="order-2 xl:order-1">
+          {toplamGelir === 0 ? (
+            <div className="flex h-full flex-col gap-3 rounded-[18px] border border-[#E6E8EF] bg-white p-[22px]">
+              <h2 className="text-[16px] font-bold text-ink">Aylık gelir</h2>
+              <p className="text-[13.5px] text-[#5B6478]">
                 Henüz kayıtlı ödeme yok. Ödemeler sayfasından ekledikçe burada grafikleşir.
               </p>
-            ) : (
-              <div className="mt-[22px] flex h-[190px] items-stretch gap-[14px]">
-                {aylar.map((a, i) => (
-                  <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-[9px]">
-                    <span className="font-mono text-[10.5px] text-[#5C6273]">
-                      {a.tutar > 0 ? Math.round(a.tutar / 1000) + " B" : "—"}
-                    </span>
-                    <span
-                      className="w-full max-w-[54px] rounded-t-[8px] rounded-b-[3px]"
-                      style={{
-                        height: `${Math.max(Math.round((a.tutar / enYuksekAy) * 134), 3)}px`,
-                        background: i === aylar.length - 1 ? "#1C56F3" : "rgba(28,86,243,0.3)",
-                      }}
-                    />
-                    <span className="font-mono text-[10.5px] text-[#656B7A]">{a.ay}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white">
-            <div className="flex items-center justify-between gap-4 border-b border-ink/8 px-[22px] py-[18px]">
-              <h2 className="font-heading text-lg font-semibold tracking-[-0.02em]">Son işlemler</h2>
-              <Link href="/kontrol-9f4x2k/odemeler" className="text-[13.5px] font-semibold text-brand">
-                Tümü →
-              </Link>
             </div>
-            {sonIslemler.length === 0 ? (
-              <div className="px-[22px] py-8 text-center text-sm text-[#656B7A]">Henüz ödeme kaydı yok.</div>
-            ) : (
-              sonIslemler.map((i) => {
-                const kisi = i.profiles;
-                const isim = [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—";
-                const etiket = odemeDurumEtiket[i.durum] ?? i.durum;
-                const st = durumStil(etiket);
-                return (
-                  <div key={i.id} className="flex items-center gap-[14px] border-b border-ink/7 px-[22px] py-[13px] last:border-b-0">
-                    <span className="flex h-8 w-8 flex-none items-center justify-center rounded-[9px] bg-[#F2F4FA] font-mono text-[10.5px] font-medium text-[#5C6273]">
-                      {initials(isim)}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{isim}</div>
-                      <div className="mt-[2px] font-mono text-[10.5px] text-[#656B7A]">
-                        {kisaTarihBicimi.format(new Date(i.odeme_tarihi))}
-                        {i.yontem ? ` · ${i.yontem}` : ""}
-                      </div>
-                    </div>
-                    <span
-                      className="flex-none rounded-full px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] uppercase"
-                      style={{ background: st.bg, color: st.renk }}
-                    >
-                      {etiket}
-                    </span>
-                    <span className="w-[98px] flex-none text-right font-heading text-[15px] font-semibold">
-                      {para(Number(i.tutar))}
-                    </span>
-                  </div>
-                );
-              })
-            )}
-          </div>
+          ) : (
+            <GelirGrafigi aylar={aylar} />
+          )}
         </div>
-
-        <div className="flex min-w-0 flex-col gap-5">
-          <div className="overflow-hidden rounded-2xl border border-brand/28 bg-[#F5F8FF]">
-            <div className="flex items-center justify-between gap-3 border-b border-brand/18 px-5 py-[18px]">
-              <h2 className="font-heading text-[17px] font-semibold tracking-[-0.02em]">Aksiyon bekleyenler</h2>
-              <span className="font-mono text-[10px] text-brand">{bekleyenler.length} iş</span>
-            </div>
-            {bekleyenler.length === 0 ? (
-              <div className="px-5 py-7 text-center text-[13.5px] text-[#5C6273]">Bekleyen bir iş yok.</div>
-            ) : (
-              bekleyenler.map((b) => (
-                <Link
-                  key={b.baslik}
-                  href={b.href}
-                  className="flex items-center gap-3 border-b border-brand/14 px-5 py-[14px] last:border-b-0 hover:bg-brand/7"
-                >
-                  <span className="h-[7px] w-[7px] flex-none rounded-full" style={{ background: b.nokta }} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-semibold text-ink">{b.baslik}</span>
-                    <span className="mt-[3px] block text-[12.5px] text-[#5C6273]">{b.alt}</span>
-                  </span>
-                  <span className="flex-none text-xs text-brand">→</span>
-                </Link>
-              ))
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-ink/10 bg-white p-[22px] px-[22px] pt-5 pb-[22px]">
-            <h2 className="font-heading text-[17px] font-semibold tracking-[-0.02em]">Program performansı</h2>
-            {programPerf.length === 0 ? (
-              <p className="mt-4 text-[13.5px] text-[#656B7A]">Yayında eğitim yok.</p>
-            ) : (
-              <div className="mt-[18px] flex flex-col gap-[14px]">
-                {programPerf.map((p) => (
-                  <div key={p.ad}>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="min-w-0 truncate text-[13.5px] font-medium text-[#2B303D]">{p.ad}</span>
-                      <span className="flex-none font-mono text-[10.5px] text-[#5C6273]">{p.kayit} kayıt</span>
-                    </div>
-                    <div className="mt-[7px] h-[6px] overflow-hidden rounded-full bg-ink/8">
-                      <div className="h-full rounded-full bg-brand" style={{ width: `${p.genislik}%` }} />
-                    </div>
-                    <div className="mt-[5px] font-mono text-[10px] text-[#656B7A]">
-                      tamamlanma %{p.tamamlanma} · {p.dersSayisi} ders
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="order-1 xl:order-2">
+          <AksiyonBekleyenler liste={aksiyonlar} />
+        </div>
+        <div className="order-3">
+          <SonIslemler liste={sonIslemler} />
+        </div>
+        <div className="order-4">
+          <ProgramPerformansi liste={programPerf} />
         </div>
       </div>
     </main>
