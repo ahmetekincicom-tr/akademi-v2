@@ -17,19 +17,13 @@ export default async function OdemeSayfasi({ params }: { params: Promise<{ id: s
 
   return (
     <UygulamadaYok>
-      <main className="p-4 pb-14 sm:p-[34px]">
-        <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">
-          Ödeme
-        </h1>
-        <p className="mt-2 max-w-[560px] text-[15px] text-[#5C6273]">
-          Tutarı kontrol et, sana uyan ödeme yöntemini seç.
-        </p>
-
+      <main className="p-4 pb-14 sm:px-[34px] sm:pt-7 sm:pb-9">
         <OdemeSihirbazi
           id={kayit.id}
           tutar={kayit.tutar}
           kurs={kayit.kurs}
           not={kayit.not}
+          tarih={kayit.tarih}
           banka={banka}
           kartAcik={kartAcik}
         />
