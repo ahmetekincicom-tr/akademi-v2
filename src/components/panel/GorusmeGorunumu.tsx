@@ -308,10 +308,10 @@ export function GorusmeGorunumu({
       )}
 
       <div
-        className={`grid grid-cols-1 gap-4 lg:items-start lg:gap-[18px] ${native ? "" : "lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]"}`}
+        className={`grid grid-cols-1 gap-4 lg:items-stretch lg:gap-[18px] ${native ? "" : "lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]"}`}
       >
         {/* -------------------------------------------- görüşmelerim --- */}
-        <section ref={listeRef} className="scroll-mt-4 overflow-hidden rounded-[18px] border border-[#E6E8EF] bg-white">
+        <section ref={listeRef} className="flex scroll-mt-4 flex-col overflow-hidden rounded-[18px] border border-[#E6E8EF] bg-white">
           <div className="flex items-center gap-2.5 px-[18px] pt-4 pb-3 sm:px-[22px]">
             <h2 className="text-[17px] font-bold text-ink">Görüşmelerim</h2>
             {gorusmeler.length > 0 && (
@@ -322,7 +322,7 @@ export function GorusmeGorunumu({
           </div>
 
           {gorusmeler.length === 0 ? (
-            <div className="border-t border-[#EEF0F5] px-6 py-10 text-center">
+            <div className="flex flex-1 flex-col justify-center border-t border-[#EEF0F5] px-6 py-10 text-center">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] bg-mist text-[#656B7A]">
                 <Icon name="clock" size={22} />
               </div>
@@ -489,23 +489,24 @@ export function GorusmeGorunumu({
 
         {/* ------------------------------------------- ücretlendirme --- */}
         {/* "Nasıl çalışır?" bandaki düğmeyle açılan rehberde; sağda yalnızca
-            ücret kalıyor. Uygulamada ücret gösterilmediği için sütun da yok. */}
+            ücret kalıyor. İki kart masaüstünde aynı boyda (stretch); açıklama
+            kartın altına iniyor. Uygulamada ücret gösterilmediği için sütun yok. */}
         {!native && (
-          <aside className="flex flex-col gap-3 lg:sticky lg:top-6 lg:rounded-[18px] lg:border lg:border-[#E6E8EF] lg:bg-white lg:p-5">
+          <aside className="flex flex-col gap-3 lg:gap-4 lg:rounded-[18px] lg:border lg:border-[#E6E8EF] lg:bg-white lg:p-5">
             <h2 className="hidden text-[17px] font-bold text-ink lg:block">Ücretlendirme</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 lg:flex-1">
               {hak.egitimKaydiVar && (
-                <div className="rounded-[14px] bg-[#E3F6EE] p-4">
+                <div className="flex flex-col justify-center rounded-[14px] bg-[#E3F6EE] p-4">
                   <div className="text-[12.5px] font-semibold text-[#12825A]">İlk {ayarlar.ucretsizHak} görüşme</div>
                   <div className="mt-1 text-[20px] font-extrabold text-ink">Ücretsiz</div>
                 </div>
               )}
-              <div className={`rounded-[14px] border border-[#E6E8EF] bg-white p-4 lg:border-0 lg:bg-[#F1F3F8] ${hak.egitimKaydiVar ? "" : "col-span-2"}`}>
+              <div className={`flex flex-col justify-center rounded-[14px] border border-[#E6E8EF] bg-white p-4 lg:border-0 lg:bg-[#F1F3F8] ${hak.egitimKaydiVar ? "" : "col-span-2"}`}>
                 <div className="text-[12.5px] font-semibold text-[#5B6478]">{hak.egitimKaydiVar ? "Sonrası / görüşme" : "Görüşme başı"}</div>
                 <div className="mt-1 text-[20px] font-extrabold text-ink">{ucretMetni}</div>
               </div>
             </div>
-            <p className="px-1 text-[13px] leading-[1.6] text-[#5B6478] lg:px-0">
+            <p className="px-1 text-[13px] leading-[1.6] text-[#5B6478] lg:border-t lg:border-[#EEF0F5] lg:px-0 lg:pt-3">
               Her görüşme {ayarlar.sureDk} dakika sürer.{" "}
               {hak.egitimKaydiVar
                 ? "İptal ettiğin talepler hakkından düşmez."
