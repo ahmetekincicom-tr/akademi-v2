@@ -307,7 +307,9 @@ export function GorusmeGorunumu({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:items-start lg:gap-[18px]">
+      <div
+        className={`grid grid-cols-1 gap-4 lg:items-start lg:gap-[18px] ${native ? "" : "lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]"}`}
+      >
         {/* -------------------------------------------- görüşmelerim --- */}
         <section ref={listeRef} className="scroll-mt-4 overflow-hidden rounded-[18px] border border-[#E6E8EF] bg-white">
           <div className="flex items-center gap-2.5 px-[18px] pt-4 pb-3 sm:px-[22px]">
@@ -485,60 +487,38 @@ export function GorusmeGorunumu({
           )}
         </section>
 
-        {/* ------------------------------------- nasıl çalışır + ücret --- */}
-        <div className="flex flex-col gap-4 lg:gap-[18px]">
-          <div className="hidden rounded-[18px] border border-[#E6E8EF] bg-white p-5 lg:block">
-            <h2 className="text-[17px] font-bold text-ink">Nasıl çalışır?</h2>
-            <ol className="mt-4 flex flex-col gap-4">
-              {[
-                ["Talep oluştur", "Konunu ve uygun olduğun zamanı yaz."],
-                ["Onay ve planlama", "Eğitmen saati onaylar, bağlantı panele düşer."],
-                [`${ayarlar.sureDk} dk birebir görüşme`, "Görüşme sonrası notlar burada kalır."],
-              ].map(([b, a], i) => (
-                <li key={b} className="flex gap-3">
-                  <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-[#EEF2FF] font-mono text-[11px] font-semibold text-brand">
-                    {i + 1}
-                  </span>
-                  <span className="flex flex-col gap-0.5">
-                    <span className="text-[14.5px] font-bold text-ink">{b}</span>
-                    <span className="text-[13px] text-[#5B6478]">{a}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          {/* Ücretlendirme web'de her zaman görünür; uygulamada kapalı. */}
-          {!native && (
-            <div className="flex flex-col gap-3 lg:rounded-[18px] lg:border lg:border-[#E6E8EF] lg:bg-white lg:p-5">
-              <div className="hidden font-mono text-[10px] tracking-[0.14em] text-[#8A92A6] uppercase lg:block">Ücretlendirme</div>
-              <div className="grid grid-cols-2 gap-3">
-                {hak.egitimKaydiVar && (
-                  <div className="rounded-[14px] bg-[#E3F6EE] p-4">
-                    <div className="text-[12.5px] font-semibold text-[#12825A]">İlk {ayarlar.ucretsizHak} görüşme</div>
-                    <div className="mt-1 text-[20px] font-extrabold text-ink">Ücretsiz</div>
-                  </div>
-                )}
-                <div className={`rounded-[14px] border border-[#E6E8EF] bg-white p-4 lg:border-0 lg:bg-[#F1F3F8] ${hak.egitimKaydiVar ? "" : "col-span-2"}`}>
-                  <div className="text-[12.5px] font-semibold text-[#5B6478]">{hak.egitimKaydiVar ? "Sonrası / görüşme" : "Görüşme başı"}</div>
-                  <div className="mt-1 text-[20px] font-extrabold text-ink">{ucretMetni}</div>
-                </div>
-              </div>
-              <p className="px-1 text-[13px] leading-[1.6] text-[#5B6478] lg:px-0">
-                Her görüşme {ayarlar.sureDk} dakika sürer.{" "}
-                {hak.egitimKaydiVar
-                  ? "İptal ettiğin talepler hakkından düşmez."
-                  : "Talebin ödeme tamamlandıktan sonra planlamaya alınır; ödemeden vazgeçersen talebi iptal edebilirsin."}
-              </p>
-              {ayarlar.odemeAciklamasi && (
-                <div className="rounded-[12px] bg-mist px-4 py-3">
-                  <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Ödeme bilgileri</div>
-                  <p className="mt-1.5 text-[13px] leading-[1.65] whitespace-pre-line text-[#3A3F4F]">{ayarlar.odemeAciklamasi}</p>
+        {/* ------------------------------------------- ücretlendirme --- */}
+        {/* "Nasıl çalışır?" bandaki düğmeyle açılan rehberde; sağda yalnızca
+            ücret kalıyor. Uygulamada ücret gösterilmediği için sütun da yok. */}
+        {!native && (
+          <aside className="flex flex-col gap-3 lg:sticky lg:top-6 lg:rounded-[18px] lg:border lg:border-[#E6E8EF] lg:bg-white lg:p-5">
+            <h2 className="hidden text-[17px] font-bold text-ink lg:block">Ücretlendirme</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {hak.egitimKaydiVar && (
+                <div className="rounded-[14px] bg-[#E3F6EE] p-4">
+                  <div className="text-[12.5px] font-semibold text-[#12825A]">İlk {ayarlar.ucretsizHak} görüşme</div>
+                  <div className="mt-1 text-[20px] font-extrabold text-ink">Ücretsiz</div>
                 </div>
               )}
+              <div className={`rounded-[14px] border border-[#E6E8EF] bg-white p-4 lg:border-0 lg:bg-[#F1F3F8] ${hak.egitimKaydiVar ? "" : "col-span-2"}`}>
+                <div className="text-[12.5px] font-semibold text-[#5B6478]">{hak.egitimKaydiVar ? "Sonrası / görüşme" : "Görüşme başı"}</div>
+                <div className="mt-1 text-[20px] font-extrabold text-ink">{ucretMetni}</div>
+              </div>
             </div>
-          )}
-        </div>
+            <p className="px-1 text-[13px] leading-[1.6] text-[#5B6478] lg:px-0">
+              Her görüşme {ayarlar.sureDk} dakika sürer.{" "}
+              {hak.egitimKaydiVar
+                ? "İptal ettiğin talepler hakkından düşmez."
+                : "Talebin ödeme tamamlandıktan sonra planlamaya alınır; ödemeden vazgeçersen talebi iptal edebilirsin."}
+            </p>
+            {ayarlar.odemeAciklamasi && (
+              <div className="rounded-[12px] bg-mist px-4 py-3">
+                <div className="font-mono text-[9.5px] tracking-[0.13em] text-[#656B7A] uppercase">Ödeme bilgileri</div>
+                <p className="mt-1.5 text-[13px] leading-[1.65] whitespace-pre-line text-[#3A3F4F]">{ayarlar.odemeAciklamasi}</p>
+              </div>
+            )}
+          </aside>
+        )}
       </div>
       {rehberAcik && (
         <NasilCalisir
