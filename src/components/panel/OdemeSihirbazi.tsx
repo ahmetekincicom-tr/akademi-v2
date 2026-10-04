@@ -292,7 +292,6 @@ export function OdemeSihirbazi({
                 : yontem === "kart"
                   ? "Güvenli ödemeye geç"
                   : "Ödemeyi yaptım, bildir"}
-              {yontem === "kart" && !islemde && <Icon name="arrowRight" size={16} />}
             </button>
             {!onay ? (
               <p className="-mt-1.5 hidden text-center text-[12px] text-[#8A92A6] lg:block">Devam etmek için sözleşmeyi onayla</p>
@@ -467,10 +466,7 @@ function YontemKarti({
 
       <span className="relative mt-auto hidden items-center gap-2 border-t border-[#F1F3F7] pt-3 lg:flex">
         <span className="truncate font-mono text-[10px] tracking-[0.1em] text-[#8A92A6]">{alt}</span>
-        <span className="ml-auto flex flex-none items-center gap-1 text-[13px] font-bold text-brand">
-          Seç
-          <Icon name="arrowRight" size={14} />
-        </span>
+        <span className="ml-auto flex-none text-[13px] font-bold text-brand">Seç</span>
       </span>
     </button>
   );
