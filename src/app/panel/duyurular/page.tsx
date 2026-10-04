@@ -20,10 +20,6 @@ export default async function PanelDuyurularPage() {
       <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">
         Gündem
       </h1>
-      <p className="mt-2 max-w-[620px] text-[15px] leading-[1.6] text-[#5C6273]">
-        Meta ve sosyal medya tarafındaki gelişmeler. Önemli bir şey olduğunda uygulamadan bildirim
-        gönderiyoruz.
-      </p>
 
       {duyurular.length === 0 ? (
         <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">

@@ -65,7 +65,6 @@ export function Karsilama({ tarih, kisaTarih, baslik }: { tarih: string; kisaTar
 type BantAdimi = {
   n: number;
   baslik: string;
-  aciklama: string;
   durum: "tamam" | "siradaki" | "bekliyor";
   eylem: { etiket: string; yol: string } | null;
 };
@@ -73,7 +72,7 @@ type BantAdimi = {
 /**
  * Başlangıç adımlarını tasarımın diline çeviriyor. Durumlar ve bağlantılar
  * lib/baslangic.ts'ten (ödeme, test, takvim gerçek tablolardan okunuyor);
- * burada yalnızca başlık, kısa açıklama ve düğme metni seçiliyor.
+ * burada yalnızca başlık ve düğme metni seçiliyor.
  */
 export function bantAdimlari(adimlar: Adim[]): BantAdimi[] {
   const siradaki = adimlar.findIndex((a) => !a.tamam);
@@ -84,15 +83,14 @@ export function bantAdimlari(adimlar: Adim[]): BantAdimi[] {
 
     switch (a.anahtar) {
       case "hesap":
-        return { n, durum, baslik: "Hesabını oluştur", aciklama: "Giriş bilgilerin hazır.", eylem: null };
+        return { n, durum, baslik: "Hesabını oluştur", eylem: null };
       case "odeme":
-        // Kurumsal kayıtta ödeyen başkası; adımın kendi metni bunu anlatıyor.
-        if (a.baslik !== "Ödemeni tamamla") return { n, durum, baslik: a.baslik, aciklama: a.aciklama, eylem: null };
+        // Kurumsal kayıtta ödeyen başkası; adımın kendi başlığı bunu anlatıyor.
+        if (a.baslik !== "Ödemeni tamamla") return { n, durum, baslik: a.baslik, eylem: null };
         return {
           n,
           durum,
           baslik: "Ödemeni tamamla",
-          aciklama: a.tamam ? "Ödemen onaylandı." : (a.bekliyor ?? "Ödemeni aldıktan sonra biz onaylıyoruz."),
           eylem: a.yol ? { etiket: "Ödemelerime git", yol: a.yol } : null,
         };
       case "test":
@@ -100,7 +98,6 @@ export function bantAdimlari(adimlar: Adim[]): BantAdimi[] {
           n,
           durum,
           baslik: "Testini tamamla",
-          aciklama: a.tamam ? "Ön değerlendirmen bize ulaştı." : "Seviyeni belirleyen kısa test.",
           eylem: a.yol ? { etiket: "Teste başla", yol: a.yol } : null,
         };
       case "planlama":
@@ -108,11 +105,6 @@ export function bantAdimlari(adimlar: Adim[]): BantAdimi[] {
           n,
           durum,
           baslik: "Eğitimi planla",
-          aciklama: a.tamam
-            ? "Birebir eğitim takvimin hazır."
-            : durum === "siradaki" && a.bekliyor
-              ? a.bekliyor
-              : "İlk birebir oturumun planlanır.",
           eylem: a.yol ? { etiket: "Takvime git", yol: a.yol } : null,
         };
     }
@@ -179,16 +171,29 @@ export function KurulumBandi({ adimlar }: { adimlar: Adim[] }) {
         {liste.map((a) => (
           <li key={a.n} className="flex flex-col">
             {a.durum === "siradaki" ? (
-              <div className="flex h-full flex-col gap-1.5 rounded-[14px] bg-[#2459FF] p-3.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18),0_14px_30px_-12px_rgba(36,89,255,.85)] xl:gap-2 xl:p-4">
+              <div className="flex h-full flex-col gap-1.5 rounded-[14px] bg-[#2459FF] p-3.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,.18),0_14px_30px_-12px_rgba(36,89,255,.85)] xl:justify-between xl:gap-2 xl:p-4">
                 <div className={`${MONO} text-[#DCE5FF]`}>Adım 0{a.n} · Sıradaki</div>
-                <div className="text-[17px] font-bold">{a.baslik}</div>
-                <div className="text-[13px] leading-[1.45] text-[#DCE5FF] xl:text-[12px]">{a.aciklama}</div>
+                <div className="flex items-center gap-3">
+                  <div className="min-w-0 flex-1 text-[17px] font-bold xl:text-[15px]">{a.baslik}</div>
+                  {/* Masaüstü: kartlar eşit boyda kalsın diye başlığın yanında ok düğmesi. */}
+                  {a.eylem && (
+                    <Link
+                      href={a.eylem.yol}
+                      aria-label={a.eylem.etiket}
+                      title={a.eylem.etiket}
+                      className="hidden h-8 w-8 flex-none items-center justify-center rounded-full bg-white text-[#1A44CC] transition hover:bg-[#EEF2FF] xl:flex"
+                    >
+                      <Icon name="arrowRight" size={15} strokeWidth={2.2} />
+                    </Link>
+                  )}
+                </div>
                 {a.eylem && (
                   <Link
                     href={a.eylem.yol}
-                    className="mt-1.5 flex h-11 items-center justify-center rounded-[11px] bg-white text-[14px] font-bold text-[#1A44CC] transition hover:bg-[#EEF2FF] xl:h-auto xl:self-start xl:rounded-[9px] xl:px-3.5 xl:py-2 xl:text-[12px]"
+                    className="mt-1.5 flex h-11 items-center justify-center gap-1.5 rounded-[11px] bg-white text-[14px] font-bold text-[#1A44CC] transition hover:bg-[#EEF2FF] xl:hidden"
                   >
-                    {a.eylem.etiket} →
+                    {a.eylem.etiket}
+                    <Icon name="arrowRight" size={14} />
                   </Link>
                 )}
               </div>
@@ -201,15 +206,14 @@ export function KurulumBandi({ adimlar }: { adimlar: Adim[] }) {
                   <div className="ml-auto font-mono text-[10px] text-[#8E98B3]">0{a.n}</div>
                 </div>
                 {/* Masaüstü: kart. */}
-                <div className="hidden h-full flex-col gap-2 rounded-[14px] border border-white/10 bg-[#070B16]/55 p-4 xl:flex">
+                <div className="hidden h-full flex-col justify-between gap-2 rounded-[14px] border border-white/10 bg-[#070B16]/55 p-4 xl:flex">
                   <div className="flex items-center gap-2">
                     <div className={`${MONO} text-[#8E98B3]`}>Adım 0{a.n}</div>
                     <span className="ml-auto">
                       <Tik />
                     </span>
                   </div>
-                  <div className="text-[15px] font-semibold text-[#C9D0E0]">{a.baslik}</div>
-                  <div className="text-[12px] leading-[1.45] text-[#8E98B3]">{a.aciklama}</div>
+                  <div className="flex min-h-8 items-center text-[15px] font-semibold text-[#C9D0E0]">{a.baslik}</div>
                 </div>
               </>
             ) : (
@@ -220,10 +224,9 @@ export function KurulumBandi({ adimlar }: { adimlar: Adim[] }) {
                   </span>
                   <div className="text-[14px] font-semibold text-[#E4E8F2]">{a.baslik}</div>
                 </div>
-                <div className="hidden h-full flex-col gap-2 rounded-[14px] border border-dashed border-white/20 bg-[#070B16]/25 p-4 xl:flex">
+                <div className="hidden h-full flex-col justify-between gap-2 rounded-[14px] border border-dashed border-white/20 bg-[#070B16]/25 p-4 xl:flex">
                   <div className={`${MONO} text-[#8E98B3]`}>Adım 0{a.n}</div>
-                  <div className="text-[15px] font-semibold text-[#E4E8F2]">{a.baslik}</div>
-                  <div className="text-[12px] leading-[1.45] text-[#8E98B3]">{a.aciklama}</div>
+                  <div className="flex min-h-8 items-center text-[15px] font-semibold text-[#E4E8F2]">{a.baslik}</div>
                 </div>
               </>
             )}

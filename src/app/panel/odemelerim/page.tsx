@@ -82,9 +82,6 @@ export default async function OdemelerimPage({
           <div className="relative flex min-w-0 flex-1 flex-col gap-2">
             <div className="font-mono text-[10px] tracking-[0.16em] text-[#AFC2FF] uppercase">Hesap</div>
             <h1 className="text-[28px] leading-[1.1] font-extrabold tracking-[-0.03em] lg:text-[34px]">Ödemelerim</h1>
-            <p className="hidden max-w-[520px] text-[15px] leading-[1.5] text-[#C9D0E0] lg:block">
-              Eğitim ücretlerinin kaydı. Ödemen bize ulaştığında durumu “Ödendi” olarak işaretliyoruz.
-            </p>
           </div>
           {/* Masaüstü: ayraçlı üç sayı; telefon: iki kutu. */}
           <dl className="relative hidden lg:flex">
