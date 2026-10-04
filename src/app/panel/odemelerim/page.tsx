@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getOdemelerim, getBanka, paraBicimi, type OdemeSatiri } from "@/lib/odeme";
 import { UygulamadaYok } from "@/components/panel/SadeceWeb";
 import { Icon } from "@/components/Icon";
+import { MenuIkon } from "@/components/YanMenu";
 import { TR_ZAMAN } from "@/lib/zaman";
 import { iyzicoAyari } from "@/lib/iyzico";
 import { getErisim } from "@/lib/erisim";
@@ -221,7 +222,7 @@ export default async function OdemelerimPage({
                   <span className="relative h-11 w-11 flex-none">
                     <span className="absolute top-1.5 left-1.5 h-10 w-10 rotate-[8deg] rounded-[12px] bg-[#C9D6FF] opacity-60" />
                     <span className="absolute inset-[0_5px_5px_0] flex items-center justify-center rounded-[11px] border border-[#DCE4FF] bg-[linear-gradient(150deg,#fff,#EEF2FF)] text-brand">
-                      <Icon name="card" size={15} />
+                      <MenuIkon ikon="card" boyut={16} kalinlik={2} />
                     </span>
                   </span>
                 );

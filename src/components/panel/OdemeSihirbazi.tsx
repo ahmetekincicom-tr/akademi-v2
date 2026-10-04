@@ -5,6 +5,7 @@ import Link from "next/link";
 import { odemeyeGec, havaleBildir } from "@/app/panel/odemelerim/actions";
 import { BankaKutusu } from "@/components/panel/BankaKutusu";
 import { Icon } from "@/components/Icon";
+import { MenuIkon } from "@/components/YanMenu";
 import type { Banka } from "@/lib/odeme";
 import { TR_ZAMAN } from "@/lib/zaman";
 
@@ -436,14 +437,14 @@ function YontemKarti({
       />
       {/* Telefon: düz ikon kutusu */}
       <span className={`flex h-12 w-12 flex-none items-center justify-center rounded-[13px] border lg:hidden ${t.kenar} ${t.renk} ${t.golge} ${t.zemin}`}>
-        <Icon name={ikon} size={18} />
+        <MenuIkon ikon={ikon} boyut={18} kalinlik={2} />
       </span>
       {/* Masaüstü: döndürülmüş arka plakalı ikon + rozet */}
       <span className="relative hidden items-start lg:flex">
         <span className="relative h-14 w-14">
           <span className={`absolute top-[9px] left-[9px] h-[47px] w-[47px] rotate-[10deg] rounded-[15px] opacity-35 ${t.arka}`} />
           <span className={`absolute inset-[0_9px_9px_0] flex items-center justify-center rounded-[15px] border bg-[linear-gradient(150deg,#fff,rgba(255,255,255,.7))] ${t.kenar} ${t.renk}`}>
-            <Icon name={ikon} size={20} />
+            <MenuIkon ikon={ikon} boyut={20} kalinlik={2} />
           </span>
         </span>
         <span className={`ml-auto rounded-full px-2 py-1 font-mono text-[10px] tracking-[0.1em] uppercase ${rozetRenk}`}>{rozet.metin}</span>
