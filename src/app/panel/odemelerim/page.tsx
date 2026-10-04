@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { getOdemelerim, getBanka, paraBicimi } from "@/lib/odeme";
+import { getOdemelerim, getBanka, paraBicimi, type OdemeSatiri } from "@/lib/odeme";
 import { UygulamadaYok } from "@/components/panel/SadeceWeb";
-import { durumStil } from "@/lib/admin/shared";
-import { odemeDurumEtiket } from "@/lib/admin/format";
 import { Icon } from "@/components/Icon";
 import { TR_ZAMAN } from "@/lib/zaman";
 import { iyzicoAyari } from "@/lib/iyzico";
@@ -11,7 +9,7 @@ import { getErisim } from "@/lib/erisim";
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
   day: "numeric",
-  month: "long",
+  month: "short",
   year: "numeric",
 });
 
@@ -56,19 +54,52 @@ export default async function OdemelerimPage({
   const odemeAcik = iyzicoAyari() !== null || banka !== null;
   const sonucKutusu = sonuc ? SONUC_METNI[sonuc] : undefined;
 
+  const odenen = satirlar.filter((s) => s.durum === "odendi").reduce((t, s) => t + s.tutar, 0);
+  // "Şimdi öde": kartla/havaleyle ödenebilecek ilk bekleyen kayıt.
+  const odenecek = odemeAcik ? satirlar.find((s) => s.durum === "bekliyor" && s.onlineOdeme) : undefined;
+  const bildirildi = satirlar.some((s) => s.durum === "bekliyor" && s.havaleBildirimi);
+
   return (
     <UygulamadaYok>
-      <main className="p-4 pb-14 sm:p-[34px]">
-        <h1 className="font-heading text-[28px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[32px]">
-          Ödemelerim
-        </h1>
-        <p className="mt-2 max-w-[620px] text-[15px] text-[#5C6273]">
-          Eğitim ücretlerinin kaydı. Ödemen bize ulaştığında durumu &quot;Ödendi&quot; olarak işaretliyoruz.
-        </p>
+      <main className="flex flex-col gap-4 p-4 pb-14 sm:gap-5 sm:px-[34px] sm:pt-7 sm:pb-9">
+        {/* ------------------------------------------------------ bant --- */}
+        <section
+          className="relative flex flex-col gap-4 overflow-hidden rounded-[20px] p-[18px] text-white lg:flex-row lg:items-end lg:gap-8 lg:p-7"
+          style={{ background: "linear-gradient(135deg,#1A3FCC 0%,#0F1E5C 39%,#070B16 100%)" }}
+        >
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)",
+              backgroundSize: "32px 32px",
+              maskImage: "linear-gradient(120deg,#000 10%,transparent 85%)",
+              WebkitMaskImage: "linear-gradient(120deg,#000 10%,transparent 85%)",
+            }}
+          />
+          <div className="relative flex min-w-0 flex-1 flex-col gap-2">
+            <div className="font-mono text-[10px] tracking-[0.16em] text-[#AFC2FF] uppercase">Hesap</div>
+            <h1 className="text-[28px] leading-[1.1] font-extrabold tracking-[-0.03em] lg:text-[34px]">Ödemelerim</h1>
+            <p className="hidden max-w-[520px] text-[15px] leading-[1.5] text-[#C9D0E0] lg:block">
+              Eğitim ücretlerinin kaydı. Ödemen bize ulaştığında durumu “Ödendi” olarak işaretliyoruz.
+            </p>
+          </div>
+          {/* Masaüstü: ayraçlı üç sayı; telefon: iki kutu. */}
+          <dl className="relative hidden lg:flex">
+            <BantSayi etiket="Bekleyen" deger={paraBicimi.format(bekleyenTutar)} renk={bekleyenTutar > 0 ? "#FFC56B" : undefined} />
+            <BantSayi etiket="Ödenen" deger={paraBicimi.format(odenen)} />
+            <BantSayi etiket="Kayıt" deger={String(satirlar.length)} />
+          </dl>
+          <div className="relative grid grid-cols-2 gap-2.5 lg:hidden">
+            <KutuSayi etiket="Bekleyen" deger={paraBicimi.format(bekleyenTutar)} renk={bekleyenTutar > 0 ? "#FFC56B" : undefined} />
+            <KutuSayi etiket="Ödenen" deger={paraBicimi.format(odenen)} />
+          </div>
+        </section>
 
         {sonucKutusu && (
           <div
-            className="mt-[22px] flex items-start gap-[13px] rounded-2xl border px-5 py-4 sm:px-6"
+            className="flex items-start gap-[13px] rounded-[18px] border px-5 py-4 sm:px-6"
             style={{
               borderColor: sonucKutusu.iyi ? "rgba(24,140,90,0.35)" : "rgba(229,72,77,0.32)",
               background: sonucKutusu.iyi ? "#EFF9F3" : "#FDF0F0",
@@ -92,17 +123,35 @@ export default async function OdemelerimPage({
           </div>
         )}
 
+        {/* ------------------------------------------ bekleyen ödeme --- */}
         {bekleyenAdet > 0 && (
-          <div className="mt-[22px] flex flex-wrap items-center gap-4 rounded-2xl border border-[#E0A21C]/35 bg-[#FDF6E7] px-5 py-4 sm:px-6">
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-[12px] bg-[#E0A21C]/18 text-[#8A6210]">
-              <Icon name="card" size={19} />
+          <div className="flex flex-col gap-3 rounded-[18px] border border-[#F2D9A6] bg-[#FFF7E6] p-4 sm:flex-row sm:items-center sm:gap-4 sm:px-5">
+            <span className="hidden h-11 w-11 flex-none items-center justify-center rounded-[12px] bg-[#FDE7B8] text-[#9A6A00] sm:flex">
+              <Icon name="clock" size={19} />
             </span>
-            <div className="min-w-0 grow basis-[220px]">
-              <div className="text-[15.5px] font-semibold">
-                Bekleyen tutar · {paraBicimi.format(bekleyenTutar)}
+            <div className="min-w-0 flex-1">
+              <div className="text-[15px] font-bold text-ink">
+                {bekleyenAdet} ödemen onay bekliyor · {paraBicimi.format(bekleyenTutar)}
               </div>
-              <div className="mt-[2px] text-[13.5px] text-[#5C6273]">{bekleyenAdet} kayıt onay bekliyor.</div>
+              <div className="mt-0.5 text-[13px] text-[#6B5320]">
+                {bildirildi && !odenecek
+                  ? "Havale bildirimin bize ulaştı; ödemeyi hesabımızda görünce onaylıyoruz."
+                  : (
+                      <>
+                        <span className="sm:hidden">Ödeyince kurulumda bir sonraki adıma geçersin.</span>
+                        <span className="hidden sm:inline">Ödemeni tamamladığında kurulum yolculuğunda bir sonraki adıma geçersin.</span>
+                      </>
+                    )}
+              </div>
             </div>
+            {odenecek && (
+              <Link
+                href={`/panel/odemelerim/ode/${odenecek.id}`}
+                className="flex h-12 flex-none items-center justify-center rounded-[12px] bg-ink px-5 text-[14px] font-bold text-white transition hover:bg-brand sm:h-11"
+              >
+                Şimdi öde →
+              </Link>
+            )}
           </div>
         )}
 
@@ -113,7 +162,7 @@ export default async function OdemelerimPage({
             demek onu ödemesi eksikmiş gibi bırakıyordu; oysa yapması gereken
             bir şey yok.
           */
-          <div className="mt-[26px] rounded-2xl border border-ink/10 bg-white px-8 py-14 text-center">
+          <div className="rounded-[18px] border border-[#E6E8EF] bg-white px-8 py-14 text-center">
             <div
               className={`mx-auto flex h-12 w-12 items-center justify-center rounded-[13px] ${
                 erisim.kurumsal ? "bg-[rgba(24,140,90,0.13)] text-[#15774E]" : "bg-mist text-[#656B7A]"
@@ -138,74 +187,143 @@ export default async function OdemelerimPage({
             )}
           </div>
         ) : (
-          <div className="mt-[26px] overflow-hidden rounded-2xl border border-ink/10 bg-white">
-            {satirlar.map((s) => {
-              // Etiket admin tarafıyla ortak: durumStil renkleri bu metinlere göre
-              // seçiyor, kendi sözlüğümü yazarsam rozetler griye düşüyordu.
-              const etiket = odemeDurumEtiket[s.durum] ?? s.durum;
-              const st = durumStil(etiket);
-              return (
-                <div
-                  key={s.id}
-                  className="flex flex-col gap-3 border-b border-ink/7 px-5 py-4 last:border-b-0 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:px-6 sm:py-[16px]"
-                >
-                  {/* basis yalnızca sm'den itibaren: kapsayıcı mobilde flex-col
-                    olduğu için orada basis genişliği değil YÜKSEKLİĞİ belirler
-                    ve satırın ortasında boş bir blok bırakır. */}
-                  <div className="min-w-0 sm:grow sm:basis-[220px]">
-                    <div className="text-[15px] leading-[1.3] font-semibold text-ink">
-                      {paraBicimi.format(s.tutar)}
-                    </div>
-                    <div className="mt-1 font-mono text-[10.5px] text-[#656B7A]">
-                      {s.kurs ?? "Genel"} · {tarihBicimi.format(new Date(s.tarih))}
-                      {s.yontem ? ` · ${s.yontem}` : ""}
-                    </div>
-                    {/* Kurumsal kayıtta tutarın neyi kapsadığı satırın kendi
-                        üstünde yazmalı: ödeme ekranına gelen kişi "bu rakam
-                        tek kişilik mi" diye sormamalı. */}
-                    {s.koltukSayisi > 1 && (
-                      <div className="mt-[6px] inline-flex items-center gap-[6px] rounded-full bg-mist px-[10px] py-[3px] text-[12px] font-semibold text-[#4A5060]">
-                        <Icon name="users" size={13} />
-                        {s.koltukSayisi} kişilik kurumsal kayıt
-                      </div>
-                    )}
-                    {s.not && <div className="mt-[6px] text-[13px] text-[#5C6273]">{s.not}</div>}
-                  </div>
-
-                  {s.faturaNo && (
-                    <div className="flex-none font-mono text-[10.5px] text-[#656B7A]">
-                      Fatura {s.faturaNo}
-                    </div>
-                  )}
-
-                  <span
-                    className="w-fit flex-none rounded-full px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] uppercase"
-                    style={{ background: st.bg, color: st.renk }}
-                  >
-                    {etiket}
-                  </span>
-
-                  {s.durum === "bekliyor" && s.havaleBildirimi && (
-                    <span className="w-fit flex-none rounded-full bg-[#EEF2FC] px-[9px] py-[3px] font-mono text-[9.5px] tracking-[0.08em] text-[#4A5060] uppercase">
-                      Bildirildi
+          <section className="overflow-hidden lg:rounded-[18px] lg:border lg:border-[#E6E8EF] lg:bg-white">
+            <h2 className="px-1 pb-3 text-[17px] font-bold text-ink lg:px-[22px] lg:pt-[18px] lg:pb-2">
+              <span className="lg:hidden">Kayıtlar</span>
+              <span className="hidden lg:inline">Ödeme kayıtları</span>
+            </h2>
+            <div className={`${IZGARA} hidden border-b border-[#EEF0F5] px-[22px] py-2 font-mono text-[10px] tracking-[0.12em] text-[#8A92A6] uppercase lg:grid`}>
+              <div>Kalem</div>
+              <div>Tarih</div>
+              <div>Yöntem</div>
+              <div>Durum</div>
+              <div className="text-right">Tutar</div>
+            </div>
+            <ul className="flex flex-col gap-2.5 lg:gap-0">
+              {satirlar.map((s) => {
+                const d = DURUM[s.durum];
+                const ode = odemeAcik && s.durum === "bekliyor" && s.onlineOdeme;
+                const kalem = s.koltukSayisi > 1 ? `Kurumsal kayıt · ${s.koltukSayisi} kişi` : "Eğitim ücreti";
+                const yontem = s.yontem ?? (s.durum === "bekliyor" ? "Seçilmedi" : "—");
+                const rozet = (
+                  <span className="flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-full px-2 py-[3px] font-mono text-[9.5px] tracking-[0.08em] uppercase" style={{ color: d.renk, background: d.zemin }}>
+                      {d.etiket}
                     </span>
-                  )}
-
-                  {odemeAcik && s.durum === "bekliyor" && s.onlineOdeme && (
-                    <Link
-                      href={`/panel/odemelerim/ode/${s.id}`}
-                      className="flex h-9 w-full flex-none items-center justify-center gap-[7px] rounded-[10px] bg-ink px-4 text-[13.5px] font-semibold text-white transition hover:bg-brand sm:w-auto"
-                    >
+                    {s.durum === "bekliyor" && s.havaleBildirimi && (
+                      <span className="rounded-full bg-[#EEF2FC] px-2 py-[3px] font-mono text-[9.5px] tracking-[0.08em] text-[#4A5060] uppercase">
+                        Bildirildi
+                      </span>
+                    )}
+                  </span>
+                );
+                const ikon = (
+                  <span className="relative h-11 w-11 flex-none">
+                    <span className="absolute top-1.5 left-1.5 h-10 w-10 rotate-[8deg] rounded-[12px] bg-[#C9D6FF] opacity-60" />
+                    <span className="absolute inset-[0_5px_5px_0] flex items-center justify-center rounded-[11px] border border-[#DCE4FF] bg-[linear-gradient(150deg,#fff,#EEF2FF)] text-brand">
                       <Icon name="card" size={15} />
-                      Ödeme yap
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    </span>
+                  </span>
+                );
+                return (
+                  <li key={s.id} className="border-[#F1F3F7] lg:border-b lg:last:border-b-0">
+                    {/* Masaüstü: tablo satırı */}
+                    <div className={`${IZGARA} hidden items-center px-[22px] py-4 lg:grid`}>
+                      <div className="flex min-w-0 items-center gap-3">
+                        {ikon}
+                        <div className="min-w-0">
+                          <div className="truncate text-[14.5px] font-bold text-ink">{kalem}</div>
+                          <div className="truncate text-[12.5px] text-[#5B6478]">
+                            {s.kurs ?? "Genel"}
+                            {s.faturaNo ? ` · Fatura ${s.faturaNo}` : ""}
+                          </div>
+                          {s.not && <div className="mt-0.5 text-[12.5px] text-[#5B6478]">{s.not}</div>}
+                        </div>
+                      </div>
+                      <div className="font-mono text-[12.5px] text-[#3A3F4F]">{tarihBicimi.format(new Date(s.tarih))}</div>
+                      <div className="truncate text-[13px] text-[#8A92A6]">{yontem}</div>
+                      <div>{rozet}</div>
+                      <div className="flex items-center justify-end gap-3">
+                        <span className="text-[15px] font-extrabold text-ink">{paraBicimi.format(s.tutar)}</span>
+                        {ode && (
+                          <Link
+                            href={`/panel/odemelerim/ode/${s.id}`}
+                            className="rounded-[10px] bg-brand px-3.5 py-2.5 text-[13px] font-bold text-white transition hover:bg-ink"
+                          >
+                            Öde
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Telefon: kart */}
+                    <div className="flex flex-col gap-3 rounded-[16px] border border-[#E6E8EF] bg-white p-3.5 lg:hidden">
+                      <div className="flex items-center gap-3">
+                        {ikon}
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-[15px] font-bold text-ink">{kalem}</div>
+                          <div className="truncate font-mono text-[11px] text-[#8A92A6]">
+                            {s.kurs ?? "Genel"} · {tarihBicimi.format(new Date(s.tarih))}
+                          </div>
+                        </div>
+                        <div className="flex flex-none flex-col items-end gap-1">
+                          <span className="text-[16px] font-extrabold text-ink">{paraBicimi.format(s.tutar)}</span>
+                          {rozet}
+                        </div>
+                      </div>
+                      {(s.not || s.faturaNo) && (
+                        <div className="text-[12.5px] text-[#5B6478]">
+                          {s.faturaNo ? `Fatura ${s.faturaNo}` : ""}
+                          {s.faturaNo && s.not ? " · " : ""}
+                          {s.not}
+                        </div>
+                      )}
+                      {ode && odenecek?.id !== s.id && (
+                        <Link
+                          href={`/panel/odemelerim/ode/${s.id}`}
+                          className="flex h-11 items-center justify-center rounded-[12px] bg-brand text-[14px] font-bold text-white"
+                        >
+                          Öde
+                        </Link>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
         )}
       </main>
     </UygulamadaYok>
+  );
+}
+
+const IZGARA = "grid grid-cols-[minmax(0,1.6fr)_130px_130px_150px_150px] gap-3";
+
+const DURUM: Record<OdemeSatiri["durum"], { etiket: string; renk: string; zemin: string }> = {
+  odendi: { etiket: "Ödendi", renk: "#12825A", zemin: "#E3F6EE" },
+  bekliyor: { etiket: "Onay bekliyor", renk: "#9A6A00", zemin: "#FFF4D6" },
+  iade: { etiket: "İade", renk: "#5B6478", zemin: "#EEF0F5" },
+};
+
+function BantSayi({ etiket, deger, renk }: { etiket: string; deger: string; renk?: string }) {
+  return (
+    <div className="flex flex-col gap-1 border-l border-white/14 px-7 first:border-l-0 first:pl-0 last:pr-0">
+      <dt className="font-mono text-[10px] tracking-[0.14em] text-[#AFC2FF] uppercase" style={{ color: renk }}>
+        {etiket}
+      </dt>
+      <dd className="text-[30px] leading-none font-extrabold">{deger}</dd>
+    </div>
+  );
+}
+
+function KutuSayi({ etiket, deger, renk }: { etiket: string; deger: string; renk?: string }) {
+  return (
+    <div className="rounded-[14px] border border-white/12 bg-[#070B16]/50 px-3.5 py-3">
+      <div className="font-mono text-[9.5px] tracking-[0.14em] text-[#AFC2FF] uppercase" style={{ color: renk }}>
+        {etiket}
+      </div>
+      <div className="mt-1 text-[22px] leading-none font-extrabold">{deger}</div>
+    </div>
   );
 }

@@ -113,7 +113,7 @@ export function MenuGrup({ baslik, children }: { baslik: string; children: React
   );
 }
 
-function IkonKutusu({ ikon, durum, uyari = false }: { ikon: IconName; durum: "normal" | "aktif" | "kapali"; uyari?: boolean }) {
+function IkonKutusu({ ikon, durum }: { ikon: IconName; durum: "normal" | "aktif" | "kapali" }) {
   return (
     <span
       className={`relative flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[9px] ${
@@ -125,7 +125,6 @@ function IkonKutusu({ ikon, durum, uyari = false }: { ikon: IconName; durum: "no
       }`}
     >
       <Icon name={ikon} size={15} />
-      {uyari && <span className="absolute -top-[3px] -right-[3px] h-2 w-2 rounded-full bg-[#F0546A] ring-2 ring-[#0B1129]" />}
     </span>
   );
 }
@@ -145,7 +144,7 @@ export function MenuOgesi({
   aktif: boolean;
   /** Okunmamış/bekleyen sayısı; 0 ise rozet yok. */
   sayi?: number;
-  /** Sayı değil, duran bir uyarı (bekleyen ödeme): ikon köşesinde kırmızı nokta. */
+  /** Sayı değil, duran bir uyarı (bekleyen ödeme): satır sonunda turuncu nokta. */
   uyari?: boolean;
   onGit?: () => void;
 }) {
@@ -160,14 +159,18 @@ export function MenuOgesi({
           : "border-transparent text-[#C9D0E0] hover:bg-white/[0.04] hover:text-white"
       }`}
     >
-      <IkonKutusu ikon={ikon} durum={aktif ? "aktif" : "normal"} uyari={uyari} />
+      <IkonKutusu ikon={ikon} durum={aktif ? "aktif" : "normal"} />
       <span className="min-w-0 flex-1 truncate">{etiket}</span>
       {sayi > 0 && (
         <span className="flex h-[19px] min-w-[19px] flex-none items-center justify-center rounded-full bg-[#2459FF] px-1.5 text-[10.5px] font-bold text-white shadow-[0_4px_10px_-4px_rgba(36,89,255,.9)]">
           {sayi > 999 ? "999+" : sayi}
         </span>
       )}
-      {uyari && <span className="sr-only">(bekleyen işlem var)</span>}
+      {uyari && (
+        <span className="mr-1.5 h-2 w-2 flex-none rounded-full bg-[#FFB02E] shadow-[0_0_0_3px_rgba(255,176,46,.2)]">
+          <span className="sr-only">(bekleyen işlem var)</span>
+        </span>
+      )}
     </Link>
   );
 }
@@ -193,39 +196,40 @@ export function MenuAlt({
   basHarf: string;
   ad: string;
   eposta: string;
-  /** Öteki panele geçiş ("Yönetim paneli" / "Öğrenci görünümü"); yoksa çıkış tam genişlik. */
-  ikincil?: { href: string; etiket: string } | null;
+  /** Öteki panele geçiş ("Yönetim paneli" / "Öğrenci görünümü"): ikon düğmesi. */
+  ikincil?: { href: string; etiket: string; ikon: IconName } | null;
   cikis: () => void | Promise<void>;
 }) {
   return (
-    <div className="relative mt-auto flex flex-col gap-2.5 px-4 pt-3 pb-[calc(20px+env(safe-area-inset-bottom))]">
-      <div className="flex items-center gap-2.5 rounded-[13px] border border-white/10 bg-white/[0.04] p-2.5">
-        <span className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full bg-[#1E2B55] text-[12px] font-bold text-[#AFC2FF]">
-          {basHarf}
-        </span>
-        <span className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate text-[13px] font-semibold text-white">{ad}</span>
-          <span className="truncate font-mono text-[10px] text-[#6B7590]">{eposta}</span>
-        </span>
-      </div>
-      <div className="flex gap-2">
-        {ikincil && (
-          <Link
-            href={ikincil.href}
-            className="flex flex-1 items-center justify-center rounded-[10px] border border-[#233056] p-[9px] text-[13px] font-semibold text-[#AFC2FF] transition hover:border-[#5B86FF] hover:text-white"
-          >
-            {ikincil.etiket}
-          </Link>
-        )}
-        <form action={cikis} className={ikincil ? "" : "flex-1"}>
-          <button
-            type="submit"
-            className="w-full rounded-[10px] border border-[#3A1E28] px-3 py-[9px] text-[13px] font-semibold text-[#F08A9A] transition hover:border-[#E5484D] hover:bg-[#E5484D] hover:text-white"
-          >
-            Çıkış
-          </button>
-        </form>
-      </div>
+    <div className="relative mt-auto flex items-center gap-2.5 border-t border-white/[0.07] px-4 pt-3.5 pb-[calc(16px+env(safe-area-inset-bottom))]">
+      <span className="relative flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[11px] bg-[#1E2B55] text-[12px] font-bold text-[#AFC2FF]">
+        {basHarf}
+        <span className="absolute -right-[2px] -bottom-[2px] h-2.5 w-2.5 rounded-full bg-[#3DDC97] ring-2 ring-[#070B16]" />
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="truncate text-[13px] font-semibold text-white">{ad}</span>
+        <span className="truncate font-mono text-[10px] text-[#6B7590]">{eposta}</span>
+      </span>
+      {ikincil && (
+        <Link
+          href={ikincil.href}
+          title={ikincil.etiket}
+          aria-label={ikincil.etiket}
+          className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[10px] border border-white/12 text-[#C9D0E0] transition hover:border-[#5B86FF] hover:text-white"
+        >
+          <Icon name={ikincil.ikon} size={15} />
+        </Link>
+      )}
+      <form action={cikis} className="flex-none">
+        <button
+          type="submit"
+          title="Çıkış"
+          aria-label="Çıkış"
+          className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border border-[#4A2230] text-[#F08A9A] transition hover:border-[#E5484D] hover:bg-[#E5484D] hover:text-white"
+        >
+          <Icon name="logout" size={15} />
+        </button>
+      </form>
     </div>
   );
 }
