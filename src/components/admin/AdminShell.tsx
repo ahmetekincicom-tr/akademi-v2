@@ -211,7 +211,7 @@ export function AdminShell({
       <aside
         // Görünüm ortak bileşenden (components/YanMenu.tsx, "Sidebar" 2b);
         // yükseklik/güvenli alan açıklaması PanelShell'de.
-        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[264px] flex-none flex-col gap-5 overflow-hidden ${YAN_MENU_ZEMIN} transition-transform duration-200 pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-[100lvh] w-[264px] flex-none flex-col gap-4 overflow-hidden ${YAN_MENU_ZEMIN} transition-transform duration-200 pb-[calc(100lvh-100dvh)] lg:sticky lg:top-0 lg:h-screen lg:pb-0 lg:translate-x-0 ${
           menuAcik ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -224,7 +224,7 @@ export function AdminShell({
           onKapat={() => setMenuAcik(false)}
         />
 
-        <nav className="panel-menu-liste relative flex min-h-0 flex-1 flex-col gap-[18px] overflow-y-auto overscroll-contain px-3">
+        <nav className="panel-menu-liste relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain px-3">
           {groups.map((g) => (
             <MenuGrup key={g.title} baslik={g.title}>
               {g.items.map((m) => (

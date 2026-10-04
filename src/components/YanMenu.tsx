@@ -20,6 +20,53 @@ import { Icon, type IconName } from "@/components/Icon";
 export const YAN_MENU_RENK = "#0A0F22";
 export const YAN_MENU_ZEMIN = "text-[#C9D0E0]";
 
+/**
+ * Menü ikonları tasarımdaki çizimlerin aynısı (16px, 1.9 çizgi). Sitenin genel
+ * ikon setindeki karşılıkları farklı çiziliyor (Testlerim'de pano yerine onay
+ * işareti, Yeni eğitimler'de dolu yıldız…); menüde tasarımdaki set kullanılıyor.
+ * Burada olmayan bir ikon (yönetim menüsünün bazıları) genel setten geliyor.
+ * Aynı tasarımlardan gelen sayfalar (Ödemelerim, ödeme akışı) da bunu kullanıyor.
+ */
+const MENU_IKON: Partial<Record<IconName, string>> = {
+  grid: "M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5zM4 10h16M10 10v10",
+  home: "M4 11l8-7 8 7v9h-5v-6h-6v6H4z",
+  bell: "M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0",
+  playCircle: "M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM10 8.5v7l6-3.5z",
+  check: "M8 5H6v16h12V5h-2M9 3h6v4H9zM9 14l2 2 4-4",
+  calendar: "M3.5 5h17v15.5h-17zM3.5 10h17M8 3v4M16 3v4",
+  file: "M7 3h7l5 5v13H7zM14 3v5h5",
+  users: "M9 4.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 1 0 0-7zM3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M17 6.5a2.5 2.5 0 1 1 0 5M16.5 14c2.7 0 4.5 2 4.5 5",
+  message: "M4 5h16v11H10l-6 4.5z",
+  briefcase: "M4 8h16v11H4zM9 8V5h6v3M4 13h16",
+  card: "M3 6h18v13H3zM3 10.5h18M7 15h3",
+  bank: "M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18",
+  sparkle: "M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z",
+  user: "M12 4a4 4 0 1 0 0 8a4 4 0 1 0 0-8zM5 20c0-3.5 3-6 7-6s7 2.5 7 6",
+  shield: "M12 3l8 3v6c0 4.5-3.5 8-8 9-4.5-1-8-4.5-8-9V6z",
+  logout: "M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10",
+};
+
+export function MenuIkon({ ikon, boyut = 16, kalinlik = 1.9 }: { ikon: IconName; boyut?: number; kalinlik?: number }) {
+  const yol = MENU_IKON[ikon];
+  if (!yol) return <Icon name={ikon} size={boyut} strokeWidth={kalinlik} />;
+  return (
+    <svg
+      width={boyut}
+      height={boyut}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={kalinlik}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d={yol} />
+    </svg>
+  );
+}
+
 /** aside'ın arka planı: degrade + üstte sönen ızgara. */
 export function YanMenuZemin() {
   return (
@@ -106,8 +153,8 @@ export function MenuProgram({
 
 export function MenuGrup({ baslik, children }: { baslik: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1">
-      <div className="px-2.5 pb-1.5 font-mono text-[9.5px] tracking-[0.2em] text-[#5D6782] uppercase">{baslik}</div>
+    <div className="flex flex-col gap-0.5">
+      <div className="px-2.5 pb-1 font-mono text-[9.5px] tracking-[0.2em] text-[#5D6782] uppercase">{baslik}</div>
       {children}
     </div>
   );
@@ -116,15 +163,15 @@ export function MenuGrup({ baslik, children }: { baslik: string; children: React
 function IkonKutusu({ ikon, durum }: { ikon: IconName; durum: "normal" | "aktif" | "kapali" }) {
   return (
     <span
-      className={`relative flex h-[30px] w-[30px] flex-none items-center justify-center rounded-[9px] ${
+      className={`relative flex h-8 w-8 flex-none items-center justify-center rounded-[10px] ${
         durum === "aktif"
-          ? "bg-[linear-gradient(180deg,#5A86FF,#2459FF)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.35),0_6px_16px_-4px_rgba(36,89,255,.85)]"
+          ? "bg-[linear-gradient(160deg,#7FA0FF_0%,#2F62FF_50%,#1E48D6_100%)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.45),0_0_0_1px_rgba(127,160,255,.35),0_0_14px_-2px_rgba(36,89,255,.55)]"
           : durum === "kapali"
-            ? "border border-dashed border-white/15 text-[#4A5373]"
-            : "border border-white/10 bg-white/[0.03] text-[#AEB6CC]"
+            ? "border border-dashed border-white/[0.09] text-[#4A5373]"
+            : "bg-white/[0.04] text-[#8E98B3] shadow-[inset_0_1px_0_rgba(255,255,255,.06),inset_0_0_0_1px_rgba(255,255,255,.06)]"
       }`}
     >
-      <Icon name={ikon} size={15} />
+      <MenuIkon ikon={ikon} kalinlik={durum === "aktif" ? 2 : 1.9} />
     </span>
   );
 }
@@ -217,7 +264,7 @@ export function MenuAlt({
           aria-label={ikincil.etiket}
           className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[10px] border border-white/12 text-[#C9D0E0] transition hover:border-[#5B86FF] hover:text-white"
         >
-          <Icon name={ikincil.ikon} size={15} />
+          <MenuIkon ikon={ikincil.ikon} boyut={14} kalinlik={2} />
         </Link>
       )}
       <form action={cikis} className="flex-none">
@@ -227,7 +274,7 @@ export function MenuAlt({
           aria-label="Çıkış"
           className="flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border border-[#4A2230] text-[#F08A9A] transition hover:border-[#E5484D] hover:bg-[#E5484D] hover:text-white"
         >
-          <Icon name="logout" size={15} />
+          <MenuIkon ikon="logout" boyut={14} kalinlik={2} />
         </button>
       </form>
     </div>
