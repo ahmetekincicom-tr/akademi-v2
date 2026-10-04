@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { gorusmeTalepEt, gorusmeIptalEt } from "@/app/panel/gorusmeler/actions";
@@ -9,6 +9,7 @@ import { guvenliUrl } from "@/lib/guvenli-url";
 import { para, saatBicimi } from "@/lib/admin/format";
 import { GORUSME_DURUM_ETIKET, type Gorusme, type GorusmeAyarlari } from "@/lib/gorusme";
 import { GorusmeSihirbazi } from "@/components/panel/GorusmeSihirbazi";
+import { NasilCalisir } from "@/components/panel/NasilCalisir";
 import { useBildirim } from "@/components/Bildirim";
 import { useNativeUygulama } from "@/lib/native";
 import { TR_ZAMAN } from "@/lib/zaman";
@@ -105,7 +106,8 @@ export function GorusmeGorunumu({
   const [acikNot, setAcikNot] = useState<string | null>(null);
   const talepAcilabilir = ayarlar.aktif && !hak.bekleyen && !(native && !hak.egitimKaydiVar);
   const ucretMetni = ayarlar.ucret > 0 ? para(ayarlar.ucret) : "ücretli";
-  const nasilRef = useRef<HTMLDivElement>(null);
+  const [rehberAcik, setRehberAcik] = useState(false);
+  const rehberiKapat = useCallback(() => setRehberAcik(false), []);
 
   const talepDugmesi = (genis: boolean) =>
     talepAcilabilir && (
@@ -152,9 +154,13 @@ export function GorusmeGorunumu({
             {talepDugmesi(false)}
             <button
               type="button"
-              onClick={() => nasilRef.current?.scrollIntoView({ behavior: kaydirma(), block: "start" })}
-              className="h-12 rounded-[12px] border border-white/25 px-5 text-[14px] font-bold text-white transition hover:bg-white/8"
+              onClick={() => setRehberAcik(true)}
+              aria-haspopup="dialog"
+              className="flex h-12 items-center gap-2 rounded-[12px] border border-white/25 px-[18px] text-[14px] font-semibold text-white transition hover:bg-white/8"
             >
+              <span aria-hidden className="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-current text-[11px] font-extrabold">
+                ?
+              </span>
               Nasıl çalışır?
             </button>
           </div>
@@ -231,7 +237,30 @@ export function GorusmeGorunumu({
           )
         )}
 
-        <div className="relative lg:hidden">{talepDugmesi(true)}</div>
+        {/* Telefon: talep düğmesi + yanında "?" (Nasıl çalışır?). */}
+        <div className="relative flex gap-2 lg:hidden">
+          {talepAcilabilir && <div className="min-w-0 flex-1">{talepDugmesi(true)}</div>}
+          <button
+            type="button"
+            onClick={() => setRehberAcik(true)}
+            aria-haspopup="dialog"
+            aria-label="Nasıl çalışır?"
+            className={`flex h-12 items-center justify-center gap-2 rounded-[12px] border border-white/25 text-white ${
+              talepAcilabilir ? "w-12 flex-none text-[16px] font-extrabold" : "flex-1 text-[14px] font-semibold"
+            }`}
+          >
+            {talepAcilabilir ? (
+              "?"
+            ) : (
+              <>
+                <span aria-hidden className="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] border-current text-[11px] font-extrabold">
+                  ?
+                </span>
+                Nasıl çalışır?
+              </>
+            )}
+          </button>
+        </div>
       </section>
 
       {hata && (
@@ -458,7 +487,7 @@ export function GorusmeGorunumu({
 
         {/* ------------------------------------- nasıl çalışır + ücret --- */}
         <div className="flex flex-col gap-4 lg:gap-[18px]">
-          <div ref={nasilRef} className="hidden scroll-mt-4 rounded-[18px] border border-[#E6E8EF] bg-white p-5 lg:block">
+          <div className="hidden rounded-[18px] border border-[#E6E8EF] bg-white p-5 lg:block">
             <h2 className="text-[17px] font-bold text-ink">Nasıl çalışır?</h2>
             <ol className="mt-4 flex flex-col gap-4">
               {[
@@ -511,6 +540,22 @@ export function GorusmeGorunumu({
           )}
         </div>
       </div>
+      {rehberAcik && (
+        <NasilCalisir
+          ayarlar={ayarlar}
+          hak={hak}
+          native={native}
+          onKapat={rehberiKapat}
+          onTalep={
+            talepAcilabilir
+              ? () => {
+                  setRehberAcik(false);
+                  setFormAcik(true);
+                }
+              : null
+          }
+        />
+      )}
     </main>
   );
 }

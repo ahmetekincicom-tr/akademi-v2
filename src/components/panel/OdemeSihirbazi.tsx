@@ -179,8 +179,6 @@ export function OdemeSihirbazi({
                   ton="mavi"
                   baslik="Kredi veya banka kartı"
                   kisaBaslik="Kredi / banka kartı"
-                  metin="Anında tamamlanır, kaydın hemen “Ödendi” olur. Taksit seçenekleri kartına göre çıkar."
-                  kisaMetin="Kaydın hemen “Ödendi” olur. Taksit seçenekleri kartına göre."
                   rozet={{ metin: "Anında onay", kisa: "Anında", yesil: true }}
                   alt="iyzico · 3D SECURE"
                   onSec={() => sec("kart")}
@@ -192,8 +190,6 @@ export function OdemeSihirbazi({
                   ton="yesil"
                   baslik="Havale / EFT"
                   kisaBaslik="Havale / EFT"
-                  metin="Hesap bilgilerini gösterelim, bankandan gönder. Ödemen ulaştığında kaydını işaretliyoruz."
-                  kisaMetin="Bankandan gönder, ulaştığında kaydını işaretleriz."
                   rozet={{ metin: "1 iş günü" }}
                   alt={(banka.banka ?? "Banka havalesi").toLocaleUpperCase("tr-TR")}
                   onSec={() => sec("havale")}
@@ -399,8 +395,6 @@ function YontemKarti({
   ton,
   baslik,
   kisaBaslik,
-  metin,
-  kisaMetin,
   rozet,
   alt,
   onSec,
@@ -409,8 +403,6 @@ function YontemKarti({
   ton: "mavi" | "yesil";
   baslik: string;
   kisaBaslik: string;
-  metin: string;
-  kisaMetin: string;
   rozet: { metin: string; kisa?: string; yesil?: boolean };
   alt: string;
   onSec: () => void;
@@ -425,7 +417,7 @@ function YontemKarti({
     <button
       type="button"
       onClick={onSec}
-      className="group relative flex gap-3.5 overflow-hidden rounded-[16px] border border-[#E6E8EF] bg-white p-4 text-left transition hover:border-brand hover:shadow-[0_18px_40px_-24px_rgba(36,89,255,.5)] lg:flex-col lg:gap-3.5 lg:rounded-[18px] lg:p-[22px]"
+      className="group relative flex items-center gap-3.5 overflow-hidden rounded-[16px] border border-[#E6E8EF] bg-white p-4 text-left transition hover:border-brand hover:shadow-[0_18px_40px_-24px_rgba(36,89,255,.5)] lg:flex-col lg:items-stretch lg:gap-3.5 lg:rounded-[18px] lg:p-[22px]"
     >
       <span
         aria-hidden
@@ -460,8 +452,6 @@ function YontemKarti({
             <span className={`rounded-full px-1.5 py-0.5 font-mono text-[9px] uppercase lg:hidden ${rozetRenk}`}>{rozet.kisa}</span>
           )}
         </span>
-        <span className="text-[12px] leading-[1.45] text-[#5B6478] lg:hidden">{kisaMetin}</span>
-        <span className="hidden text-[13px] leading-[1.5] text-[#5B6478] lg:inline">{metin}</span>
       </span>
 
       <span className="relative mt-auto hidden items-center gap-2 border-t border-[#F1F3F7] pt-3 lg:flex">
