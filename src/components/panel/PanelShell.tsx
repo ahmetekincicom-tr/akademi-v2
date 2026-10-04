@@ -251,7 +251,7 @@ export function PanelShell({
           basHarf={profil.basHarfler}
           ad={profil.tamAd}
           eposta={profil.email}
-          ikincil={profil.admin ? { href: "/kontrol-9f4x2k", etiket: "Yönetim paneli" } : null}
+          ikincil={profil.admin ? { href: "/kontrol-9f4x2k", etiket: "Yönetim paneli", ikon: "shield" } : null}
           cikis={cikisYap}
         />
       </aside>

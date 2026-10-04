@@ -246,7 +246,7 @@ export function AdminShell({
           basHarf={initials(isim)}
           ad={isim}
           eposta={email}
-          ikincil={{ href: "/panel", etiket: "Öğrenci görünümü" }}
+          ikincil={{ href: "/panel", etiket: "Öğrenci görünümü", ikon: "user" }}
           cikis={cikisYap}
         />
       </aside>
