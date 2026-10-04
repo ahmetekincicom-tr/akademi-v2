@@ -148,9 +148,10 @@ export default async function OdemelerimPage({
             {odenecek && (
               <Link
                 href={`/panel/odemelerim/ode/${odenecek.id}`}
-                className="flex h-12 flex-none items-center justify-center rounded-[12px] bg-ink px-5 text-[14px] font-bold text-white transition hover:bg-brand sm:h-11"
+                className="flex h-12 flex-none items-center justify-center gap-2 rounded-[12px] bg-ink px-5 text-[14px] font-bold text-white transition hover:bg-brand sm:h-11"
               >
-                Şimdi öde →
+                Şimdi öde
+                <Icon name="arrowRight" size={16} />
               </Link>
             )}
           </div>
