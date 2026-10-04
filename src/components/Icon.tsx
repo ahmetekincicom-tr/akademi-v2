@@ -19,6 +19,8 @@ export type IconName =
   | "users"
   | "book"
   | "card"
+  | "bank"
+  | "copy"
   | "plug"
   | "sliders"
   | "shield"
@@ -118,6 +120,13 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <rect x="2.5" y="5.5" width="19" height="13" rx="2" />
       <path d="M2.5 10h19" />
+    </>
+  ),
+  bank: <path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18" />,
+  copy: (
+    <>
+      <rect x="8" y="8" width="12" height="12" rx="2.5" />
+      <path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8" />
     </>
   ),
   plug: (
