@@ -202,9 +202,10 @@ export function OdemeSihirbazi({
             </div>
             <Link
               href="/panel/odemelerim"
-              className="hidden self-center pt-1 text-[13px] font-semibold text-[#5B6478] hover:text-brand lg:block"
+              className="hidden items-center gap-1.5 self-center pt-1 text-[13px] font-semibold text-[#5B6478] hover:text-brand lg:inline-flex"
             >
-              ← Ödemelerime dön
+              <Icon name="arrowLeft" size={14} />
+              Ödemelerime dön
             </Link>
           </>
         )}
@@ -289,8 +290,9 @@ export function OdemeSihirbazi({
                   ? "Ödeme sayfası açılıyor…"
                   : "Gönderiliyor…"
                 : yontem === "kart"
-                  ? "Güvenli ödemeye geç →"
+                  ? "Güvenli ödemeye geç"
                   : "Ödemeyi yaptım, bildir"}
+              {yontem === "kart" && !islemde && <Icon name="arrowRight" size={16} />}
             </button>
             {!onay ? (
               <p className="-mt-1.5 hidden text-center text-[12px] text-[#8A92A6] lg:block">Devam etmek için sözleşmeyi onayla</p>
@@ -318,8 +320,9 @@ export function OdemeSihirbazi({
         {adim === 2 && (
           <div className="flex justify-center gap-6 text-[13px] font-semibold">
             {ikiAdim && !bildirildi && (
-              <button type="button" onClick={() => sec(null)} className="hidden text-[#5B6478] hover:text-brand lg:block">
-                ← Yöntemi değiştir
+              <button type="button" onClick={() => sec(null)} className="hidden items-center gap-1.5 text-[#5B6478] hover:text-brand lg:inline-flex">
+                <Icon name="arrowLeft" size={14} />
+                Yöntemi değiştir
               </button>
             )}
             <Link href="/panel/odemelerim" className={`text-[#5B6478] hover:text-brand ${bildirildi ? "" : "hidden lg:block"}`}>
@@ -464,7 +467,10 @@ function YontemKarti({
 
       <span className="relative mt-auto hidden items-center gap-2 border-t border-[#F1F3F7] pt-3 lg:flex">
         <span className="truncate font-mono text-[10px] tracking-[0.1em] text-[#8A92A6]">{alt}</span>
-        <span className="ml-auto flex-none text-[13px] font-bold text-brand">Seç →</span>
+        <span className="ml-auto flex flex-none items-center gap-1 text-[13px] font-bold text-brand">
+          Seç
+          <Icon name="arrowRight" size={14} />
+        </span>
       </span>
     </button>
   );
