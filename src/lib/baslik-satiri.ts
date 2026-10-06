@@ -14,13 +14,15 @@
  * 1. PROGRAM ADI BÖLÜNMEZ. Ad, eğitimin panelde girilen etiketi ("Meta Ads",
  *    "Sosyal medya", "Yapay zekâ"). Başlıkta geçtiği yer tek bir parça sayılır.
  * 2. Kalan parçalar arasından, İKİ SATIRI EN DENGELİ yapan yerden bölünür.
- *    Eşitlik durumunda ilk satır kısa olan tercih edilir — "Birebir" tek
- *    başına üstte durur, program adı aşağıda bütün hâlinde okunur.
+ *    Eşitlik durumunda ilk satırı UZUN olan tercih edilir: "Birebir" ile
+ *    program adı üstte birlikte durur ("Birebir Meta Business / Eğitimi"),
+ *    uzun başlıklı kartla ("Birebir Sosyal Medya / & Reklam Eğitimi") aynı
+ *    düzende. "Birebir" tek başına üstte kalınca kart dengesiz görünüyordu.
  *
  * Sonuç (kart genişliğinde ölçüldü):
- *   Birebir / Meta Ads Eğitimi
- *   Birebir Sosyal Medya / Uzmanlığı Eğitimi
- *   Birebir / Yapay Zekâ Eğitimi
+ *   Birebir Meta Business / Eğitimi
+ *   Birebir Sosyal Medya / & Reklam Eğitimi
+ *   Birebir Yapay Zekâ / Eğitimi
  */
 
 /** Türkçe duyarlı küçültme: "I" → "ı", "İ" → "i". */
@@ -58,9 +60,9 @@ export function kartBasligiSatirlari(baslik: string, etiket: string): { ilk: str
     const ilk = parcalar.slice(0, i).join(" ");
     const kalan = parcalar.slice(i).join(" ");
     const fark = Math.abs(ilk.length - kalan.length);
-    // Kesin eşitlikte İLK bulunan kazanıyor; döngü soldan sağa gittiği için
-    // bu, ilk satırı kısa tutan bölme demek.
-    if (!enIyi || fark < enIyi.fark) enIyi = { ilk, kalan, fark };
+    // Kesin eşitlikte SON bulunan kazanıyor (<=); döngü soldan sağa gittiği
+    // için bu, ilk satırı uzun tutan bölme demek.
+    if (!enIyi || fark <= enIyi.fark) enIyi = { ilk, kalan, fark };
   }
 
   return enIyi ? { ilk: enIyi.ilk, kalan: enIyi.kalan } : null;
