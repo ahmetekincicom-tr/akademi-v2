@@ -147,8 +147,15 @@ export function ProgramKarti({
 
           min-h iki satırı garanti ediyor: bölünemeyecek kadar kısa bir ad
           eklenirse (kural null döner) kart yine hizada kalıyor.
+
+          Yazı boyu geniş ekranda 28px (telefonda en çok 34px). Dar
+          ekranlarda (telefon, üç kartın sığıştığı tablet/küçük dizüstü)
+          kart genişliğine göre küçülüyor: "Birebir Meta Business" gibi uzun
+          ilk satır sabit boyda kartı aşıp başlığı üç satıra düşürüyordu.
+          Katsayılar kart iç genişliği ve başlık fontunun ölçülen
+          genişliğinden (~10 × yazı boyu) geliyor.
         */}
-        <Baslik className="mt-[14px] flex min-h-[62px] items-start font-heading text-[31px] leading-[1.22] font-semibold tracking-[-0.03em] sm:text-[25px]">
+        <Baslik className="mt-[14px] flex min-h-[2.44em] items-start font-heading text-[length:clamp(24px,calc((100vw_-_96px)/10),34px)] leading-[1.22] font-semibold tracking-[-0.03em] sm:text-[28px] md:text-[length:clamp(16px,calc((100vw_-_108px)/30_-_6px),28px)]">
           {/*
             text-ink AÇIKÇA yazılıyor: global `a { color: brand }` kuralı
             yüzünden kart başlıkları da maviydi ve yanındaki `hover:text-brand`
