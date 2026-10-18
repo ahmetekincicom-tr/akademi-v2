@@ -18,8 +18,9 @@ import {
   type Course,
 } from "@/lib/courses";
 import { getSiteIcerik } from "@/lib/site-icerik";
-import { getReferanslar } from "@/lib/icerik";
+import { getReferanslar, getYorumlar } from "@/lib/icerik";
 import { ReferansBulutu } from "@/components/site/ReferansBulutu";
+import { EgitimYorumlari } from "@/components/site/EgitimYorumlari";
 import { WHATSAPP_NUMARALAR, egitimWhatsappMesaji } from "@/lib/iletisim";
 import { WhatsAppBaglantisi } from "@/components/site/WhatsAppBaglantisi";
 import { sayfaMeta, egitimSemasi, kirintiSemasi, sssSemasi } from "@/lib/seo";
@@ -187,7 +188,20 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
   // Referans logoları site geneli TEK kaynaktan (getReferanslar): panelden
   // güncellenince ana sayfa, referanslar sayfası ve buradaki şerit birlikte
   // değişiyor.
-  const [icerik, referanslar] = await Promise.all([getSiteIcerik(), getReferanslar()]);
+  const [icerik, referanslar, tumYorumlar] = await Promise.all([
+    getSiteIcerik(),
+    getReferanslar(),
+    getYorumlar(),
+  ]);
+
+  // Yorumlar da site geneli tek kaynaktan (/yorumlar sayfasıyla aynı liste;
+  // yayında olmayanları RLS zaten eliyor). Bu eğitime bağlanmış yorumlar
+  // başa alınıyor — ziyaretçinin ilk okuduğu, baktığı programla ilgili olsun.
+  // Sıralama kararlı: her iki grup kendi içinde paneldeki sırayı koruyor.
+  const yorumlar = [
+    ...tumYorumlar.filter((y) => y.courseId === course.id),
+    ...tumYorumlar.filter((y) => y.courseId !== course.id),
+  ].map((y) => ({ id: y.id, metin: y.metin, isim: y.isim, rol: y.rol }));
 
   // Hero başlığı eğitimin tam adı; vurgulanan kısım renkli yazılıyor.
   const parca = basligiParcala(course.baslik, course.baslikVurgu);
@@ -544,6 +558,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               </div>
             </div>
           </section>
+
+          {/*
+            Katılımcı yorumları eğitmen bölümünün HEMEN ARDINDA.
+
+            Dar ekranda sıra müfredat → eğitmen → yorumlar; geniş ekranda
+            eğitmen bölümü gizli olduğu için doğrudan müfredatın ardına
+            düşüyor. Tek yerleşim iki düzeni de karşılıyor, iki kopya
+            gerekmiyor. Ziyaretçi programı ve eğitmeni okuduktan hemen sonra,
+            kazanımlara geçmeden, başkalarının deneyimini görüyor.
+          */}
+          <EgitimYorumlari yorumlar={yorumlar} />
 
           {/*
             Kazanımlar ve uygunluk TEK BİR BÖLÜMDE.
