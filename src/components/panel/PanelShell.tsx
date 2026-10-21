@@ -10,7 +10,7 @@ import { Breadcrumb, type BreadcrumbAdim } from "@/components/Breadcrumb";
 import { useNativeUygulama } from "@/lib/native";
 import type { PanelProfile } from "@/lib/panel";
 import type { PanelBildirimleri } from "@/lib/bildirimler";
-import { DERSLER_ACIK, FIRSATLAR_ACIK } from "@/lib/bolumler";
+import { FIRSATLAR_ACIK } from "@/lib/bolumler";
 
 type MenuItem = {
   href: string;
@@ -40,9 +40,9 @@ const groups: MenuGroup[] = [
       // duyarlı tek bölüm burası: içeriği eskiyen, "bugün ne oldu" diye
       // bakılan yer. Genel bakışın hemen altında.
       { href: "/panel/duyurular", label: "Gündem", icon: "bell", vurgulu: true, rozet: "duyuru" },
-      // Ders videoları hazır değil; bölüm menüde duruyor ama tıklanmıyor.
-      // Bayrak lib/bolumler.ts'te, üç yerde ayrı ayrı değil.
-      { href: "/panel/dersler", label: "Derslerim", icon: "playCircle", yakinda: !DERSLER_ACIK },
+      // Açık olup olmadığı abonelik ayarından geliyor (panel/layout.tsx →
+      // derslerAcik); kapalıyken menüde duruyor ama tıklanmıyor.
+      { href: "/panel/dersler", label: "Derslerim", icon: "playCircle", yakinda: true },
       { href: "/panel/testlerim", label: "Testlerim", icon: "check" },
       { href: "/panel/birebir-egitim", label: "Birebir eğitim", icon: "calendar", rozet: "birebir" },
       { href: "/panel/dokumanlar", label: "Doküman kütüphanesi", icon: "file" },
@@ -69,6 +69,8 @@ const groups: MenuGroup[] = [
     title: "Hesap",
     items: [
       { href: "/panel/odemelerim", label: "Ödemelerim", icon: "card", uyari: true },
+      // Yalnızca dersler açıkken görünüyor (aşağıda süzülüyor).
+      { href: "/panel/abonelik", label: "Video aboneliği", icon: "playCircle" },
       { href: "/panel/yeni-egitimler", label: "Yeni eğitimler", icon: "sparkle", yakinda: true },
       { href: "/panel/hesabim", label: "Hesabım", icon: "user" },
     ],
@@ -76,7 +78,8 @@ const groups: MenuGroup[] = [
 ];
 
 // Yalnızca web'de görünen yollar; gerekçe bileşenin içinde.
-const webeAit = new Set(["/panel/odemelerim", "/panel/yeni-egitimler"]);
+// Video aboneliği de: uygulama içinden dijital içerik satışı 3.1.3'e takılıyor.
+const webeAit = new Set(["/panel/odemelerim", "/panel/yeni-egitimler", "/panel/abonelik"]);
 
 const pageTitles: Record<string, string> = {
   "/panel": "Genel bakış",
@@ -85,6 +88,7 @@ const pageTitles: Record<string, string> = {
   "/panel/birebir-egitim": "Birebir eğitim",
   "/panel/on-degerlendirme": "Ön değerlendirme",
   "/panel/odemelerim": "Ödemelerim",
+  "/panel/abonelik": "Video aboneliği",
   "/panel/dokumanlar": "Doküman kütüphanesi",
   "/panel/duyurular": "Gündem",
   "/panel/gorusmeler": "Danışmanlık görüşmeleri",
@@ -99,9 +103,12 @@ export function PanelShell({
   profil,
   bildirim,
   program,
+  derslerAcik,
 }: {
   children: React.ReactNode;
   profil: PanelProfile;
+  /** Derslerim ve Video aboneliği bölümleri açık mı (abonelik ayarı). */
+  derslerAcik: boolean;
   /** Menünün üstündeki "Aktif program" kartı; kayıt yoksa null. */
   program: { baslik: string; ilerleme: { etiket: string; yuzde: number } | null } | null;
   /** Menü rozetleri; genel bakıştaki bildirim kutusuyla aynı kaynak. */
@@ -124,11 +131,17 @@ export function PanelShell({
   // Native uygulamada ödeme ve satış yüzeyleri menüde yok. Apple'ın 3.1.3
   // maddesi uygulama içinden dışarıdaki ödemeye yönlendirmeyi yasaklıyor;
   // "Ödemelerim" IBAN'a, "Yeni eğitimler" satış sayfasına çıkıyor.
+  const ayarliGruplar = groups.map((g) => ({
+    ...g,
+    items: g.items
+      .filter((m) => derslerAcik || m.href !== "/panel/abonelik")
+      .map((m) => (m.href === "/panel/dersler" ? { ...m, yakinda: !derslerAcik } : m)),
+  }));
   const gorunenGruplar = native
-    ? groups
+    ? ayarliGruplar
         .map((g) => ({ ...g, items: g.items.filter((m) => !webeAit.has(m.href)) }))
         .filter((g) => g.items.length > 0)
-    : groups;
+    : ayarliGruplar;
 
   // Menü açıkken gövdeyi kilitle: menü kendi içinde kayarken arkadaki panel
   // de kayıyordu, iki katman aynı anda oynuyordu. İşaret body'ye konuyor,

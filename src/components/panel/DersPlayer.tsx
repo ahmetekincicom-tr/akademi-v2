@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { dersDurumDegistir } from "@/app/panel/actions";
 import type { PanelCourse } from "@/lib/panel";
@@ -11,10 +12,17 @@ export function DersPlayer({
   courses,
   baslangicKursSlug,
   baslangicDersId,
+  kilit = null,
 }: {
   courses: PanelCourse[];
   baslangicKursSlug: string;
   baslangicDersId: string | null;
+  /**
+   * Abonelik yoksa videonun yerine gösterilen kilit. Video kimlikleri zaten
+   * sunucudan gelmiyor; bu yalnızca boş oynatıcının "henüz yüklenmedi" demek
+   * yerine nedenini söylemesi için.
+   */
+  kilit?: { baslik: string; aciklama: string; eylem?: { href: string; etiket: string } } | null;
 }) {
   const router = useRouter();
   const bildir = useBildirim();
@@ -172,6 +180,24 @@ export function DersPlayer({
               ) : (
                 <video key={video.src} src={video.src} controls className="aspect-video w-full bg-ink" />
               )
+            ) : kilit ? (
+              <div className="flex aspect-video flex-col items-center justify-center gap-[14px] bg-[linear-gradient(158deg,#191D2B_0%,#0A0D18_58%)] px-6 text-center">
+                <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-white/[0.07] text-white/70 ring-1 ring-white/12 sm:h-[58px] sm:w-[58px]">
+                  <Icon name="shield" size={20} />
+                </span>
+                <div className="max-w-[380px]">
+                  <div className="text-[14.5px] font-semibold text-white/90">{kilit.baslik}</div>
+                  <p className="mt-[6px] text-[13px] leading-[1.55] text-white/65">{kilit.aciklama}</p>
+                  {kilit.eylem && (
+                    <Link
+                      href={kilit.eylem.href}
+                      className="mt-4 inline-flex h-10 items-center rounded-[10px] bg-brand px-4 text-[13.5px] font-semibold text-white transition hover:bg-white hover:text-ink"
+                    >
+                      {kilit.eylem.etiket}
+                    </Link>
+                  )}
+                </div>
+              </div>
             ) : (
               <div className="flex aspect-video flex-col items-center justify-center gap-[14px] bg-[linear-gradient(158deg,#191D2B_0%,#0A0D18_58%)] px-6 text-center">
                 <span className="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-white/[0.07] pl-[3px] text-white/55 ring-1 ring-white/12 sm:h-[58px] sm:w-[58px]">

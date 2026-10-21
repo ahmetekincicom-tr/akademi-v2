@@ -6,7 +6,6 @@ import type { PanelCourse } from "@/lib/panel";
 import type { PanelBildirimleri } from "@/lib/bildirimler";
 import type { EgitimOturumu } from "@/lib/egitim-oturumu";
 import { paraBicimi } from "@/lib/odeme";
-import { DERSLER_ACIK } from "@/lib/bolumler";
 import { TR_ZAMAN } from "@/lib/zaman";
 import { platformAdi as platform } from "@/lib/platform";
 
@@ -254,16 +253,19 @@ export function AktifProgram({
   kurs,
   digerleri,
   odemeBekliyor,
+  derslerAcik,
 }: {
   kurs: PanelCourse;
   digerleri: PanelCourse[];
   odemeBekliyor: PanelBildirimleri["odemeBekliyor"];
+  /** Ders videoları bölümü açık mı (abonelik ayarı; panel/layout.tsx ile aynı karar). */
+  derslerAcik: boolean;
 }) {
   return (
     <div className={`${KART} flex h-full flex-col overflow-hidden sm:flex-row sm:gap-5 sm:p-[18px]`}>
       <div className="relative h-[130px] flex-none overflow-hidden bg-[repeating-linear-gradient(135deg,#EEF1F7_0_8px,#E6EAF2_8px_16px)] sm:h-auto sm:min-h-[170px] sm:w-[230px] sm:rounded-[12px]">
         {kurs.kapak && <Image src={kurs.kapak} alt="" fill sizes="(min-width: 640px) 230px, 100vw" className="object-cover" />}
-        {!DERSLER_ACIK && (
+        {!derslerAcik && (
           <span className={`${MONO} absolute right-3 bottom-3 rounded-full bg-[#FFF4D6] px-2 py-1 tracking-[0.08em] text-[#9A6A00] sm:hidden`}>
             Videolar hazırlanıyor
           </span>
@@ -273,7 +275,7 @@ export function AktifProgram({
       <div className="flex flex-1 flex-col gap-2.5 p-4 sm:gap-3 sm:px-1 sm:py-1.5">
         <div className="flex items-center gap-2">
           <div className={`${MONO} text-[#8A92A6]`}>Aktif program</div>
-          {!DERSLER_ACIK && (
+          {!derslerAcik && (
             <span className={`${MONO} ml-auto hidden rounded-full bg-[#FFF4D6] px-2 py-1 tracking-[0.08em] text-[#9A6A00] sm:inline`}>
               Videolar hazırlanıyor
             </span>
@@ -281,14 +283,14 @@ export function AktifProgram({
         </div>
         <h2 className="text-[19px] leading-[1.25] font-bold tracking-[-0.02em] text-ink sm:text-[22px]">{kurs.baslik}</h2>
         <p className="text-[14px] leading-[1.5] text-[#5B6478]">
-          {DERSLER_ACIK
+          {derslerAcik
             ? kurs.sonrakiDers
               ? `Sıradaki ders: ${kurs.sonrakiDers.ad}`
               : "Bütün dersleri tamamladın; istediğin zaman tekrar izleyebilirsin."
             : "Ders videoları hazırlanıyor; birebir eğitim takvimin bundan etkilenmiyor."}
         </p>
 
-        {DERSLER_ACIK && (
+        {derslerAcik && (
           <Link
             href={`/panel/dersler?kurs=${kurs.slug}`}
             className="self-start rounded-[9px] bg-brand px-3.5 py-2 text-[13px] font-semibold text-white transition hover:bg-ink"
@@ -301,7 +303,7 @@ export function AktifProgram({
           <Bilgi etiket="Format" deger="Birebir" />
           <Bilgi
             etiket="Dersler"
-            deger={DERSLER_ACIK ? `${kurs.tamamlanan}/${kurs.dersSayisi}` : "Çok yakında"}
+            deger={derslerAcik ? `${kurs.tamamlanan}/${kurs.dersSayisi}` : "Çok yakında"}
           />
           <Bilgi
             etiket="Ödeme"

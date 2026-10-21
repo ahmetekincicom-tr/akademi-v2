@@ -7,7 +7,7 @@
  * detayı gibi. Tip ve etiket ikisinin de ihtiyacı olan, sır içermeyen kısım.
  */
 
-export type RizaBaglami = "kayit" | "odeme" | "gorusme";
+export type RizaBaglami = "kayit" | "odeme" | "gorusme" | "abonelik";
 
 export type RizaKaydi = {
   id: string;
@@ -24,6 +24,7 @@ export const BAGLAM_ETIKET: Record<RizaBaglami, string> = {
   kayit: "Üyelik",
   odeme: "Ödeme",
   gorusme: "Danışmanlık",
+  abonelik: "Video aboneliği",
 };
 
 /** Başlığı kaydedilmemiş ya da metni silinmiş belgeler için yedek ad. */

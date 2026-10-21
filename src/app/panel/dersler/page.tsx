@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getPanelCourses } from "@/lib/panel";
+import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 import { DERSLER_ACIK } from "@/lib/bolumler";
+import { abonelikDurumum, derslerGorunurMu } from "@/lib/abonelik";
+import { createClient } from "@/lib/supabase/server";
+import { nativeIstekMi } from "@/lib/native-sunucu";
 import { DersPlayer } from "@/components/panel/DersPlayer";
 import { Icon } from "@/components/Icon";
 
@@ -15,10 +18,17 @@ export default async function DersIzlemePage({
     yetmiyor: eski sekmeler, yer imleri ve maillerdeki bağlantılar hâlâ
     buraya geliyor ve içi boş bir oynatıcı açılıyordu.
   */
-  if (!DERSLER_ACIK) redirect("/panel");
+  const profil = await getPanelProfile();
+  if (!profil) redirect("/giris");
+  if (!DERSLER_ACIK && !(await derslerGorunurMu(profil.admin))) redirect("/panel");
 
   const { kurs, ders } = await searchParams;
-  const courses = await getPanelCourses();
+  const supabase = await createClient();
+  const [courses, abonelik, native] = await Promise.all([
+    getPanelCourses(),
+    abonelikDurumum(supabase, profil.id),
+    nativeIstekMi(),
+  ]);
 
   if (courses.length === 0) {
     return (
@@ -45,5 +55,38 @@ export default async function DersIzlemePage({
   const secilenKurs = courses.find((c) => c.slug === kurs) ?? courses.find((c) => c.yuzde < 100) ?? courses[0];
   const varsayilanDers = ders ?? secilenKurs.sonrakiDers?.id ?? secilenKurs.modules[0]?.dersler[0]?.id ?? null;
 
-  return <DersPlayer courses={courses} baslangicKursSlug={secilenKurs.slug} baslangicDersId={varsayilanDers} />;
+  /*
+    Kilit: kayıtlı ama aboneliği olmayan (ya da süresi dolmuş) kişi.
+
+    Uygulamada satın alma bağlantısı YOK: Apple 3.1.3 uygulama içinden
+    dışarıdaki bir ödemeye yönlendirmeyi de yasaklıyor. Orada yalnızca durum
+    söyleniyor; abonelik web'den başlatılıyor.
+  */
+  const erisim = profil.admin || Boolean(abonelik?.erisimAcik);
+  const kilit = erisim
+    ? null
+    : {
+        baslik: native
+          ? "Bu ders henüz açık değil"
+          : abonelik?.durum === "odeme_alinamadi"
+            ? "Abonelik ödemen alınamadı"
+            : "Bu ders video aboneliğine dahil",
+        // Uygulamada aboneliğin varlığından ve fiyatından bile söz edilmiyor:
+        // 3.1.3 "dışarıda satın al" diyen metni de yönlendirme sayıyor.
+        aciklama: native
+          ? "Bu dersin videosu hesabında henüz açık değil."
+          : abonelik?.durum === "iptal" || abonelik?.durum === "sona_erdi"
+            ? "Aboneliğinin süresi doldu. Yeniden abone olduğunda kayıtlı olduğun eğitimlerin bütün videoları açılır."
+            : "Aylık video aboneliğiyle kayıtlı olduğun eğitimlerin bütün ders videolarını izleyebilirsin. Birebir seans kayıtların ücretsiz ve Birebir eğitim sayfasında.",
+        eylem: native ? undefined : { href: "/panel/abonelik", etiket: "Aboneliği incele" },
+      };
+
+  return (
+    <DersPlayer
+      courses={courses}
+      baslangicKursSlug={secilenKurs.slug}
+      baslangicDersId={varsayilanDers}
+      kilit={kilit}
+    />
+  );
 }

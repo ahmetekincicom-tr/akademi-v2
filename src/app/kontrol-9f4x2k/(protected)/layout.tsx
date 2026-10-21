@@ -28,14 +28,15 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
     { count: ogrenciSayisi },
     { count: acikTalep },
     { count: bekleyenOdeme },
-    { count: videosuzDers },
+    { data: videosuzDers },
     { count: okunmamisMesaj },
     { count: bekleyenGorusme },
   ] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }).neq("role", "admin"),
     supabase.from("support_tickets").select("id", { count: "exact", head: true }).eq("durum", "acik"),
     supabase.from("payments").select("id", { count: "exact", head: true }).eq("durum", "bekliyor"),
-    supabase.from("lessons").select("id", { count: "exact", head: true }).is("video_url", null),
+    // video_url doğrudan sorgulanamıyor; sayım fonksiyondan.
+    supabase.rpc("videosuz_ders_sayisi"),
     supabase.from("iletisim_mesajlari").select("id", { count: "exact", head: true }).eq("okundu", false),
     supabase
       .from("gorusmeler")

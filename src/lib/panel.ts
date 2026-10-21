@@ -74,7 +74,6 @@ type EnrollmentRow = {
         sira: number;
         baslik: string;
         sure: string | null;
-        video_url: string | null;
         aciklama: string | null;
       }[];
     }[];
@@ -141,7 +140,7 @@ export const getPanelCourses = cache(async (): Promise<PanelCourse[]> => {
   const { data: enrollments } = await supabase
     .from("enrollments")
     .select(
-      "atanma_tarihi, courses(id, slug, baslik, sure, kapak_gorsel, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure, video_url, aciklama)))",
+      "atanma_tarihi, courses(id, slug, baslik, sure, kapak_gorsel, content, modules(id, sira, baslik, lessons(id, sira, baslik, sure, aciklama)))",
     )
     .eq("user_id", user.id)
     .neq("durum", "iptal")
@@ -153,6 +152,18 @@ export const getPanelCourses = cache(async (): Promise<PanelCourse[]> => {
     .from("lesson_progress")
     .select("lesson_id, tamamlandi")
     .eq("user_id", user.id);
+
+  /*
+    Video kimlikleri ayrı bir fonksiyondan geliyor, ders satırından değil.
+
+    lessons.video_url oturum açmış kullanıcıya artık okunamıyor
+    (20261021120000_video_aboneligi.sql): kayıtlı olmayan biri REST üzerinden
+    bütün video kimliklerini çekebiliyordu. ders_videolarim() yalnızca kayıtlı
+    olunan eğitimlerin videolarını ve yalnızca abonelik sürüyorsa döndürüyor.
+    Abonelik yoksa liste boş gelir ve oynatıcı kilit ekranını gösterir.
+  */
+  const { data: videolar } = await supabase.rpc("ders_videolarim");
+  const videoKimligi = new Map((videolar ?? []).map((v) => [v.lesson_id, v.video_url]));
 
   const tamamlananlar = new Set(
     (progress ?? []).filter((p) => p.tamamlandi).map((p) => p.lesson_id as string),
@@ -181,7 +192,7 @@ export const getPanelCourses = cache(async (): Promise<PanelCourse[]> => {
                 ad: l.baslik,
                 sure: l.sure ?? "",
                 tamamlandi: bitti,
-                oynatma: oynatmaCoz(l.video_url),
+                oynatma: oynatmaCoz(videoKimligi.get(l.id) ?? null),
                 aciklama: l.aciklama ?? "",
               };
             });

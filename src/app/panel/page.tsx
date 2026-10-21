@@ -11,6 +11,8 @@ import {
   YaklasanDers,
 } from "@/components/panel/GenelBakis";
 import { getBaslangic } from "@/lib/baslangic";
+import { DERSLER_ACIK } from "@/lib/bolumler";
+import { derslerGorunurMu } from "@/lib/abonelik";
 import { getBildirimler } from "@/lib/bildirimler";
 import { getEgitimOturumlarim } from "@/lib/egitim-oturumu";
 import { seansAyir } from "@/lib/seans";
@@ -44,6 +46,7 @@ export default async function PanelOverviewPage() {
   const baslik = `${gunSelami(simdi)}${ad ? ` ${ad}` : ""}, ${devam}`;
 
   const aktifKurs = courses.find((c) => c.yuzde < 100) ?? courses[0];
+  const derslerAcik = DERSLER_ACIK || (await derslerGorunurMu(profil?.admin ?? false));
   const { yaklasan } = seansAyir(oturumlar);
 
   return (
@@ -62,6 +65,7 @@ export default async function PanelOverviewPage() {
               kurs={aktifKurs}
               digerleri={courses.filter((c) => c.id !== aktifKurs.id)}
               odemeBekliyor={bildirim.odemeBekliyor}
+              derslerAcik={derslerAcik}
             />
           ) : (
             <ProgramYok />

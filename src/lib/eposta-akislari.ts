@@ -101,6 +101,33 @@ export const AKISLAR = [
     kime: "katilimci",
   },
 
+  {
+    anahtar: "abonelik-basladi",
+    baslik: "Video aboneliği başladı",
+    aciklama: "İlk aylık ödeme alındığında; derslere nereden ulaşacağını anlatır.",
+    kime: "katilimci",
+  },
+  {
+    anahtar: "abonelik-yenilendi",
+    baslik: "Video aboneliği yenilendi",
+    aciklama: "Her ayki otomatik çekim başarılı olduğunda; makbuz yerine geçer.",
+    kime: "katilimci",
+  },
+  {
+    anahtar: "abonelik-odeme-alinamadi",
+    baslik: "Abonelik ödemesi alınamadı",
+    aciklama: "Aylık çekim reddedildiğinde; kartını güncellemesini ve kalan ek süreyi söyler.",
+    kime: "katilimci",
+    // Kapalıyken kişi kartının reddedildiğini, erişimi kapandığında öğrenir.
+    zorunlu: true,
+  },
+  {
+    anahtar: "abonelik-iptal",
+    baslik: "Abonelik iptal edildi",
+    aciklama: "Abonelik iptal edildiğinde; izlemenin hangi güne kadar açık kaldığını yazar.",
+    kime: "katilimci",
+  },
+
   /* ------------------------------------------------------- yönetime --- */
   {
     anahtar: "yeni-uyelik",
@@ -140,6 +167,12 @@ export const AKISLAR = [
     aciklama: "iyzico dönüşünde tahsilatın sonucu. Başarısız denemeler de dahil.",
     kime: "yonetim",
     zorunlu: true,
+  },
+  {
+    anahtar: "abonelik-bildirimi",
+    baslik: "Abonelik hareketleri",
+    aciklama: "Yeni abonelik, reddedilen aylık çekim ve iptal. Faturayı kesmeni hatırlatır.",
+    kime: "yonetim",
   },
   {
     anahtar: "hesap-silme",

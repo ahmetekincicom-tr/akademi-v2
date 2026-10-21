@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHmac, randomUUID } from "node:crypto";
+import { request as httpsIstegi } from "node:https";
 
 /**
  * iyzico istemcisi — bağımlılıksız.
@@ -64,28 +65,95 @@ function yetkiBasligi(ayar: IyzicoAyar, yol: string, govde: string) {
 }
 
 async function istek<T>(ayar: IyzicoAyar, yol: string, veri: unknown): Promise<T> {
-  const govde = JSON.stringify(veri);
-  const { rastgele, baslik } = yetkiBasligi(ayar, yol, govde);
+  return iyzicoCagir<T>(ayar, "POST", yol, veri);
+}
 
-  const cevap = await fetch(ayar.taban + yol, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: baslik,
-      "x-iyzi-rnd": rastgele,
-    },
-    body: govde,
-    cache: "no-store",
-  });
+/**
+ * Herhangi bir iyzico ucuna imzalı istek.
+ *
+ * GET'te de imza "{}" gövdesi üzerinden alınıyor ve istek bu gövdeyle
+ * gidiyor: iyzico'nun resmî Node istemcisi (iyzipay 2.0.70, IyzipayResource)
+ * gövdesiz uçlarda boş nesneyi hem imzalıyor hem gönderiyor. Boş metinle
+ * imzalamak, sunucunun beklediğinden farklı bir imza demek.
+ *
+ * fetch GET isteğinde gövdeye izin vermediği için GET'ler node:https ile
+ * gidiyor. İmza yolu sorgu dizesini kapsamıyor; buradaki GET'lerin hepsi
+ * parametreyi yolun içinde taşıyor.
+ */
+export async function iyzicoCagir<T>(
+  ayar: IyzicoAyar,
+  yontem: "GET" | "POST",
+  yol: string,
+  veri?: unknown,
+): Promise<T> {
+  const govde = JSON.stringify(veri ?? {});
+  const { rastgele, baslik } = yetkiBasligi(ayar, yol.split("?")[0], govde);
+  const basliklar = {
+    "Content-Type": "application/json",
+    Authorization: baslik,
+    "x-iyzi-rnd": rastgele,
+  };
 
-  const metin = await cevap.text();
+  let durum: number;
+  let metin: string;
+  if (yontem === "POST") {
+    const cevap = await fetch(ayar.taban + yol, { method: "POST", headers: basliklar, body: govde, cache: "no-store" });
+    durum = cevap.status;
+    metin = await cevap.text();
+  } else {
+    ({ durum, metin } = await govdeliGet(ayar.taban + yol, basliklar, govde));
+  }
+
   try {
     return JSON.parse(metin) as T;
   } catch {
     // iyzico hata durumunda da JSON döndürüyor; buraya düşmek ağ katmanında
     // bir sorun (proxy hata sayfası, kesilmiş cevap) demek.
-    throw new Error(`iyzico beklenmedik cevap verdi (HTTP ${cevap.status}): ${metin.slice(0, 200)}`);
+    throw new Error(`iyzico beklenmedik cevap verdi (HTTP ${durum}): ${metin.slice(0, 200)}`);
   }
+}
+
+function govdeliGet(
+  adres: string,
+  basliklar: Record<string, string>,
+  govde: string,
+): Promise<{ durum: number; metin: string }> {
+  return new Promise((coz, reddet) => {
+    const istek = httpsIstegi(
+      adres,
+      {
+        method: "GET",
+        headers: { ...basliklar, "Content-Length": Buffer.byteLength(govde).toString() },
+        timeout: 20_000,
+      },
+      (cevap) => {
+        const parcalar: Buffer[] = [];
+        cevap.on("data", (p: Buffer) => parcalar.push(p));
+        cevap.on("end", () => coz({ durum: cevap.statusCode ?? 0, metin: Buffer.concat(parcalar).toString("utf8") }));
+        cevap.on("error", reddet);
+      },
+    );
+    istek.on("timeout", () => istek.destroy(new Error("iyzico isteği zaman aşımına uğradı.")));
+    istek.on("error", reddet);
+    istek.end(govde);
+  });
+}
+
+/**
+ * Test ortamı anahtarları — yalnızca aboneliğin test modu için.
+ *
+ * Canlı sitede gerçek ödemeler IYZICO_* anahtarlarıyla alınırken aboneliği
+ * uçtan uca denemek için ayrı bir sandbox anahtarı gerekiyor; ortamı topluca
+ * sandbox'a çevirmek tek seferlik ödemeleri de durdururdu. Tanımlı değilse ve
+ * ana ortam zaten sandbox ise ana anahtarlar kullanılıyor.
+ */
+export function iyzicoTestAyari(): IyzicoAyar | null {
+  const apiKey = process.env.IYZICO_SANDBOX_API_KEY?.trim();
+  const secretKey = process.env.IYZICO_SANDBOX_SECRET_KEY?.trim();
+  if (apiKey && secretKey) return { apiKey, secretKey, taban: SANDBOX_TABAN, canli: false };
+
+  const ana = iyzicoAyari();
+  return ana && !ana.canli ? ana : null;
 }
 
 /* ------------------------------------------------------------- tipler --- */

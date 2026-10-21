@@ -4,10 +4,16 @@ import { bunnyDurumu } from "@/lib/bunny";
 
 export default async function AdminVideoPage() {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("courses")
-    .select("baslik, modules(sira, baslik, lessons(id, sira, baslik, sure, video_url, aciklama))")
-    .order("created_at");
+  // Video kimlikleri ders satırından okunamıyor (yetki yalnızca fonksiyonda,
+  // gerekçesi 20261021120000_video_aboneligi.sql'de); ayrı çekilip eşleniyor.
+  const [{ data }, { data: videolar }] = await Promise.all([
+    supabase
+      .from("courses")
+      .select("baslik, modules(sira, baslik, lessons(id, sira, baslik, sure, aciklama))")
+      .order("created_at"),
+    supabase.rpc("yonetici_ders_videolari"),
+  ]);
+  const videoKimligi = new Map((videolar ?? []).map((v) => [v.lesson_id, v.video_url]));
 
   type Row = {
     baslik: string;
@@ -19,7 +25,6 @@ export default async function AdminVideoPage() {
         sira: number;
         baslik: string;
         sure: string | null;
-        video_url: string | null;
         aciklama: string | null;
       }[];
     }[];
@@ -37,7 +42,7 @@ export default async function AdminVideoPage() {
             kurs: c.baslik,
             modul: `${m.sira}. ${m.baslik}`,
             sure: l.sure ?? "",
-            videoUrl: l.video_url ?? "",
+            videoUrl: videoKimligi.get(l.id) ?? "",
             aciklama: l.aciklama ?? "",
           })),
       ),

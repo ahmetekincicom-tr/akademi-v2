@@ -18,6 +18,68 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.15" };
   public: {
     Tables: {
+      abonelik_olaylari: {
+        Row: {
+          abonelik_id: string;
+          ayrinti: Json | null;
+          created_at: string;
+          id: string;
+          iyzico_siparis_kodu: string | null;
+          olay: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["abonelik_olaylari"]["Row"]> & {
+          abonelik_id: string;
+          olay: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["abonelik_olaylari"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "abonelik_olaylari_abonelik_id_fkey";
+            columns: ["abonelik_id"];
+            isOneToOne: false;
+            referencedRelation: "abonelikler";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      abonelikler: {
+        Row: {
+          admin_notu: string | null;
+          callback_at: string | null;
+          conversation_id: string | null;
+          created_at: string;
+          donem_baslangic: string | null;
+          donem_bitis: string | null;
+          durum: Database["public"]["Enums"]["abonelik_durum"];
+          erisim_bitis: string | null;
+          ham_yanit: Json | null;
+          id: string;
+          iptal_tarihi: string | null;
+          iyzico_abonelik_kodu: string | null;
+          iyzico_musteri_kodu: string | null;
+          iyzico_plan_kodu: string | null;
+          kaynak: string;
+          son_hata: string | null;
+          test_modu: boolean;
+          token: string | null;
+          tutar: number | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["abonelikler"]["Row"]> & {
+          user_id: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["abonelikler"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "abonelikler_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       courses: {
         Row: {
           aciklama: string | null;
@@ -1124,6 +1186,10 @@ export type Database = {
       };
     };
     Functions: {
+      abonelik_aktif: { Args: never; Returns: boolean };
+      ders_videolarim: { Args: never; Returns: { lesson_id: string; video_url: string }[] };
+      videosuz_ders_sayisi: { Args: never; Returns: number };
+      yonetici_ders_videolari: { Args: never; Returns: { lesson_id: string; video_url: string | null }[] };
       egitime_katildi_mi: { Args: { p_user?: string }; Returns: boolean };
       eski_oturum_kayitlarini_sil: { Args: never; Returns: undefined };
       gorusme_iptal: { Args: { p_id: string }; Returns: undefined };
@@ -1165,6 +1231,7 @@ export type Database = {
       };
     };
     Enums: {
+      abonelik_durum: "bekliyor" | "aktif" | "odeme_alinamadi" | "iptal" | "sona_erdi" | "basarisiz";
       course_durum: "taslak" | "yayinda" | "arsivlendi";
       enrollment_durum: "aktif" | "tamamlandi" | "iptal";
       gorusme_durum: "talep" | "odeme_bekliyor" | "planlandi" | "tamamlandi" | "iptal";

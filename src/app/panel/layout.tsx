@@ -4,6 +4,7 @@ import { AcilisEkrani } from "@/components/panel/AcilisEkrani";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 import { getBaslangic } from "@/lib/baslangic";
 import { DERSLER_ACIK } from "@/lib/bolumler";
+import { derslerGorunurMu } from "@/lib/abonelik";
 import { getBildirimler } from "@/lib/bildirimler";
 import { panelOlcumlemeTazele } from "@/lib/meta/toplama";
 
@@ -31,6 +32,10 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   */
   await panelOlcumlemeTazele(profil.id);
 
+  // Ders videoları abonelikle açılıyor; abonelik ayarı kapalıyken (ya da test
+  // modundayken) bölüm yalnızca yöneticiye görünür.
+  const derslerAcik = DERSLER_ACIK || (await derslerGorunurMu(profil.admin));
+
   /*
     Yan menünün "Aktif program" kartı. İlerleme: kurulum bitmediyse kurulum
     adımları (2/4), bittiyse ve dersler açıksa ders yüzdesi; ikisi de yoksa
@@ -47,7 +52,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
                 etiket: `${adimTamam}/${baslangic.adimlar.length}`,
                 yuzde: Math.round((adimTamam / baslangic.adimlar.length) * 100),
               }
-            : DERSLER_ACIK && aktifKurs.dersSayisi > 0
+            : derslerAcik && aktifKurs.dersSayisi > 0
               ? { etiket: `%${aktifKurs.yuzde}`, yuzde: aktifKurs.yuzde }
               : null,
       }
@@ -56,7 +61,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   return (
     <>
       <AcilisEkrani />
-      <PanelShell profil={profil} bildirim={bildirim} program={program}>
+      <PanelShell profil={profil} bildirim={bildirim} program={program} derslerAcik={derslerAcik}>
         {children}
       </PanelShell>
     </>

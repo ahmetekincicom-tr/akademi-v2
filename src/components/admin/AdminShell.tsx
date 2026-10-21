@@ -58,6 +58,7 @@ const groups: MenuGroup[] = [
     title: "Finans & sistem",
     items: [
       { href: "/kontrol-9f4x2k/odemeler", label: "Ödemeler", icon: "card", sayac: "odeme" },
+      { href: "/kontrol-9f4x2k/abonelikler", label: "Video aboneliği", icon: "playCircle" },
       { href: "/kontrol-9f4x2k/bildirimler", label: "Push bildirimler", icon: "bell" },
       { href: "/kontrol-9f4x2k/e-postalar", label: "E-posta bildirimleri", icon: "mail" },
       { href: "/kontrol-9f4x2k/meta", label: "Meta ölçümleme", icon: "sparkle" },
@@ -76,6 +77,7 @@ const pageTitles: Record<string, string> = {
   "/kontrol-9f4x2k/egitimler": "Eğitimler",
   "/kontrol-9f4x2k/blog": "Blog",
   "/kontrol-9f4x2k/odemeler": "Ödemeler",
+  "/kontrol-9f4x2k/abonelikler": "Video aboneliği",
   "/kontrol-9f4x2k/bildirimler": "Push bildirimler",
   "/kontrol-9f4x2k/e-postalar": "E-posta bildirimleri",
   "/kontrol-9f4x2k/destek": "Destek talepleri",

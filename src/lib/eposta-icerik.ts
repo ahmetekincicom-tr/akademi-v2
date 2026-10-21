@@ -35,6 +35,10 @@ export const AKIS_DEGISKENLERI: Partial<Record<EpostaAkisi, string[]>> = {
   "gorusme-planlandi": ["ad", "tarih", "sure", "konu"],
   "on-degerlendirme-hatirlatma": ["ad"],
   "destek-yanit": ["ad"],
+  "abonelik-basladi": ["ad", "tutar", "tarih"],
+  "abonelik-yenilendi": ["ad", "tutar", "tarih"],
+  "abonelik-odeme-alinamadi": ["ad", "tarih"],
+  "abonelik-iptal": ["ad", "tarih"],
 };
 
 /**
