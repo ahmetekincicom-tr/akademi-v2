@@ -207,12 +207,19 @@ export function OdemeSihirbazi({
         )}
 
         {adim === 2 && yontem === "kart" && (
-          <div className="flex items-center gap-3.5 rounded-[16px] border border-[#E6E8EF] bg-white p-4 lg:gap-[18px] lg:rounded-[18px] lg:p-[22px]">
-            <div className="flex h-[54px] w-[84px] flex-none flex-col justify-between rounded-[10px] bg-[linear-gradient(130deg,#2459FF,#0F1E5C_70%,#070B16)] p-2 text-white lg:h-[94px] lg:w-[150px] lg:rounded-[14px] lg:p-3 lg:shadow-[0_18px_30px_-16px_rgba(36,89,255,.8)]">
-              <span className="h-3 w-4 rounded-[3px] bg-[linear-gradient(135deg,#FFE29A,#D9A93F)] lg:h-[18px] lg:w-6 lg:rounded-[4px]" />
-              <span className="font-mono text-[8px] tracking-[0.12em] lg:text-[11px]">
-                •••• ••••<span className="hidden lg:inline"> ••••</span>
-              </span>
+          <div className="flex flex-col gap-3.5 rounded-[16px] border border-[#E6E8EF] bg-white p-4 lg:flex-row lg:items-center lg:gap-[18px] lg:rounded-[18px] lg:p-[22px]">
+            {/* Süs: kart numarası örnek, kişinin kartı değil. Stiller globals.css'te (.odeme-sahne). */}
+            <div aria-hidden className="odeme-sahne h-[150px] w-full flex-none rounded-[12px] lg:h-[150px] lg:w-[240px] lg:rounded-[14px]">
+              <span className="odeme-sahne-renk" />
+              <span className="odeme-sahne-renk" />
+              <span className="odeme-sahne-renk" />
+              <div className="odeme-kart">
+                <span className="odeme-kart-cip" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="odeme-kart-no">•••• 4242</span>
+                  <span className="odeme-kart-skt">12/29</span>
+                </div>
+              </div>
             </div>
             <div className="flex min-w-0 flex-col gap-1.5">
               <div className="hidden text-[17px] font-bold text-ink lg:block">Kartla güvenli ödeme</div>
