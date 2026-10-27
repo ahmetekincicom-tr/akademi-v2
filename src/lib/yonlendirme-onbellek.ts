@@ -24,22 +24,33 @@ type Onbellek = { tablo: YonlendirmeTablosu; gecerlilik: number };
 let onbellek: Onbellek | null = null;
 let yukleniyor: Promise<Onbellek> | null = null;
 
-async function cek(): Promise<Onbellek> {
+/**
+ * Etkin yönlendirme satırlarını okur; ortam değişkenleri yoksa boş liste.
+ * `onbellek` fetch'in önbellek ayarı: ara katman kendi önbelleğini tuttuğu
+ * için "no-store" veriyor, sayfa Next'in veri önbelleğini kullanıyor
+ * (lib/blog-baglanti-sunucu).
+ */
+export async function yonlendirmeSatirlariniCek(
+  onbellek: Pick<RequestInit, "cache"> & { next?: { revalidate?: number; tags?: string[] } },
+): Promise<YonlendirmeSatiri[]> {
   const kok = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anahtar = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!kok || !anahtar) return { tablo: new Map(), gecerlilik: Date.now() + TAZE_MS };
+  if (!kok || !anahtar) return [];
+  const yanit = await fetch(
+    `${kok.replace(/\/$/, "")}/rest/v1/yonlendirmeler?select=kaynak,hedef,kod&aktif=eq.true&limit=10000`,
+    {
+      ...onbellek,
+      headers: { apikey: anahtar, Authorization: `Bearer ${anahtar}` },
+      signal: AbortSignal.timeout(ZAMAN_ASIMI_MS),
+    },
+  );
+  if (!yanit.ok) throw new Error(`HTTP ${yanit.status}`);
+  return (await yanit.json()) as YonlendirmeSatiri[];
+}
 
+async function cek(): Promise<Onbellek> {
   try {
-    const yanit = await fetch(
-      `${kok.replace(/\/$/, "")}/rest/v1/yonlendirmeler?select=kaynak,hedef,kod&aktif=eq.true&limit=10000`,
-      {
-        headers: { apikey: anahtar, Authorization: `Bearer ${anahtar}` },
-        cache: "no-store",
-        signal: AbortSignal.timeout(ZAMAN_ASIMI_MS),
-      },
-    );
-    if (!yanit.ok) throw new Error(`HTTP ${yanit.status}`);
-    const satirlar = (await yanit.json()) as YonlendirmeSatiri[];
+    const satirlar = await yonlendirmeSatirlariniCek({ cache: "no-store" });
     return { tablo: tabloKur(satirlar), gecerlilik: Date.now() + TAZE_MS };
   } catch (e) {
     console.error("[yonlendirme] tablo okunamadı:", e instanceof Error ? e.message : e);
@@ -59,7 +70,9 @@ function yenile(): Promise<Onbellek> {
 }
 
 /**
- * Güncel tablo. `arkaPlan` ara katmanın waitUntil'i: süresi dolmuş tablo
+ * Ara katman için güncel tablo. Sayfa basarken KULLANMA: "no-store" okuma
+ * ISR sayfasını çalışma anında dinamiğe çevirip hata veriyor; sayfalar
+ * lib/blog-baglanti-sunucu üzerinden okuyor. `arkaPlan` ara katmanın waitUntil'i: süresi dolmuş tablo
  * dönerken tazelemenin yanıt gittikten sonra da bitmesini sağlıyor.
  */
 export async function yonlendirmeTablosu(arkaPlan?: (is: Promise<unknown>) => void): Promise<YonlendirmeTablosu> {
