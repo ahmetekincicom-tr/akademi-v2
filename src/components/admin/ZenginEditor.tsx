@@ -16,6 +16,15 @@ import { SlashKomut } from "@/components/admin/tiptap/SlashKomut";
 import { BlogGorsel } from "@/components/admin/tiptap/BlogGorsel";
 import { GorselPanel } from "@/components/admin/tiptap/GorselPanel";
 import { BLOKLAR } from "@/lib/blog-bloklar";
+import { BUTON_VARSAYILAN_HREF } from "@/lib/blog-sss";
+import {
+  SssButonTablo,
+  sssEkle,
+  sssMaddeEkle,
+  sssMaddeSil,
+  butonEkle,
+  tabloEkle,
+} from "@/components/admin/tiptap/SssButonTablo";
 import { optimizeGorsel, GorselHatasi, boyutMetni } from "@/lib/gorsel-optimize";
 import { seoTabanAd, storageYolu } from "@/lib/gorsel-ad";
 
@@ -105,6 +114,8 @@ export function ZenginEditor({
   // Aynı dosyanın çift eklenmesini engelleyen kilit (yükleme sürerken).
   const yuklemeKilit = useRef(false);
   const [linkAcik, setLinkAcik] = useState(false);
+  // Buton bloğunun hedefini seçen pencere (bağlantı penceresiyle aynı bileşen).
+  const [butonLinkAcik, setButonLinkAcik] = useState(false);
   const [blokMenu, setBlokMenu] = useState(false);
   const blokSarici = useRef<HTMLDivElement>(null);
 
@@ -150,9 +161,11 @@ export function ZenginEditor({
       Placeholder.configure({ placeholder: "Yazmaya başla…" }),
       // Özel bloklar: Bilgi, Uyarı, İpucu, Prompt.
       ...BlogBloklari,
+      // SSS (FAQPage), Buton, Tablo.
+      ...SssButonTablo,
       // "/" slash menüsü: H2/H3/Görsel/Bilgi/Uyarı/Not/Prompt. Görsel maddesi
       // mevcut dosya seçiciyi tetikliyor (aynı yükleme akışı).
-      SlashKomut.configure({ onGorsel: gorselAc }),
+      SlashKomut.configure({ onGorsel: gorselAc, onButon: () => setButonLinkAcik(true) }),
     ],
     content: gecerliDoc,
     editorProps: {
@@ -358,10 +371,75 @@ export function ZenginEditor({
                   <span className="ml-auto font-mono text-[11px] text-[#9aa0ae]">/{b.komut}</span>
                 </button>
               ))}
+              <div className="my-1 h-px bg-ink/10" />
+              {[
+                { ad: "SSS (soru-cevap)", komut: "sss", ekle: () => sssEkle(editor) },
+                {
+                  ad: "Buton",
+                  komut: "buton",
+                  ekle: () => {
+                    butonEkle(editor, BUTON_VARSAYILAN_HREF, "");
+                    setButonLinkAcik(true);
+                  },
+                },
+                { ad: "Tablo", komut: "tablo", ekle: () => tabloEkle(editor) },
+              ].map((b) => (
+                <button
+                  key={b.komut}
+                  type="button"
+                  role="menuitem"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    b.ekle();
+                    setBlokMenu(false);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13.5px] text-ink transition hover:bg-mist"
+                >
+                  {b.ad}
+                  <span className="ml-auto font-mono text-[11px] text-[#9aa0ae]">/{b.komut}</span>
+                </button>
+              ))}
             </div>
           )}
         </div>
 
+        {editor.isActive("sssBlock") && (
+          <>
+            <AracDugmesi etiket="Bu sorudan sonra yeni soru ekle" onTikla={() => sssMaddeEkle(editor)}>
+              + Soru
+            </AracDugmesi>
+            <AracDugmesi etiket="Bu soruyu sil" onTikla={() => sssMaddeSil(editor)}>
+              Soruyu sil
+            </AracDugmesi>
+          </>
+        )}
+        {editor.isActive("butonBlock") && (
+          <AracDugmesi etiket="Butonun gideceği sayfayı seç" onTikla={() => setButonLinkAcik(true)}>
+            Buton bağlantısı
+          </AracDugmesi>
+        )}
+        {editor.isActive("table") && (
+          <>
+            <AracDugmesi etiket="Alta satır ekle" onTikla={() => editor.chain().focus().addRowAfter().run()}>
+              + Satır
+            </AracDugmesi>
+            <AracDugmesi etiket="Sağa sütun ekle" onTikla={() => editor.chain().focus().addColumnAfter().run()}>
+              + Sütun
+            </AracDugmesi>
+            <AracDugmesi etiket="Bu satırı sil" onTikla={() => editor.chain().focus().deleteRow().run()}>
+              − Satır
+            </AracDugmesi>
+            <AracDugmesi etiket="Bu sütunu sil" onTikla={() => editor.chain().focus().deleteColumn().run()}>
+              − Sütun
+            </AracDugmesi>
+            <AracDugmesi etiket="Başlık satırını aç/kapat" onTikla={() => editor.chain().focus().toggleHeaderRow().run()}>
+              Başlık satırı
+            </AracDugmesi>
+            <AracDugmesi etiket="Tabloyu sil" onTikla={() => editor.chain().focus().deleteTable().run()}>
+              Tabloyu sil
+            </AracDugmesi>
+          </>
+        )}
         {editor.isActive("tipBlock") && (
           <AracDugmesi
             etiket="Not etiketini düzenle"
@@ -466,6 +544,22 @@ export function ZenginEditor({
           e.target.value = "";
         }}
       />
+
+      {butonLinkAcik && (
+        <LinkSecici
+          hedefler={icHedefler}
+          mevcutUrl={(editor.getAttributes("butonBlock").href as string | undefined) || undefined}
+          onSec={(s) => {
+            setButonLinkAcik(false);
+            const bos = editor.state.selection.$from.parent.textContent.trim() === "";
+            const zincir = editor.chain().focus().updateAttributes("butonBlock", { href: s.url });
+            // Metni boş butona hedefin başlığı yazılıyor; sonra değiştirilebilir.
+            if (bos && s.baslik) zincir.insertContent(s.baslik);
+            zincir.run();
+          }}
+          onKapat={() => setButonLinkAcik(false)}
+        />
+      )}
 
       {linkAcik && (
         <LinkSecici

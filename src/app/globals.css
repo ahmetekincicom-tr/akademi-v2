@@ -1101,9 +1101,29 @@ body[data-menu-acik="1"] {
 
 /*
   Tablolar: gövde tipografisiyle aynı sistem. İnce alt çizgiler, başlık satırı
-  heading fontuyla; kutu/zebra yok — sade editoryal tablo. İçerik HTML'i tek
-  kapta geldiği için sarmalayıcı yok; geniş tablo mobilde yatay kayar.
+  heading fontuyla; kutu/zebra yok — sade editoryal tablo. Sitede tablo
+  .aea-tablo kutusuna sarılıyor (lib/blog-temizle): geniş tablo sayfayı değil
+  kendi kutusunu yana kaydırıyor (360 px'te yana kayma yok).
 */
+.blog-icerik .aea-tablo {
+  margin: 1.9em 0;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 4px;
+}
+.blog-icerik .aea-tablo:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+}
+.blog-icerik .aea-tablo > table {
+  margin: 0;
+}
+/* Hücreler dar ekranda okunamayacak kadar daralmasın: kutu kayar. */
+.blog-icerik .aea-tablo th,
+.blog-icerik .aea-tablo td {
+  min-width: 120px;
+}
 .blog-icerik table {
   width: 100%;
   border-collapse: collapse;
@@ -1854,4 +1874,94 @@ body[data-menu-acik="1"] {
 @media (prefers-reduced-motion: reduce) {
   .aea-kapak img { transition: none; }
   .group:hover .aea-kapak img { transform: none; }
+}
+
+/* ------------------------------------------------------------------ SSS --- */
+/*
+  Sıkça Sorulan Sorular bloğu (tiptap/SssButonTablo). Sorular açık duruyor
+  (akordeon değil): cevap metni sayfada görünür, arama motoru ve okuyucu aynı
+  şeyi görüyor. Bölüm başlığı normal H2 (İçindekiler'e girer); sorular H3
+  ama İçindekiler'e girmez (lib/blog-icerik).
+*/
+.blog-icerik .aea-sss {
+  margin: 2.4em 0;
+}
+.blog-icerik .aea-sss__madde {
+  margin-top: 12px;
+  padding: 18px 20px;
+  border: 1px solid rgba(10, 13, 24, 0.09);
+  border-radius: 14px;
+  background: #f7f8fc;
+}
+.blog-icerik .aea-sss > h2 + .aea-sss__madde,
+.blog-icerik .aea-sss > h3 + .aea-sss__madde {
+  margin-top: 18px;
+}
+.blog-icerik h3.aea-sss__soru {
+  margin: 0 0 8px;
+  font-size: 1.05em;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.blog-icerik .aea-sss__cevap > :first-child {
+  margin-top: 0;
+}
+.blog-icerik .aea-sss__cevap > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------- Buton --- */
+/*
+  Yazı içi buton (tiptap/SssButonTablo). Dolgulu marka mavisi; beyaz metin
+  #1c56f3 üzerinde 5,7:1 (WCAG AA). En az 48 px yükseklik (dokunma alanı).
+*/
+.blog-icerik p.aea-buton {
+  margin: 1.8em 0;
+}
+.blog-icerik p.aea-buton > a,
+.blog-icerik p.aea-buton > a:hover {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  max-width: 100%;
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: var(--color-brand);
+  color: #fff;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: background-color 0.2s ease;
+}
+.blog-icerik p.aea-buton > a:hover {
+  background: var(--color-ink);
+}
+.blog-icerik p.aea-buton > a:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+}
+/* Editörde boş buton görünür kalsın (yazılacak yer belli olsun). */
+.blog-icerik p.aea-buton > a:empty::before {
+  content: "Buton metni";
+  opacity: 0.7;
+}
+
+/* Editörde tablo: ProseMirror'un sarmalayıcısı ve seçili hücre vurgusu. */
+.blog-icerik .tableWrapper {
+  margin: 1.9em 0;
+  overflow-x: auto;
+}
+.blog-icerik .tableWrapper > table {
+  margin: 0;
+}
+.blog-icerik td.selectedCell,
+.blog-icerik th.selectedCell {
+  background: rgba(28, 86, 243, 0.08);
+}
+.ProseMirror.blog-icerik th,
+.ProseMirror.blog-icerik td {
+  border: 1px solid rgba(10, 13, 24, 0.12);
 }

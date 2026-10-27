@@ -43,7 +43,8 @@ import { GorselLightbox } from "@/components/blog/GorselLightbox";
 import { BlogAnalitik } from "@/components/blog/BlogAnalitik";
 import { OkumaIlerleme } from "@/components/blog/OkumaIlerleme";
 import { mutlakDepoUrl } from "@/lib/depo";
-import { sayfaMeta, makaleSemasi, kirintiSemasi, SITE_URL } from "@/lib/seo";
+import { sayfaMeta, makaleSemasi, kirintiSemasi, sssSemasi, SITE_URL } from "@/lib/seo";
+import { yaziSss } from "@/lib/blog-sss";
 
 /**
  * Mobil/tablet için içerik içi (~%40) kompakt CTA'yı gövdeye enjekte eder.
@@ -180,6 +181,10 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
 
   const kapakMutlak = mutlakDepoUrl(yazi.kapak, SITE_URL);
 
+  // Yazıdaki SSS bloğu (en az iki soru-cevap): FAQPage. Temizlenmiş gövdeden;
+  // cevaplar düz metin (lib/blog-sss).
+  const sss = yaziSss(icerikHam);
+
   const semalar = [
     makaleSemasi({
       slug: yazi.slug,
@@ -203,11 +208,13 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
       ...(yazi.kategori ? [{ ad: yazi.kategori.ad, yol: `/${yazi.kategori.slug}` }] : []),
       { ad: yazi.baslik, yol: `/${yazi.slug}` },
     ]),
+    ...(sss.length ? [sssSemasi(sss)] : []),
   ];
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(semalar) }} />
+      {/* "<" kaçışlı: metinde "</script>" geçse bile etiket kapanmasın. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(semalar).replace(/</g, "\\u003c") }} />
       <div className="bg-white">
         <PublicHeader />
         {/* Okuma ilerlemesi: yapışkan başlığın hemen altında ince çizgi. */}

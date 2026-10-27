@@ -23,7 +23,8 @@ export function LinkSecici({
   hedefler: IcLinkHedef[];
   mevcutUrl?: string;
   onSec: (s: LinkSecim) => void;
-  onKaldir: () => void;
+  /** Yoksa "Bağlantıyı kaldır" gösterilmiyor (ör. buton bloğu: bağlantısız buton olmaz). */
+  onKaldir?: () => void;
   onKapat: () => void;
 }) {
   const [sekme, setSekme] = useState<"ic" | "dis">("ic");
@@ -41,6 +42,9 @@ export function LinkSecici({
   return (
     <div className="fixed inset-0 z-[80] flex items-start justify-center bg-ink/40 p-4 pt-[10vh]" onClick={onKapat}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Bağlantı seç"
         className="w-full max-w-[520px] overflow-hidden rounded-[16px] border border-ink/10 bg-white shadow-[0_30px_70px_rgba(10,13,24,0.25)]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -120,7 +124,7 @@ export function LinkSecici({
         )}
 
         <div className="flex items-center justify-between border-t border-ink/10 px-4 py-3">
-          {mevcutUrl ? (
+          {mevcutUrl && onKaldir ? (
             <button type="button" onClick={onKaldir} className="text-[13px] font-semibold text-[#5C6273] hover:text-danger">
               Bağlantıyı kaldır
             </button>
