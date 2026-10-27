@@ -20,13 +20,17 @@ function metneCevir(html: string): string {
  * hızına yakın, ekran görüntüsü/kod ağırlıklı yazılarda da makul.
  */
 export function okumaSuresi(html: string): number {
-  const metin = metneCevir(html);
-  if (!metin) return 1;
-  const kelime = metin.split(" ").filter(Boolean).length;
-  return Math.max(1, Math.round(kelime / 200));
+  return Math.max(1, Math.round(kelimeSayisi(html) / 200));
 }
 
-const UZUN = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+/** Gövdedeki kelime sayısı (yapısal veri: wordCount). */
+export function kelimeSayisi(html: string): number {
+  const metin = metneCevir(html);
+  return metin ? metin.split(" ").filter(Boolean).length : 0;
+}
+
+// Türkiye saatiyle: sunucu UTC; gece yarısına yakın yayınlanan yazı bir önceki günde görünmesin.
+const UZUN = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Istanbul" });
 
 /** "27 Ağustos 2026" — geçersiz/boş tarihte boş string. */
 export function tarihUzun(iso: string | null): string {

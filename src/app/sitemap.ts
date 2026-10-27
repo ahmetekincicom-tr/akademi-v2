@@ -3,6 +3,7 @@ import { SITE_URL } from "@/lib/seo";
 import { getCourses } from "@/lib/courses";
 import { getYayindakiYazilar, getKategoriler } from "@/lib/yazilar";
 import { getYasalSayfalar } from "@/lib/yasal";
+import { ETIKET_ESIGI, etiketleriTopla } from "@/lib/blog-etiket";
 import { ON_YUZ_ACIK } from "@/proxy";
 
 // İçerik yönetim panelinden değişiyor; build anında dondurulmamalı.
@@ -82,7 +83,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           { url: adres("/blog"), lastModified: simdi, changeFrequency: "weekly", priority: 0.7 },
           ...yazilar.map((y) => ({
             url: adres(`/${y.slug}`),
-            lastModified: y.yayinTarihi ? new Date(y.yayinTarihi) : new Date(y.guncelleme),
+            // Gerçek içerik güncellemesi (yazıdaki dateModified ile aynı kaynak);
+            // yoksa yayın tarihi.
+            lastModified: new Date(y.icerikGuncelleme ?? y.yayinTarihi ?? y.guncelleme),
             changeFrequency: "monthly" as const,
             priority: 0.6,
           })),
@@ -93,6 +96,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
               lastModified: simdi,
               changeFrequency: "weekly" as const,
               priority: 0.5,
+            })),
+          // Etiket sayfaları yalnız yeterince doluysa (lib/blog-etiket →
+          // ETIKET_ESIGI); azı noindex, haritaya da girmiyor.
+          ...etiketleriTopla(yazilar)
+            .filter((e) => e.adet >= ETIKET_ESIGI)
+            .map((e) => ({
+              url: adres(`/blog/etiket/${e.slug}`),
+              lastModified: simdi,
+              changeFrequency: "weekly" as const,
+              priority: 0.4,
             })),
         ]
       : [];

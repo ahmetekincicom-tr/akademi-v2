@@ -1,6 +1,7 @@
 import type { Element, ElementContent, Properties, Root, RootContent } from "hast";
 import { fromHtml } from "hast-util-from-html";
 import { toHtml } from "hast-util-to-html";
+import type { BaglantiCozucu } from "@/lib/blog-baglanti";
 
 /**
  * Blog gövdesi HTML temizleyicisi — sayfaya basmadan önce.
@@ -203,7 +204,7 @@ function iframeGecerli(dugum: Element): boolean {
   return true;
 }
 
-function dolas(ebeveyn: Parent): void {
+function dolas(ebeveyn: Parent, baglanti?: BaglantiCozucu): void {
   const sonraki: (RootContent | ElementContent)[] = [];
   for (const cocuk of ebeveyn.children) {
     if (cocuk.type === "comment" || cocuk.type === "doctype") continue;
@@ -223,7 +224,7 @@ function dolas(ebeveyn: Parent): void {
 
     if (!(cocuk.tagName in IZINLI)) {
       // Tanınmayan etiket: kendisi gidiyor, içi kalıyor.
-      dolas(cocuk);
+      dolas(cocuk, baglanti);
       sonraki.push(...(cocuk.children as ElementContent[]));
       continue;
     }
@@ -233,19 +234,30 @@ function dolas(ebeveyn: Parent): void {
     // loading/referrerpolicy'yi yazıyor, önce çalışsa temizlik onları silerdi.
     if (cocuk.tagName === "iframe" && !iframeGecerli(cocuk)) continue;
     if (cocuk.tagName === "button") cocuk.properties.type = "button";
+    if (cocuk.tagName === "a" && baglanti && typeof cocuk.properties.href === "string") {
+      // İç bağlantı son adresine (lib/blog-baglanti). Hedef kaldırılmışsa
+      // bağlantı kalkıyor, metni kalıyor.
+      const son = baglanti(cocuk.properties.href);
+      if (son === null) {
+        dolas(cocuk, baglanti);
+        sonraki.push(...(cocuk.children as ElementContent[]));
+        continue;
+      }
+      cocuk.properties.href = son;
+    }
     if (cocuk.tagName === "a") baglantiHazirla(cocuk);
     if (cocuk.tagName === "img" && !cocuk.properties.src) continue;
 
-    dolas(cocuk);
+    dolas(cocuk, baglanti);
     sonraki.push(cocuk);
   }
   ebeveyn.children = sonraki as typeof ebeveyn.children;
 }
 
 /** Blog gövdesini güvenli HTML'e çevirir. Boş girdi boş döner. */
-export function blogHtmlTemizle(html: string): string {
+export function blogHtmlTemizle(html: string, secenek?: { baglanti?: BaglantiCozucu }): string {
   if (!html || !html.trim()) return "";
   const agac = fromHtml(html, { fragment: true });
-  dolas(agac);
+  dolas(agac, secenek?.baglanti);
   return toHtml(agac);
 }

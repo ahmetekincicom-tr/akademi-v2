@@ -19,6 +19,23 @@ WordPress'teki yapı korunuyor, hiçbir adres değişmedi:
 Yazı ve kategori aynı adres alanını paylaşıyor; panel aynı adresin ikisine
 birden verilmesine izin vermiyor.
 
+Etiket sayfaları `/blog/etiket/{etiket}/` altında; adres etiket metninden
+türetiliyor ("Meta Ads" → `/blog/etiket/meta-ads/`). 3'ten az yazısı olan
+etiket sayfası açık ama arama motoruna kapalı ve site haritasında yok.
+
+## Görünüm
+
+- **Görselsiz kapak** (`src/lib/blog-kapak.ts`): kapak görseli olmayan yazıda
+  kategorinin rengi ve simgesiyle çizilen kapak. Kategori → görünüm tablosu
+  dosyada; tanınmayan kategori slug'dan sabit bir görünüm alıyor.
+- **İlgili eğitim** (`src/lib/blog-egitim.ts`): yazının CTA'ları kategorinin
+  eğitimine gidiyor. Eşleme tercih sırasıyla; "çok yakında" eğitim atlanıp
+  sıradaki deneniyor, hiçbiri açık değilse "Tüm eğitimler". Kart metni
+  eğitimin panelde yazılan başlık ve açıklaması (Meta Ads eğitimininki elle
+  yazılmış metin).
+- **İç bağlantılar** (`src/lib/blog-baglanti.ts`): gövdedeki bağlantılar sayfa
+  basılırken son adreslerine yazılıyor; veritabanındaki yazı değişmiyor.
+
 ## Durumlar ve zamanlı yayın
 
 | Durum | Sitede |

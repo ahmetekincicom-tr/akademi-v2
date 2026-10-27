@@ -1,5 +1,6 @@
 "use server";
 
+import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseNesneUrl } from "@/lib/depo";
 import { yoneticiMi } from "@/lib/panel-kapsam";
@@ -109,10 +110,16 @@ export async function wpGorselKopyala(wpYollari: string[]): Promise<{ sonuclar: 
       try {
         const yanit = await fetch(wpIndirmeAdresi(kaynak, wpYol), { cache: "no-store", signal: AbortSignal.timeout(20000) });
         if (!yanit.ok) return { wpYol, ok: false, hata: `WordPress ${yanit.status} döndü` };
-        const tur = yanit.headers.get("content-type") ?? "";
+        let tur = yanit.headers.get("content-type") ?? "";
         if (!tur.startsWith("image/")) return { wpYol, ok: false, hata: `Görsel değil (${tur || "tür yok"})` };
-        const govde = await yanit.arrayBuffer();
+        let govde: ArrayBuffer | Buffer = await yanit.arrayBuffer();
         if (govde.byteLength > EN_BUYUK) return { wpYol, ok: false, hata: "15 MB'tan büyük" };
+        // Depo GIF kabul etmiyor: hareketli WebP'ye çevriliyor, animasyon
+        // kalıyor (yol da .webp: lib/wp-gorsel → wpDepoYolu).
+        if (tur.startsWith("image/gif")) {
+          govde = await sharp(Buffer.from(govde), { animated: true }).webp({ quality: 82 }).toBuffer();
+          tur = "image/webp";
+        }
         const { error } = await supabase.storage
           .from("kapaklar")
           .upload(depoYolu, govde, { contentType: tur, cacheControl: "31536000", upsert: false });

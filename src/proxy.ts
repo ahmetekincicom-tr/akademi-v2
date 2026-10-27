@@ -4,6 +4,7 @@ import { cerezAlanAdi } from "@/lib/izin";
 import { FBC_CEREZI, FBC_OMRU_SN, fbcKur } from "@/lib/meta/fbc";
 import { hedefAdresi, yonlendirmeAranir, yonlendirmeBul } from "@/lib/yonlendirme";
 import { yonlendirmeTablosu } from "@/lib/yonlendirme-onbellek";
+import { goneMi } from "@/lib/kaldirilan-yollar";
 
 /**
  * Arama motorlarına açık alan adları. Virgülle ayrılır.
@@ -208,44 +209,6 @@ const TUZAK_KOKLER = ["/admin", "/administrator", "/yonetim"];
  */
 function wordpressYolu(yol: string): boolean {
   return yol.startsWith("/wp-");
-}
-
-/**
- * Kalıcı olarak kaldırılan WordPress sayfaları → 410 Gone.
- *
- * Bu sayfaların yeni projede KARŞILIĞI YOK: sepet/ödeme akışı (WooCommerce),
- * bakım/elementor sistem sayfaları ve kaldırılan eğitimler (Photoshop, After
- * Effects, UGC, Freelance Mentorluk). Karşılıksız bir sayfayı alakasız bir yere
- * 301'lemek Google'ın "soft 404" saydığı, değeri silen davranış. 410 ise "bu
- * içerik kalıcı olarak gitti" demenin doğru yolu: arama motoru adresi dizinden
- * 404'e göre daha hızlı düşürüyor ve tarama bütçesini boşa harcamıyor.
- *
- * Gerçek karşılığı OLANLAR burada değil; onlar 301 (src/lib/tasima.ts).
- */
-const GONE_YOLLARI = new Set([
-  "/sepet",
-  "/sepet-2",
-  "/checkout-3",
-  "/bakim",
-  "/elementor-12265",
-  "/birebir-adobe-photoshop-egitimi",
-  "/birebir-adobe-after-effects-egitimi-2025",
-  "/birebir-influencer-ugc-olma-egitimi",
-  "/freelance-mentorluk-programi",
-]);
-
-/**
- * Kalıcı olarak kaldırılan WordPress ARŞİV önekleri → 410 Gone.
- *
- * Etiket (/tag) ve yazar (/author) arşivlerinin yeni projede karşılığı yok.
- * Kategori arşivleri taşındı ve kökte sunuluyor; etiket/yazar sayfaları ise
- * ince içerik oldukları için taşınmadı.
- */
-const GONE_ONEKLER = ["/tag", "/author"];
-
-function goneMi(yolSade: string): boolean {
-  if (GONE_YOLLARI.has(yolSade)) return true;
-  return GONE_ONEKLER.some((k) => yolSade === k || yolSade.startsWith(k + "/"));
 }
 
 /** İnsan için kısa bir 410 gövdesi (arama motoru zaten durum kodunu okuyor). */

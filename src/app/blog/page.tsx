@@ -1,9 +1,12 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { PublicHeader } from "@/components/site/PublicHeader";
 import { PublicFooter } from "@/components/site/PublicFooter";
 import { SectionKicker } from "@/components/site/SectionKicker";
-import { getYayindakiYazilar, getKategoriler } from "@/lib/yazilar";
+import { getYayindakiYazilar, kategorilerSayili } from "@/lib/yazilar";
+import { KategoriCipleri } from "@/components/blog/KategoriCipleri";
+import { OneCikanYazi } from "@/components/blog/OneCikanYazi";
+import { YaziKarti } from "@/components/blog/YaziKarti";
+import { DahaFazla } from "@/components/blog/DahaFazla";
 import { sayfaMeta, SITE_URL } from "@/lib/seo";
 
 // Gerekçe: src/app/page.tsx (ISR — saatlik yeniden üretim).
@@ -23,19 +26,9 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function tarih(deger: string | null): string {
-  if (!deger) return "";
-  try {
-    return new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" }).format(
-      new Date(deger),
-    );
-  } catch {
-    return "";
-  }
-}
-
 export default async function BlogPage() {
-  const [yazilar, kategoriler] = await Promise.all([getYayindakiYazilar(), getKategoriler()]);
+  const [yazilar, kategoriler] = await Promise.all([getYayindakiYazilar(), kategorilerSayili()]);
+  const [oneCikan, ...digerleri] = yazilar;
 
   return (
     <div className="bg-white">
@@ -63,48 +56,28 @@ export default async function BlogPage() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
-        {kategoriler.length > 0 && (
-          <div className="mb-10 flex flex-wrap gap-2">
-            {kategoriler.map((k) => (
-              <Link
-                key={k.id}
-                href={`/${k.slug}`}
-                className="rounded-full border border-ink/12 bg-white px-[15px] py-[8px] text-[13.5px] font-medium text-[#3A3F4F] transition hover:border-brand hover:text-brand"
-              >
-                {k.ad}
-              </Link>
-            ))}
-          </div>
-        )}
-        {yazilar.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-ink/15 bg-mist p-12 text-center text-[15px] text-[#5C6273]">
+      <main className="mx-auto max-w-[1240px] px-5 py-14 sm:px-8 sm:py-20">
+        <KategoriCipleri kategoriler={kategoriler} etkin={null} />
+        {!oneCikan ? (
+          <div className="mt-10 rounded-2xl border border-dashed border-ink/15 bg-mist p-12 text-center text-[15px] text-[#5C6273]">
             Yakında ilk yazılar burada olacak.
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {yazilar.map((y) => (
-              <Link
-                key={y.id}
-                href={`/${y.slug}`}
-                className="group flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[4px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
-              >
-                <div
-                  className={`aspect-[16/10] bg-cover bg-center ${y.kapak ? "" : "placeholder-block"}`}
-                  style={y.kapak ? { backgroundImage: `url(${y.kapak})` } : undefined}
-                />
-                <div className="flex flex-1 flex-col p-6">
-                  {y.yayinTarihi && (
-                    <div className="font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">{tarih(y.yayinTarihi)}</div>
-                  )}
-                  <h2 className="mt-[10px] font-heading text-[21px] leading-[1.25] font-semibold tracking-[-0.025em] text-ink transition-colors group-hover:text-brand">
-                    {y.baslik}
-                  </h2>
-                  {y.ozet && <p className="mt-[10px] line-clamp-3 text-[15px] leading-[1.6] text-[#5C6273]">{y.ozet}</p>}
-                </div>
-              </Link>
-            ))}
-          </div>
+          <>
+            <div className="mt-10">
+              <OneCikanYazi yazi={oneCikan} />
+            </div>
+            {digerleri.length > 0 && (
+              <div className="mt-12">
+                <h2 className="sr-only">Tüm yazılar</h2>
+                <DahaFazla>
+                  {digerleri.map((y) => (
+                    <YaziKarti key={y.id} yazi={y} baslik="h3" />
+                  ))}
+                </DahaFazla>
+              </div>
+            )}
+          </>
         )}
       </main>
 

@@ -13,6 +13,7 @@ import {
   getYayindakiYazilar,
   getKategoriler,
   ilgiliYazilar,
+  kategorilerSayili,
   type Yazi,
   type Kategori,
 } from "@/lib/yazilar";
@@ -22,12 +23,21 @@ import { grupla } from "@/lib/blog-toc";
 import { egitimCtaHtml } from "@/lib/blog-cta";
 import { getSiteIcerik } from "@/lib/site-icerik";
 import { yazariCoz } from "@/lib/yazar";
-import { okumaSuresi, dateModifiedDegeri } from "@/lib/blog-meta";
+import { okumaSuresi, kelimeSayisi, dateModifiedDegeri } from "@/lib/blog-meta";
 import { YazarMeta } from "@/components/blog/YazarMeta";
 import { YazarKutusu } from "@/components/blog/YazarKutusu";
 import { IcindekilerYan } from "@/components/blog/IcindekilerYan";
 import { IcindekilerAccordion } from "@/components/blog/IcindekilerAccordion";
 import { EgitimCta } from "@/components/blog/EgitimCta";
+import { BlogKapak } from "@/components/blog/BlogKapak";
+import { YaziKarti } from "@/components/blog/YaziKarti";
+import { DahaFazla } from "@/components/blog/DahaFazla";
+import { KategoriCipleri } from "@/components/blog/KategoriCipleri";
+import { PaylasimDugmeleri } from "@/components/blog/PaylasimDugmeleri";
+import { getCourses } from "@/lib/courses";
+import { ilgiliEgitim, type IlgiliEgitim } from "@/lib/blog-egitim";
+import { etiketAdresi } from "@/lib/blog-etiket";
+import { blogBaglantiCozucu } from "@/lib/blog-baglanti-sunucu";
 import { PromptKopyala } from "@/components/blog/PromptKopyala";
 import { GorselLightbox } from "@/components/blog/GorselLightbox";
 import { BlogAnalitik } from "@/components/blog/BlogAnalitik";
@@ -44,7 +54,7 @@ import { sayfaMeta, makaleSemasi, kirintiSemasi, SITE_URL } from "@/lib/seo";
  * Yalnızca yeterince uzun yazılarda (≥3 H2) ekleniyor; kısa yazıda reklam
  * hissi yaratmasın.
  */
-function araCtaEkle(html: string, h2ler: IcindekiSatir[]): string {
+function araCtaEkle(html: string, h2ler: IcindekiSatir[], egitim: IlgiliEgitim): string {
   if (h2ler.length < 3) return html;
   const idx = Math.min(h2ler.length - 1, Math.max(1, Math.round(h2ler.length * 0.4)));
   const idIsaret = `id="${h2ler[idx].id}"`;
@@ -52,7 +62,7 @@ function araCtaEkle(html: string, h2ler: IcindekiSatir[]): string {
   if (idPos === -1) return html;
   const h2Pos = html.lastIndexOf("<h2", idPos);
   if (h2Pos === -1) return html;
-  return html.slice(0, h2Pos) + egitimCtaHtml("ara") + html.slice(h2Pos);
+  return html.slice(0, h2Pos) + egitimCtaHtml("ara", egitim) + html.slice(h2Pos);
 }
 
 /**
@@ -97,17 +107,6 @@ export async function generateStaticParams(): Promise<{ slug: string }[]> {
     return [...yazilar.map((y) => ({ slug: y.slug })), ...kategoriler.map((k) => ({ slug: k.slug }))];
   } catch {
     return [];
-  }
-}
-
-function tarih(deger: string | null): string {
-  if (!deger) return "";
-  try {
-    return new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric" }).format(
-      new Date(deger),
-    );
-  } catch {
-    return "";
   }
 }
 
@@ -156,13 +155,17 @@ export default async function KokSlugPage({ params }: { params: Promise<{ slug: 
 /* ------------------------------------------------------------- yazı --- */
 
 async function YaziDetay({ yazi }: { yazi: Yazi }) {
-  const [{ html: icerikHam, icindekiler }, ilgili, site] = await Promise.all([
-    // Önce temizlik (izin listesi), sonra başlıklara kimlik: TOC'nin saydığı
-    // başlıklar sayfada gerçekten basılanlar olsun.
-    Promise.resolve(iceriktenIcindekiler(blogHtmlTemizle(yazi.icerikHtml))),
+  const [baglanti, ilgili, site, egitimler] = await Promise.all([
+    blogBaglantiCozucu(),
     ilgiliYazilar(yazi.id, yazi.kategoriId),
     getSiteIcerik(),
+    getCourses(),
   ]);
+  // Önce temizlik (izin listesi, iç bağlantılar son adrese), sonra
+  // başlıklara kimlik: TOC'nin saydığı başlıklar sayfada basılanlar olsun.
+  const { html: icerikHam, icindekiler } = iceriktenIcindekiler(blogHtmlTemizle(yazi.icerikHtml, { baglanti }));
+  // Yazının kategorisinin eğitimi (CTA'lar ve kayıt kartı): lib/blog-egitim.
+  const egitim = ilgiliEgitim(yazi.kategori?.slug, egitimler);
 
   // Yazar bilgisi merkezî kaynaktan (site_icerik → egitmen_*); okuma süresi
   // içerikten hesaplanıyor.
@@ -173,13 +176,17 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
   const gruplar = grupla(icindekiler);
   const h2ler = icindekiler.filter((i) => i.seviye === 2);
   // Mobil/tablet ara CTA'sını gövdeye ekle (masaüstünde CSS ile gizli).
-  const icerikHtml = araCtaEkle(icerikHam, h2ler);
+  const icerikHtml = araCtaEkle(icerikHam, h2ler, egitim);
 
   const kapakMutlak = mutlakDepoUrl(yazi.kapak, SITE_URL);
 
   const semalar = [
     makaleSemasi({
       slug: yazi.slug,
+      bolum: yazi.kategori?.ad ?? null,
+      anahtarKelimeler: yazi.etiketler,
+      kelimeSayisi: kelimeSayisi(yazi.icerikHtml),
+      okumaDakika: okuma,
       baslik: yazi.baslik,
       aciklama: yazi.seoAciklama || yazi.ozet,
       gorsel: kapakMutlak,
@@ -193,6 +200,7 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
     kirintiSemasi([
       { ad: "Ana sayfa", yol: "/" },
       { ad: "Blog", yol: "/blog" },
+      ...(yazi.kategori ? [{ ad: yazi.kategori.ad, yol: `/${yazi.kategori.slug}` }] : []),
       { ad: yazi.baslik, yol: `/${yazi.slug}` },
     ]),
   ];
@@ -258,14 +266,10 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
             />
           </header>
 
-            {yazi.kapak && (
-              <div
-                className="mt-8 aspect-[16/9] overflow-hidden rounded-2xl bg-cover bg-center"
-                style={{ backgroundImage: `url(${yazi.kapak})` }}
-                role="img"
-                aria-label={yazi.baslik}
-              />
-            )}
+            {/* Görsel yoksa kategorinin renk ve simgesiyle çizilen kapak. */}
+            <div className="mt-8 overflow-hidden rounded-2xl">
+              <BlogKapak gorsel={yazi.kapak} alt={yazi.baslik} kategoriSlug={yazi.kategori?.slug} cesit="hero" oncelikli />
+            </div>
 
             {/* Mobil/tablet İçindekiler: kapak sonrası, içerik öncesi accordion
                 (bileşen kendini lg:hidden ile masaüstünde gizliyor). */}
@@ -281,19 +285,27 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
             <PromptKopyala />
             <GorselLightbox />
 
-            {yazi.etiketler.length > 0 && (
-              <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-ink/10 pt-6">
-                {yazi.etiketler.map((e) => (
-                  <span key={e} className="rounded-full bg-ink/[0.05] px-[11px] py-[5px] text-[12.5px] text-[#5C6273]">
-                    #{e}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="mt-10 flex flex-col gap-5 border-t border-ink/10 pt-6">
+              {yazi.etiketler.length > 0 && (
+                <ul className="flex flex-wrap items-center gap-2" aria-label="Etiketler">
+                  {yazi.etiketler.map((e) => (
+                    <li key={e}>
+                      <Link
+                        href={etiketAdresi(e)}
+                        className="inline-flex min-h-9 items-center rounded-full bg-ink/[0.05] px-3 text-[13px] text-[#4A4F5E] transition hover:bg-brand/10 hover:text-brand"
+                      >
+                        #{e}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <PaylasimDugmeleri url={`${SITE_URL}/${yazi.slug}/`} baslik={yazi.baslik} />
+            </div>
 
             {/* Mobil/tablet yazı sonu güçlü CTA (masaüstünde CSS ile gizli;
                 orada sidebar CTA'sı devrede). */}
-            <EgitimCta varyant="son" />
+            <EgitimCta varyant="son" egitim={egitim} />
 
             {/* Yazı sonu yazar kutusu (ilgili yazılardan önce). Satış CTA'sı
                 değil; güven odaklı, CTA kartlarından görsel olarak ayrışır. */}
@@ -308,34 +320,20 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
               style={{ position: "sticky", top: "calc(var(--baslik-h, 84px) + 24px)" }}
             >
               {gruplar.length > 0 && <IcindekilerYan gruplar={gruplar} />}
-              <EgitimCta varyant="yan" />
+              <EgitimCta varyant="yan" egitim={egitim} />
             </div>
           </aside>
         </div>
 
         {ilgili.length > 0 && (
-          <section className="border-t border-ink/10 bg-mist/40">
-            <div className="mx-auto max-w-[1080px] px-5 py-16 sm:px-8">
-              <h2 className="font-heading text-[24px] leading-[1.15] font-semibold tracking-[-0.02em]">İlgili yazılar</h2>
+          <section className="border-t border-ink/10 bg-mist/40" aria-labelledby="ilgili-yazilar">
+            <div className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8">
+              <h2 id="ilgili-yazilar" className="font-heading text-[24px] leading-[1.15] font-semibold tracking-[-0.02em]">
+                İlgili yazılar
+              </h2>
               <div className="mt-7 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {ilgili.map((y, i) => (
-                  <Link
-                    key={y.id}
-                    href={`/${y.slug}`}
-                    data-ilgili-slug={y.slug}
-                    data-ilgili-pos={i + 1}
-                    className="group flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[3px] hover:border-brand/45 hover:shadow-[0_18px_40px_rgba(10,13,24,0.1)]"
-                  >
-                    <div
-                      className={`aspect-[16/10] bg-cover bg-center ${y.kapak ? "" : "placeholder-block"}`}
-                      style={y.kapak ? { backgroundImage: `url(${y.kapak})` } : undefined}
-                    />
-                    <div className="p-5">
-                      <h3 className="font-heading text-[17px] leading-[1.28] font-semibold tracking-[-0.02em] text-ink transition-colors group-hover:text-brand">
-                        {y.baslik}
-                      </h3>
-                    </div>
-                  </Link>
+                  <YaziKarti key={y.id} yazi={y} baslik="h3" konum={i + 1} />
                 ))}
               </div>
             </div>
@@ -351,7 +349,7 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
 /* -------------------------------------------------------- kategori --- */
 
 async function KategoriArsiv({ kategori }: { kategori: Kategori }) {
-  const yazilar = await getYazilarByKategori(kategori.slug);
+  const [yazilar, kategoriler] = await Promise.all([getYazilarByKategori(kategori.slug), kategorilerSayili()]);
 
   const semalar = [
     kirintiSemasi([
@@ -384,37 +382,23 @@ async function KategoriArsiv({ kategori }: { kategori: Kategori }) {
           </div>
         </section>
 
-        <main className="mx-auto max-w-[1240px] px-5 py-20 sm:px-8">
-          <Link href="/blog" className="text-[14px] font-semibold text-brand hover:text-ink">
-            ← Tüm yazılar
-          </Link>
+        <main className="mx-auto max-w-[1240px] px-5 py-14 sm:px-8 sm:py-20">
+          <KategoriCipleri kategoriler={kategoriler} etkin={kategori.slug} />
           {yazilar.length === 0 ? (
-            <div className="mt-8 rounded-2xl border border-dashed border-ink/15 bg-mist p-12 text-center text-[15px] text-[#5C6273]">
-              Bu kategoride henüz yazı yok.
+            <div className="mt-10 rounded-2xl border border-dashed border-ink/15 bg-mist p-12 text-center text-[15px] text-[#5C6273]">
+              Bu kategoride henüz yazı yok.{" "}
+              <Link href="/blog/" className="font-semibold text-brand hover:text-ink">
+                Tüm yazılara göz atın
+              </Link>
+              .
             </div>
           ) : (
-            <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {yazilar.map((y) => (
-                <Link
-                  key={y.id}
-                  href={`/${y.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[4px] hover:border-brand/45 hover:shadow-[0_22px_46px_rgba(10,13,24,0.12)]"
-                >
-                  <div
-                    className={`aspect-[16/10] bg-cover bg-center ${y.kapak ? "" : "placeholder-block"}`}
-                    style={y.kapak ? { backgroundImage: `url(${y.kapak})` } : undefined}
-                  />
-                  <div className="flex flex-1 flex-col p-6">
-                    {y.yayinTarihi && (
-                      <div className="font-mono text-[11px] tracking-[0.06em] text-[#6B7080]">{tarih(y.yayinTarihi)}</div>
-                    )}
-                    <h2 className="mt-[10px] font-heading text-[21px] leading-[1.25] font-semibold tracking-[-0.025em] text-ink transition-colors group-hover:text-brand">
-                      {y.baslik}
-                    </h2>
-                    {y.ozet && <p className="mt-[10px] line-clamp-3 text-[15px] leading-[1.6] text-[#5C6273]">{y.ozet}</p>}
-                  </div>
-                </Link>
-              ))}
+            <div className="mt-10">
+              <DahaFazla>
+                {yazilar.map((y) => (
+                  <YaziKarti key={y.id} yazi={y} />
+                ))}
+              </DahaFazla>
             </div>
           )}
         </main>
