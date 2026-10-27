@@ -31,6 +31,11 @@ export type TaslakAlanlar = {
   yazar: string;
   kategoriId: string;
   etiketMetni: string;
+  /** Faz 3 alanları; eski taslaklarda yok. */
+  odakKelime?: string;
+  kapakTon?: string | null;
+  kapakSimge?: string | null;
+  kapakAlt?: string;
   icerikHtml: string;
   icerikJson: unknown;
 };

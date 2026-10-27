@@ -1,13 +1,15 @@
 import { YaziEditoru } from "@/components/admin/YaziEditoru";
 import { getSiteIcerik } from "@/lib/site-icerik";
-import { getKategoriler, icLinkHedefleri } from "@/lib/yazilar";
+import { createClient } from "@/lib/supabase/server";
+import { getKategoriler, icLinkHedefleri, yaziSeoOzetleri } from "@/lib/yazilar";
 
 export default async function YeniYaziPage() {
   // Varsayılan yazar: sitedeki eğitmen adı (byline). Panelden değiştirilebilir.
-  const [icerik, kategoriler, icHedefler] = await Promise.all([
+  const [icerik, kategoriler, icHedefler, digerYazilar] = await Promise.all([
     getSiteIcerik(),
     getKategoriler(),
     icLinkHedefleri(),
+    createClient().then(yaziSeoOzetleri),
   ]);
 
   return (
@@ -16,7 +18,12 @@ export default async function YeniYaziPage() {
         Yeni yazı
       </h1>
       <div className="mt-6">
-        <YaziEditoru varsayilanYazar={icerik.egitmenAd} kategoriler={kategoriler} icHedefler={icHedefler} />
+        <YaziEditoru
+          varsayilanYazar={icerik.egitmenAd}
+          kategoriler={kategoriler}
+          icHedefler={icHedefler}
+          digerYazilar={digerYazilar}
+        />
       </div>
     </main>
   );

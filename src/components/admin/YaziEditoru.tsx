@@ -8,6 +8,9 @@ import { slugYap } from "@/lib/duyuru";
 import { ZenginEditor } from "@/components/admin/ZenginEditor";
 import { YonlendirmeKarariPenceresi } from "@/components/admin/YonlendirmeKarari";
 import { SurumGecmisi } from "@/components/admin/SurumGecmisi";
+import { SeoKarti, YayinKontrolListesi, YayinKontrolPenceresi } from "@/components/admin/BlogSeoPaneli";
+import { gorunenBaslik, seoAnalizEt, turkceKatla } from "@/lib/blog-seo-analiz";
+import { eksikKontroller, yayinKontrolleri } from "@/lib/blog-yayin-kontrol";
 import {
   saveYazi,
   silYazi,
@@ -25,7 +28,7 @@ import {
   type BlogTaslak,
   type TaslakAlanlar,
 } from "@/lib/blog-taslak";
-import type { Yazi, Kategori, IcLinkHedef, YaziDurum } from "@/lib/yazilar";
+import type { Yazi, Kategori, IcLinkHedef, YaziDurum, YaziSeoOzeti } from "@/lib/yazilar";
 
 const ETIKET = "font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase";
 const GIRDI =
@@ -70,11 +73,14 @@ export function YaziEditoru({
   varsayilanYazar,
   kategoriler = [],
   icHedefler = [],
+  digerYazilar = [],
 }: {
   mevcut?: Yazi | null;
   varsayilanYazar?: string;
   kategoriler?: Kategori[];
   icHedefler?: IcLinkHedef[];
+  /** Odak kelime çakışması ve etiket önerisi için (bu yazı da içinde olabilir). */
+  digerYazilar?: YaziSeoOzeti[];
 }) {
   const bildir = useBildirim();
 
@@ -94,6 +100,12 @@ export function YaziEditoru({
   const [kategoriId, setKategoriId] = useState<string>(mevcut?.kategoriId ?? "");
   const [kategoriListe, setKategoriListe] = useState<Kategori[]>(kategoriler);
   const [etiketMetni, setEtiketMetni] = useState((mevcut?.etiketler ?? []).join(", "));
+  const [odakKelime, setOdakKelime] = useState(mevcut?.odakKelime ?? "");
+  const [kapakTon, setKapakTon] = useState<string | null>(mevcut?.kapakTon ?? null);
+  const [kapakSimge, setKapakSimge] = useState<string | null>(mevcut?.kapakSimge ?? null);
+  const [kapakAlt, setKapakAlt] = useState(mevcut?.kapakAlt ?? "");
+  // Yayına alırken eksikler penceresi (lib/blog-yayin-kontrol).
+  const [kontrolAcik, setKontrolAcik] = useState(false);
   const [kaydediliyor, setKaydediliyor] = useState(false);
   const [kapakYukleniyor, setKapakYukleniyor] = useState(false);
   // Var olan yazıyı düzenlerken: bu kayıt içeriğin güncellenme tarihini
@@ -115,6 +127,54 @@ export function YaziEditoru({
     html: mevcut?.icerikHtml ?? "",
     json: mevcut?.icerikJson ?? null,
   });
+  // SEO analizi için içeriğin gecikmeli kopyası: her tuşta değil, yazmaya ara
+  // verilince (600 ms) yeniden hesaplanıyor.
+  const [analizIcerik, setAnalizIcerik] = useState(mevcut?.icerikHtml ?? "");
+  const analizZamanlayici = useRef<number | null>(null);
+  const analiziPlanla = useCallback((html: string) => {
+    if (analizZamanlayici.current) window.clearTimeout(analizZamanlayici.current);
+    analizZamanlayici.current = window.setTimeout(() => setAnalizIcerik(html), 600);
+  }, []);
+
+  /* --------------------------------------------------- SEO ve kontroller --- */
+  const ayniKelime = useMemo(() => {
+    const k = turkceKatla(odakKelime.trim());
+    if (!k) return [];
+    return digerYazilar.filter((y) => y.id !== mevcut?.id && turkceKatla(y.odakKelime.trim()) === k);
+  }, [odakKelime, digerYazilar, mevcut?.id]);
+
+  const analiz = useMemo(
+    () =>
+      seoAnalizEt({
+        odakKelime,
+        baslik,
+        seoBaslik,
+        seoAciklama,
+        ozet,
+        slug,
+        icerik: analizIcerik,
+        kapakVar: Boolean(kapakYol),
+        kapakAlt: kapakAlt || baslik,
+        ayniKelime,
+      }),
+    [odakKelime, baslik, seoBaslik, seoAciklama, ozet, slug, analizIcerik, kapakYol, kapakAlt, ayniKelime],
+  );
+
+  const kontroller = useMemo(
+    () =>
+      yayinKontrolleri({
+        baslik,
+        ozet,
+        seoAciklama,
+        icerik: analizIcerik,
+        kategoriVar: Boolean(kategoriId),
+        kapakVar: Boolean(kapakYol),
+        kapakAlt,
+        odakKelime,
+        ayniKelime: ayniKelime.map((y) => y.baslik),
+      }),
+    [baslik, ozet, seoAciklama, analizIcerik, kategoriId, kapakYol, kapakAlt, odakKelime, ayniKelime],
+  );
 
   /* -------------------------------------------------- otomatik kaydetme --- */
   // Yerel taslak: her düzenlemede (debounce) localStorage'a yazılır; çökme/PC
@@ -145,6 +205,10 @@ export function YaziEditoru({
       yazar,
       kategoriId,
       etiketMetni,
+      odakKelime,
+      kapakTon,
+      kapakSimge,
+      kapakAlt,
       icerikHtml: icerik.current.html,
       icerikJson: icerik.current.json,
     };
@@ -198,7 +262,7 @@ export function YaziEditoru({
   // Form alanları değişince taslağı planla (autosave açıksa).
   useEffect(() => {
     planla();
-  }, [baslik, slug, slugElle, ozet, kapakYol, durum, yayinYerel, zamanYerel, seoBaslik, seoAciklama, yazar, kategoriId, etiketMetni, planla]);
+  }, [baslik, slug, slugElle, ozet, kapakYol, durum, yayinYerel, zamanYerel, seoBaslik, seoAciklama, yazar, kategoriId, etiketMetni, odakKelime, kapakTon, kapakSimge, kapakAlt, planla]);
 
   const taslaktanDevam = () => {
     const t = taslakUyari;
@@ -216,7 +280,12 @@ export function YaziEditoru({
     setYazar(t.yazar);
     setKategoriId(t.kategoriId);
     setEtiketMetni(t.etiketMetni);
+    setOdakKelime(t.odakKelime ?? "");
+    setKapakTon(t.kapakTon ?? null);
+    setKapakSimge(t.kapakSimge ?? null);
+    setKapakAlt(t.kapakAlt ?? "");
     icerik.current = { html: t.icerikHtml, json: t.icerikJson };
+    setAnalizIcerik(t.icerikHtml);
     setGeriYukleIcerik({ html: t.icerikHtml, json: t.icerikJson });
     setSonKayit(t.kayitZamani);
     setTaslakUyari(null);
@@ -255,16 +324,24 @@ export function YaziEditoru({
     setSeoBaslik(s.seoBaslik);
     setSeoAciklama(s.seoAciklama);
     icerik.current = { html: s.icerikHtml, json: s.icerikJson };
+    setAnalizIcerik(s.icerikHtml);
     setGeriYukleIcerik({ html: s.icerikHtml, json: s.icerikJson });
     bildir.basarili("Sürüm editöre yüklendi. Kalıcı olması için Kaydet'e bas.");
   };
 
-  const kaydet = () => {
+  const kaydet = (kontrolOnayli = false) => {
     if (!baslik.trim() || !slug.trim()) return bildir.hata("Başlık ve URL zorunludur.");
     if (durum === "zamanli" && !zamanYerel) return bildir.hata("Zamanlı yayın için tarih ve saat seç.");
     // Yayındaki yazı yayından kalkıyor: önce eski adresinin kaderi soruluyor.
     if (mevcut?.durum === "yayin" && durum !== "yayin") {
       setKarar("kaydet");
+      return;
+    }
+    // Yayına alınıyor (ya da zamanlanıyor): eksikler bir kez gösteriliyor.
+    // Zaten yayındaki yazının her düzeltmesinde sorulmuyor. Engellemiyor.
+    const yayinaAliniyor = (durum === "yayin" || durum === "zamanli") && mevcut?.durum !== durum;
+    if (!kontrolOnayli && yayinaAliniyor && eksikKontroller(kontroller).length) {
+      setKontrolAcik(true);
       return;
     }
     void gercektenKaydet(null);
@@ -297,6 +374,10 @@ export function YaziEditoru({
         .filter(Boolean),
       icerikGuncellendi,
       yonlendirme,
+      odakKelime: odakKelime.trim(),
+      kapakTon,
+      kapakSimge,
+      kapakAlt: kapakAlt.trim(),
     });
     // Başarılıysa action redirect ediyor; buraya yalnızca hata dönerse geliyoruz.
     setKaydediliyor(false);
@@ -401,6 +482,7 @@ export function YaziEditoru({
             onDegisim={(d) => {
               icerik.current = d;
               planla();
+              analiziPlanla(d.html);
             }}
           />
         </div>
@@ -567,29 +649,28 @@ export function YaziEditoru({
           )}
         </div>
 
-        <div className="rounded-[14px] border border-ink/11 bg-white p-5">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <span className={ETIKET}>SEO başlığı (boşsa yazı başlığı)</span>
-              <input value={seoBaslik} onChange={(e) => setSeoBaslik(e.target.value)} className={GIRDI} />
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className={ETIKET}>SEO açıklaması (boşsa özet)</span>
-              <textarea
-                value={seoAciklama}
-                onChange={(e) => setSeoAciklama(e.target.value)}
-                rows={3}
-                className={`${GIRDI} h-auto py-3 leading-[1.5]`}
-              />
-            </div>
-          </div>
-        </div>
+        <SeoKarti
+          odakKelime={odakKelime}
+          onOdakKelime={setOdakKelime}
+          seoBaslik={seoBaslik}
+          onSeoBaslik={setSeoBaslik}
+          seoAciklama={seoAciklama}
+          onSeoAciklama={setSeoAciklama}
+          baslik={baslik}
+          ozet={ozet}
+          slug={slug}
+          tarih={yayinYerel ? new Date(yayinYerel).toISOString() : (mevcut?.yayinTarihi ?? null)}
+          gorunenBaslik={gorunenBaslik(seoBaslik, baslik)}
+          analiz={analiz}
+        />
+
+        <YayinKontrolListesi kontroller={kontroller} />
 
         <div className="flex flex-col gap-3">
           <button
             type="button"
             disabled={kaydediliyor}
-            onClick={kaydet}
+            onClick={() => kaydet()}
             className="h-[50px] w-full rounded-[11px] bg-brand text-[15px] font-semibold text-white hover:bg-ink disabled:opacity-50"
           >
             {kaydediliyor ? "Kaydediliyor…" : "Kaydet"}
@@ -606,6 +687,18 @@ export function YaziEditoru({
           )}
         </div>
       </aside>
+
+      {kontrolAcik && (
+        <YayinKontrolPenceresi
+          kontroller={kontroller}
+          zamanli={durum === "zamanli"}
+          onIptal={() => setKontrolAcik(false)}
+          onDevam={() => {
+            setKontrolAcik(false);
+            kaydet(true);
+          }}
+        />
+      )}
 
       {karar && mevcut && (
         <YonlendirmeKarariPenceresi

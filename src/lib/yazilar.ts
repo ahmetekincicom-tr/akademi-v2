@@ -307,6 +307,27 @@ export async function blogPanelYazilari(client: Db): Promise<PanelYazi[]> {
   }));
 }
 
+/**
+ * Editörün SEO kartı ve etiket önerisi için diğer yazıların kısa hâli:
+ * aynı odak kelimeyi kullanan yazı uyarısı ve var olan etiketler. Yazı sayısı
+ * küçük (onlarca); hepsi tek seferde geliyor, karşılaştırma tarayıcıda.
+ */
+export type YaziSeoOzeti = { id: string; slug: string; baslik: string; odakKelime: string; etiketler: string[] };
+export async function yaziSeoOzetleri(client: Db): Promise<YaziSeoOzeti[]> {
+  const { data, error } = await client.from("posts").select("id, slug, baslik, odak_kelime, etiketler");
+  if (error) {
+    console.error("[yazilar] yaziSeoOzetleri:", error.message);
+    return [];
+  }
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    baslik: r.baslik,
+    odakKelime: r.odak_kelime ?? "",
+    etiketler: r.etiketler ?? [],
+  }));
+}
+
 /** Yönetim: tek yazının tamamı (taslak da olabilir). */
 export async function yaziGetirAdmin(slug: string, client: Db): Promise<Yazi | null> {
   const { data, error } = await client.from("posts").select(TAM_SELECT).eq("slug", slug).maybeSingle();
