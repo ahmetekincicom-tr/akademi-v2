@@ -92,3 +92,12 @@ describe("guvenliAdres", () => {
     expect(guvenliAdres("", "href")).toBe(false);
   });
 });
+
+describe("blogHtmlTemizle + bağlantı çözücü", () => {
+  it("iç bağlantıyı son adrese yazar, kaldırılmışı metne çevirir", () => {
+    const coz = (h: string) => (h === "/eski/" ? "/yeni/" : h === "/silinen/" ? null : h);
+    expect(blogHtmlTemizle('<p><a href="/eski/">a</a> <a href="/silinen/"><strong>b</strong></a></p>', { baglanti: coz })).toBe(
+      '<p><a href="/yeni/">a</a> <strong>b</strong></p>',
+    );
+  });
+});

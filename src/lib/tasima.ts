@@ -97,7 +97,7 @@ export const YONLENDIRMELER: Yonlendirme[] = [
   /*
     UGC / Influencer, Photoshop, After Effects ve Freelance Mentorluk gibi
     kaldırılan eğitimler burada YOK: karşılığı olan bir sayfa bulunmadığı için
-    301 yerine 410 Gone dönüyorlar (src/proxy.ts → GONE_YOLLARI). Karşılıksız
+    301 yerine 410 Gone dönüyorlar (src/lib/kaldirilan-yollar.ts → GONE_YOLLARI). Karşılıksız
     bir sayfayı /egitimler'e yönlendirmek Google'ın "soft 404" saydığı, değeri
     silen davranış olurdu.
   */

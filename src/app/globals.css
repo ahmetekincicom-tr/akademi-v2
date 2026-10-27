@@ -1783,3 +1783,75 @@ body[data-menu-acik="1"] {
     animation: none;
   }
 }
+
+/* --------------------------------------------------------------------------
+  Blog kapağı (components/blog/BlogKapak). Görsel yoksa çizilen kapak:
+  tonun geçişi + noktalı desen + halkalar + camdan kutuda simge. Kaynak:
+  ahmetekinci.com.tr BlogCover.astro; ölçüler yüzdeye çevrildi ki kart,
+  öne çıkan ve yazı kapağı aynı çizimi kendi boyunda kursun.
+-------------------------------------------------------------------------- */
+.aea-kapak {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: var(--color-cloud);
+  container-type: inline-size;
+}
+.aea-kapak--one,
+.aea-kapak--hero {
+  aspect-ratio: 16 / 9;
+}
+.aea-kapak img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.aea-kapak--cizim {
+  background:
+    radial-gradient(70% 70% at 30% 18%, rgba(255, 255, 255, 0.22), transparent 70%),
+    linear-gradient(135deg, var(--ton), color-mix(in srgb, var(--ton) 82%, var(--color-ink)) 55%, var(--color-ink));
+}
+.aea-kapak--cizim::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1.3px);
+  background-size: 14px 14px;
+}
+.aea-kapak__halka {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+}
+.aea-kapak__halka--1 { width: 34cqw; }
+.aea-kapak__halka--2 { width: 56cqw; }
+.aea-kapak__halka--3 { width: 78cqw; }
+.aea-kapak__simge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(56px, 18cqw, 96px);
+  aspect-ratio: 1;
+  border-radius: 24%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+.aea-kapak__svg {
+  width: 48%;
+  height: 48%;
+}
+.group:hover .aea-kapak img {
+  transform: scale(1.03);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aea-kapak img { transition: none; }
+  .group:hover .aea-kapak img { transform: none; }
+}

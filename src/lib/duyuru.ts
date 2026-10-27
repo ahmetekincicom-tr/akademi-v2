@@ -38,6 +38,8 @@ export const KATEGORILER = ["Instagram", "Meta Ads", "Facebook", "WhatsApp", "Ti
 const HARF: Record<string, string> = {
   ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u",
   Ç: "c", Ğ: "g", İ: "i", I: "i", Ö: "o", Ş: "s", Ü: "u",
+  // Düzeltme işaretli harfler (Zekâ, Hâlâ): yoksa harf düşüyor, "zek" çıkıyordu.
+  â: "a", î: "i", û: "u", Â: "a", Î: "i", Û: "u",
 };
 
 /**

@@ -4,6 +4,7 @@ import type { Database } from "@/lib/supabase/tipler";
 import { createPublicClient } from "@/lib/supabase/public";
 import { kapakUrl } from "@/lib/kapak";
 import { getCourses } from "@/lib/courses";
+import { etiketleriTopla, etiketliMi, type EtiketOzeti } from "@/lib/blog-etiket";
 
 /**
  * Blog yazıları veri katmanı.
@@ -157,9 +158,9 @@ export async function getYaziBySlug(slug: string, client?: Db): Promise<Yazi | n
 }
 
 /**
- * İlgili yazılar: aynı kategoriden, bu yazı hariç, en yeni birkaç tanesi.
- * Kategori yoksa ya da yeterli yoksa boş dönebilir (detay sayfası bölümü
- * yalnızca dolu olduğunda basıyor).
+ * İlgili yazılar: önce aynı kategoriden, eksik kalırsa en yeni diğer
+ * yazılardan tamamlanıyor (kaynak sistemle aynı kural). Kategorisi tek
+ * yazılık bir yazının sonu boş kalmasın; okuyan bir sonraki yazıyı bulsun.
  */
 export async function ilgiliYazilar(
   yaziId: string,
@@ -167,21 +168,20 @@ export async function ilgiliYazilar(
   adet = 3,
   client?: Db,
 ): Promise<YaziOzet[]> {
-  if (!kategoriId) return [];
-  const supabase = client ?? createPublicClient();
-  const { data, error } = await supabase
-    .from("posts")
-    .select(OZET_SELECT)
-    .eq("durum", "yayin")
-    .eq("kategori_id", kategoriId)
-    .neq("id", yaziId)
-    .order("yayin_tarihi", { ascending: false, nullsFirst: false })
-    .limit(adet);
-  if (error) {
-    console.error("[yazilar] ilgiliYazilar:", error.message);
-    return [];
-  }
-  return (data as unknown as OzetSatir[]).map(ozetle);
+  const digerleri = (await getYayindakiYazilar(client)).filter((y) => y.id !== yaziId);
+  const ayni = kategoriId ? digerleri.filter((y) => y.kategori?.id === kategoriId) : [];
+  const kalan = digerleri.filter((y) => !ayni.includes(y));
+  return [...ayni, ...kalan].slice(0, adet);
+}
+
+/** Bir etiketin yazıları (etiket adresi metinden türetiliyor: lib/blog-etiket). */
+export async function getYazilarByEtiket(etiketSlugu: string, client?: Db): Promise<YaziOzet[]> {
+  return (await getYayindakiYazilar(client)).filter((y) => etiketliMi(y, etiketSlugu));
+}
+
+/** Yayındaki yazılarda geçen etiketler, çok yazılı olan önde. */
+export async function getEtiketler(client?: Db): Promise<EtiketOzeti[]> {
+  return etiketleriTopla(await getYayindakiYazilar(client));
 }
 
 /** Bir kategorideki yayındaki yazılar. */
@@ -212,6 +212,12 @@ export const getKategoriler = cache(async (client?: Db): Promise<Kategori[]> => 
   }
   return data as Kategori[];
 });
+
+/** Kategoriler ve her birindeki yayındaki yazı sayısı (kategori çipleri). */
+export async function kategorilerSayili(client?: Db): Promise<(Kategori & { adet: number })[]> {
+  const [kategoriler, yazilar] = await Promise.all([getKategoriler(client), getYayindakiYazilar(client)]);
+  return kategoriler.map((k) => ({ ...k, adet: yazilar.filter((y) => y.kategori?.id === k.id).length }));
+}
 
 /** Tek kategori (arşiv sayfası başlığı için). */
 export async function getKategoriBySlug(slug: string, client?: Db): Promise<Kategori | null> {

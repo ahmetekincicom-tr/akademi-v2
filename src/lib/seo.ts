@@ -303,7 +303,7 @@ export function egitimSemasi(kurs: {
 }
 
 /**
- * Blog yazısı için Article şeması.
+ * Blog yazısı için BlogPosting şeması.
  *
  * Arama sonucunda tarih/yazar/görsel zengin sonucunun ve yapay zekâ arama
  * motorlarında kaynak gösterilmenin yolu bu. `gorsel` MUTLAK adres olmalı.
@@ -322,20 +322,35 @@ export function makaleSemasi(m: {
   yazar: string;
   /** Yazar profili URL'si (varsa); yoksa yalnızca ad yazılır. */
   yazarUrl?: string | null;
+  /** Kategori adı (articleSection). */
+  bolum?: string | null;
+  /** Etiketler (keywords). */
+  anahtarKelimeler?: string[];
+  kelimeSayisi?: number;
+  okumaDakika?: number;
 }) {
-  // Yazılar kökte sunuluyor (WordPress yapısı birebir korundu): /{slug}.
-  const adres = `${SITE_URL}/${m.slug}`;
+  /*
+    BlogPosting: Article'ın blog yazısı için olan alt türü; kaynak sistemde de
+    böyle. Adres sondaki çizgiyle: sitenin gerçek adresi (trailingSlash) ve
+    kanonik adresle aynı; çizgisiz yazılırsa yapısal verideki adres bir
+    yönlendirmeye düşüyordu. Yazılar kökte sunuluyor: /{slug}/.
+  */
+  const adres = `${SITE_URL}/${m.slug}/`;
   return {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "BlogPosting",
     headline: m.baslik,
     description: m.aciklama,
     url: adres,
-    mainEntityOfPage: adres,
+    mainEntityOfPage: { "@type": "WebPage", "@id": adres },
     ...(m.gorsel ? { image: m.gorsel } : {}),
     inLanguage: "tr-TR",
     ...(m.yayinTarihi ? { datePublished: m.yayinTarihi } : {}),
     dateModified: m.dateModified,
+    ...(m.bolum ? { articleSection: m.bolum } : {}),
+    ...(m.anahtarKelimeler?.length ? { keywords: m.anahtarKelimeler.join(", ") } : {}),
+    ...(m.kelimeSayisi ? { wordCount: m.kelimeSayisi } : {}),
+    ...(m.okumaDakika ? { timeRequired: `PT${m.okumaDakika}M` } : {}),
     // Yazar adı yazılmışsa kişi (varsa profil URL'siyle); yoksa akademinin
     // kurucusu varlığına bağlanıyor.
     author: m.yazar
@@ -354,7 +369,8 @@ export function kirintiSemasi(adimlar: { ad: string; yol: string }[]) {
       "@type": "ListItem",
       position: i + 1,
       name: a.ad,
-      item: `${SITE_URL}${a.yol}`,
+      // Sondaki çizgiyle: sitenin gerçek adresleri böyle (trailingSlash).
+      item: `${SITE_URL}${a.yol.endsWith("/") ? a.yol : `${a.yol}/`}`,
     })),
   };
 }
