@@ -22,8 +22,10 @@ export type TaslakAlanlar = {
   slugElle: boolean;
   ozet: string;
   kapakYol: string | null;
-  durum: "taslak" | "yayin";
+  durum: "taslak" | "yayin" | "zamanli";
   yayinYerel: string;
+  /** Zamanlı yayın saati (Türkiye saati, "YYYY-MM-DDTHH:mm"). Eski taslaklarda yok. */
+  zamanYerel?: string;
   seoBaslik: string;
   seoAciklama: string;
   yazar: string;

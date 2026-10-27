@@ -16,6 +16,9 @@ export function durumStil(d: string): { bg: string; renk: string } {
   if (d === "İade edildi" || d === "Hata" || d === "Bağlı değil") {
     return { bg: "rgba(217,60,60,0.12)", renk: "#C13333" };
   }
+  if (d === "Zamanlı") {
+    return { bg: "rgba(11,110,122,0.12)", renk: "#0B6E7A" };
+  }
   if (d === "Tamamlandı") {
     return { bg: "rgba(24,140,90,0.13)", renk: "#157A4E" };
   }

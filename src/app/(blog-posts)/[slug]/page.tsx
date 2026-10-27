@@ -17,6 +17,7 @@ import {
   type Kategori,
 } from "@/lib/yazilar";
 import { iceriktenIcindekiler, type IcindekiSatir } from "@/lib/blog-icerik";
+import { blogHtmlTemizle } from "@/lib/blog-temizle";
 import { grupla } from "@/lib/blog-toc";
 import { egitimCtaHtml } from "@/lib/blog-cta";
 import { getSiteIcerik } from "@/lib/site-icerik";
@@ -156,7 +157,9 @@ export default async function KokSlugPage({ params }: { params: Promise<{ slug: 
 
 async function YaziDetay({ yazi }: { yazi: Yazi }) {
   const [{ html: icerikHam, icindekiler }, ilgili, site] = await Promise.all([
-    Promise.resolve(iceriktenIcindekiler(yazi.icerikHtml)),
+    // Önce temizlik (izin listesi), sonra başlıklara kimlik: TOC'nin saydığı
+    // başlıklar sayfada gerçekten basılanlar olsun.
+    Promise.resolve(iceriktenIcindekiler(blogHtmlTemizle(yazi.icerikHtml))),
     ilgiliYazilar(yazi.id, yazi.kategoriId),
     getSiteIcerik(),
   ]);
@@ -268,9 +271,10 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
                 (bileşen kendini lg:hidden ile masaüstünde gizliyor). */}
             <IcindekilerAccordion h2ler={h2ler} />
 
-            {/* İçerik editörde/WordPress'ten gelen HTML; yazarlar yönetici
-                olduğu için güvenilir kaynak. Başlıklara TOC için id eklendi.
-                Mobil ara CTA gövdeye enjekte edildi (masaüstünde CSS ile gizli). */}
+            {/* İçerik editörde/WordPress'ten gelen HTML, izin listesiyle
+                temizlenmiş hâli (lib/blog-temizle.ts). Başlıklara TOC için id
+                eklendi. Mobil ara CTA gövdeye enjekte edildi (masaüstünde CSS
+                ile gizli). */}
             <div className="blog-icerik mt-10" data-blog-icerik dangerouslySetInnerHTML={{ __html: icerikHtml }} />
             {/* Prompt kopyala + görsel lightbox: statik HTML üzerine bağlanan
                 küçük client adaları (içerik bunlarsız da doğru render olur). */}

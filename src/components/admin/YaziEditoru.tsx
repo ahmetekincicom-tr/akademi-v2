@@ -6,7 +6,15 @@ import { createClient } from "@/lib/supabase/client";
 import { depoUrl } from "@/lib/depo";
 import { slugYap } from "@/lib/duyuru";
 import { ZenginEditor } from "@/components/admin/ZenginEditor";
-import { saveYazi, silYazi, kategoriEkle } from "@/app/kontrol-9f4x2k/(protected)/blog/actions";
+import { YonlendirmeKarariPenceresi } from "@/components/admin/YonlendirmeKarari";
+import { SurumGecmisi } from "@/components/admin/SurumGecmisi";
+import {
+  saveYazi,
+  silYazi,
+  kategoriEkle,
+  type YonlendirmeKarari,
+  type YaziSurumu,
+} from "@/app/kontrol-9f4x2k/(protected)/blog/actions";
 import {
   taslakAnahtar,
   taslakOku,
@@ -17,7 +25,7 @@ import {
   type BlogTaslak,
   type TaslakAlanlar,
 } from "@/lib/blog-taslak";
-import type { Yazi, Kategori, IcLinkHedef } from "@/lib/yazilar";
+import type { Yazi, Kategori, IcLinkHedef, YaziDurum } from "@/lib/yazilar";
 
 const ETIKET = "font-mono text-[10px] tracking-[0.13em] text-[#656B7A] uppercase";
 const GIRDI =
@@ -33,6 +41,28 @@ function isoDanYerel(iso: string | null): string {
   } catch {
     return "";
   }
+}
+
+/*
+  Zamanlı yayın saati TÜRKİYE SAATİYLE giriliyor ve öyle gösteriliyor,
+  tarayıcının saat diliminden bağımsız: yurt dışında açılan bir panelde
+  "09:00" yazmak başka bir saate zamanlamasın. Türkiye 2016'dan beri sabit
+  UTC+3 (yaz saati yok).
+*/
+const TR_OFSET = "+03:00";
+
+/** ISO → Türkiye saatiyle "YYYY-MM-DDTHH:mm". */
+function isoDanTrYerel(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(new Date(iso).getTime() + 3 * 3_600_000);
+  return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 16);
+}
+
+/** Türkiye saatiyle "YYYY-MM-DDTHH:mm" → ISO. */
+function trYereldenIso(yerel: string): string | null {
+  if (!yerel) return null;
+  const d = new Date(`${yerel}:00${TR_OFSET}`);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
 export function YaziEditoru({
@@ -53,8 +83,11 @@ export function YaziEditoru({
   const [slugElle, setSlugElle] = useState(Boolean(mevcut));
   const [ozet, setOzet] = useState(mevcut?.ozet ?? "");
   const [kapakYol, setKapakYol] = useState<string | null>(mevcut?.kapakYol ?? null);
-  const [durum, setDurum] = useState<"taslak" | "yayin">(mevcut?.durum ?? "taslak");
+  const [durum, setDurum] = useState<YaziDurum>(mevcut?.durum ?? "taslak");
   const [yayinYerel, setYayinYerel] = useState(isoDanYerel(mevcut?.yayinTarihi ?? null));
+  const [zamanYerel, setZamanYerel] = useState(isoDanTrYerel(mevcut?.zamanlananTarih ?? null));
+  // Yayındaki yazı yayından kalkarken ya da silinirken açılan karar penceresi.
+  const [karar, setKarar] = useState<null | "kaydet" | "sil">(null);
   const [seoBaslik, setSeoBaslik] = useState(mevcut?.seoBaslik ?? "");
   const [seoAciklama, setSeoAciklama] = useState(mevcut?.seoAciklama ?? "");
   const [yazar, setYazar] = useState(mevcut?.yazar || varsayilanYazar || "");
@@ -106,6 +139,7 @@ export function YaziEditoru({
       kapakYol,
       durum,
       yayinYerel,
+      zamanYerel,
       seoBaslik,
       seoAciklama,
       yazar,
@@ -164,7 +198,7 @@ export function YaziEditoru({
   // Form alanları değişince taslağı planla (autosave açıksa).
   useEffect(() => {
     planla();
-  }, [baslik, slug, slugElle, ozet, kapakYol, durum, yayinYerel, seoBaslik, seoAciklama, yazar, kategoriId, etiketMetni, planla]);
+  }, [baslik, slug, slugElle, ozet, kapakYol, durum, yayinYerel, zamanYerel, seoBaslik, seoAciklama, yazar, kategoriId, etiketMetni, planla]);
 
   const taslaktanDevam = () => {
     const t = taslakUyari;
@@ -176,6 +210,7 @@ export function YaziEditoru({
     setKapakYol(t.kapakYol);
     setDurum(t.durum);
     setYayinYerel(t.yayinYerel);
+    setZamanYerel(t.zamanYerel ?? "");
     setSeoBaslik(t.seoBaslik);
     setSeoAciklama(t.seoAciklama);
     setYazar(t.yazar);
@@ -213,8 +248,30 @@ export function YaziEditoru({
     setKapakYol(yol);
   };
 
-  const kaydet = async () => {
+  /** Sürüm geçmişinden seçilen hâli forma yükler (kaydetmeden kalıcı olmaz). */
+  const surumuYukle = (s: YaziSurumu) => {
+    setBaslik(s.baslik);
+    setOzet(s.ozet);
+    setSeoBaslik(s.seoBaslik);
+    setSeoAciklama(s.seoAciklama);
+    icerik.current = { html: s.icerikHtml, json: s.icerikJson };
+    setGeriYukleIcerik({ html: s.icerikHtml, json: s.icerikJson });
+    bildir.basarili("Sürüm editöre yüklendi. Kalıcı olması için Kaydet'e bas.");
+  };
+
+  const kaydet = () => {
     if (!baslik.trim() || !slug.trim()) return bildir.hata("Başlık ve URL zorunludur.");
+    if (durum === "zamanli" && !zamanYerel) return bildir.hata("Zamanlı yayın için tarih ve saat seç.");
+    // Yayındaki yazı yayından kalkıyor: önce eski adresinin kaderi soruluyor.
+    if (mevcut?.durum === "yayin" && durum !== "yayin") {
+      setKarar("kaydet");
+      return;
+    }
+    void gercektenKaydet(null);
+  };
+
+  const gercektenKaydet = async (yonlendirme: YonlendirmeKarari | null) => {
+    setKarar(null);
     setKaydediliyor(true);
     // Başarılı kayıt sunucuya yazıyor; yerel taslağa artık gerek yok. İyimser
     // temizlik: başarılıysa action redirect eder, hata dönerse aşağıda geri yazılır.
@@ -229,6 +286,7 @@ export function YaziEditoru({
       kapakYol,
       durum,
       yayinTarihi: yayinYerel ? new Date(yayinYerel).toISOString() : null,
+      zamanlananTarih: durum === "zamanli" ? trYereldenIso(zamanYerel) : null,
       seoBaslik: seoBaslik.trim(),
       seoAciklama: seoAciklama.trim(),
       yazar: yazar.trim(),
@@ -238,6 +296,7 @@ export function YaziEditoru({
         .map((s) => s.trim())
         .filter(Boolean),
       icerikGuncellendi,
+      yonlendirme,
     });
     // Başarılıysa action redirect ediyor; buraya yalnızca hata dönerse geliyoruz.
     setKaydediliyor(false);
@@ -247,10 +306,21 @@ export function YaziEditoru({
     }
   };
 
-  const sil = async () => {
+  const sil = () => {
     if (!mevcut) return;
+    // Bir kez bile yayınlandıysa adresi Google'da: nereye gideceği soruluyor.
+    if (mevcut.hicYayinlandi) {
+      setKarar("sil");
+      return;
+    }
     if (!window.confirm("Bu yazı kalıcı olarak silinsin mi?")) return;
-    const r = await silYazi(mevcut.slug);
+    void gercektenSil(null);
+  };
+
+  const gercektenSil = async (yonlendirme: YonlendirmeKarari | null) => {
+    if (!mevcut) return;
+    setKarar(null);
+    const r = await silYazi(mevcut.slug, yonlendirme);
     if (r?.error) bildir.hata(r.error);
   };
 
@@ -342,18 +412,43 @@ export function YaziEditoru({
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <span className={ETIKET}>Durum</span>
-              <select
-                value={durum}
-                onChange={(e) => setDurum(e.target.value as "taslak" | "yayin")}
-                className={GIRDI}
-              >
+              <select value={durum} onChange={(e) => setDurum(e.target.value as YaziDurum)} className={GIRDI}>
                 <option value="taslak">Taslak</option>
                 <option value="yayin">Yayında</option>
+                <option value="zamanli">Zamanlı yayın</option>
               </select>
+              {mevcut?.durum === "zamanli" && mevcut.zamanlananTarih && durum === "zamanli" && (
+                <span className="text-[12.5px] leading-[1.5] text-[#5C6273]">
+                  {new Intl.DateTimeFormat("tr-TR", {
+                    dateStyle: "long",
+                    timeStyle: "short",
+                    timeZone: "Europe/Istanbul",
+                  }).format(new Date(mevcut.zamanlananTarih))}{" "}
+                  tarihinde kendiliğinden yayına girecek.
+                </span>
+              )}
             </div>
 
+            {durum === "zamanli" && (
+              <div className="flex flex-col gap-2">
+                <span className={ETIKET}>Yayına gireceği an (Türkiye saati)</span>
+                <input
+                  type="datetime-local"
+                  value={zamanYerel}
+                  min={isoDanTrYerel(new Date().toISOString())}
+                  onChange={(e) => setZamanYerel(e.target.value)}
+                  className={GIRDI}
+                />
+                <span className="text-[12px] leading-[1.5] text-[#8A90A0]">
+                  O dakika gelince yazı kendiliğinden yayına girer; o ana kadar sitede görünmez.
+                </span>
+              </div>
+            )}
+
             <div className="flex flex-col gap-2">
-              <span className={ETIKET}>Yayın tarihi (boşsa yayınlarken şimdi)</span>
+              <span className={ETIKET}>
+                {durum === "zamanli" ? "Görünen yayın tarihi (boşsa zamanlanan an)" : "Yayın tarihi (boşsa yayınlarken şimdi)"}
+              </span>
               <input
                 type="datetime-local"
                 value={yayinYerel}
@@ -393,7 +488,8 @@ export function YaziEditoru({
             <div className="flex flex-col gap-2">
               <span className={ETIKET}>URL</span>
               <div className="flex items-center overflow-hidden rounded-[10px] border border-ink/14 bg-white focus-within:border-brand">
-                <span className="flex-none py-[11px] pl-[12px] font-mono text-[13px] text-[#8A90A0]">/blog/</span>
+                {/* Yazılar kökte sunuluyor (/meta-capi-nedir/), /blog/ altında değil. */}
+                <span className="flex-none py-[11px] pl-[12px] font-mono text-[13px] text-[#8A90A0]">/</span>
                 <input
                   value={slug}
                   onChange={(e) => {
@@ -498,6 +594,7 @@ export function YaziEditoru({
           >
             {kaydediliyor ? "Kaydediliyor…" : "Kaydet"}
           </button>
+          {mevcut && <SurumGecmisi postId={mevcut.id} onGeriYukle={surumuYukle} />}
           {mevcut && (
             <button
               type="button"
@@ -509,6 +606,18 @@ export function YaziEditoru({
           )}
         </div>
       </aside>
+
+      {karar && mevcut && (
+        <YonlendirmeKarariPenceresi
+          baslik={karar === "sil" ? "Yazı silinecek. Adresi nereye gitsin?" : "Yazı yayından kalkıyor. Adresi nereye gitsin?"}
+          aciklama={`/${mevcut.slug}/ adresi Google'da ve başka sitelerde bağlantı olarak duruyor olabilir. Ziyaretçi bu adrese geldiğinde ne olsun?`}
+          onayMetni={karar === "sil" ? "Yazıyı sil" : "Kaydet"}
+          yazilar={icHedefler}
+          haricSlug={mevcut.slug}
+          onIptal={() => setKarar(null)}
+          onOnay={(k) => void (karar === "sil" ? gercektenSil(k) : gercektenKaydet(k))}
+        />
+      )}
     </div>
   );
 }
