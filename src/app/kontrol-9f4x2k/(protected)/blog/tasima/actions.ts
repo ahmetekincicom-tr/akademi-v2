@@ -114,10 +114,21 @@ export async function wpGorselKopyala(wpYollari: string[]): Promise<{ sonuclar: 
         if (!tur.startsWith("image/")) return { wpYol, ok: false, hata: `Görsel değil (${tur || "tür yok"})` };
         let govde: ArrayBuffer | Buffer = await yanit.arrayBuffer();
         if (govde.byteLength > EN_BUYUK) return { wpYol, ok: false, hata: "15 MB'tan büyük" };
-        // Depo GIF kabul etmiyor: hareketli WebP'ye çevriliyor, animasyon
-        // kalıyor (yol da .webp: lib/wp-gorsel → wpDepoYolu).
+        /*
+          Depo GIF kabul etmiyor: hareketli WebP'ye çevriliyor, animasyon
+          kalıyor (yol da .webp: lib/wp-gorsel → wpDepoYolu).
+
+          Hareketli GIF'te sharp bütün karelerin pikselini topluyor; 2000 px
+          genişliğinde 150 karelik bir ekran kaydı varsayılan sınırı (268 MP)
+          aşıyordu. Sınır o boyutu kaldıracak kadar açık (dosya zaten 15 MB
+          ile sınırlı) ve görsel 1200 px'e küçültülüyor: içerik sütunu 760 px,
+          yoğun ekranda da yetiyor; dosya ve çevirme süresi yarıya iniyor.
+        */
         if (tur.startsWith("image/gif")) {
-          govde = await sharp(Buffer.from(govde), { animated: true }).webp({ quality: 82 }).toBuffer();
+          govde = await sharp(Buffer.from(govde), { animated: true, limitInputPixels: 1_000_000_000 })
+            .resize({ width: 1200, withoutEnlargement: true })
+            .webp({ quality: 80 })
+            .toBuffer();
           tur = "image/webp";
         }
         const { error } = await supabase.storage
