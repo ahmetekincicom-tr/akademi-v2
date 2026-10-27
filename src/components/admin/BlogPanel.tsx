@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { StatusBadge } from "@/lib/admin/shared";
 import { PerformansYenile } from "@/components/admin/PerformansYenile";
-import type { PanelYazi } from "@/lib/yazilar";
+import type { PanelYazi, YaziDurum } from "@/lib/yazilar";
 import type { PanelSonuc, PanelSatir, PanelAralik } from "@/lib/google/ga4-rapor";
 import type { GscPanelSonuc, GscPanelSatir } from "@/lib/google/gsc-rapor";
+
+const DURUM_ETIKETI: Record<YaziDurum, string> = { yayin: "Yayında", taslak: "Taslak", zamanli: "Zamanlı" };
 
 /**
  * Blog performans paneli (admin).
@@ -146,13 +148,25 @@ export function BlogPanel({
           <PerformansYenile />
           <Link
             href="/kontrol-9f4x2k/blog/kategoriler"
-            className="flex h-[38px] items-center rounded-[9px] border border-ink/13 bg-white px-[14px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+            className="flex h-11 items-center rounded-[9px] border border-ink/13 bg-white px-[14px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
           >
             Kategoriler
           </Link>
           <Link
+            href="/kontrol-9f4x2k/blog/yonlendirmeler"
+            className="flex h-11 items-center rounded-[9px] border border-ink/13 bg-white px-[14px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+          >
+            Yönlendirmeler
+          </Link>
+          <Link
+            href="/kontrol-9f4x2k/blog/tasima"
+            className="flex h-11 items-center rounded-[9px] border border-ink/13 bg-white px-[14px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+          >
+            WordPress taşıma
+          </Link>
+          <Link
             href="/kontrol-9f4x2k/blog/yeni"
-            className="flex h-[38px] items-center rounded-[9px] bg-brand px-[16px] text-[13px] font-semibold text-white hover:bg-ink"
+            className="flex h-11 items-center rounded-[9px] bg-brand px-[16px] text-[13px] font-semibold text-white hover:bg-ink"
           >
             + Yeni yazı
           </Link>
@@ -160,7 +174,7 @@ export function BlogPanel({
       </div>
 
       {!yapili && (
-        <div className="mt-5 rounded-[12px] border border-ink/12 bg-mist px-4 py-3 text-[13px] text-[#5C6273]">
+        <div className="mt-5 rounded-[12px] border border-ink/12 bg-mist px-4 py-3 text-[13px] text-[#5C6273] [overflow-wrap:anywhere]">
           GA4 Data API bağlı değil; görüntülenme/dönüşüm metrikleri “—” gösteriliyor. Bağlamak için sunucuda
           <code className="mx-1">GA4_PROPERTY_ID</code>,<code className="mx-1">GA4_SA_CLIENT_EMAIL</code>,
           <code className="ml-1">GA4_SA_PRIVATE_KEY</code> tanımlayın. Olay ölçümü bağlantıdan bağımsız çalışıyor.
@@ -229,10 +243,10 @@ export function BlogPanel({
                     <div className="flex min-w-0 flex-col gap-[3px]">
                       <div className="flex min-w-0 items-center gap-2">
                         <span className="truncate text-[13.5px] font-bold tracking-[-0.01em]">{y.baslik}</span>
-                        <StatusBadge durum={y.durum === "yayin" ? "Yayında" : "Taslak"} />
+                        <StatusBadge durum={DURUM_ETIKETI[y.durum]} />
                       </div>
                       <span className="truncate font-mono text-[11px] text-[#9aa0ae]">
-                        /{y.slug} · {kisaTarih(y.durum === "yayin" ? y.yayinTarihi : y.guncelleme)}
+                        /{y.slug} · {kisaTarih(y.durum === "yayin" ? y.yayinTarihi : y.durum === "zamanli" ? y.zamanlananTarih : y.guncelleme)}
                       </span>
                     </div>
                   </div>
@@ -293,10 +307,10 @@ export function BlogPanel({
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="truncate text-[14px] font-bold">{y.baslik}</span>
-                    <StatusBadge durum={y.durum === "yayin" ? "Yayında" : "Taslak"} />
+                    <StatusBadge durum={DURUM_ETIKETI[y.durum]} />
                   </div>
                   <div className="mt-1 truncate font-mono text-[11px] text-[#9aa0ae]">
-                    /{y.slug} · {kisaTarih(y.durum === "yayin" ? y.yayinTarihi : y.guncelleme)}
+                    /{y.slug} · {kisaTarih(y.durum === "yayin" ? y.yayinTarihi : y.durum === "zamanli" ? y.zamanlananTarih : y.guncelleme)}
                   </div>
                 </div>
                 <SeoRozet tam={y.seoTam} />

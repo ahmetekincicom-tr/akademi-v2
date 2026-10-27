@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useBildirim } from "@/components/Bildirim";
 import {
   kategoriAciklamaGuncelle,
+  kategoriAdresGuncelle,
   kategoriEkle,
   kategoriGuncelle,
   kategoriSil,
@@ -50,11 +51,28 @@ export function KategoriYonetimi({ kategoriler }: { kategoriler: (Kategori & { a
     router.refresh();
   };
 
+  /*
+    Adres değişikliği ayrı ve uyarılı: kategori arşivi Google'da dizinli.
+    Eski adres veritabanında yenisine 301'leniyor, yine de sıralama yeni
+    adrese birkaç hafta içinde geçiyor.
+  */
+  const adresiDegistir = async (k: Kategori) => {
+    const yeni = window.prompt(
+      `Yeni adres (yalnız harf, rakam ve tire). Eski adres /${k.slug}/ kendiliğinden yeni adrese yönlendirilir.`,
+      k.slug,
+    );
+    if (!yeni || yeni.trim() === k.slug) return;
+    const r = await kategoriAdresGuncelle(k.id, yeni.trim());
+    if (r.error) return bildir.hata(r.error);
+    bildir.basarili(`Adres /${r.slug}/ oldu; /${k.slug}/ oraya yönlendiriliyor.`);
+    router.refresh();
+  };
+
   const sil = async (k: Kategori & { adet: number }) => {
     const uyari =
       k.adet > 0
-        ? `"${k.ad}" silinsin mi? ${k.adet} yazı kategorisiz kalacak (yazılar silinmez).`
-        : `"${k.ad}" silinsin mi?`;
+        ? `"${k.ad}" silinsin mi? ${k.adet} yazı kategorisiz kalacak (yazılar silinmez). /${k.slug}/ adresi blog ana sayfasına yönlendirilir.`
+        : `"${k.ad}" silinsin mi? /${k.slug}/ adresi blog ana sayfasına yönlendirilir.`;
     if (!window.confirm(uyari)) return;
     const r = await kategoriSil(k.id);
     if (r.error) return bildir.hata(r.error);
@@ -85,8 +103,8 @@ export function KategoriYonetimi({ kategoriler }: { kategoriler: (Kategori & { a
       <div className="mt-5 flex flex-col gap-2">
         {kategoriler.map((k) => (
           <div key={k.id} className="rounded-[12px] border border-ink/10 bg-white p-3">
-            <div className="flex items-center gap-3">
-              <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <div className="min-w-0 flex-[1_1_200px]">
                 <div className="truncate text-[15px] font-semibold">{k.ad}</div>
                 <div className="font-mono text-[11px] text-[#8A90A0]">
                   /{k.slug} · {k.adet} yazı{k.aciklama ? "" : " · açıklama yok"}
@@ -98,21 +116,28 @@ export function KategoriYonetimi({ kategoriler }: { kategoriler: (Kategori & { a
                   setAciklamaId(aciklamaId === k.id ? null : k.id);
                   setAciklama(k.aciklama ?? "");
                 }}
-                className="rounded-[8px] border border-ink/13 bg-white px-3 py-[7px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+                className="h-11 rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
               >
                 Açıklama
               </button>
               <button
                 type="button"
                 onClick={() => yenidenAdlandir(k)}
-                className="rounded-[8px] border border-ink/13 bg-white px-3 py-[7px] text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+                className="h-11 rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
               >
                 Adı değiştir
               </button>
               <button
                 type="button"
+                onClick={() => adresiDegistir(k)}
+                className="h-11 rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold text-[#5C6273] hover:border-brand hover:text-brand"
+              >
+                Adresi değiştir
+              </button>
+              <button
+                type="button"
                 onClick={() => sil(k)}
-                className="rounded-[8px] border border-ink/13 bg-white px-3 py-[7px] text-[13px] font-semibold text-[#5C6273] hover:border-danger/45 hover:text-danger"
+                className="h-11 rounded-[9px] border border-ink/13 bg-white px-3 text-[13px] font-semibold text-[#5C6273] hover:border-danger/45 hover:text-danger"
               >
                 Sil
               </button>

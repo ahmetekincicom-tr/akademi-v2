@@ -24,19 +24,10 @@ export default function robots(): MetadataRoute.Robots {
     // cevaplarında kaynak gösteremiyor.
     rules: { userAgent: "*", disallow: ["/panel", "/api"] },
     /*
-      İKİ site haritası.
-
-      Blog yazıları ve kategori arşivleri WordPress'te kalmaya devam ediyor
-      (next.config.ts'teki fallback rewrite onları aynı alan adı altında
-      sunuyor). O sayfaların haritası WordPress tarafında üretiliyor ve burada
-      da bildirilmezse Google blogun haritasını tamamen kaybeder — yalnızca
-      bu uygulamanın sayfalarını görür.
-
-      Adres RankMath'in ürettiği dizin; WORDPRESS_SITEMAP tanımlı değilse
-      yalnızca kendi haritamız bildiriliyor.
+      Tek site haritası. Blog artık bu uygulamada (yazılar ve kategoriler
+      sitemap.xml'de); WordPress'in RankMath dizini (sitemap_index.xml) 404
+      dönüyordu ve Search Console'a her taramada hata olarak düşüyordu.
     */
-    sitemap: [`${SITE_URL}/sitemap.xml`, process.env.WORDPRESS_SITEMAP].filter(
-      (a): a is string => Boolean(a),
-    ),
+    sitemap: [`${SITE_URL}/sitemap.xml`],
   };
 }

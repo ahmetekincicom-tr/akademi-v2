@@ -68,6 +68,7 @@ export type Database = {
           created_at: string;
           durum: string;
           etiketler: string[];
+          hic_yayinlandi: boolean;
           icerik_guncelleme: string | null;
           icerik_html: string;
           icerik_json: Json;
@@ -81,6 +82,7 @@ export type Database = {
           updated_at: string;
           yayin_tarihi: string | null;
           yazar: string;
+          zamanlanan_tarih: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["posts"]["Row"]> & {
           baslik: string;
@@ -93,6 +95,64 @@ export type Database = {
             columns: ["kategori_id"];
             isOneToOne: false;
             referencedRelation: "categories";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      post_surumleri: {
+        Row: {
+          baslik: string;
+          created_at: string;
+          durum: string;
+          icerik_html: string;
+          icerik_json: Json;
+          id: string;
+          olusturan: string | null;
+          ozet: string;
+          post_id: string;
+          seo: Json;
+          slug: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["post_surumleri"]["Row"]> & {
+          baslik: string;
+          durum: string;
+          post_id: string;
+          slug: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["post_surumleri"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "post_surumleri_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      yonlendirmeler: {
+        Row: {
+          aktif: boolean;
+          created_at: string;
+          hedef: string | null;
+          id: string;
+          kaynak: string;
+          kod: number;
+          notu: string;
+          otomatik: boolean;
+          post_id: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["yonlendirmeler"]["Row"]> & {
+          kaynak: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["yonlendirmeler"]["Row"]>;
+        Relationships: [
+          {
+            foreignKeyName: "yonlendirmeler_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
             referencedColumns: ["id"];
           },
         ];
@@ -1146,6 +1206,14 @@ export type Database = {
         }[];
       };
       is_admin: { Args: never; Returns: boolean };
+      yazi_yonlendirme_karari: {
+        Args: { p_post: string; p_kod: number; p_hedef: string | null };
+        Returns: undefined;
+      };
+      zamani_gelen_yazilari_yayinla: {
+        Args: never;
+        Returns: { slug: string; kategori_slug: string | null }[];
+      };
       is_enrolled: { Args: { target_course_id: string }; Returns: boolean };
       oturum_kaydet: {
         Args: {

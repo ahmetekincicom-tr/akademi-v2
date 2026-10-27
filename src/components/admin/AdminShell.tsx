@@ -141,7 +141,11 @@ function breadcrumbAdimlari(pathname: string): BreadcrumbAdim[] {
       ? "Yeni yazı"
       : pathname.endsWith("/kategoriler")
         ? "Kategoriler"
-        : "Yazıyı düzenle";
+        : pathname.endsWith("/yonlendirmeler")
+          ? "Yönlendirmeler"
+          : pathname.endsWith("/tasima")
+            ? "WordPress taşıma"
+            : "Yazıyı düzenle";
     return [kok, { label: "Blog", href: "/kontrol-9f4x2k/blog" }, { label: alt }];
   }
 

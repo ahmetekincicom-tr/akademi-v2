@@ -1,7 +1,9 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cerezAlanAdi } from "@/lib/izin";
 import { FBC_CEREZI, FBC_OMRU_SN, fbcKur } from "@/lib/meta/fbc";
+import { hedefAdresi, yonlendirmeAranir, yonlendirmeBul } from "@/lib/yonlendirme";
+import { yonlendirmeTablosu } from "@/lib/yonlendirme-onbellek";
 
 /**
  * Arama motorlarına açık alan adları. Virgülle ayrılır.
@@ -310,7 +312,7 @@ function tiklamaKimliginiYaz(request: NextRequest, response: NextResponse): void
   });
 }
 
-export async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest, event: NextFetchEvent) {
   // Oturum tazelemesinden önce: bu adreslerde yapılacak başka iş yok.
   const yol = request.nextUrl.pathname;
   if (TUZAK_KOKLER.some((k) => yol === k || yol.startsWith(k + "/"))) {
@@ -326,6 +328,26 @@ export async function proxy(request: NextRequest) {
   */
   const yolSade410 = yol.length > 1 ? yol.replace(/\/+$/, "") : yol;
   if (goneMi(yolSade410)) return goneCevabi();
+
+  /*
+    Panelden ve kendiliğinden yazılan yönlendirmeler (yonlendirmeler tablosu):
+    adresi değişen, yayından kalkan ya da silinen blog yazıları ve kategoriler.
+    Oturumdan ÖNCE, 410'larla aynı gerekçe. Tablo önbellekte; ziyaretçi
+    veritabanını beklemiyor (lib/yonlendirme-onbellek.ts).
+
+    301'in tarayıcıda önbellekte kalma süresi bir saatle sınırlı: kalıcı
+    yönlendirme varsayılan olarak süresiz saklanıyor ve panelden verilen
+    kararın değişmesi o tarayıcıya hiç ulaşmazdı.
+  */
+  if (yonlendirmeAranir(yol)) {
+    const y = yonlendirmeBul(await yonlendirmeTablosu((is) => event.waitUntil(is)), yol);
+    if (y?.kod === 410) return goneCevabi();
+    if (y?.hedef) {
+      const yanit = NextResponse.redirect(hedefAdresi(y.hedef, request.url), 301);
+      yanit.headers.set("Cache-Control", "public, max-age=3600");
+      return yanit;
+    }
+  }
 
   let response = NextResponse.next({ request });
 

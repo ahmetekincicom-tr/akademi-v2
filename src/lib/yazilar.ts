@@ -14,7 +14,12 @@ import { getCourses } from "@/lib/courses";
  * yanlışlıkla sızdıramaz.
  */
 
-export type YaziDurum = "taslak" | "yayin";
+/** zamanli: yayın saati gelince zamanlayıcının kendiliğinden yayına aldığı yazı. */
+export type YaziDurum = "taslak" | "yayin" | "zamanli";
+
+function durumCoz(d: string): YaziDurum {
+  return d === "yayin" || d === "zamanli" ? d : "taslak";
+}
 
 export type Kategori = {
   id: string;
@@ -33,6 +38,8 @@ export type YaziOzet = {
   kapak: string | null;
   durum: YaziDurum;
   yayinTarihi: string | null;
+  /** Zamanlı yazının yayına gireceği an (yalnız durum "zamanli" iken). */
+  zamanlananTarih: string | null;
   yazar: string;
   /** Teknik son kayıt (updated_at) — sıralama/yönetim için. */
   guncelleme: string;
@@ -53,13 +60,15 @@ export type Yazi = YaziOzet & {
   kategoriId: string | null;
   seoBaslik: string;
   seoAciklama: string;
+  /** Bir kez bile yayınlandı mı? Adresi Google'da olabilir (yönlendirme kararı). */
+  hicYayinlandi: boolean;
 };
 
 type Db = SupabaseClient<Database>;
 
 const OZET_SELECT =
-  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, yazar, updated_at, icerik_guncelleme, etiketler, kategori:categories(id, slug, ad)";
-const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, seo_aciklama, kategori_id`;
+  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, zamanlanan_tarih, yazar, updated_at, icerik_guncelleme, etiketler, kategori:categories(id, slug, ad)";
+const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, seo_aciklama, kategori_id, hic_yayinlandi`;
 
 type KategoriGomulu = { id: string; slug: string; ad: string } | null;
 
@@ -71,6 +80,7 @@ type OzetSatir = {
   kapak_gorsel: string | null;
   durum: string;
   yayin_tarihi: string | null;
+  zamanlanan_tarih: string | null;
   yazar: string;
   updated_at: string;
   icerik_guncelleme: string | null;
@@ -84,6 +94,7 @@ type TamSatir = OzetSatir & {
   seo_baslik: string;
   seo_aciklama: string;
   kategori_id: string | null;
+  hic_yayinlandi: boolean;
 };
 
 function ozetle(r: OzetSatir): YaziOzet {
@@ -93,8 +104,9 @@ function ozetle(r: OzetSatir): YaziOzet {
     baslik: r.baslik,
     ozet: r.ozet,
     kapak: kapakUrl(r.kapak_gorsel),
-    durum: r.durum === "yayin" ? "yayin" : "taslak",
+    durum: durumCoz(r.durum),
     yayinTarihi: r.yayin_tarihi,
+    zamanlananTarih: r.zamanlanan_tarih,
     yazar: r.yazar,
     guncelleme: r.updated_at,
     icerikGuncelleme: r.icerik_guncelleme,
@@ -112,6 +124,7 @@ function tamla(r: TamSatir): Yazi {
     kategoriId: r.kategori_id,
     seoBaslik: r.seo_baslik,
     seoAciklama: r.seo_aciklama,
+    hicYayinlandi: r.hic_yayinlandi,
   };
 }
 
