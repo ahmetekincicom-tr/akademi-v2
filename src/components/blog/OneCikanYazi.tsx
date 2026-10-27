@@ -16,7 +16,13 @@ export function OneCikanYazi({ yazi }: { yazi: YaziOzet }) {
       href={`/${yazi.slug}/`}
       className="group grid overflow-hidden rounded-[22px] border border-ink/11 bg-white transition hover:border-brand/45 hover:shadow-[0_24px_50px_rgba(10,13,24,0.11)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"
     >
-      <BlogKapak gorsel={yazi.kapak} kategoriSlug={yazi.kategori?.slug} cesit="one" oncelikli />
+      <BlogKapak
+        gorsel={yazi.kapak}
+        kategoriSlug={yazi.kategori?.slug}
+        ozel={{ ton: yazi.kapakTon, simge: yazi.kapakSimge }}
+        cesit="one"
+        oncelikli
+      />
       <div className="flex flex-col justify-center p-6 sm:p-8 lg:p-10">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[11px] tracking-[0.06em] text-[#5C6273]">
           <span className="rounded-full bg-ink px-2.5 py-1 font-semibold text-white uppercase">Son yazı</span>

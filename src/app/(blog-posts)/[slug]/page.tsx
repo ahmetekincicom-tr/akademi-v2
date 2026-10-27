@@ -268,7 +268,14 @@ async function YaziDetay({ yazi }: { yazi: Yazi }) {
 
             {/* Görsel yoksa kategorinin renk ve simgesiyle çizilen kapak. */}
             <div className="mt-8 overflow-hidden rounded-2xl">
-              <BlogKapak gorsel={yazi.kapak} alt={yazi.baslik} kategoriSlug={yazi.kategori?.slug} cesit="hero" oncelikli />
+              <BlogKapak
+                gorsel={yazi.kapak}
+                alt={yazi.kapakAlt || yazi.baslik}
+                kategoriSlug={yazi.kategori?.slug}
+                ozel={{ ton: yazi.kapakTon, simge: yazi.kapakSimge }}
+                cesit="hero"
+                oncelikli
+              />
             </div>
 
             {/* Mobil/tablet İçindekiler: kapak sonrası, içerik öncesi accordion

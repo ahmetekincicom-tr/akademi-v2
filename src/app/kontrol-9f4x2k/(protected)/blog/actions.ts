@@ -7,6 +7,7 @@ import { slugYap } from "@/lib/duyuru";
 import { blogSayfalariniTazele } from "@/lib/blog-tazele";
 import { hedefDuzenle } from "@/lib/yonlendirme";
 import { yoneticiMi } from "@/lib/panel-kapsam";
+import { kapakSimgesiMi, kapakTonuMu } from "@/lib/blog-kapak";
 import type { Json } from "@/lib/supabase/tipler";
 import type { YaziDurum } from "@/lib/yazilar";
 
@@ -37,6 +38,13 @@ export type YaziKaydetGirdi = {
   yazar: string;
   kategoriId: string | null;
   etiketler: string[];
+  /** SEO analizinin odak kelimesi (yalnız panel). */
+  odakKelime?: string;
+  /** Görselsiz kapağın özel rengi/simgesi; null = kategorininki. */
+  kapakTon?: string | null;
+  kapakSimge?: string | null;
+  /** Kapak görselinin alt metni; boşsa sitede yazı başlığı. */
+  kapakAlt?: string;
   /**
    * İşaretliyse içeriğin GERÇEKTEN güncellendiğini damgalar (icerik_guncelleme
    * = now()). Her kayıtta otomatik değişmiyor: yalnızca yazar bilinçli seçince.
@@ -103,6 +111,11 @@ export async function saveYazi(input: YaziKaydetGirdi): Promise<{ error?: string
     kategori_id: input.kategoriId,
     // Boş etiketler ayıklanıyor; tekrarlar temizleniyor.
     etiketler: Array.from(new Set(input.etiketler.map((e) => e.trim()).filter(Boolean))),
+    odak_kelime: (input.odakKelime ?? "").trim().slice(0, 120),
+    // Tanınmayan değer yazılmıyor: sitede zaten kategorinin görünümüne düşerdi.
+    kapak_ton: kapakTonuMu(input.kapakTon) ? input.kapakTon : null,
+    kapak_simge: kapakSimgesiMi(input.kapakSimge) ? input.kapakSimge : null,
+    kapak_alt: (input.kapakAlt ?? "").trim().slice(0, 300),
     updated_at: new Date().toISOString(),
     // İçerik güncelleme damgası YALNIZCA bilinçli işaretlendiğinde. Aksi halde
     // alanı hiç yazmıyoruz (mevcut değeri korunur; migration/teknik kayıt bunu

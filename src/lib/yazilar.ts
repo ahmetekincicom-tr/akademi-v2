@@ -51,6 +51,9 @@ export type YaziOzet = {
   icerikGuncelleme: string | null;
   kategori: Kategori | null;
   etiketler: string[];
+  /** Görselsiz kapağın yazıya özel rengi/simgesi; boşsa kategorininki (lib/blog-kapak). */
+  kapakTon: string | null;
+  kapakSimge: string | null;
 };
 
 /** Tek yazının tamamı (düzenleme ve detay sayfası için). */
@@ -63,13 +66,17 @@ export type Yazi = YaziOzet & {
   seoAciklama: string;
   /** Bir kez bile yayınlandı mı? Adresi Google'da olabilir (yönlendirme kararı). */
   hicYayinlandi: boolean;
+  /** Editördeki SEO analizinin odak kelimesi (yalnız panelde kullanılıyor). */
+  odakKelime: string;
+  /** Kapak görselinin alt metni; boşsa yazı başlığı. */
+  kapakAlt: string;
 };
 
 type Db = SupabaseClient<Database>;
 
 const OZET_SELECT =
-  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, zamanlanan_tarih, yazar, updated_at, icerik_guncelleme, etiketler, kategori:categories(id, slug, ad)";
-const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, seo_aciklama, kategori_id, hic_yayinlandi`;
+  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, zamanlanan_tarih, yazar, updated_at, icerik_guncelleme, etiketler, kapak_ton, kapak_simge, kategori:categories(id, slug, ad)";
+const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, seo_aciklama, kategori_id, hic_yayinlandi, odak_kelime, kapak_alt`;
 
 type KategoriGomulu = { id: string; slug: string; ad: string } | null;
 
@@ -86,6 +93,8 @@ type OzetSatir = {
   updated_at: string;
   icerik_guncelleme: string | null;
   etiketler: string[] | null;
+  kapak_ton: string | null;
+  kapak_simge: string | null;
   kategori: KategoriGomulu;
 };
 
@@ -96,6 +105,8 @@ type TamSatir = OzetSatir & {
   seo_aciklama: string;
   kategori_id: string | null;
   hic_yayinlandi: boolean;
+  odak_kelime: string | null;
+  kapak_alt: string | null;
 };
 
 function ozetle(r: OzetSatir): YaziOzet {
@@ -113,6 +124,8 @@ function ozetle(r: OzetSatir): YaziOzet {
     icerikGuncelleme: r.icerik_guncelleme,
     kategori: r.kategori ? { id: r.kategori.id, slug: r.kategori.slug, ad: r.kategori.ad } : null,
     etiketler: r.etiketler ?? [],
+    kapakTon: r.kapak_ton,
+    kapakSimge: r.kapak_simge,
   };
 }
 
@@ -126,6 +139,8 @@ function tamla(r: TamSatir): Yazi {
     seoBaslik: r.seo_baslik,
     seoAciklama: r.seo_aciklama,
     hicYayinlandi: r.hic_yayinlandi,
+    odakKelime: r.odak_kelime ?? "",
+    kapakAlt: r.kapak_alt ?? "",
   };
 }
 
