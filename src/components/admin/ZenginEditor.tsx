@@ -88,6 +88,7 @@ export function ZenginEditor({
   yaziSlug,
   geriYukle,
   onDegisim,
+  onHazir,
 }: {
   baslangicJson: unknown;
   /**
@@ -107,6 +108,12 @@ export function ZenginEditor({
    */
   geriYukle?: Deger | null;
   onDegisim: (d: Deger) => void;
+  /**
+   * Editör kurulunca içeriğin editördeki hâli (ör. WordPress'ten gelen
+   * paragrafsız metin <p>'lere bölünmüş). SEO analizi bunu kullanıyor;
+   * onDegisim'den ayrı, çünkü o otomatik kaydı da tetikliyor.
+   */
+  onHazir?: (html: string) => void;
 }) {
   const dosyaGirdi = useRef<HTMLInputElement>(null);
   const [gorselYukleniyor, setGorselYukleniyor] = useState(false);
@@ -171,6 +178,7 @@ export function ZenginEditor({
     editorProps: {
       attributes: { class: "blog-icerik min-h-[360px] px-4 py-4 outline-none" },
     },
+    onCreate: ({ editor }) => onHazir?.(editor.getHTML()),
     onUpdate: ({ editor }) => onDegisim({ html: editor.getHTML(), json: editor.getJSON() }),
   });
 

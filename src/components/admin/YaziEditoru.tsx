@@ -11,6 +11,10 @@ import { SurumGecmisi } from "@/components/admin/SurumGecmisi";
 import { SeoKarti, YayinKontrolListesi, YayinKontrolPenceresi } from "@/components/admin/BlogSeoPaneli";
 import { gorunenBaslik, seoAnalizEt, turkceKatla } from "@/lib/blog-seo-analiz";
 import { eksikKontroller, yayinKontrolleri } from "@/lib/blog-yayin-kontrol";
+import { etiketleriAyir, etiketleriDuzenle, etiketleriTopla } from "@/lib/blog-etiket";
+import { KapakSecici } from "@/components/admin/BlogKapakSecici";
+import { EtiketAlani } from "@/components/admin/BlogEtiketAlani";
+import { BlogKapak } from "@/components/blog/BlogKapak";
 import {
   saveYazi,
   silYazi,
@@ -368,10 +372,12 @@ export function YaziEditoru({
       seoAciklama: seoAciklama.trim(),
       yazar: yazar.trim(),
       kategoriId: kategoriId || null,
-      etiketler: etiketMetni
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
+      // Var olan etiketin farklı yazımı ("meta ads" ↔ "Meta Ads") onun yazımına
+      // çevriliyor: aynı adrese düşen iki etiket olmasın (BlogEtiketAlani).
+      etiketler: etiketleriDuzenle(
+        etiketleriAyir(etiketMetni),
+        etiketleriTopla(digerYazilar.filter((y) => y.id !== mevcut?.id)),
+      ),
       icerikGuncellendi,
       yonlendirme,
       odakKelime: odakKelime.trim(),
@@ -406,6 +412,7 @@ export function YaziEditoru({
   };
 
   const kapakUrl = depoUrl("kapaklar", kapakYol);
+  const kategoriSlug = kategoriListe.find((k) => k.id === kategoriId)?.slug || null;
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -484,6 +491,7 @@ export function YaziEditoru({
               planla();
               analiziPlanla(d.html);
             }}
+            onHazir={setAnalizIcerik}
           />
         </div>
       </div>
@@ -605,29 +613,23 @@ export function YaziEditoru({
               </select>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <span className={ETIKET}>Etiketler (virgülle ayır)</span>
-              <input
-                value={etiketMetni}
-                onChange={(e) => setEtiketMetni(e.target.value)}
-                placeholder="meta ads, facebook, bütçe"
-                className={GIRDI}
-              />
-            </div>
+            <EtiketAlani deger={etiketMetni} onDegis={setEtiketMetni} yazilar={digerYazilar} haricId={mevcut?.id} />
           </div>
         </div>
 
         <div className="rounded-[14px] border border-ink/11 bg-white p-5">
-          <span className={ETIKET}>Kapak görseli · 1600×1000</span>
-          <label className="mt-[10px] flex aspect-[16/10] cursor-pointer items-center justify-center overflow-hidden rounded-[11px] border border-dashed border-ink/20 bg-mist text-center transition hover:border-brand">
+          <span className={ETIKET}>Kapak · görsel 1600×1000</span>
+          <label className="mt-[10px] block cursor-pointer overflow-hidden rounded-[11px] border border-dashed border-ink/20 bg-mist transition hover:border-brand">
             {kapakUrl ? (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={kapakUrl} alt="" className="h-full w-full object-cover" />
+              <img src={kapakUrl} alt="" className="aspect-[16/10] h-full w-full object-cover" />
             ) : (
-              <span className="px-4 text-[13px] text-[#656B7A]">
-                {kapakYukleniyor ? "Yükleniyor…" : "Sürükle veya seç"}
-              </span>
+              // Görsel yoksa sitede çizilecek kapak (kategori ya da seçilen renk/simge).
+              <BlogKapak gorsel={null} kategoriSlug={kategoriSlug} ozel={{ ton: kapakTon, simge: kapakSimge }} />
             )}
+            <span className="flex min-h-11 items-center justify-center border-t border-ink/10 bg-white px-3 text-center text-[13px] font-semibold text-[#5C6273]">
+              {kapakYukleniyor ? "Yükleniyor…" : kapakUrl ? "Görseli değiştir" : "Görsel yükle (isteğe bağlı)"}
+            </span>
             <input
               type="file"
               accept="image/png,image/jpeg,image/webp,image/avif"
@@ -638,14 +640,38 @@ export function YaziEditoru({
               }}
             />
           </label>
-          {kapakYol && (
-            <button
-              type="button"
-              onClick={() => setKapakYol(null)}
-              className="mt-[10px] text-[13px] font-semibold text-[#5C6273] hover:text-danger"
-            >
-              Kapağı kaldır
-            </button>
+          {kapakYol ? (
+            <>
+              <label className="mt-4 flex flex-col gap-2">
+                <span className={ETIKET}>Kapak açıklaması (alt metin)</span>
+                <input
+                  value={kapakAlt}
+                  onChange={(e) => setKapakAlt(e.target.value)}
+                  maxLength={300}
+                  placeholder={baslik || "Görselde ne var?"}
+                  className={GIRDI}
+                />
+                <span className="text-[12px] leading-[1.5] text-[#8A90A0]">
+                  Boşsa yazı başlığı kullanılır. Görsel başlığı tekrar etmiyorsa (ekran görüntüsü, grafik) ne
+                  gösterdiğini yaz.
+                </span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setKapakYol(null)}
+                className="mt-2 min-h-11 text-[13px] font-semibold text-[#5C6273] hover:text-danger"
+              >
+                Kapağı kaldır
+              </button>
+            </>
+          ) : (
+            <KapakSecici
+              kategoriSlug={kategoriSlug}
+              ton={kapakTon}
+              simge={kapakSimge}
+              onTon={setKapakTon}
+              onSimge={setKapakSimge}
+            />
           )}
         </div>
 
