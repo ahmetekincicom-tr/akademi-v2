@@ -290,18 +290,20 @@ export async function tumYazilarAdmin(client: Db): Promise<YaziOzet[]> {
 }
 
 /** Performans paneli için: özet alanlar + on-page SEO tamlığı (Supabase). */
-export type PanelYazi = YaziOzet & { seoTam: boolean };
+export type PanelYazi = YaziOzet & { seoTam: boolean; hicYayinlandi: boolean };
 export async function blogPanelYazilari(client: Db): Promise<PanelYazi[]> {
   const { data, error } = await client
     .from("posts")
-    .select(`${OZET_SELECT}, seo_baslik, seo_aciklama`)
+    .select(`${OZET_SELECT}, seo_baslik, seo_aciklama, hic_yayinlandi`)
     .order("updated_at", { ascending: false });
   if (error) {
     console.error("[yazilar] blogPanelYazilari:", error.message);
     return [];
   }
-  return (data as unknown as (OzetSatir & { seo_baslik: string | null; seo_aciklama: string | null })[]).map((r) => ({
+  type Satir = OzetSatir & { seo_baslik: string | null; seo_aciklama: string | null; hic_yayinlandi: boolean | null };
+  return (data as unknown as Satir[]).map((r) => ({
     ...ozetle(r),
+    hicYayinlandi: Boolean(r.hic_yayinlandi),
     // On-page SEO: başlık ve açıklama dolu mu (arama sıralamaları Faz 2 / Search Console).
     seoTam: Boolean((r.seo_baslik ?? "").trim() && (r.seo_aciklama ?? "").trim()),
   }));

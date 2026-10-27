@@ -1116,7 +1116,11 @@ body[data-menu-acik="1"] {
   outline: 2px solid var(--color-brand);
   outline-offset: 3px;
 }
+/* width:100% sütun alt sınırlarını yok sayıp hücreleri kesiyordu: tablo en az
+   kutu kadar, gerekirse daha geniş (kutu kayar). */
 .blog-icerik .aea-tablo > table {
+  width: auto;
+  min-width: 100%;
   margin: 0;
 }
 /* Hücreler dar ekranda okunamayacak kadar daralmasın: kutu kayar. */
@@ -1646,8 +1650,10 @@ body[data-menu-acik="1"] {
   .blog-icerik h3 {
     margin-top: 1.7em;
   }
-  /* Geniş tablolar taşmasın, yatay kaydırılabilsin. */
-  .blog-icerik table {
+  /* Geniş tablolar taşmasın, yatay kaydırılabilsin. Sitede tablolar artık
+     .aea-tablo kutusunda (kutu kayıyor, tablo gerçek tablo olarak kalıyor);
+     bu kural yalnız kutusuz tablolar için (editör önizlemesi). */
+  .blog-icerik table:not(.aea-tablo > table) {
     display: block;
     overflow-x: auto;
     white-space: nowrap;

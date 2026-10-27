@@ -352,3 +352,147 @@ export async function kategoriSil(id: string): Promise<{ error?: string }> {
   blogSayfalariniTazele([data[0].slug]);
   return {};
 }
+
+/* ------------------------------------------------------ toplu işlemler --- */
+/*
+  Listede seçilen yazılara tek seferde: kategori değiştir, yayınla, taslağa al,
+  sil. Kaynak: ahmetekinci.com.tr paneli (BlogList toplu işlemleri). Her yazı
+  ayrı ayrı işleniyor; birinin hatası diğerlerini durdurmuyor, hatalılar
+  sonuçta adıyla dönüyor. Yayından kalkan ya da silinen yazıların eski
+  adresleri için TEK karar veriliyor (hepsine aynısı); karar yoksa veritabanı
+  tetikleyicisi /blog/'a yönlendiriyor.
+
+  Toplu yayınlamada yayın öncesi kontrol listesi gösterilmiyor (tek tek
+  yazıda gösteriliyor); panel bunu düğmenin yanında söylüyor.
+*/
+
+export type TopluIslem =
+  | { tur: "kategori"; kategoriId: string | null }
+  | { tur: "yayinla" }
+  | { tur: "taslak"; yonlendirme?: YonlendirmeKarari | null }
+  | { tur: "sil"; yonlendirme?: YonlendirmeKarari | null };
+
+export type TopluSonuc = { tamam: number; hatalar: { baslik: string; mesaj: string }[]; error?: string };
+
+export async function topluIslem(idler: string[], islem: TopluIslem): Promise<TopluSonuc> {
+  if (!(await yoneticiMi())) return { tamam: 0, hatalar: [], error: "Bu işlem için yönetici girişi gerekiyor." };
+  const benzersiz = Array.from(new Set(idler)).slice(0, 200);
+  if (!benzersiz.length) return { tamam: 0, hatalar: [], error: "Yazı seçilmedi." };
+
+  const karar =
+    (islem.tur === "taslak" || islem.tur === "sil") && islem.yonlendirme ? karariHazirla(islem.yonlendirme) : null;
+  if (karar && "error" in karar) return { tamam: 0, hatalar: [], error: karar.error };
+
+  const supabase = await createClient();
+  const { data: yazilar, error } = await supabase
+    .from("posts")
+    .select("id, slug, baslik, durum, kategori_id, hic_yayinlandi, yayin_tarihi")
+    .in("id", benzersiz);
+  if (error) return { tamam: 0, hatalar: [], error: error.message };
+
+  const hatalar: TopluSonuc["hatalar"] = [];
+  const tazelenecek = new Set<string>();
+  const kategoriIdleri = new Set<string>();
+  let tamam = 0;
+
+  if (islem.tur === "kategori" && islem.kategoriId) kategoriIdleri.add(islem.kategoriId);
+
+  for (const y of yazilar ?? []) {
+    const hata = (mesaj: string) => hatalar.push({ baslik: y.baslik, mesaj });
+    if (y.kategori_id) kategoriIdleri.add(y.kategori_id);
+    tazelenecek.add(y.slug);
+
+    if (islem.tur === "kategori") {
+      const { data, error: e } = await supabase
+        .from("posts")
+        .update({ kategori_id: islem.kategoriId, updated_at: new Date().toISOString() })
+        .eq("id", y.id)
+        .select("id");
+      if (e || !data?.length) hata(e?.message ?? "Güncellenemedi (RLS).");
+      else tamam++;
+      continue;
+    }
+
+    if (islem.tur === "yayinla") {
+      if (y.durum === "yayin") {
+        tamam++;
+        continue;
+      }
+      const { data, error: e } = await supabase
+        .from("posts")
+        .update({
+          durum: "yayin",
+          zamanlanan_tarih: null,
+          yayin_tarihi: y.yayin_tarihi ?? new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", y.id)
+        .select("id");
+      if (e || !data?.length) hata(e?.message ?? "Yayınlanamadı (RLS).");
+      else tamam++;
+      continue;
+    }
+
+    if (islem.tur === "taslak") {
+      if (y.durum === "taslak") {
+        tamam++;
+        continue;
+      }
+      const { data, error: e } = await supabase
+        .from("posts")
+        .update({ durum: "taslak", zamanlanan_tarih: null, updated_at: new Date().toISOString() })
+        .eq("id", y.id)
+        .select("id");
+      if (e || !data?.length) {
+        hata(e?.message ?? "Taslağa alınamadı (RLS).");
+        continue;
+      }
+      if (karar && y.durum === "yayin") {
+        const { error: ke } = await supabase.rpc("yazi_yonlendirme_karari", {
+          p_post: y.id,
+          p_kod: karar.kod,
+          p_hedef: karar.hedef,
+        });
+        if (ke) {
+          hata(`Taslağa alındı ama yönlendirme yazılamadı: ${ke.message}`);
+          continue;
+        }
+      }
+      tamam++;
+      continue;
+    }
+
+    // Sil: tek yazı silmeyle aynı sıra (silYazi).
+    if (karar && y.hic_yayinlandi) {
+      if (y.durum === "yayin") {
+        const { error: e } = await supabase.from("posts").update({ durum: "taslak" }).eq("id", y.id);
+        if (e) {
+          hata(e.message);
+          continue;
+        }
+      }
+      const { error: ke } = await supabase.rpc("yazi_yonlendirme_karari", {
+        p_post: y.id,
+        p_kod: karar.kod,
+        p_hedef: karar.hedef,
+      });
+      if (ke) {
+        hata(`Yönlendirme yazılamadı, yazı silinmedi: ${ke.message}`);
+        continue;
+      }
+    }
+    const { data, error: e } = await supabase.from("posts").delete().eq("id", y.id).select("id");
+    if (e || !data?.length) hata(e?.message ?? "Silinemedi (RLS).");
+    else tamam++;
+  }
+
+  let kategoriSluglari: string[] = [];
+  if (kategoriIdleri.size) {
+    const { data: katlar } = await supabase.from("categories").select("slug").in("id", [...kategoriIdleri]);
+    kategoriSluglari = (katlar ?? []).map((k) => k.slug);
+  }
+  blogSayfalariniTazele([...tazelenecek, ...kategoriSluglari]);
+  revalidatePath("/kontrol-9f4x2k/blog");
+  revalidatePath("/kontrol-9f4x2k/blog/yonlendirmeler");
+  return { tamam, hatalar };
+}

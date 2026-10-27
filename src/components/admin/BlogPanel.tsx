@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { StatusBadge } from "@/lib/admin/shared";
 import { PerformansYenile } from "@/components/admin/PerformansYenile";
-import type { PanelYazi, YaziDurum } from "@/lib/yazilar";
+import { BlogTopluIslem } from "@/components/admin/BlogTopluIslem";
+import type { IcLinkHedef, Kategori, PanelYazi, YaziDurum } from "@/lib/yazilar";
 import type { PanelSonuc, PanelSatir, PanelAralik } from "@/lib/google/ga4-rapor";
 import type { GscPanelSonuc, GscPanelSatir } from "@/lib/google/gsc-rapor";
 
@@ -17,6 +18,7 @@ const DURUM_ETIKETI: Record<YaziDurum, string> = { yayin: "Yayında", taslak: "T
  * trend GA4'ten, SEO tamlığı Supabase'ten; kaynağı olmayan hücre "—".
  *
  * Blog CRUD (Yeni yazı, Kategoriler, Gör, Düzenle) mevcut rotalara dokunmuyor.
+ * Toplu işlem ayrı bir istemci bileşeninde (BlogTopluIslem), tablonun üstünde.
  */
 
 const sy = new Intl.NumberFormat("tr-TR");
@@ -89,12 +91,16 @@ export function BlogPanel({
   gscMetrik,
   gun,
   guncelSaat,
+  kategoriler = [],
+  icHedefler = [],
 }: {
   yazilar: PanelYazi[];
   metrik: PanelSonuc;
   gscMetrik: GscPanelSonuc;
   gun: PanelAralik;
   guncelSaat: string;
+  kategoriler?: Kategori[];
+  icHedefler?: IcLinkHedef[];
 }) {
   const yapili = metrik.yapilandirildi;
   const satirlar = yapili ? metrik.satir : null;
@@ -203,6 +209,19 @@ export function BlogPanel({
           ))}
         </div>
       )}
+
+      <BlogTopluIslem
+        yazilar={yazilar.map((y) => ({
+          id: y.id,
+          slug: y.slug,
+          baslik: y.baslik,
+          durum: y.durum,
+          kategoriId: y.kategori?.id ?? null,
+          hicYayinlandi: y.hicYayinlandi,
+        }))}
+        kategoriler={kategoriler}
+        icHedefler={icHedefler}
+      />
 
       {/* Tablo (sm+) */}
       <div className="mt-5 hidden overflow-hidden rounded-[14px] border border-ink/11 bg-white sm:block">
