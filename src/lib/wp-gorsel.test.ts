@@ -32,6 +32,11 @@ describe("wpDepoYolu", () => {
     expect(wpDepoYolu("2025/11/Görsel Şekil ğüı.jpg")).toBe("blog/wp/2025/11/Gorsel-Sekil-gui.jpg");
     expect(wpDepoYolu("2025/11/G%C3%B6rsel.jpg")).toBe("blog/wp/2025/11/Gorsel.jpg");
   });
+
+  it("GIF depoda WebP", () => {
+    expect(wpDepoYolu("2025/03/Instagrama-Konum-Ekleme-12.gif")).toBe("blog/wp/2025/03/Instagrama-Konum-Ekleme-12.webp");
+    expect(depoSiteAdresi(wpDepoYolu("2025/03/a.GIF"))).toBe("/dosya/kapaklar/blog/wp/2025/03/a.webp");
+  });
 });
 
 describe("wpIndirmeAdresi", () => {

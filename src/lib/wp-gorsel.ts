@@ -59,7 +59,13 @@ export function wpDepoYolu(wpYol: string): string {
       .replace(/-{2,}/g, "-")
       .replace(/^-|-(?=\.)|-$/g, ""),
   );
-  return `blog/wp/${temiz.join("/")}`;
+  /*
+    GIF, WebP olarak saklanıyor: depo (kapaklar kovası) GIF kabul etmiyor.
+    Kopyalama aracı dosyayı hareketli WebP'ye çeviriyor (animasyon kalıyor,
+    dosya küçülüyor); adres de buradan .webp olarak türüyor ki kopya, kontrol
+    ve adres güncellemesi aynı yolu görsün.
+  */
+  return `blog/wp/${temiz.join("/")}`.replace(/\.gif$/i, ".webp");
 }
 
 /** Görselin WordPress sunucusundaki indirme adresi. */
