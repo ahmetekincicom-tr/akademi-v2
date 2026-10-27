@@ -11,12 +11,29 @@
 -- 'zamanli': yayın saati gelince zamanlayıcının kendiliğinden yayına aldığı
 -- yazı. Herkese açık okuma politikası değişmiyor (durum = 'yayin'), yani
 -- zamanlı yazı vakti gelene kadar sitede görünmüyor.
-alter table public.posts drop constraint if exists posts_durum_check;
+--
+-- Eski durum kısıtı adıyla değil tanımıyla bulunup kaldırılıyor: satır içi
+-- yazılan CHECK'in adı Postgres'e kalmış, canlıda farklı çıkarsa
+-- "drop ... if exists posts_durum_check" sessizce atlar ve eski kısıt
+-- 'zamanli'yi reddetmeye devam ederdi.
+do $$
+declare
+  r record;
+begin
+  for r in
+    select conname from pg_constraint
+     where conrelid = 'public.posts'::regclass
+       and contype = 'c'
+       and pg_get_constraintdef(oid) ilike '%durum%'
+  loop
+    execute format('alter table public.posts drop constraint %I', r.conname);
+  end loop;
+end $$;
+
 alter table public.posts
   add constraint posts_durum_check check (durum in ('taslak', 'yayin', 'zamanli'));
 
 alter table public.posts add column if not exists zamanlanan_tarih timestamptz;
-alter table public.posts drop constraint if exists posts_zamanli_tarih_check;
 alter table public.posts
   add constraint posts_zamanli_tarih_check check (durum <> 'zamanli' or zamanlanan_tarih is not null);
 
@@ -128,8 +145,10 @@ create index if not exists post_surumleri_post_idx on public.post_surumleri (pos
 
 alter table public.post_surumleri enable row level security;
 
+drop policy if exists post_surumleri_admin_select on public.post_surumleri;
 create policy post_surumleri_admin_select on public.post_surumleri
   for select using (public.is_admin());
+drop policy if exists post_surumleri_admin_delete on public.post_surumleri;
 create policy post_surumleri_admin_delete on public.post_surumleri
   for delete using (public.is_admin());
 -- INSERT politikası yok: satırları yalnız tetikleyici (security definer) yazıyor.
@@ -209,12 +228,16 @@ alter table public.yonlendirmeler enable row level security;
 
 -- Etkin yönlendirmeler gizli değil (her ziyaretçi zaten sonucunu görüyor);
 -- ara katman anon anahtarıyla okuyor.
+drop policy if exists yonlendirmeler_okuma on public.yonlendirmeler;
 create policy yonlendirmeler_okuma on public.yonlendirmeler
   for select using (aktif or public.is_admin());
+drop policy if exists yonlendirmeler_admin_insert on public.yonlendirmeler;
 create policy yonlendirmeler_admin_insert on public.yonlendirmeler
   for insert with check (public.is_admin());
+drop policy if exists yonlendirmeler_admin_update on public.yonlendirmeler;
 create policy yonlendirmeler_admin_update on public.yonlendirmeler
   for update using (public.is_admin());
+drop policy if exists yonlendirmeler_admin_delete on public.yonlendirmeler;
 create policy yonlendirmeler_admin_delete on public.yonlendirmeler
   for delete using (public.is_admin());
 
