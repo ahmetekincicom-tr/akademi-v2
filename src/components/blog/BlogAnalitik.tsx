@@ -9,7 +9,8 @@ import { analiz } from "@/lib/analiz";
  * Gönderdikleri:
  *  - blog_view (sayfa başına bir kez)
  *  - blog_scroll_25 / _50 / _75 / blog_complete (her biri oturumda bir kez)
- *  - blog_cta_click (içerikteki tüm .aea-cta'lar; placement data-attribute'tan)
+ *  - blog_cta_click (içerikteki tüm .aea-cta'lar; placement data-attribute'tan;
+ *    yazı içi butonlar placement=inline_button)
  *  - blog_related_post_click (yazı sonu benzer yazılar)
  *
  * prompt_copy ve image_lightbox kendi island'larında (PromptKopyala,
@@ -101,6 +102,19 @@ export function BlogAnalitik({
           cta_label: cta.dataset.ctaLabel || cta.textContent?.trim().slice(0, 80) || "",
           cta_destination: cta.getAttribute("href") || "",
           placement: cta.dataset.placement || "inline",
+        });
+        return;
+      }
+      // Yazı içi buton bloğu (tiptap/SssButonTablo): aynı olay, kendi yerleşimiyle.
+      const buton = hedef?.closest?.("a[data-buton]") as HTMLAnchorElement | null;
+      if (buton) {
+        analiz.blog.ctaTikla({
+          post_id: postId,
+          post_slug: slug,
+          cta_id: "yazi-buton",
+          cta_label: buton.textContent?.trim().slice(0, 80) || "",
+          cta_destination: buton.getAttribute("href") || "",
+          placement: "inline_button",
         });
         return;
       }

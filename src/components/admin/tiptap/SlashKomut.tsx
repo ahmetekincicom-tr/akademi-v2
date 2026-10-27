@@ -7,6 +7,8 @@ import { PluginKey } from "@tiptap/pm/state";
 import tippy, { type Instance as TippyInstance, type GetReferenceClientRect } from "tippy.js";
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { blokEkle } from "@/components/admin/tiptap/BlogBloklari";
+import { butonEkle, sssEkle, tabloEkle } from "@/components/admin/tiptap/SssButonTablo";
+import { BUTON_VARSAYILAN_HREF } from "@/lib/blog-sss";
 
 /**
  * "/" slash komut menüsü.
@@ -35,6 +37,8 @@ export type SlashItem = {
 export type SlashSecenek = {
   /** Editördeki görsel yükleme akışını açar. */
   onGorsel: () => void;
+  /** Yeni butonun hedef seçicisini açar. */
+  onButon?: () => void;
 };
 
 const slashKey = new PluginKey("slashKomut");
@@ -110,6 +114,37 @@ function maddeler(opts: SlashSecenek): SlashItem[] {
       komut: (e, r) => {
         e.chain().focus().deleteRange(r).run();
         blokEkle(e, "kaynakBlock");
+      },
+    },
+    {
+      baslik: "SSS",
+      aciklama: "Sıkça sorulan sorular",
+      rozet: "?",
+      arama: ["sss", "soru", "cevap", "faq", "sikca", "sıkça"],
+      komut: (e, r) => {
+        e.chain().focus().deleteRange(r).run();
+        sssEkle(e);
+      },
+    },
+    {
+      baslik: "Buton",
+      aciklama: "Bir sayfaya giden düğme",
+      rozet: "▭",
+      arama: ["buton", "button", "dugme", "düğme", "cta"],
+      komut: (e, r) => {
+        e.chain().focus().deleteRange(r).run();
+        butonEkle(e, BUTON_VARSAYILAN_HREF, "");
+        opts.onButon?.();
+      },
+    },
+    {
+      baslik: "Tablo",
+      aciklama: "Başlık satırlı tablo",
+      rozet: "▦",
+      arama: ["tablo", "table", "karsilastirma", "karşılaştırma"],
+      komut: (e, r) => {
+        e.chain().focus().deleteRange(r).run();
+        tabloEkle(e);
       },
     },
   ];

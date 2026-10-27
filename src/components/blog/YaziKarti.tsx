@@ -26,7 +26,7 @@ export function YaziKarti({
       {...(konum ? { "data-ilgili-slug": yazi.slug, "data-ilgili-pos": konum } : {})}
       className="group flex flex-col overflow-hidden rounded-2xl border border-ink/11 bg-white transition hover:-translate-y-[3px] hover:border-brand/45 hover:shadow-[0_20px_44px_rgba(10,13,24,0.11)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand motion-reduce:hover:translate-y-0"
     >
-      <BlogKapak gorsel={yazi.kapak} kategoriSlug={yazi.kategori?.slug} />
+      <BlogKapak gorsel={yazi.kapak} kategoriSlug={yazi.kategori?.slug} ozel={{ ton: yazi.kapakTon, simge: yazi.kapakSimge }} />
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] tracking-[0.06em] text-[#5C6273]">
           {yazi.kategori && <span className="font-semibold text-brand uppercase">{yazi.kategori.ad}</span>}

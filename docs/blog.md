@@ -86,6 +86,32 @@ Başlık, özet ya da içerik değişip kaydedildiğinde eski hâl `post_surumle
 tablosuna yazılıyor (tetikleyici). Yazı başına son 100 sürüm tutuluyor.
 Editörde "Sürüm geçmişi" → bir sürüm → "Bu sürümü editöre yükle" → Kaydet.
 
+## Editör (Faz 3)
+
+- **Bloklar** (`src/components/admin/tiptap/SssButonTablo.ts`): SSS,
+  buton ve tablo. Blok Ekle menüsünden ya da `/sss`, `/buton`, `/tablo`
+  komutlarıyla eklenir.
+  - Yazıda en az iki soru-cevap varsa sayfaya FAQPage yapılandırılmış verisi
+    ekleniyor (`src/lib/blog-sss.ts`). SSS soruları İçindekiler'e girmiyor.
+  - Google 2023'ten beri SSS zengin sonucunu yalnız resmî ve sağlık
+    sitelerinde gösteriyor. Veri yine de arama ve yapay zekâ motorlarının
+    soruyu cevapla eşleştirmesine yarıyor.
+- **SEO kartı** (`src/components/admin/BlogSeoPaneli.tsx`): odak kelime,
+  Türkçe analiz (`src/lib/blog-seo-analiz.ts`) ve Google önizlemesi.
+  - Aynı odak kelime başka yazıda varsa uyarı veriyor.
+  - Odak kelime yalnız panelde; sayfaya basılmıyor.
+- **Yayın öncesi kontrol** (`src/lib/blog-yayin-kontrol.ts`): yazı yayına
+  alınırken ya da zamanlanırken eksikler bir pencerede listeleniyor.
+  Engellemiyor. Toplu yayında gösterilmiyor.
+- **Kapak**: görsel yoksa renk ve simge seçilebiliyor (`kapak_ton`,
+  `kapak_simge`); boşsa kategorinin görünümü kullanılıyor. Görsel varsa alt
+  metin alanı var (`kapak_alt`); boşsa yazı başlığı kullanılıyor.
+- **Etiketler**: var olan etiketler öneriliyor. Aynı adrese düşen farklı
+  yazım ("meta ads" ↔ "Meta Ads") kayıtta var olan yazıma çevriliyor.
+- **Toplu işlem** (Blog listesi): kategori değiştir, yayınla, taslağa al,
+  sil. Yayından kalkan ya da silinen yazılar için tek yönlendirme kararı
+  veriliyor.
+
 ## İçerik güvenliği
 
 Gövde HTML'i sayfaya basılmadan önce izin listesiyle temizleniyor
@@ -124,3 +150,11 @@ sunucusu blog için gerekmiyor.
    - Blog → Yönlendirmeler açılıyor mu?
    - Bir taslağı 2 dakika sonrasına zamanla; yayına giriyor mu?
    - Blog → WordPress taşıma: görsel sayısı görünüyor mu?
+
+## Yayına alma sırası (Faz 3)
+
+1. **Önce veritabanı** (onayla): `supabase/migrations/20261029120000_blog_faz3.sql`.
+   Yalnız yeni kolon ekliyor; eski kodla uyumlu.
+2. **Sonra kod**. Yeni kod `odak_kelime`, `kapak_ton`, `kapak_simge`,
+   `kapak_alt` kolonlarını okuyor. Migration'dan önce dağıtılırsa blog
+   listeleri boş görünür.

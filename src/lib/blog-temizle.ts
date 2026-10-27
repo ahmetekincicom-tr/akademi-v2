@@ -59,7 +59,8 @@ const ATILAN = new Set([
  */
 const ORTAK = ["className", "id", "title", "dir", "lang", "ariaHidden", "ariaLabel"];
 const IZINLI: Record<string, string[]> = {
-  p: [],
+  // Buton bloğu: <p data-blok="buton"><a data-buton>…</a></p> (tiptap/SssButonTablo).
+  p: ["dataBlok"],
   br: [],
   hr: [],
   strong: [],
@@ -78,16 +79,18 @@ const IZINLI: Record<string, string[]> = {
   kbd: [],
   pre: [],
   span: [],
-  div: [],
+  // SSS bloğu: madde ve cevap kapları (tiptap/SssButonTablo).
+  div: ["dataSssMadde", "dataSssCevap"],
+  section: ["dataBlok"],
   blockquote: ["cite"],
   q: ["cite"],
   h2: [],
-  h3: [],
+  h3: ["dataSssSoru"],
   h4: [],
   ul: [],
   ol: ["start", "reversed", "type"],
   li: ["value"],
-  a: ["href", "target", "rel", "dataCtaId", "dataPlacement", "dataCtaLabel"],
+  a: ["href", "target", "rel", "dataCtaId", "dataPlacement", "dataCtaLabel", "dataButon"],
   img: ["src", "alt", "width", "height", "loading", "decoding", "dataLightbox"],
   figure: ["dataGorsel", "dataDecorative"],
   figcaption: [],
@@ -249,9 +252,53 @@ function dolas(ebeveyn: Parent, baglanti?: BaglantiCozucu): void {
     if (cocuk.tagName === "img" && !cocuk.properties.src) continue;
 
     dolas(cocuk, baglanti);
+    // Bağlantısı ya da metni kalmamış buton (hedefi kaldırılmış, boş düğme)
+    // yazıda boş bir kutu olarak durmasın.
+    if (cocuk.tagName === "p" && cocuk.properties.dataBlok === "buton" && !butonGecerli(cocuk)) continue;
+    if (cocuk.tagName === "table") {
+      sonraki.push(tabloHazirla(cocuk));
+      continue;
+    }
     sonraki.push(cocuk);
   }
   ebeveyn.children = sonraki as typeof ebeveyn.children;
+}
+
+function metniVar(d: Element): boolean {
+  return d.children.some((c) => (c.type === "text" ? c.value.trim() !== "" : c.type === "element" && metniVar(c)));
+}
+
+function butonGecerli(p: Element): boolean {
+  return p.children.some((c) => elementMi(c) && c.tagName === "a" && Boolean(c.properties.href) && metniVar(c));
+}
+
+/**
+ * Tablo: editör başlık satırını <tbody>'nin ilk satırı olarak yazıyor
+ * (ProseMirror <thead> üretemiyor); tümü <th> olan ilk satır <thead>'e
+ * taşınıyor. Tablo yatay kaydırılabilir bir kutuya sarılıyor: geniş tablo dar
+ * ekranda sayfayı yana kaydırmasın, kendi içinde kaysın. Kutu klavyeyle
+ * odaklanabiliyor (kaydırılabilir bölge erişilebilir olsun).
+ */
+function tabloHazirla(tablo: Element): Element {
+  const govde = tablo.children.find((c): c is Element => elementMi(c) && c.tagName === "tbody");
+  const basVar = tablo.children.some((c) => elementMi(c) && c.tagName === "thead");
+  if (govde && !basVar) {
+    const ilkIndis = govde.children.findIndex((c) => elementMi(c) && c.tagName === "tr");
+    const ilk = ilkIndis >= 0 ? (govde.children[ilkIndis] as Element) : null;
+    const hucreler = ilk ? ilk.children.filter(elementMi) : [];
+    if (ilk && hucreler.length && hucreler.every((h) => h.tagName === "th")) {
+      govde.children.splice(ilkIndis, 1);
+      const bas: Element = { type: "element", tagName: "thead", properties: {}, children: [ilk] };
+      tablo.children.splice(tablo.children.indexOf(govde), 0, bas);
+      if (!govde.children.some(elementMi)) tablo.children.splice(tablo.children.indexOf(govde), 1);
+    }
+  }
+  return {
+    type: "element",
+    tagName: "div",
+    properties: { className: ["aea-tablo"], role: "region", tabIndex: 0, ariaLabel: "Tablo" },
+    children: [tablo],
+  };
 }
 
 /** Blog gövdesini güvenli HTML'e çevirir. Boş girdi boş döner. */

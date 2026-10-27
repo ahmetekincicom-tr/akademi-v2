@@ -2,15 +2,16 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { YaziEditoru } from "@/components/admin/YaziEditoru";
 import { BlogSekmeler } from "@/components/admin/BlogSekmeler";
-import { yaziGetirAdmin, getKategoriler, icLinkHedefleri } from "@/lib/yazilar";
+import { yaziGetirAdmin, getKategoriler, icLinkHedefleri, yaziSeoOzetleri } from "@/lib/yazilar";
 
 export default async function YaziDuzenlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
-  const [yazi, kategoriler, icHedefler] = await Promise.all([
+  const [yazi, kategoriler, icHedefler, digerYazilar] = await Promise.all([
     yaziGetirAdmin(slug, supabase),
     getKategoriler(),
     icLinkHedefleri(),
+    yaziSeoOzetleri(supabase),
   ]);
   if (!yazi) notFound();
 
@@ -21,7 +22,7 @@ export default async function YaziDuzenlePage({ params }: { params: Promise<{ sl
       </h1>
       <BlogSekmeler slug={slug} aktif="icerik" />
       <div className="mt-6">
-        <YaziEditoru mevcut={yazi} kategoriler={kategoriler} icHedefler={icHedefler} />
+        <YaziEditoru mevcut={yazi} kategoriler={kategoriler} icHedefler={icHedefler} digerYazilar={digerYazilar} />
       </div>
     </main>
   );

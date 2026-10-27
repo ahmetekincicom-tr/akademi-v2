@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { blogPanelYazilari } from "@/lib/yazilar";
+import { blogPanelYazilari, getKategoriler, icLinkHedefleri } from "@/lib/yazilar";
 import { blogPanelMetrikleri, type PanelSonuc, type PanelAralik } from "@/lib/google/ga4-rapor";
 import { gscPanelMetrikleri, type GscPanelSonuc } from "@/lib/google/gsc-rapor";
 import { BlogPanel } from "@/components/admin/BlogPanel";
@@ -20,7 +20,11 @@ export default async function BlogListePage({
   const gun = aralikCoz(gunParam);
 
   const supabase = await createClient();
-  const yazilar = await blogPanelYazilari(supabase);
+  const [yazilar, kategoriler, icHedefler] = await Promise.all([
+    blogPanelYazilari(supabase),
+    getKategoriler(),
+    icLinkHedefleri(),
+  ]);
 
   // Performans — GA4 (trafik) + Search Console (SEO). İkisi de tek batch, N+1 yok;
   // bağımsız ve CMS'ten ayrık: biri hata/eksik olsa da panel bozulmaz, "—" gösterir.
@@ -45,5 +49,15 @@ export default async function BlogListePage({
     timeZone: "Europe/Istanbul",
   }).format(new Date());
 
-  return <BlogPanel yazilar={yazilar} metrik={metrik} gscMetrik={gscMetrik} gun={gun} guncelSaat={guncelSaat} />;
+  return (
+    <BlogPanel
+      yazilar={yazilar}
+      metrik={metrik}
+      gscMetrik={gscMetrik}
+      gun={gun}
+      guncelSaat={guncelSaat}
+      kategoriler={kategoriler}
+      icHedefler={icHedefler}
+    />
+  );
 }

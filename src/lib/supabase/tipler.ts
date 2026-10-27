@@ -73,8 +73,12 @@ export type Database = {
           icerik_html: string;
           icerik_json: Json;
           id: string;
+          kapak_alt: string;
           kapak_gorsel: string | null;
+          kapak_simge: string | null;
+          kapak_ton: string | null;
           kategori_id: string | null;
+          odak_kelime: string;
           ozet: string;
           seo_aciklama: string;
           seo_baslik: string;

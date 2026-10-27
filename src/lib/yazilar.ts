@@ -51,6 +51,9 @@ export type YaziOzet = {
   icerikGuncelleme: string | null;
   kategori: Kategori | null;
   etiketler: string[];
+  /** Görselsiz kapağın yazıya özel rengi/simgesi; boşsa kategorininki (lib/blog-kapak). */
+  kapakTon: string | null;
+  kapakSimge: string | null;
 };
 
 /** Tek yazının tamamı (düzenleme ve detay sayfası için). */
@@ -63,13 +66,17 @@ export type Yazi = YaziOzet & {
   seoAciklama: string;
   /** Bir kez bile yayınlandı mı? Adresi Google'da olabilir (yönlendirme kararı). */
   hicYayinlandi: boolean;
+  /** Editördeki SEO analizinin odak kelimesi (yalnız panelde kullanılıyor). */
+  odakKelime: string;
+  /** Kapak görselinin alt metni; boşsa yazı başlığı. */
+  kapakAlt: string;
 };
 
 type Db = SupabaseClient<Database>;
 
 const OZET_SELECT =
-  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, zamanlanan_tarih, yazar, updated_at, icerik_guncelleme, etiketler, kategori:categories(id, slug, ad)";
-const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, seo_aciklama, kategori_id, hic_yayinlandi`;
+  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, zamanlanan_tarih, yazar, updated_at, icerik_guncelleme, etiketler, kapak_ton, kapak_simge, kategori:categories(id, slug, ad)";
+const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, seo_aciklama, kategori_id, hic_yayinlandi, odak_kelime, kapak_alt`;
 
 type KategoriGomulu = { id: string; slug: string; ad: string } | null;
 
@@ -86,6 +93,8 @@ type OzetSatir = {
   updated_at: string;
   icerik_guncelleme: string | null;
   etiketler: string[] | null;
+  kapak_ton: string | null;
+  kapak_simge: string | null;
   kategori: KategoriGomulu;
 };
 
@@ -96,6 +105,8 @@ type TamSatir = OzetSatir & {
   seo_aciklama: string;
   kategori_id: string | null;
   hic_yayinlandi: boolean;
+  odak_kelime: string | null;
+  kapak_alt: string | null;
 };
 
 function ozetle(r: OzetSatir): YaziOzet {
@@ -113,6 +124,8 @@ function ozetle(r: OzetSatir): YaziOzet {
     icerikGuncelleme: r.icerik_guncelleme,
     kategori: r.kategori ? { id: r.kategori.id, slug: r.kategori.slug, ad: r.kategori.ad } : null,
     etiketler: r.etiketler ?? [],
+    kapakTon: r.kapak_ton,
+    kapakSimge: r.kapak_simge,
   };
 }
 
@@ -126,6 +139,8 @@ function tamla(r: TamSatir): Yazi {
     seoBaslik: r.seo_baslik,
     seoAciklama: r.seo_aciklama,
     hicYayinlandi: r.hic_yayinlandi,
+    odakKelime: r.odak_kelime ?? "",
+    kapakAlt: r.kapak_alt ?? "",
   };
 }
 
@@ -275,20 +290,43 @@ export async function tumYazilarAdmin(client: Db): Promise<YaziOzet[]> {
 }
 
 /** Performans paneli için: özet alanlar + on-page SEO tamlığı (Supabase). */
-export type PanelYazi = YaziOzet & { seoTam: boolean };
+export type PanelYazi = YaziOzet & { seoTam: boolean; hicYayinlandi: boolean };
 export async function blogPanelYazilari(client: Db): Promise<PanelYazi[]> {
   const { data, error } = await client
     .from("posts")
-    .select(`${OZET_SELECT}, seo_baslik, seo_aciklama`)
+    .select(`${OZET_SELECT}, seo_baslik, seo_aciklama, hic_yayinlandi`)
     .order("updated_at", { ascending: false });
   if (error) {
     console.error("[yazilar] blogPanelYazilari:", error.message);
     return [];
   }
-  return (data as unknown as (OzetSatir & { seo_baslik: string | null; seo_aciklama: string | null })[]).map((r) => ({
+  type Satir = OzetSatir & { seo_baslik: string | null; seo_aciklama: string | null; hic_yayinlandi: boolean | null };
+  return (data as unknown as Satir[]).map((r) => ({
     ...ozetle(r),
+    hicYayinlandi: Boolean(r.hic_yayinlandi),
     // On-page SEO: başlık ve açıklama dolu mu (arama sıralamaları Faz 2 / Search Console).
     seoTam: Boolean((r.seo_baslik ?? "").trim() && (r.seo_aciklama ?? "").trim()),
+  }));
+}
+
+/**
+ * Editörün SEO kartı ve etiket önerisi için diğer yazıların kısa hâli:
+ * aynı odak kelimeyi kullanan yazı uyarısı ve var olan etiketler. Yazı sayısı
+ * küçük (onlarca); hepsi tek seferde geliyor, karşılaştırma tarayıcıda.
+ */
+export type YaziSeoOzeti = { id: string; slug: string; baslik: string; odakKelime: string; etiketler: string[] };
+export async function yaziSeoOzetleri(client: Db): Promise<YaziSeoOzeti[]> {
+  const { data, error } = await client.from("posts").select("id, slug, baslik, odak_kelime, etiketler");
+  if (error) {
+    console.error("[yazilar] yaziSeoOzetleri:", error.message);
+    return [];
+  }
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    baslik: r.baslik,
+    odakKelime: r.odak_kelime ?? "",
+    etiketler: r.etiketler ?? [],
   }));
 }
 

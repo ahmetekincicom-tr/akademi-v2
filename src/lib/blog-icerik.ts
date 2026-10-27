@@ -28,6 +28,9 @@ export function iceriktenIcindekiler(html: string): { html: string; icindekiler:
   const kullanilan = new Set<string>();
 
   const yeni = html.replace(/<h([23])([^>]*)>([\s\S]*?)<\/h\1>/gi, (tam, seviyeStr, oznitelik, ic) => {
+    // SSS soruları H3 ama İçindekiler'e girmiyor (bölüm başlığı yetiyor;
+    // yirmi soru listeyi boğardı).
+    if (/\sdata-sss-soru\b/.test(String(oznitelik ?? ""))) return tam;
     const seviye = (seviyeStr === "3" ? 3 : 2) as 2 | 3;
     const metin = varlikCoz(String(ic).replace(/<[^>]+>/g, "")).trim();
     if (!metin) return tam;
