@@ -70,3 +70,10 @@ describe("İçindekiler — SSS", () => {
     expect(icindekiler.map((i) => i.metin)).toEqual(["Giriş", "Sıkça Sorulan Sorular"]);
   });
 });
+
+describe("blogHtmlTemizle — boş başlık", () => {
+  it("metni olmayan başlık atılır, görselli başlık kalır", () => {
+    expect(blogHtmlTemizle("<h2></h2><h2> &nbsp; </h2><p>a</p><h3><strong></strong></h3>")).toBe("<p>a</p>");
+    expect(blogHtmlTemizle('<h2><img src="/a.png" alt="x"></h2>')).toBe('<h2><img src="/a.png" alt="x"></h2>');
+  });
+});

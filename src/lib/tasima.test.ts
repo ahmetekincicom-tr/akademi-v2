@@ -38,7 +38,22 @@ describe("taşıma yönlendirmeleri", () => {
       // veritabanından geliyor, burada yalnızca biçim doğrulanıyor.
       const egitimDetayi = /^\/egitimler\/[a-z0-9-]+$/.test(yeni);
       const bilinen = UYGULAMA_YOLLARI.includes(yeni);
-      expect(egitimDetayi || bilinen, `${eski} → ${yeni} bilinmeyen bir yola gidiyor`).toBe(true);
+      // Blog yazıları da veritabanında ve kökte; hedef olarak kullanılanlar
+      // tek tek yazılı (28.10.2026'da yayında).
+      const yazi = ["/nasil-sosyal-medya-uzmani-olunur", "/meta-business-reklamlarinda-crm-kullanimi"].includes(yeni);
+      expect(egitimDetayi || bilinen || yazi, `${eski} → ${yeni} bilinmeyen bir yola gidiyor`).toBe(true);
+    }
+  });
+
+  it("eğitim hedefleri bugün yayında olan eğitimler", () => {
+    // Eğitimler veritabanında; liste 28.10.2026 itibarıyla. Bir eğitim
+    // kaldırılırsa ya da adresi değişirse buradan ve tablodan güncelleyin:
+    // ölü bir eğitime giden yönlendirme 404'e gönderiyor (Ankara ve
+    // işletmelere özel eğitim hedefleri böyle kalmıştı).
+    const EGITIMLER = ["meta-ads-egitimi", "sosyal-medya-ve-reklam-egitimi", "yapay-zeka-egitimi", "tiktok-ads-egitimi"];
+    for (const { eski, yeni } of YONLENDIRMELER) {
+      const m = /^\/egitimler\/([a-z0-9-]+)$/.exec(yeni);
+      if (m) expect(EGITIMLER, `${eski} → ${yeni}`).toContain(m[1]);
     }
   });
 

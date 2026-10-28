@@ -255,6 +255,9 @@ function dolas(ebeveyn: Parent, baglanti?: BaglantiCozucu): void {
     // Bağlantısı ya da metni kalmamış buton (hedefi kaldırılmış, boş düğme)
     // yazıda boş bir kutu olarak durmasın.
     if (cocuk.tagName === "p" && cocuk.properties.dataBlok === "buton" && !butonGecerli(cocuk)) continue;
+    // Boş başlık (WordPress'ten kalan <h2></h2>): sayfada açıklamasız boşluk
+    // ve arama motoruna boş bölüm başlığı.
+    if (/^h[2-4]$/.test(cocuk.tagName) && !metniVar(cocuk) && !gorselVar(cocuk)) continue;
     if (cocuk.tagName === "table") {
       sonraki.push(tabloHazirla(cocuk));
       continue;
@@ -266,6 +269,10 @@ function dolas(ebeveyn: Parent, baglanti?: BaglantiCozucu): void {
 
 function metniVar(d: Element): boolean {
   return d.children.some((c) => (c.type === "text" ? c.value.trim() !== "" : c.type === "element" && metniVar(c)));
+}
+
+function gorselVar(d: Element): boolean {
+  return d.children.some((c) => elementMi(c) && (c.tagName === "img" || gorselVar(c)));
 }
 
 function butonGecerli(p: Element): boolean {
