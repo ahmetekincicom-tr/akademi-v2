@@ -75,8 +75,8 @@ export type Yazi = YaziOzet & {
 type Db = SupabaseClient<Database>;
 
 const OZET_SELECT =
-  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, zamanlanan_tarih, yazar, updated_at, icerik_guncelleme, etiketler, kapak_ton, kapak_simge, kategori:categories(id, slug, ad)";
-const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, seo_aciklama, kategori_id, hic_yayinlandi, odak_kelime, kapak_alt`;
+  "id, slug, baslik, ozet, kapak_gorsel, durum, yayin_tarihi, zamanlanan_tarih, yazar, updated_at, icerik_guncelleme, etiketler, kapak_ton, kapak_simge, seo_aciklama, kategori:categories(id, slug, ad)";
+const TAM_SELECT = `${OZET_SELECT}, icerik_html, icerik_json, seo_baslik, kategori_id, hic_yayinlandi, odak_kelime, kapak_alt`;
 
 type KategoriGomulu = { id: string; slug: string; ad: string } | null;
 
@@ -95,6 +95,7 @@ type OzetSatir = {
   etiketler: string[] | null;
   kapak_ton: string | null;
   kapak_simge: string | null;
+  seo_aciklama: string | null;
   kategori: KategoriGomulu;
 };
 
@@ -114,7 +115,9 @@ function ozetle(r: OzetSatir): YaziOzet {
     id: r.id,
     slug: r.slug,
     baslik: r.baslik,
-    ozet: r.ozet,
+    // Özeti boş yazı kartta başlığın altında boşluk bırakıyordu (WordPress'ten
+    // gelen 5 yazıda vardı); SEO açıklaması onun yerine geçiyor.
+    ozet: r.ozet?.trim() ? r.ozet : (r.seo_aciklama ?? ""),
     kapak: kapakUrl(r.kapak_gorsel),
     durum: durumCoz(r.durum),
     yayinTarihi: r.yayin_tarihi,
@@ -132,6 +135,8 @@ function ozetle(r: OzetSatir): YaziOzet {
 function tamla(r: TamSatir): Yazi {
   return {
     ...ozetle(r),
+    // Editörde gerçek değer: yedeğe düşmüş özet panelde özet gibi görünmesin.
+    ozet: r.ozet,
     icerikHtml: r.icerik_html,
     icerikJson: r.icerik_json,
     kapakYol: r.kapak_gorsel,
@@ -294,7 +299,7 @@ export type PanelYazi = YaziOzet & { seoTam: boolean; hicYayinlandi: boolean };
 export async function blogPanelYazilari(client: Db): Promise<PanelYazi[]> {
   const { data, error } = await client
     .from("posts")
-    .select(`${OZET_SELECT}, seo_baslik, seo_aciklama, hic_yayinlandi`)
+    .select(`${OZET_SELECT}, seo_baslik, hic_yayinlandi`)
     .order("updated_at", { ascending: false });
   if (error) {
     console.error("[yazilar] blogPanelYazilari:", error.message);

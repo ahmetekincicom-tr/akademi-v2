@@ -51,14 +51,17 @@ export const YONLENDIRMELER: Yonlendirme[] = [
     yeni: "/egitimler/sosyal-medya-ve-reklam-egitimi",
   },
   { eski: "/birebir-yapay-zeka-egitimi", yeni: "/egitimler/yapay-zeka-egitimi" },
-  {
-    eski: "/ankara-sosyal-medya-reklam-egitimi",
-    yeni: "/egitimler/ankara-sosyal-medya-meta-ads-egitimi",
-  },
-  {
-    eski: "/isletmeler-icin-sosyal-medya-reklam-egitimi",
-    yeni: "/egitimler/isletmelere-ozel-sosyal-medya-ve-reklam-egitimi",
-  },
+  /*
+    Ankara ve işletmelere özel eğitimlerin ayrı sayfası artık yok; önceki
+    hedefler (/egitimler/ankara-sosyal-medya-meta-ads-egitimi,
+    /egitimler/isletmelere-ozel-sosyal-medya-ve-reklam-egitimi) 404
+    veriyordu. Ankara eğitimi Meta Ads odaklıydı → Meta Business eğitimi;
+    işletmelere özel eğitim → kurumsal eğitim sayfası.
+  */
+  { eski: "/ankara-sosyal-medya-reklam-egitimi", yeni: "/egitimler/meta-ads-egitimi" },
+  { eski: "/egitimler/ankara-sosyal-medya-meta-ads-egitimi", yeni: "/egitimler/meta-ads-egitimi" },
+  { eski: "/isletmeler-icin-sosyal-medya-reklam-egitimi", yeni: "/kurumsal" },
+  { eski: "/egitimler/isletmelere-ozel-sosyal-medya-ve-reklam-egitimi", yeni: "/kurumsal" },
   { eski: "/birebir-egitimler", yeni: "/egitimler" },
   { eski: "/kurumsal-meta-ads-egitimi", yeni: "/kurumsal" },
 
@@ -101,6 +104,20 @@ export const YONLENDIRMELER: Yonlendirme[] = [
     bir sayfayı /egitimler'e yönlendirmek Google'ın "soft 404" saydığı, değeri
     silen davranış olurdu.
   */
+
+  // -------------------------------------------------------------- blog ---
+  /*
+    Yazıların yıl ekli eski adresleri. Blog denetiminde (28.10.2026) yazı
+    gövdelerinde bu adreslere bağlantı bulundu ve 404 veriyorlardı. Gövde
+    bağlantıları sayfa basılırken bu tabloyla son adrese yazılıyor
+    (lib/blog-baglanti).
+  */
+  { eski: "/nasil-sosyal-medya-uzmani-olunur-2024", yeni: "/nasil-sosyal-medya-uzmani-olunur" },
+  { eski: "/nasil-sosyal-medya-uzmani-olunur-2025", yeni: "/nasil-sosyal-medya-uzmani-olunur" },
+  {
+    eski: "/meta-business-reklamlarinda-crm-kullanimi-2025",
+    yeni: "/meta-business-reklamlarinda-crm-kullanimi",
+  },
 
   // -------------------------------------------------------- yasal metin ---
   { eski: "/sartlar-ve-kosullar", yeni: "/uyelik-sozlesmesi" },
