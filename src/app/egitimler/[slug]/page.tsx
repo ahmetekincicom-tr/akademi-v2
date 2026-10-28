@@ -477,6 +477,19 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         </div>
       </section>
 
+      {/*
+        Kayan referans logoları — hero'nun hemen altında, TAM GENİŞLİK (ana
+        sayfadakiyle aynı görünüm). Önceden sayfanın en sonundaydı, okuyucu
+        oraya inmeden görmüyordu; güven işareti ilk ekranın hemen ardında daha
+        işe yarıyor. İki sütunlu ızgaranın (müfredat + yapışkan kayıt kutusu)
+        dışında: sütun içinde sıkışık görünüyordu.
+
+        Veri getReferanslar() ile site geneli TEK kaynaktan: panelden
+        güncellenince ana sayfa, referanslar sayfası ve buradaki şerit birlikte
+        değişiyor. Liste boşsa ReferansBulutu null döndüğü için hiç basılmıyor.
+      */}
+      <ReferansBulutu referanslar={referanslar} />
+
       <div className="mx-auto grid max-w-[1240px] grid-cols-1 gap-16 px-5 sm:px-8 lg:grid-cols-[1fr_380px]">
         <main className="min-w-0 py-20 pb-24">
           {/*
@@ -829,18 +842,6 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
           </div>
         </aside>
       </div>
-
-      {/*
-        Kayan referans logoları — TAM GENİŞLİK. İçerik iki sütunlu ızgarada
-        (müfredat solda, yapışkan kayıt kutusu sağda); tam genişlik bir bandı
-        sütun içine koymak sıkışık görünüyordu, o yüzden ızgaranın hemen altına,
-        sayfa genişliğinde yerleştirildi (ana sayfadakiyle aynı görünüm).
-
-        Veri getReferanslar() ile site geneli TEK kaynaktan: panelden
-        güncellenince ana sayfa, referanslar sayfası ve buradaki şerit birlikte
-        değişiyor. Liste boşsa ReferansBulutu null döndüğü için hiç basılmıyor.
-      */}
-      <ReferansBulutu referanslar={referanslar} />
 
       <PublicFooter />
     </div>
