@@ -193,6 +193,9 @@ export async function saveCourse(input: SaveCourseInput): Promise<{ error?: stri
     satisa_acik: input.satisaAcik,
     fiyat_gorunur: input.fiyatGorunur,
     content,
+    // Tabloda tetikleyici yok; elle damgalanmazsa site haritasındaki lastmod
+    // eğitimin oluşturulduğu günde kalıyordu.
+    updated_at: new Date().toISOString(),
   };
 
   let savedId = courseId;
@@ -318,7 +321,10 @@ export async function kursKapakGuncelle(slug: string, yol: string | null): Promi
     .eq("slug", slug)
     .maybeSingle();
 
-  const { error } = await supabase.from("courses").update({ kapak_gorsel: yol }).eq("slug", slug);
+  const { error } = await supabase
+    .from("courses")
+    .update({ kapak_gorsel: yol, updated_at: new Date().toISOString() })
+    .eq("slug", slug);
   if (error) return { error: error.message };
 
   const eski = mevcut?.kapak_gorsel as string | null | undefined;
