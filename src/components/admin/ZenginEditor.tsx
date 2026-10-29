@@ -120,6 +120,9 @@ export function ZenginEditor({
   const [gorselDurum, setGorselDurum] = useState<string | null>(null);
   // Aynı dosyanın çift eklenmesini engelleyen kilit (yükleme sürerken).
   const yuklemeKilit = useRef(false);
+  // "Görseli değiştir": yeni dosya, bu konumdaki görselin yerine geçer (alt
+  // metin ve caption korunur). null → normal ekleme.
+  const degistirYeri = useRef<number | null>(null);
   const [linkAcik, setLinkAcik] = useState(false);
   // Buton bloğunun hedefini seçen pencere (bağlantı penceresiyle aynı bileşen).
   const [butonLinkAcik, setButonLinkAcik] = useState(false);
@@ -132,7 +135,10 @@ export function ZenginEditor({
   const [gorselIstek, setGorselIstek] = useState(0);
   const gorselAc = useCallback(() => setGorselIstek((n) => n + 1), []);
   useEffect(() => {
-    if (gorselIstek > 0) dosyaGirdi.current?.click();
+    if (gorselIstek > 0) {
+      degistirYeri.current = null;
+      dosyaGirdi.current?.click();
+    }
   }, [gorselIstek]);
 
   // "Blok Ekle" menüsü dışarı tıklanınca kapansın.
@@ -242,7 +248,23 @@ export function ZenginEditor({
         if (!url) throw new Error("Görsel adresi üretilemedi.");
 
         // 4) Metadata'yı figure node'una yaz.
-        editor
+        const yer = degistirYeri.current;
+        const eski = yer === null ? null : editor.state.doc.nodeAt(yer);
+        if (yer !== null && eski?.type.name === "blogGorsel") {
+          editor
+            .chain()
+            .focus()
+            .setNodeSelection(yer)
+            .updateAttributes("blogGorsel", {
+              src: url,
+              width: sonuc.genislik,
+              height: sonuc.yukseklik,
+              originalFilename: dosya.name,
+              mimeType: sonuc.mime,
+              fileSize: sonuc.optimizeBoyut,
+            })
+            .run();
+        } else editor
           .chain()
           .focus()
           .insertContent({
@@ -275,6 +297,7 @@ export function ZenginEditor({
         console.error("[gorsel] yükleme hatası:", e);
         window.alert(mesaj);
       } finally {
+        degistirYeri.current = null;
         yuklemeKilit.current = false;
         setGorselYukleniyor(false);
       }
@@ -338,7 +361,10 @@ export function ZenginEditor({
         <AracDugmesi etiket="Bağlantı" aktif={editor.isActive("link")} onTikla={() => setLinkAcik(true)}>
           🔗
         </AracDugmesi>
-        <AracDugmesi etiket={gorselYukleniyor ? "Yükleniyor…" : "Görsel ekle"} onTikla={() => dosyaGirdi.current?.click()}>
+        <AracDugmesi etiket={gorselYukleniyor ? "Yükleniyor…" : "Görsel ekle"} onTikla={() => {
+            degistirYeri.current = null;
+            dosyaGirdi.current?.click();
+          }}>
           {gorselYukleniyor ? "…" : "🖼"}
         </AracDugmesi>
         <Ayrac />
@@ -481,13 +507,25 @@ export function ZenginEditor({
       )}
 
       {/* Seçili görselin ayar paneli (alt, caption, dekoratif, lightbox, SEO). */}
-      <GorselPanel editor={editor} />
+      <GorselPanel
+        editor={editor}
+        onDegistir={() => {
+          degistirYeri.current = editor.state.selection.from;
+          dosyaGirdi.current?.click();
+        }}
+      />
 
       {/*
         Metin seçilince beliren küçük biçim menüsü (Kalın / İtalik / Bağlantı).
         Mevcut komutlara bağlı; bağlantı düğmesi zaten var olan LinkSecici'yi
         açıyor. Görsel/blok node seçimlerinde ve prompt/kod bloğunda gizli.
+
+        Sarmalayıcı div şart: tiptap menünün kendi div'ini buradan söküp
+        tippy'ye taşıyor. Doğrudan kardeş olsaydı, üstte koşullu açılan bir
+        kutu (görsel paneli, yükleme durumu) React'te o sökülmüş div'in önüne
+        eklenmeye çalışıp "insertBefore" hatasıyla editörü kilitliyordu.
       */}
+      <div>
       <BubbleMenu
         editor={editor}
         tippyOptions={{ duration: 120, zIndex: 45 }}
@@ -539,6 +577,7 @@ export function ZenginEditor({
           </button>
         </div>
       </BubbleMenu>
+      </div>
 
       <EditorContent editor={editor} />
 
