@@ -1,0 +1,78 @@
+{
+  "teklifNo": "AE-2026-1032",
+  "tarih": "2026-10-31",
+  "gecerlilikGun": 15,
+  "musteri": {
+    "firma": "Metin Bey",
+    "tamUnvan": "Kıbrıs gayrimenkul yatırımı"
+  },
+  "konu": "Google & Instagram reklam yönetimi ve Türkiye–Kıbrıs yapay zekâ görünürlüğü (GEO)",
+  "kapakBaslik": "Türkiye'den Kıbrıs'a [yatırımcı] getiren sistem.",
+  "kapsamBaslik": "Aramadan [yatırımcıya] tek sistem",
+  "hizmetler": [
+    {
+      "kod": "google-reklam",
+      "paket": "reklam",
+      "etiket": "GOOGLE ADS · TÜRKİYE → KKTC",
+      "ozet": "Kıbrıs'ta konut ve yatırım arayan kişilere, tam aradıkları anda Google'da görünün.",
+      "sure": "Aylık",
+      "not": "",
+      "kapsam": [
+        "Kıbrıs'ta yatırım ve konut aramalarına yönelik anahtar kelime ve rakip araştırması",
+        "Arama ağı ve Performance Max kampanyaları; Türkiye geneli ve hedef şehirlere konum odağı",
+        "Yatırımcı profiline göre reklam metinleri ve uzantılar",
+        "Negatif kelime, teklif ve bütçe optimizasyonu",
+        "Form, arama ve WhatsApp taleplerinin dönüşüm takibi",
+        "Aylık performans raporu"
+      ]
+    },
+    {
+      "kod": "meta-reklam",
+      "paket": "reklam",
+      "ad": "Instagram Reklam Yönetimi",
+      "etiket": "META · INSTAGRAM",
+      "ozet": "Proje görselleri ve videolarıyla yatırımcı kitlesine Instagram'da ulaşın; talepler form ve WhatsApp'a düşsün.",
+      "sure": "Aylık",
+      "not": "",
+      "kapsam": [
+        "Yatırım ilgisi ve konuma göre yatırımcı kitlesi kurgusu",
+        "Proje görselleri ve videolarıyla reels ve hikâye reklamları",
+        "Anında form ve WhatsApp'a yönlendiren talep kampanyaları",
+        "Kreatif ve metin A/B testleri",
+        "Siteyi ve profili ziyaret edenlere yeniden hedefleme",
+        "Aylık rapor: harcama, talep sayısı, talep başı maliyet"
+      ]
+    },
+    {
+      "kod": "geo",
+      "fiyat": 15000,
+      "etiket": "YAPAY ZEKÂ GÖRÜNÜRLÜĞÜ · TR – KKTC",
+      "ozet": "ChatGPT, Gemini ve Google'ın yapay zekâ yanıtlarında, Kıbrıs'ta yatırım sorularında adınızın kaynak olarak geçmesi için içerik ve kaynak çalışması.",
+      "sure": "Aylık",
+      "kapsam": [
+        "Kıbrıs'ta yatırım sorularında mevcut görünürlük analizi (ChatGPT, Gemini, Google)",
+        "Türkiye ve KKTC'deki yatırımcı sorularına göre içerik planı",
+        "Soru-cevap odaklı sayfa yapısı ve yapılandırılmış veri (schema)",
+        "Güvenilir kaynaklarda marka bahsi çalışması",
+        "Aylık görünürlük raporu"
+      ],
+      "ad": "Yapay Zekâ Görünürlüğü (GEO)"
+    },
+    {
+      "kod": "donusum-kurulumu",
+      "fiyat": 0
+    }
+  ],
+  "paketler": {
+    "reklam": {
+      "ad": "Google + Instagram Reklam Yönetimi",
+      "etiket": "Paket · Google Ads + Meta Ads",
+      "fiyat": 20000,
+      "periyot": "aylik"
+    }
+  },
+  "reklamButcesi": {
+    "tutar": "₺30.000 – ₺40.000 / ay",
+    "metin": "Bütçe hizmet bedeline dahil değildir; Google ve Meta'ya doğrudan kendi kartınızla ödenir. Google ile Instagram arasındaki dağılım, talep başı maliyete göre haftalık güncellenir."
+  }
+}
