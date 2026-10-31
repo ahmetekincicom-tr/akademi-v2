@@ -316,18 +316,19 @@ function hizmetSayfasi(v, P) {
     ${izgara(false)}
     ${P.ust(v, "Kapsam")}
     <div class="govde">
-      <div class="bolum-bas">
+      <div class="bolum-bas${hitap || v.giris ? "" : " bolum-bas--tek"}">
         <div>
           <div class="kicker">01 · Hizmet detayları</div>
           <h2 class="h2">${vurgula(v.kapsamBaslik || "Size özel [hazırlanan] hizmetler")}</h2>
         </div>
-        <div>
-          ${hitap ? `<p class="hitap">${e(hitap)}</p>` : ""}
-          <p class="lede">${e(v.giris || "")}</p>
-        </div>
+        ${
+          hitap || v.giris
+            ? `<div>${hitap ? `<p class="hitap">${e(hitap)}</p>` : ""}${v.giris ? `<p class="lede">${e(v.giris)}</p>` : ""}</div>`
+            : ""
+        }
       </div>
       <div class="devam-bas kicker">01 · Hizmet detayları (devam)</div>
-      <div class="bol-liste">${v.hizmetler.map(hizmetKart).join("")}</div>
+      <div class="bol-liste${v.hizmetler.length <= 3 ? " bol-liste--ferah" : ""}">${v.hizmetler.map(hizmetKart).join("")}</div>
     </div>
     ${P.alt(v)}
   </section>`;
@@ -430,7 +431,7 @@ function yatirimSayfasi(v, P) {
   <section class="sayfa">
     ${izgara(false)}
     ${P.ust(v, "Ücretlendirme")}
-    <div class="govde">
+    <div class="govde govde--yay">
       <div class="bolum-bas">
         <div>
           <div class="kicker">02 · Ücretlendirme</div>
@@ -455,8 +456,10 @@ function yatirimSayfasi(v, P) {
 
       ${butce}
 
-      <div class="odeme-bas"><div class="kicker">Ödeme seçenekleri</div></div>
-      <div class="odeme" style="grid-template-columns:repeat(${v.odemeSecenekleri.length},1fr)">${odeme}</div>
+      <div>
+        <div class="odeme-bas"><div class="kicker">Ödeme seçenekleri</div></div>
+        <div class="odeme" style="grid-template-columns:repeat(${v.odemeSecenekleri.length},1fr)">${odeme}</div>
+      </div>
 
       <div class="sartlar">${v.sartlar.map((s) => `<p>${e(s)}</p>`).join("")}</div>
     </div>
@@ -467,27 +470,33 @@ function yatirimSayfasi(v, P) {
 function referansSayfasi(v, P) {
   // Logolar optik olarak dengelenir: genişlik/yükseklik oranına göre aynı görsel ağırlığa
   // yakın bir boyut hesaplanır (geniş logolar daha alçak, kare logolar daha yüksek).
-  // 17 logo 6-5-6 dizilir: ilk satır kendiliğinden 6'da kırılır, ikinci satır 5'te elle kırılır.
-  const kir = v.referanslar.length > 12 ? 11 : -1;
+  // 3 sütun; son satırda 2 logo kalırsa ortalanır.
+  const n = v.referanslar.length;
+  const sonIkili = n % 3 === 2;
   const logolar = v.referanslar
     .map((r, i) => {
       const { w, h } = gorselOlcu(V("referanslar", r.dosya));
       const oran = w / h;
-      let yuk = 10.2 * Math.pow(oran, -0.5) * (r.olcek || 1);
+      // Yanına ad yazılan logo, ada yer açmak için daha dar alana sığdırılır.
+      const sinirGen = r.ek ? 16 : 38;
+      let yuk = (r.ek ? 11 : 12) * Math.pow(oran, -0.5) * (r.olcek || 1);
       let gen = yuk * oran;
-      if (gen > 24.5) (gen = 24.5), (yuk = gen / oran);
-      if (yuk > 13) (yuk = 13), (gen = yuk * oran);
+      if (gen > sinirGen) (gen = sinirGen), (yuk = gen / oran);
+      if (yuk > 14) (yuk = 14), (gen = yuk * oran);
+      const yer = sonIkili && i === n - 2 ? ' style="grid-column:2 / span 2"' : "";
       return `
-      <div class="ref" title="${e(r.ad)}">
-        <div class="ref__logo"><img src="${veriUrl(V("referanslar", r.dosya))}" alt="${e(r.ad)}" style="width:${gen.toFixed(2)}mm;height:${yuk.toFixed(2)}mm"></div>
-      </div>${i + 1 === kir ? '<div class="ref--kir"></div>' : ""}`;
+      <div class="ref" title="${e(r.ad)}"${yer}>
+        <div class="ref__logo"><img src="${veriUrl(V("referanslar", r.dosya))}" alt="${e(r.ad)}" style="width:${gen.toFixed(2)}mm;height:${yuk.toFixed(2)}mm">${
+          r.ek ? `<span class="ref__ek">${e(r.ek)}</span>` : ""
+        }</div>
+      </div>`;
     })
     .join("");
   return `
   <section class="sayfa">
     ${izgara(false)}
     ${P.ust(v, "Referanslar")}
-    <div class="govde">
+    <div class="govde govde--ritim">
       <div class="bolum-bas bolum-bas--tek">
         <div>
           <div class="kicker">03 · Referanslar</div>
@@ -499,7 +508,7 @@ function referansSayfasi(v, P) {
         .map((s) => `<div><strong>${e(s.deger)}</strong><b>${e(s.etiket)}</b><span>${e(s.alt)}</span></div>`)
         .join("")}</div>
 
-      <div class="logolar">
+      <div class="logolar esnek">
         ${logolar}
       </div>
 
@@ -518,7 +527,7 @@ function iletisimSayfasi(v, P) {
   <section class="sayfa sayfa--koyu">
     ${izgara(true)}
     ${P.ust(v, "İletişim")}
-    <div class="govde">
+    <div class="govde govde--ritim">
       <div class="bolum-bas">
         <div>
           <div class="kicker">04 · İletişim</div>
@@ -527,27 +536,22 @@ function iletisimSayfasi(v, P) {
         <p class="lede">Sorularınız için bana doğrudan ulaşabilirsiniz. Teklifle ilgili her konuşmayı ben yürütürüm; aracı yok.</p>
       </div>
 
-      <div class="iletisim-izgara">
-        <div class="portre">
-          <div class="portre__arka"></div>
-          <div class="portre__kart">
-            <img src="${veriUrl(V("portre.webp"))}" alt="${e(v.hazirlayan.ad)}">
-            <div class="portre__alt">
-              <b>${e(v.hazirlayan.ad)}</b>
-              <span>${e(v.hazirlayan.unvan)}</span>
-              <span class="odul">${IKON.kupa}TRT Geleceğin İletişimcileri 2021</span>
-            </div>
-          </div>
-        </div>
-        <div class="kanallar">
-          <a class="kanal" href="tel:+90${rakam(c.telefon)}"><span class="kanal__ikon">${IKON.telefon}</span><div><span class="mono-etiket">Telefon</span><b>${e(c.telefon)}</b></div></a>
-          <a class="kanal" href="https://wa.me/90${rakam(c.whatsapp)}"><span class="kanal__ikon kanal__ikon--wa">${IKON.whatsapp}</span><div><span class="mono-etiket">WhatsApp</span><b>${e(c.whatsapp)}</b></div></a>
-          <a class="kanal" href="mailto:${e(c.eposta)}"><span class="kanal__ikon">${IKON.eposta}</span><div><span class="mono-etiket">E-posta</span><b>${e(c.eposta)}</b></div></a>
-          <a class="kanal" href="https://${e(c.web)}"><span class="kanal__ikon">${IKON.web}</span><div><span class="mono-etiket">Web</span><b>${e(c.web)}</b></div></a>
-          <div class="kanal"><span class="kanal__ikon">${IKON.konum}</span><div><span class="mono-etiket">Ofis</span><b class="kucuk">${c.adres.map(e).join("<br>")}</b></div></div>
-        </div>
+      <div class="kanal-izgara">
+        <a class="kanal-kart" href="tel:+90${rakam(c.telefon)}"><span class="kanal__ikon">${IKON.telefon}</span><div><span class="mono-etiket">Telefon</span><b>${e(c.telefon)}</b><small>Doğrudan arayın</small></div></a>
+        <a class="kanal-kart" href="https://wa.me/90${rakam(c.whatsapp)}"><span class="kanal__ikon kanal__ikon--wa">${IKON.whatsapp}</span><div><span class="mono-etiket">WhatsApp</span><b>${e(c.whatsapp)}</b><small>Hızlı yazışma için</small></div></a>
+        <a class="kanal-kart" href="mailto:${e(c.eposta)}"><span class="kanal__ikon">${IKON.eposta}</span><div><span class="mono-etiket">E-posta</span><b>${e(c.eposta)}</b><small>Dosya ve ayrıntılı talepler</small></div></a>
+        <a class="kanal-kart" href="https://${e(c.web)}"><span class="kanal__ikon">${IKON.web}</span><div><span class="mono-etiket">Web</span><b>${e(c.web)}</b><small>Hizmetler, referanslar, blog</small></div></a>
+        <div class="kanal-kart kanal-kart--genis"><span class="kanal__ikon">${IKON.konum}</span><div><span class="mono-etiket">Ofis</span><b>${c.adres.map(e).join(" · ")}</b></div></div>
       </div>
 
+      <div class="imza esnek">
+        <div class="imza__isaret"><svg viewBox="${P.isaretVB}" aria-hidden="true">${P.isaretIc}</svg></div>
+        <div class="imza__metin">
+          <span class="mono-etiket">Çalışma ilkemiz</span>
+          <div class="imza__soz">Önce veri,<br>sonra karar.</div>
+          <div class="imza__ad"><b>${e(v.hazirlayan.ad)}</b> · ${e(v.hazirlayan.unvan)}</div>
+        </div>
+      </div>
     </div>
     ${P.alt(v)}
   </section>`;

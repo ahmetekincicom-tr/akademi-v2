@@ -1,5 +1,5 @@
 {
-  "_aciklama": "Her teklifte aynı kalan bilgiler. Teklif dosyasında aynı adla yazılan alan bu değerlerin yerine geçer. Ödeme seçeneklerindeki 'kosul' (tek | aylik): o türde ücretli kalem yoksa seçenek gizlenir. Referanslarda 'olcek' (ör. 0.85 / 1.2), logonun optik boyutunu elle ince ayarlar.",
+  "_aciklama": "Her teklifte aynı kalan bilgiler. Teklif dosyasında aynı adla yazılan alan bu değerlerin yerine geçer. Ödeme seçeneklerindeki 'kosul' (tek | aylik): o türde ücretli kalem yoksa seçenek gizlenir. Referanslarda 'olcek' (ör. 0.85 / 1.2), logonun optik boyutunu elle ince ayarlar. 'ek': logoda adı okunmayan markalarda logonun yanına yazılan kısa ad.",
   "hazirlayan": {
     "ad": "Ahmet Ekinci",
     "unvan": "Sosyal Medya ve Meta Reklam Uzmanı"
@@ -100,11 +100,13 @@
     {
       "ad": "Ankara ESOB",
       "dosya": "ankara-esob.webp",
-      "olcek": 0.9
+      "olcek": 0.9,
+      "ek": "Ankara ESOB"
     },
     {
       "ad": "Uşak TSO",
-      "dosya": "usak-tso.webp"
+      "dosya": "usak-tso.webp",
+      "ek": "Uşak TSO"
     },
     {
       "ad": "Yatırım 101",
@@ -118,7 +120,8 @@
     },
     {
       "ad": "Havva Aydın Disleksi",
-      "dosya": "havva-aydin-disleksi.webp"
+      "dosya": "havva-aydin-disleksi.webp",
+      "ek": "Havva Aydın Disleksi"
     },
     {
       "ad": "Hayata Dokunuş Derneği",
@@ -158,7 +161,8 @@
     },
     {
       "ad": "Filenin Yıldızları Voleybol Okulları",
-      "dosya": "filenin-yildizlari.webp"
+      "dosya": "filenin-yildizlari.webp",
+      "ek": "Filenin Yıldızları"
     }
   ]
 }

@@ -7,8 +7,8 @@ ahmetekinci.com.tr kurumsal tonlarında (mürekkep siyahı, sarı, krem; Plus Ja
 1. **Kapak**: logo, teklif no (sağ üst), başlık, teklif konusu, teklif sunulan firma (yetkili ya da web adresi)
 2. **Hizmet detayları**: her hizmetin özeti, kapsamı, süresi. Tek sayfaya sığmazsa otomatik olarak ikinci sayfaya bölünür
 3. **Ücretlendirme**: son geçerlilik tarihi, fiyat tablosu (paket satırları, "pakete dahil" kalemler), tek seferlik / aylık toplamlar (indirim + KDV), teslim süresi takvimi, önerilen reklam bütçesi, ödeme seçenekleri
-4. **Referanslar**: rakamlar, tek renk ve optik olarak dengelenmiş logo ızgarası (6-5-6 dizilim), çalışma modeli
-5. **İletişim**: portre ve iletişim kanalları
+4. **Referanslar**: rakamlar, tek renk ve optik olarak dengelenmiş 3 sütunlu logo ızgarası, çalışma modeli. Logoda adı okunmayan markalarda (ör. Ankara ESOB) logonun yanına kısa ad yazılır: `ayarlar.json` → `referanslar[].ek`
+5. **İletişim**: iletişim kartları ve "Önce veri, sonra karar." kapanış paneli
 
 Her sayfanın altında Ahmet Ekinci logosu, partner rozetleri (Meta, Shopify, OpenAI, Kommo) ve sayfa numarası var.
 
@@ -53,6 +53,6 @@ Paket fiyat: aynı `paket` adını taşıyan hizmetler ayrı kartlarla anlatıl�
 ```
 
 `"fiyat": 0` olan hizmet "Pakete dahil" olarak gösterilir. Reklam bütçesi bandı için `"reklamButcesi": { "tutar": "₺20.000 – ₺40.000 / ay", "metin": "…" }`.
-Hitap ("Sayın …,") yalnız `musteri.yetkili` yazılırsa çıkar; kapakta `musteri.web` gösterilir. Bir referans logosu görsel olarak büyük/küçük kalırsa `ayarlar.json`'da `olcek` ile ayarlanır.
+Hitap ("Sayın …,") yalnız `musteri.yetkili` yazılırsa, giriş paragrafı yalnız `giris` yazılırsa çıkar; kapakta `musteri.web` gösterilir. Bir referans logosu görsel olarak büyük/küçük kalırsa `ayarlar.json`'da `olcek` ile ayarlanır.
 
 Teslim süresi kartı, `teslimTakvimi` olan ilk hizmetten (web sitesi, e-ticaret) gelir; yoksa "onaydan sonra başlangıç" kartı çıkar.
