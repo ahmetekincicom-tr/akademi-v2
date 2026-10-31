@@ -22,10 +22,22 @@
         "toplam": "21 iş günü",
         "altyazi": "≈ 4 hafta",
         "asamalar": [
-          { "ad": "Keşif & site haritası", "gun": 3 },
-          { "ad": "Arayüz tasarımı", "gun": 6 },
-          { "ad": "Geliştirme & içerik", "gun": 8 },
-          { "ad": "Test, SEO & yayın", "gun": 4 }
+          {
+            "ad": "Keşif & site haritası",
+            "gun": 3
+          },
+          {
+            "ad": "Arayüz tasarımı",
+            "gun": 6
+          },
+          {
+            "ad": "Geliştirme & içerik",
+            "gun": 8
+          },
+          {
+            "ad": "Test, SEO & yayın",
+            "gun": 4
+          }
         ],
         "not": "Süre; metin, görsel ve logo gibi içeriklerin eksiksiz iletilmesiyle başlar. Her aşama sonunda onayınız alınır."
       }
@@ -50,10 +62,22 @@
         "toplam": "30 iş günü",
         "altyazi": "≈ 6 hafta",
         "asamalar": [
-          { "ad": "Keşif & kurgu", "gun": 4 },
-          { "ad": "Tasarım & tema", "gun": 8 },
-          { "ad": "Ürün & entegrasyon", "gun": 12 },
-          { "ad": "Test & yayın", "gun": 6 }
+          {
+            "ad": "Keşif & kurgu",
+            "gun": 4
+          },
+          {
+            "ad": "Tasarım & tema",
+            "gun": 8
+          },
+          {
+            "ad": "Ürün & entegrasyon",
+            "gun": 12
+          },
+          {
+            "ad": "Test & yayın",
+            "gun": 6
+          }
         ],
         "not": "Süre; ürün bilgileri, görseller ve ödeme hesabı onayının tamamlanmasıyla başlar."
       }
@@ -153,6 +177,45 @@
         "Test ve doğrulama raporu"
       ],
       "sure": "5–7 iş günü"
+    },
+    "donusum-kurulumu": {
+      "ad": "Google & Meta Dönüşüm Takibi Kurulumu",
+      "etiket": "GTM · GA4 · GOOGLE ADS · PIXEL · CAPI",
+      "grup": "kurulum",
+      "periyot": "tek",
+      "ozet": "Reklamların hangi aramayı, formu ve WhatsApp mesajını getirdiğini görmek için iki platformda ölçüm altyapısı kurulur.",
+      "kapsam": [
+        "Google Tag Manager kurulumu ve mevcut etiketlerin denetimi",
+        "GA4 ve Google Ads dönüşümleri: arama, form, WhatsApp tıklaması",
+        "Meta Pixel ve sunucu taraflı Conversions API kurulumu",
+        "Olay eşleştirme; aynı talebin iki kez sayılmasının önlenmesi",
+        "Test, doğrulama ve dönüşüm listesinin teslimi"
+      ],
+      "sure": "5–7 iş günü",
+      "teslimTakvimi": {
+        "baslik": "Kurulum ve yayına hazırlık süresi",
+        "toplam": "7 iş günü",
+        "altyazi": "onaydan sonra",
+        "asamalar": [
+          {
+            "ad": "Hesap & erişim denetimi",
+            "gun": 1
+          },
+          {
+            "ad": "GTM, GA4 & Google Ads",
+            "gun": 2
+          },
+          {
+            "ad": "Meta Pixel & CAPI",
+            "gun": 2
+          },
+          {
+            "ad": "Test & yayın",
+            "gun": 2
+          }
+        ],
+        "not": "Süre, Google Ads, Meta ve web sitesi yönetim erişimlerinin paylaşılmasıyla başlar. Kampanyalar ölçüm doğrulandıktan sonra yayına alınır."
+      }
     },
     "tiktok-hesap-kurulumu": {
       "ad": "TikTok Reklam Hesabı Kurulumu",

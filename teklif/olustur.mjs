@@ -13,6 +13,11 @@
  * tipleri HTML'in içine gömülür; HTML tek başına da açılıp yazdırılabilir.
  * Hizmet detayları tek sayfaya sığmazsa sayfa tarayıcıda ölçülüp otomatik
  * ikinciye bölünür.
+ *
+ * PDF'in telefonda da temiz görünmesi için arka plandaki ızgara ve kapak
+ * çizimi CSS maskesiyle değil, vektör SVG çizgileriyle çiziliyor: Chromium
+ * maskeleri PDF'e düşük çözünürlüklü görüntü olarak basıyor ve mobil PDF
+ * görüntüleyicilerde ızgara bozuk/kırık görünüyordu.
  */
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, join, resolve, basename, extname } from "node:path";
@@ -37,6 +42,21 @@ const para = (n) => "₺" + new Intl.NumberFormat("tr-TR", { maximumFractionDigi
 const tarihYaz = (d) => new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(d);
 const iki = (n) => String(n).padStart(2, "0");
 
+/** Webp/png başlığından piksel ölçüsü (logo oranları için). */
+function gorselOlcu(p) {
+  const b = readFileSync(p);
+  if (b.toString("ascii", 0, 4) === "RIFF") {
+    const tur = b.toString("ascii", 12, 16);
+    if (tur === "VP8L") {
+      const bits = b.readUInt32LE(21);
+      return { w: (bits & 0x3fff) + 1, h: ((bits >> 14) & 0x3fff) + 1 };
+    }
+    if (tur === "VP8X") return { w: 1 + b.readUIntLE(24, 3), h: 1 + b.readUIntLE(27, 3) };
+    return { w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff };
+  }
+  return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+}
+
 // ───────── ikonlar (24×24, çizgi) ─────────
 const I = (d, extra = "") =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${extra}>${d}</svg>`;
@@ -45,16 +65,19 @@ const IKON = {
   saat: I('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
   dongu: I('<path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 20v-4h-4"/>'),
   tek: I('<path d="M12 3l7 4v10l-7 4-7-4V7z"/><path d="M12 12l7-5M12 12v9M12 12L5 7"/>'),
+  hediye: I('<rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12"/><path d="M12 8c-1.5-3-5-3.5-5-1.2C7 8 9 8 12 8c3 0 5 0 5-1.2 0-2.3-3.5-1.8-5 1.2"/>'),
   bilgi: I('<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.01"/>'),
   banka: I('<path d="M3 10l9-6 9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/>'),
   kart: I('<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h4"/>'),
   bolum: I('<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17"/><path d="M12 12h8.5"/>'),
+  butce: I('<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>'),
   telefon: I('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'),
   whatsapp: I('<path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.5c0 3.5 2.5 6.5 6.5 6.5l1-1.6-2.2-1-1 .9a5 5 0 0 1-2.6-2.6l.9-1-1-2.2z" stroke-width="1.4"/>'),
   eposta: I('<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/>'),
   web: I('<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.6 2.4 3.8 5.2 3.8 8.5s-1.2 6.1-3.8 8.5c-2.6-2.4-3.8-5.2-3.8-8.5s1.2-6.1 3.8-8.5"/>'),
   konum: I('<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'),
   ok: I('<path d="M7 17L17 7M9 7h8v8"/>', 'stroke-width="2.8"'),
+  sag: I('<path d="M5 12h14M13 6l6 6-6 6"/>', 'stroke-width="2.6"'),
   kupa: I('<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7"/>'),
 };
 
@@ -65,6 +88,7 @@ const GRUP = {
   web: { renk: "#17140f", yazi: "#f2c230" },
 };
 const CUBUK_RENK = ["#f2c230", "#4c7bea", "#e2685a", "#17140f", "#6b6355", "#cfa327"];
+const periyotCip = (p) => `<span class="cip">${p === "aylik" ? IKON.dongu + "Aylık" : IKON.tek + "Tek seferlik"}</span>`;
 
 // ───────── veri ─────────
 function veriHazirla(teklifYolu) {
@@ -72,16 +96,50 @@ function veriHazirla(teklifYolu) {
   const katalog = json(join(KOK, "hizmet-katalogu.json")).hizmetler;
   const teklif = json(teklifYolu);
   const v = { ...ayar, ...teklif, iletisim: { ...ayar.iletisim, ...(teklif.iletisim || {}) } };
+  const paketler = teklif.paketler || {};
 
   v.hizmetler = (teklif.hizmetler || []).map((h, i) => {
     const temel = h.kod ? katalog[h.kod] : {};
     if (h.kod && !temel) throw new Error(`Katalogda olmayan hizmet kodu: "${h.kod}"`);
     const s = { periyot: "tek", grup: "yonetim", kapsam: [], adet: 1, ...temel, ...h };
-    if (s.fiyat == null) throw new Error(`"${s.ad || s.kod}" için fiyat yazılmamış`);
+    if (s.paket && !paketler[s.paket]) throw new Error(`"${s.ad}" için tanımsız paket: "${s.paket}"`);
+    if (s.fiyat == null && !s.paket) throw new Error(`"${s.ad || s.kod}" için fiyat yazılmamış`);
     s.no = iki(i + 1);
-    s.tutar = Number(s.fiyat) * Number(s.adet || 1);
+    if (s.paket) s.periyot = paketler[s.paket].periyot || s.periyot;
     return s;
   });
+
+  // Fiyat tablosu satırları: aynı pakete bağlı hizmetler tek satırda, paket fiyatıyla.
+  v.satirlar = [];
+  const islenenPaket = new Set();
+  for (const h of v.hizmetler) {
+    if (h.paket) {
+      if (islenenPaket.has(h.paket)) continue;
+      islenenPaket.add(h.paket);
+      const p = paketler[h.paket];
+      const uyeler = v.hizmetler.filter((x) => x.paket === h.paket);
+      v.satirlar.push({
+        no: uyeler.map((x) => x.no).join("+"),
+        ad: p.ad || uyeler.map((x) => x.ad).join(" + "),
+        etiket: p.etiket || "Paket fiyatı",
+        grup: p.grup || h.grup,
+        periyot: h.periyot,
+        tutar: Number(p.fiyat),
+        dahil: Number(p.fiyat) === 0,
+      });
+    } else {
+      const tutar = Number(h.fiyat) * Number(h.adet || 1);
+      v.satirlar.push({
+        no: h.no,
+        ad: h.ad + (h.adet > 1 ? ` × ${h.adet}` : ""),
+        etiket: h.fiyatNotu || h.etiket || "",
+        grup: h.grup,
+        periyot: h.periyot,
+        tutar,
+        dahil: tutar === 0,
+      });
+    }
+  }
 
   const tarih = new Date((teklif.tarih || new Date().toISOString().slice(0, 10)) + "T00:00:00Z");
   const sonTarih = teklif.sonGecerlilik
@@ -92,13 +150,14 @@ function veriHazirla(teklifYolu) {
   v.gecerlilikGun = Math.round((sonTarih - tarih) / 864e5);
   v.teklifNo = teklif.teklifNo || `${v.teklifNoOnEki}-${tarih.getUTCFullYear()}-${iki(tarih.getUTCMonth() + 1)}${iki(tarih.getUTCDate())}`;
 
-  // toplamlar: tek seferlik ve aylık ayrı
+  // Toplamlar: tek seferlik ve aylık ayrı. Bedeli 0 olan (pakete dahil) kalemler ayrıca listelenir.
   const ind = teklif.indirim;
+  v.dahiller = v.satirlar.filter((s) => s.dahil);
   v.gruplar = ["tek", "aylik"]
     .map((p) => {
-      const kalemler = v.hizmetler.filter((h) => h.periyot === p);
+      const kalemler = v.satirlar.filter((s) => s.periyot === p && !s.dahil);
       if (!kalemler.length) return null;
-      const ara = kalemler.reduce((t, h) => t + h.tutar, 0);
+      const ara = kalemler.reduce((t, s) => t + s.tutar, 0);
       const indirimVar = ind && (ind.kapsam === "tum" || ind.kapsam === p || (!ind.kapsam && p === "tek"));
       const indirim = indirimVar ? (ind.tutar != null ? Number(ind.tutar) : (ara * Number(ind.oran)) / 100) : 0;
       const matrah = ara - indirim;
@@ -115,11 +174,35 @@ function veriHazirla(teklifYolu) {
     })
     .filter(Boolean);
 
+  // Ödeme seçenekleri: "kosul" alanı olan seçenek yalnız o türde ücretli kalem varsa görünür.
+  const ucretliPeriyot = new Set(v.gruplar.map((g) => g.p));
+  v.odemeSecenekleri = v.odemeSecenekleri.filter((o) => !o.kosul || ucretliPeriyot.has(o.kosul));
+
   v.teslim = v.hizmetler.find((h) => h.teslimTakvimi)?.teslimTakvimi || teklif.teslimTakvimi || null;
   return v;
 }
 
 // ───────── parçalar ─────────
+
+/** Sayfa arka planındaki ince ızgara: tek tek vektör çizgiler, yukarıdan aşağı solar. */
+function izgara(koyu) {
+  const renk = koyu ? "#f5f0e6" : "#17140f";
+  const tepe = koyu ? 0.05 : 0.07;
+  const boy = koyu ? 190 : 120;
+  const ara = 9;
+  let cizgi = "";
+  for (let y = ara; y < boy; y += ara) {
+    const o = (tepe * (1 - y / boy)).toFixed(4);
+    cizgi += `<line x1="0" y1="${y}" x2="210" y2="${y}" stroke-opacity="${o}"/>`;
+  }
+  for (let x = ara; x < 210; x += ara) cizgi += `<line x1="${x}" y1="0" x2="${x}" y2="${boy}" stroke="url(#izg${koyu ? "K" : "A"})"/>`;
+  return `<svg class="izgara" viewBox="0 0 210 297" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="izg${koyu ? "K" : "A"}" x1="0" y1="0" x2="0" y2="${boy}" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="${renk}" stop-opacity="${tepe}"/><stop offset="1" stop-color="${renk}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <g stroke="${renk}" stroke-width="0.15" fill="none">${cizgi}</g></svg>`;
+}
+
 function parcalar() {
   const isaretVB = svgViewBox(V("logo-isaret.svg"));
   const isaretIc = svgIc(V("logo-isaret.svg"));
@@ -153,11 +236,24 @@ function kapak(v, P) {
   const harf = (v.musteri.firma || "?").trim().charAt(0).toLocaleUpperCase("tr-TR");
   const seritOgeleri = [...v.hizmetler.map((h) => h.ad), "Önce veri, sonra karar"];
   const serit = Array(3).fill(seritOgeleri).flat().map((s) => `<span>${e(s)} ${IKON.ok}</span>`).join("");
+  // Logo çizimi aşağı doğru solar (maske yerine degrade çizgi: PDF'te vektör kalır).
+  const [, vy, , vh] = P.isaretVB.split(" ").map(Number);
+  const sanat = P.isaretIc
+    .replace(/fill="currentColor"/, 'fill="none"')
+    .replace(/stroke="currentColor"/, 'stroke="url(#sanatSol)"')
+    .replace(/stroke-width="5"/, 'stroke-width="0.9" vector-effect="non-scaling-stroke"');
+  const musteriAlt = [
+    v.musteri.yetkili ? `<b>${e(v.musteri.yetkili)}</b>${v.musteri.unvan ? ` · ${e(v.musteri.unvan)}` : ""}` : "",
+    v.musteri.tamUnvan ? e(v.musteri.tamUnvan) : "",
+    v.musteri.web ? `<b>${e(v.musteri.web)}</b>` : "",
+  ].filter(Boolean);
   return `
   <section class="sayfa sayfa--koyu kapak">
-    <div class="kapak__sanat"><svg viewBox="${P.isaretVB}"><g fill="none" stroke="currentColor" stroke-width="0.9" vector-effect="non-scaling-stroke">${P.isaretIc
-      .replace(/fill="currentColor"/, 'fill="none"')
-      .replace(/stroke-width="5"/, 'stroke-width="0.35"')}</g></svg></div>
+    ${izgara(true)}
+    <div class="kapak__sanat"><svg viewBox="${P.isaretVB}">
+      <defs><linearGradient id="sanatSol" x1="0" y1="${vy}" x2="0" y2="${vy + vh}" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#f2c230"/><stop offset="0.36" stop-color="#f2c230"/><stop offset="0.58" stop-color="#f2c230" stop-opacity="0"/>
+      </linearGradient></defs>${sanat}</svg></div>
     <div class="kapak__halka" style="width:150mm;height:150mm;right:-48mm;top:-30mm"></div>
     <div class="kapak__halka" style="width:210mm;height:210mm;right:-78mm;top:-60mm;opacity:.6"></div>
 
@@ -178,7 +274,7 @@ function kapak(v, P) {
         <div>
           <div class="mono-etiket">Teklif sunulan</div>
           <div class="kapak__firma">${e(v.musteri.firma)}</div>
-          ${v.musteri.yetkili ? `<div class="kapak__yetkili"><b>${e(v.musteri.yetkili)}</b>${v.musteri.unvan ? ` · ${e(v.musteri.unvan)}` : ""}</div>` : ""}
+          ${musteriAlt.length ? `<div class="kapak__yetkili">${musteriAlt.join(" · ")}</div>` : ""}
         </div>
       </div>
     </div>
@@ -187,7 +283,6 @@ function kapak(v, P) {
       <div><span class="mono-etiket">Teklif tarihi</span><strong>${e(v.tarihYazi)}</strong></div>
       <div><span class="mono-etiket">Son geçerlilik</span><strong>${e(v.sonTarihYazi)}</strong><em>${v.gecerlilikGun} gün geçerli</em></div>
       <div><span class="mono-etiket">Teklif no</span><strong>${e(v.teklifNo)}</strong></div>
-      <div><span class="mono-etiket">Hazırlayan</span><strong>${e(v.hazirlayan.ad)}</strong></div>
     </div>
 
     <div class="serit serit--golge">${serit}</div>
@@ -206,8 +301,8 @@ function hizmetKart(h) {
       <h3 class="hizmet__ad">${e(h.ad)}</h3>
       <p class="hizmet__ozet">${e(h.ozet || "")}</p>
       <div class="hizmet__cipler">
-        ${h.sure ? `<span class="cip cip--sari">${IKON.saat}${e(h.sure)}</span>` : ""}
-        <span class="cip">${h.periyot === "aylik" ? IKON.dongu + "Aylık" : IKON.tek + "Tek seferlik"}</span>
+        ${h.sure && !(h.periyot === "aylik" && h.sure.trim() === "Aylık") ? `<span class="cip cip--sari">${IKON.saat}${e(h.sure)}</span>` : ""}
+        ${h.fiyat === 0 ? `<span class="cip cip--koyu">${IKON.hediye}Pakete dahil</span>` : periyotCip(h.periyot)}
       </div>
     </div>
     <div class="hizmet__sag">
@@ -219,8 +314,10 @@ function hizmetKart(h) {
 }
 
 function hizmetSayfasi(v, P) {
+  const hitap = v.hitap || (v.musteri.yetkili ? `Sayın ${v.musteri.yetkili},` : `Değerli ${v.musteri.firma} ekibi,`);
   return `
   <section class="sayfa" data-bol>
+    ${izgara(false)}
     ${P.ust(v, "Kapsam")}
     <div class="govde">
       <div class="bolum-bas">
@@ -229,7 +326,7 @@ function hizmetSayfasi(v, P) {
           <h2 class="h2">${vurgula(v.kapsamBaslik || "Size özel [hazırlanan] hizmetler")}</h2>
         </div>
         <div>
-          ${v.musteri.yetkili ? `<p class="hitap">Sayın ${e(v.musteri.yetkili)},</p>` : ""}
+          <p class="hitap">${e(hitap)}</p>
           <p class="lede">${e(v.giris || "")}</p>
         </div>
       </div>
@@ -241,22 +338,33 @@ function hizmetSayfasi(v, P) {
 }
 
 function yatirimSayfasi(v, P) {
-  const satirlar = v.hizmetler
-    .map((h) => {
-      const g = GRUP[h.grup] || GRUP.yonetim;
+  const satirlar = v.satirlar
+    .map((s) => {
+      const g = GRUP[s.grup] || GRUP.yonetim;
       return `
       <div class="tablo__satir" style="--grup:${g.renk};--grup-yazi:${g.yazi}">
-        <span class="no-cip">${h.no}</span>
-        <div class="tablo__ad"><b>${e(h.ad)}${h.adet > 1 ? ` × ${h.adet}` : ""}</b><span>${e(h.fiyatNotu || h.etiket || "")}</span></div>
-        <div><span class="cip">${h.periyot === "aylik" ? IKON.dongu + "Aylık" : IKON.tek + "Tek seferlik"}</span></div>
-        <div class="sag tutar">${para(h.tutar)}${h.periyot === "aylik" ? " <small>/ ay</small>" : ""}</div>
+        <span class="no-cip${s.no.includes("+") ? " no-cip--genis" : ""}">${s.no}</span>
+        <div class="tablo__ad"><b>${e(s.ad)}</b><span>${e(s.etiket)}</span></div>
+        <div>${periyotCip(s.periyot)}</div>
+        <div class="sag">${
+          s.dahil
+            ? `<span class="cip cip--koyu">${IKON.hediye}Pakete dahil</span>`
+            : `<span class="tutar">${para(s.tutar)}${s.periyot === "aylik" ? " <small>/ ay</small>" : ""}</span>`
+        }</div>
       </div>`;
     })
     .join("");
 
-  const toplam = v.gruplar
-    .map(
-      (g) => `
+  const dahilBlok = v.dahiller.length
+    ? `<div class="toplam__blok">
+        <div class="mono-etiket">Ücretsiz eklenen</div>
+        ${v.dahiller.map((d) => `<div class="toplam__satir toplam__satir--indirim"><span>${e(d.ad)}</span><span class="tutar">Dahil</span></div>`).join("")}
+      </div>`
+    : "";
+  const toplam =
+    v.gruplar
+      .map(
+        (g) => `
     <div class="toplam__blok">
       <div class="mono-etiket">${g.baslik}</div>
       <div class="toplam__satir"><span>Ara toplam</span><span class="tutar">${para(g.ara)}</span></div>
@@ -264,10 +372,10 @@ function yatirimSayfasi(v, P) {
       <div class="toplam__satir"><span>KDV (%${v.kdvOrani})</span><span class="tutar">${para(g.kdv)}</span></div>
       <div class="toplam__genel"><span>Toplam</span><strong>${para(g.toplam)}${g.p === "aylik" ? " <small>/ ay</small>" : ""}</strong></div>
     </div>`
-    )
-    .join("");
+      )
+      .join("") + dahilBlok;
 
-  let teslim = "";
+  let teslim;
   if (v.teslim) {
     const t = v.teslim;
     const topGun = t.asamalar.reduce((a, s) => a + s.gun, 0);
@@ -300,6 +408,17 @@ function yatirimSayfasi(v, P) {
     </div>`;
   }
 
+  const butce = v.reklamButcesi
+    ? `<div class="butce">
+        <span class="butce__ikon">${IKON.butce}</span>
+        <div>
+          <div class="mono-etiket">${e(v.reklamButcesi.baslik || "Önerilen reklam bütçesi")}</div>
+          <strong>${e(v.reklamButcesi.tutar)}</strong>
+        </div>
+        <p>${e(v.reklamButcesi.metin || "Reklam bütçesi hizmet bedeline dahil değildir; doğrudan reklam platformlarına ödenir.")}</p>
+      </div>`
+    : "";
+
   const odeme = v.odemeSecenekleri
     .map(
       (o) => `
@@ -313,12 +432,13 @@ function yatirimSayfasi(v, P) {
 
   return `
   <section class="sayfa">
+    ${izgara(false)}
     ${P.ust(v, "Yatırım")}
     <div class="govde">
       <div class="bolum-bas">
         <div>
           <div class="kicker">02 · Yatırım ve ödeme</div>
-          <h2 class="h2">Net fiyat, [net] takvim.</h2>
+          <h2 class="h2">Net fiyat, <span class="vurgu">net</span> takvim.</h2>
         </div>
         <p class="lede">Tüm kalemler tek tabloda. Tek seferlik işler ve aylık hizmetler ayrı toplanır; sürpriz maliyet yoktur.</p>
       </div>
@@ -333,28 +453,46 @@ function yatirimSayfasi(v, P) {
         <div class="toplam">${toplam}</div>
       </div>
 
+      ${butce}
+
       <div class="odeme-bas"><div class="kicker">Ödeme seçenekleri</div></div>
-      <div class="odeme">${odeme}</div>
+      <div class="odeme" style="grid-template-columns:repeat(${v.odemeSecenekleri.length},1fr)">${odeme}</div>
 
       <div class="sartlar">${v.sartlar.map((s) => `<p>${e(s)}</p>`).join("")}</div>
     </div>
     ${P.alt(v)}
-  </section>`.replace("[net]", '<span class="vurgu">net</span>');
+  </section>`;
 }
 
 function referansSayfasi(v, P) {
+  // Logolar optik olarak dengelenir: genişlik/yükseklik oranına göre aynı görsel ağırlığa
+  // yakın bir boyut hesaplanır (geniş logolar daha alçak, kare logolar daha yüksek).
   const logolar = v.referanslar
-    .map((r) => `<div title="${e(r.ad)}"><img class="${/esob|filenin/.test(r.dosya) ? "uzun" : ""}" src="${veriUrl(V("referanslar", r.dosya))}" alt="${e(r.ad)}"></div>`)
+    .map((r) => {
+      const { w, h } = gorselOlcu(V("referanslar", r.dosya));
+      const oran = w / h;
+      let yuk = 10.6 * Math.pow(oran, -0.5) * (r.olcek || 1);
+      let gen = yuk * oran;
+      if (gen > 33) (gen = 33), (yuk = gen / oran);
+      if (yuk > 12.5) (yuk = 12.5), (gen = yuk * oran);
+      return `
+      <div class="ref">
+        <div class="ref__logo"><img src="${veriUrl(V("referanslar", r.dosya))}" alt="" style="width:${gen.toFixed(2)}mm;height:${yuk.toFixed(2)}mm"></div>
+        <span class="ref__ad">${e(r.ad)}</span>
+      </div>`;
+    })
     .join("");
-  const bosluk = (3 - ((v.referanslar.length + 1) % 3)) % 3;
+  const kalan = 4 - (v.referanslar.length % 4 || 4);
+  const span = kalan === 0 ? 4 : kalan;
   return `
   <section class="sayfa">
+    ${izgara(false)}
     ${P.ust(v, "Referanslar")}
     <div class="govde">
       <div class="bolum-bas">
         <div>
           <div class="kicker">03 · Referanslar</div>
-          <h2 class="h2">Birlikte [büyüdüğümüz] markalar.</h2>
+          <h2 class="h2">Birlikte <span class="vurgu">büyüdüğümüz</span> markalar.</h2>
         </div>
         <p class="lede">Kamu kurumlarından savunma sanayisine, sağlıktan e-ticarete; farklı sektörlerde aynı kural: önce veri, sonra karar.</p>
       </div>
@@ -365,8 +503,9 @@ function referansSayfasi(v, P) {
 
       <div class="logolar">
         ${logolar}
-        ${"<div></div>".repeat(bosluk)}
-        <div class="siradaki"><span>Sıradaki marka</span><b>${e(v.musteri.firma)}</b></div>
+        <div class="ref siradaki" style="grid-column:span ${span}">
+          <span>Sıradaki marka</span><b>${e(v.musteri.firma)}</b>${IKON.sag}
+        </div>
       </div>
 
       <div class="adimlar">${v.calismaModeli
@@ -374,20 +513,21 @@ function referansSayfasi(v, P) {
         .join("")}</div>
     </div>
     ${P.alt(v)}
-  </section>`.replace("[büyüdüğümüz]", '<span class="vurgu">büyüdüğümüz</span>');
+  </section>`;
 }
 
 function iletisimSayfasi(v, P) {
   const c = v.iletisim;
-  const telLink = (t) => "tel:+90" + t.replace(/\D/g, "").replace(/^0/, "");
+  const rakam = (t) => t.replace(/\D/g, "").replace(/^0/, "");
   return `
   <section class="sayfa sayfa--koyu">
+    ${izgara(true)}
     ${P.ust(v, "İletişim")}
     <div class="govde">
       <div class="bolum-bas">
         <div>
           <div class="kicker">04 · İletişim</div>
-          <h2 class="h2" style="color:#fffaf0">Birlikte [başlayalım].</h2>
+          <h2 class="h2" style="color:#fffaf0">Birlikte <span class="vurgu">başlayalım</span>.</h2>
         </div>
         <p class="lede">Sorularınız için bana doğrudan ulaşabilirsiniz. Teklifle ilgili her konuşmayı ben yürütürüm; aracı yok.</p>
       </div>
@@ -400,22 +540,16 @@ function iletisimSayfasi(v, P) {
             <div class="portre__alt">
               <b>${e(v.hazirlayan.ad)}</b>
               <span>${e(v.hazirlayan.unvan)}</span>
-              <span class="odul">${IKON.kupa}TRT Geleceğin İletişimcileri · Üçüncülük Ödülü 2021</span>
+              <span class="odul">${IKON.kupa}TRT Geleceğin İletişimcileri 2021</span>
             </div>
           </div>
         </div>
-        <div>
-          <div class="kanallar">
-            <a class="kanal" href="${telLink(c.telefon)}"><span class="kanal__ikon">${IKON.telefon}</span><div><span class="mono-etiket">Telefon</span><b>${e(c.telefon)}</b></div></a>
-            <a class="kanal" href="https://wa.me/90${c.whatsapp.replace(/\D/g, "").replace(/^0/, "")}"><span class="kanal__ikon kanal__ikon--wa">${IKON.whatsapp}</span><div><span class="mono-etiket">WhatsApp</span><b>${e(c.whatsapp)}</b></div></a>
-            <a class="kanal" href="mailto:${e(c.eposta)}"><span class="kanal__ikon">${IKON.eposta}</span><div><span class="mono-etiket">E-posta</span><b>${e(c.eposta)}</b></div></a>
-            <a class="kanal" href="https://${e(c.web)}"><span class="kanal__ikon">${IKON.web}</span><div><span class="mono-etiket">Web</span><b>${e(c.web)}</b></div></a>
-            <div class="kanal"><span class="kanal__ikon">${IKON.konum}</span><div><span class="mono-etiket">Ofis</span><b class="kucuk">${c.adres.map(e).join("<br>")}</b></div></div>
-          </div>
-          <div class="qr">
-            <div class="qr__kod">${oku(V("qr-whatsapp.svg"))}</div>
-            <div><b>Hemen yazın</b><span>Kameranızla okutun, WhatsApp'tan doğrudan bana ulaşın. Talepler genellikle 24 saat içinde yanıtlanır.</span></div>
-          </div>
+        <div class="kanallar">
+          <a class="kanal" href="tel:+90${rakam(c.telefon)}"><span class="kanal__ikon">${IKON.telefon}</span><div><span class="mono-etiket">Telefon</span><b>${e(c.telefon)}</b></div></a>
+          <a class="kanal" href="https://wa.me/90${rakam(c.whatsapp)}"><span class="kanal__ikon kanal__ikon--wa">${IKON.whatsapp}</span><div><span class="mono-etiket">WhatsApp</span><b>${e(c.whatsapp)}</b></div></a>
+          <a class="kanal" href="mailto:${e(c.eposta)}"><span class="kanal__ikon">${IKON.eposta}</span><div><span class="mono-etiket">E-posta</span><b>${e(c.eposta)}</b></div></a>
+          <a class="kanal" href="https://${e(c.web)}"><span class="kanal__ikon">${IKON.web}</span><div><span class="mono-etiket">Web</span><b>${e(c.web)}</b></div></a>
+          <div class="kanal"><span class="kanal__ikon">${IKON.konum}</span><div><span class="mono-etiket">Ofis</span><b class="kucuk">${c.adres.map(e).join("<br>")}</b></div></div>
         </div>
       </div>
 
@@ -423,18 +557,16 @@ function iletisimSayfasi(v, P) {
         .map((s, i) => `<div><i>${iki(i + 1)} · Adım</i><b>${e(s.baslik)}</b><p>${e(s.metin)}</p></div>`)
         .join("")}</div>
 
-      <div class="onay">
-        <div class="onay__ust"><b>Teklif onayı</b><span class="mono-etiket">No · ${e(v.teklifNo)}</span></div>
-        <p>${e(v.musteri.firma)} olarak bu teklifte yer alan hizmetleri, bedelleri ve koşulları kabul ediyoruz.</p>
-        <div class="onay__alanlar">
-          <div><span class="mono-etiket">Ad soyad / unvan</span></div>
-          <div><span class="mono-etiket">Tarih</span></div>
-          <div><span class="mono-etiket">Kaşe / imza</span></div>
+      <a class="cta" href="https://wa.me/90${rakam(c.whatsapp)}">
+        <div>
+          <span class="mono-etiket">Teklif ${e(v.teklifNo)} · ${e(v.sonTarihYazi)} tarihine kadar geçerli</span>
+          <b>Onay için tek mesaj yeterli.</b>
         </div>
-      </div>
+        <span class="cta__buton">${IKON.whatsapp}${e(c.whatsapp)}<i>${IKON.sag}</i></span>
+      </a>
     </div>
     ${P.alt(v)}
-  </section>`.replace("[başlayalım]", '<span class="vurgu">başlayalım</span>');
+  </section>`;
 }
 
 // Tarayıcıda çalışır: taşan hizmet listesini yeni sayfaya böler, sayfaları numaralar.
@@ -525,7 +657,6 @@ async function main() {
   const sayfa = await tarayici.newPage({ viewport: { width: 900, height: 1200 }, deviceScaleFactor: 2 });
   await sayfa.goto("file://" + htmlYol);
   await sayfa.waitForFunction(() => window.__hazir === true, null, { timeout: 15000 });
-  // Bölme sonrası hâli kaydet: HTML açıldığında da aynı sayfa düzeni görünsün.
   await sayfa.emulateMedia({ media: "print" });
   await sayfa.pdf({ path: join(cikti, ad + ".pdf"), preferCSSPageSize: true, printBackground: true });
 

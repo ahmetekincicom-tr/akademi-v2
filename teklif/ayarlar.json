@@ -1,5 +1,5 @@
 {
-  "_aciklama": "Her teklifte aynı kalan bilgiler. Teklif dosyasında aynı adla yazılan alan bu değerlerin yerine geçer.",
+  "_aciklama": "Her teklifte aynı kalan bilgiler. Teklif dosyasında aynı adla yazılan alan bu değerlerin yerine geçer. Ödeme seçeneklerindeki 'kosul' (tek | aylik): o türde ücretli kalem yoksa seçenek gizlenir. Referanslarda 'olcek' (ör. 0.85 / 1.2), logonun optik boyutunu elle ince ayarlar.",
   "hazirlayan": {
     "ad": "Ahmet Ekinci",
     "unvan": "Sosyal Medya ve Meta Reklam Uzmanı"
@@ -9,7 +9,10 @@
     "whatsapp": "0850 307 12 59",
     "eposta": "iletisim@ahmetekinci.com.tr",
     "web": "ahmetekinci.com.tr",
-    "adres": ["Kızılırmak Mah. Dumlupınar Bulvarı", "No: 3C1-160 Çankaya/Ankara"]
+    "adres": [
+      "Kızılırmak Mah. Dumlupınar Bulvarı",
+      "No: 3C1-160 Çankaya/Ankara"
+    ]
   },
   "gecerlilikGun": 15,
   "kdvOrani": 20,
@@ -28,12 +31,14 @@
     {
       "ikon": "bolum",
       "baslik": "Proje ödemesi",
-      "metin": "Tek seferlik işlerde %50 başlangıçta, %50 teslimde."
+      "metin": "Tek seferlik işlerde %50 başlangıçta, %50 teslimde.",
+      "kosul": "tek"
     },
     {
       "ikon": "dongu",
       "baslik": "Aylık hizmetler",
-      "metin": "Her ayın ilk haftasında, o ayın hizmet bedeli olarak faturalanır."
+      "metin": "Her ayın ilk haftasında, o ayın hizmet bedeli olarak faturalanır.",
+      "kosul": "aylik"
     }
   ],
   "sartlar": [
@@ -42,39 +47,137 @@
     "Bu teklif, son geçerlilik tarihine kadar geçerlidir."
   ],
   "istatistikler": [
-    { "deger": "8+", "etiket": "Yıl deneyim", "alt": "2018'den bu yana" },
-    { "deger": "400+", "etiket": "Birebir eğitim", "alt": "Marka ve işletme sahibi" },
-    { "deger": "13", "etiket": "Hizmet kalemi", "alt": "Kurulumdan yönetime" },
-    { "deger": "3.", "etiket": "TRT ödülü", "alt": "Geleceğin İletişimcileri 2021" }
+    {
+      "deger": "8+",
+      "etiket": "Yıl deneyim",
+      "alt": "2018'den bu yana"
+    },
+    {
+      "deger": "400+",
+      "etiket": "Birebir eğitim",
+      "alt": "Marka ve işletme sahibi"
+    },
+    {
+      "deger": "13",
+      "etiket": "Hizmet kalemi",
+      "alt": "Kurulumdan yönetime"
+    },
+    {
+      "deger": "3.",
+      "etiket": "TRT ödülü",
+      "alt": "Geleceğin İletişimcileri 2021"
+    }
   ],
   "calismaModeli": [
-    { "baslik": "Analiz", "metin": "Hesaplar, rakipler ve kitle incelenir; ölçüm altyapısı kontrol edilir." },
-    { "baslik": "Strateji", "metin": "Hedef, kitle, mesaj ve kanal belirlenir; yol haritası çıkarılır." },
-    { "baslik": "Yayın", "metin": "İçerik takvimi, kreatifler, reklamlar ve otomasyonlar yayına alınır." },
-    { "baslik": "Optimizasyon", "metin": "Haftalık veri takibi, aylık rapor. İşe yarayan büyütülür." }
+    {
+      "baslik": "Analiz",
+      "metin": "Hesaplar, rakipler ve kitle incelenir; ölçüm altyapısı kontrol edilir."
+    },
+    {
+      "baslik": "Strateji",
+      "metin": "Hedef, kitle, mesaj ve kanal belirlenir; yol haritası çıkarılır."
+    },
+    {
+      "baslik": "Yayın",
+      "metin": "İçerik takvimi, kreatifler, reklamlar ve otomasyonlar yayına alınır."
+    },
+    {
+      "baslik": "Optimizasyon",
+      "metin": "Haftalık veri takibi, aylık rapor. İşe yarayan büyütülür."
+    }
   ],
   "sonrakiAdimlar": [
-    { "baslik": "Teklifi onaylayın", "metin": "İmzalı sayfayı e-postayla ya da WhatsApp'tan iletin." },
-    { "baslik": "Başlangıç toplantısı", "metin": "Hedefleri, erişimleri ve takvimi birlikte netleştiririz." },
-    { "baslik": "Çalışma başlar", "metin": "İlk teslimler ve rapor tarihleri takviminize işlenir." }
+    {
+      "baslik": "Teklifi onaylayın",
+      "metin": "Onayınızı e-postayla ya da WhatsApp'tan tek mesajla iletin."
+    },
+    {
+      "baslik": "Başlangıç toplantısı",
+      "metin": "Hedefleri, erişimleri ve takvimi birlikte netleştiririz."
+    },
+    {
+      "baslik": "Çalışma başlar",
+      "metin": "İlk teslimler ve rapor tarihleri takviminize işlenir."
+    }
   ],
   "referanslar": [
-    { "ad": "T3 · Türkiye Teknoloji Takımı", "dosya": "t3-vakfi.webp" },
-    { "ad": "TRT", "dosya": "trt.webp" },
-    { "ad": "TEDSAN Savunma", "dosya": "tedsan-savunma.webp" },
-    { "ad": "Ankara ESOB", "dosya": "ankara-esob.webp" },
-    { "ad": "Uşak TSO", "dosya": "usak-tso.webp" },
-    { "ad": "Yatırım 101", "dosya": "yatirim-101.webp" },
-    { "ad": "Op. Dr. İsmail Bozkurt", "dosya": "op-dr-ismail-bozkurt.webp" },
-    { "ad": "Havva Aydın Disleksi", "dosya": "havva-aydin-disleksi.webp" },
-    { "ad": "Hayata Dokunuş Derneği", "dosya": "hayata-dokunus-dernegi.webp" },
-    { "ad": "Hanibana", "dosya": "hanibana.webp" },
-    { "ad": "House of Nomadé", "dosya": "house-of-nomade.webp" },
-    { "ad": "TVENTO", "dosya": "tvento.webp" },
-    { "ad": "battaniye.com.tr", "dosya": "battaniye.webp" },
-    { "ad": "Su Psikoterapi", "dosya": "su-psikoterapi.webp" },
-    { "ad": "Tevhid Et Lokantası", "dosya": "tevhid-et-lokantasi.webp" },
-    { "ad": "Gülveren Anaokulu", "dosya": "gulveren-anaokulu.webp" },
-    { "ad": "Filenin Yıldızları Voleybol Okulları", "dosya": "filenin-yildizlari.webp" }
+    {
+      "ad": "T3 · Türkiye Teknoloji Takımı",
+      "dosya": "t3-vakfi.webp",
+      "olcek": 1.2
+    },
+    {
+      "ad": "TRT",
+      "dosya": "trt.webp",
+      "olcek": 0.8
+    },
+    {
+      "ad": "TEDSAN Savunma",
+      "dosya": "tedsan-savunma.webp",
+      "olcek": 1.2
+    },
+    {
+      "ad": "Ankara ESOB",
+      "dosya": "ankara-esob.webp",
+      "olcek": 0.9
+    },
+    {
+      "ad": "Uşak TSO",
+      "dosya": "usak-tso.webp"
+    },
+    {
+      "ad": "Yatırım 101",
+      "dosya": "yatirim-101.webp",
+      "olcek": 1.08
+    },
+    {
+      "ad": "Op. Dr. İsmail Bozkurt",
+      "dosya": "op-dr-ismail-bozkurt.webp",
+      "olcek": 1.15
+    },
+    {
+      "ad": "Havva Aydın Disleksi",
+      "dosya": "havva-aydin-disleksi.webp"
+    },
+    {
+      "ad": "Hayata Dokunuş Derneği",
+      "dosya": "hayata-dokunus-dernegi.webp"
+    },
+    {
+      "ad": "Hanibana",
+      "dosya": "hanibana.webp",
+      "olcek": 0.85
+    },
+    {
+      "ad": "House of Nomadé",
+      "dosya": "house-of-nomade.webp"
+    },
+    {
+      "ad": "TVENTO",
+      "dosya": "tvento.webp",
+      "olcek": 0.85
+    },
+    {
+      "ad": "battaniye.com.tr",
+      "dosya": "battaniye.webp"
+    },
+    {
+      "ad": "Su Psikoterapi",
+      "dosya": "su-psikoterapi.webp",
+      "olcek": 1.15
+    },
+    {
+      "ad": "Tevhid Et Lokantası",
+      "dosya": "tevhid-et-lokantasi.webp"
+    },
+    {
+      "ad": "Gülveren Anaokulu",
+      "dosya": "gulveren-anaokulu.webp",
+      "olcek": 0.95
+    },
+    {
+      "ad": "Filenin Yıldızları Voleybol Okulları",
+      "dosya": "filenin-yildizlari.webp"
+    }
   ]
 }

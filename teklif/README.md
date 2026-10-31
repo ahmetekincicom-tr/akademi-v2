@@ -4,11 +4,11 @@ ahmetekinci.com.tr kurumsal tonlarında (mürekkep siyahı, sarı, krem; Plus Ja
 
 ## Sayfalar
 
-1. **Kapak**: logo, teklif sunulan firma/yetkili, konu, teklif tarihi, son geçerlilik, teklif no
+1. **Kapak**: logo, teklif sunulan firma (yetkili ya da web adresi), konu, teklif tarihi, son geçerlilik, teklif no
 2. **Hizmet detayları**: her hizmetin özeti, kapsamı, süresi. Tek sayfaya sığmazsa otomatik olarak ikinci sayfaya bölünür
-3. **Yatırım ve ödeme**: fiyat tablosu, tek seferlik / aylık toplamlar (indirim + KDV), teslim süresi takvimi, ödeme seçenekleri
-4. **Referanslar**: rakamlar, logo ızgarası ("Sıradaki marka: <müşteri>"), çalışma modeli
-5. **İletişim**: portre, iletişim kanalları, WhatsApp QR, sonraki adımlar, imzalı onay alanı
+3. **Yatırım ve ödeme**: fiyat tablosu (paket satırları, "pakete dahil" kalemler), tek seferlik / aylık toplamlar (indirim + KDV), teslim süresi takvimi, önerilen reklam bütçesi, ödeme seçenekleri
+4. **Referanslar**: rakamlar, tek renk ve optik olarak dengelenmiş logo ızgarası (her logonun altında marka adı, sonda "Sıradaki marka: <müşteri>"), çalışma modeli
+5. **İletişim**: portre, iletişim kanalları, sonraki adımlar, WhatsApp'tan onay çağrısı
 
 Her sayfanın altında Ahmet Ekinci logosu, partner rozetleri (Meta, Shopify, OpenAI, Kommo) ve sayfa numarası var.
 
@@ -44,5 +44,15 @@ Teklif dosyasındaki bir hizmet, katalogdaki her alanı ezebilir:
 
 Katalogda olmayan bir hizmet için `kod` yazmadan `ad`, `etiket`, `grup` (yonetim | kurulum | uretim | web), `periyot` (tek | aylik), `ozet`, `kapsam`, `fiyat` verin.
 Adet için `"adet": 2`. İndirim: `{ "oran": 10, "kapsam": "tek" | "aylik" | "tum", "aciklama": "Paket indirimi" }` ya da `oran` yerine sabit `tutar`.
+
+Paket fiyat: aynı `paket` adını taşıyan hizmetler ayrı kartlarla anlatılır, fiyat tablosunda tek satırda paket fiyatıyla görünür:
+
+```json
+"hizmetler": [{ "kod": "google-reklam", "paket": "reklam" }, { "kod": "meta-reklam", "paket": "reklam" }],
+"paketler": { "reklam": { "ad": "Google + Meta Reklam Yönetimi", "fiyat": 16000, "periyot": "aylik" } }
+```
+
+`"fiyat": 0` olan hizmet "Pakete dahil" olarak gösterilir. Reklam bütçesi bandı için `"reklamButcesi": { "tutar": "₺20.000 – ₺40.000 / ay", "metin": "…" }`.
+Yetkili adı yoksa hitap "Değerli <firma> ekibi," olur; kapakta `musteri.web` gösterilir. Bir referans logosu görsel olarak büyük/küçük kalırsa `ayarlar.json`'da `olcek` ile ayarlanır.
 
 Teslim süresi kartı, `teslimTakvimi` olan ilk hizmetten (web sitesi, e-ticaret) gelir; yoksa "onaydan sonra başlangıç" kartı çıkar.

@@ -1,6 +1,6 @@
 {
   "_aciklama": "ÖRNEK teklif. Yeni teklif için bu dosyayı kopyalayıp müşteri, konu, hizmetler ve fiyatları değiştirin.",
-  "teklifNo": "AE-2026-1031",
+  "teklifNo": "AE-ORNEK",
   "tarih": "2026-10-31",
   "gecerlilikGun": 15,
   "musteri": {
@@ -12,10 +12,22 @@
   "kapakBaslik": "Dijitalde [büyüme] planınız hazır.",
   "giris": "Görüşmemizde paylaştığınız hedefler doğrultusunda; yeni web sitenizi, sosyal medya yönetiminizi ve Meta reklamlarınızı tek bir sistemde birleştiren bir plan hazırladım. Her adım rakamla takip edilir, işe yarayan büyütülür.",
   "hizmetler": [
-    { "kod": "web-sitesi", "fiyat": 65000 },
-    { "kod": "sosyal-medya", "fiyat": 24000 },
-    { "kod": "meta-reklam", "fiyat": 16000 },
-    { "kod": "meta-capi", "fiyat": 9500 }
+    {
+      "kod": "web-sitesi",
+      "fiyat": 65000
+    },
+    {
+      "kod": "sosyal-medya",
+      "fiyat": 24000
+    },
+    {
+      "kod": "meta-reklam",
+      "fiyat": 16000
+    },
+    {
+      "kod": "meta-capi",
+      "fiyat": 9500
+    }
   ],
   "indirim": {
     "oran": 10,

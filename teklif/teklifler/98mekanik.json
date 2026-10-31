@@ -1,0 +1,60 @@
+{
+  "teklifNo": "AE-2026-1031",
+  "tarih": "2026-10-31",
+  "gecerlilikGun": 15,
+  "musteri": {
+    "firma": "98 Mekanik Mühendislik",
+    "web": "98mekanik.com"
+  },
+  "konu": "Google Ads ve Meta Ads reklam yönetimi",
+  "kapakBaslik": "Reklam bütçeniz [keşif talebine] dönüşsün.",
+  "kapsamBaslik": "Reklamdan [keşif talebine] tek sistem",
+  "giris": "98mekanik.com için Google ve Meta reklamlarını tek elden yöneten, her aramayı ve keşif talebini ölçen bir yapı öneriyorum. İlk hafta iki platformda dönüşüm takibini kuruyorum; ardından reklam bütçenizi en düşük maliyetle talep getiren kampanyalara yönlendiriyoruz.",
+  "hizmetler": [
+    {
+      "kod": "google-reklam",
+      "paket": "reklam",
+      "sure": "Aylık",
+      "not": "",
+      "kapsam": [
+        "Doğalgaz, klima, yerden ısıtma gibi hizmet bazlı anahtar kelime ve rakip araştırması",
+        "Arama ağı ve Performance Max kampanyaları; hizmet bölgenize göre konum hedeflemesi",
+        "Reklam metinleri; arama, konum ve site bağlantısı uzantıları",
+        "Negatif kelime, teklif ve bütçe optimizasyonu",
+        "Arama, keşif formu ve WhatsApp dönüşümlerinin takibi",
+        "Aylık performans raporu"
+      ],
+      "ozet": "Doğalgaz, klima ve ısıtma hizmeti arayan kişilere, tam ihtiyaç anında Google aramalarında görünün."
+    },
+    {
+      "kod": "meta-reklam",
+      "paket": "reklam",
+      "sure": "Aylık",
+      "not": "",
+      "kapsam": [
+        "Hizmet bölgenize göre kitle ve konum kurgusu",
+        "Keşif / teklif talebi toplayan form ve WhatsApp kampanyaları",
+        "Uygulama fotoğraf ve videolarıyla kreatif A/B testleri",
+        "Siteyi ziyaret edenlere yeniden hedefleme",
+        "Haftalık bütçe ve performans optimizasyonu",
+        "Aylık rapor: harcama, talep sayısı, talep başı maliyet"
+      ]
+    },
+    {
+      "kod": "donusum-kurulumu",
+      "fiyat": 0
+    }
+  ],
+  "paketler": {
+    "reklam": {
+      "ad": "Google + Meta Reklam Yönetimi",
+      "etiket": "Paket · Google Ads + Meta Ads",
+      "fiyat": 16000,
+      "periyot": "aylik"
+    }
+  },
+  "reklamButcesi": {
+    "tutar": "₺20.000 – ₺40.000 / ay",
+    "metin": "Bütçe hizmet bedeline dahil değildir; Google ve Meta'ya doğrudan kendi kartınızla ödenir. Platformlar arası dağılım, talep başı maliyete göre haftalık güncellenir."
+  }
+}
