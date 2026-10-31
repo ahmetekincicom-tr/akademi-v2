@@ -78,6 +78,7 @@ const IKON = {
   konum: I('<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'),
   ok: I('<path d="M7 17L17 7M9 7h8v8"/>', 'stroke-width="2.8"'),
   sag: I('<path d="M5 12h14M13 6l6 6-6 6"/>', 'stroke-width="2.6"'),
+  takvim: I('<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'),
   kupa: I('<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7"/>'),
 };
 
@@ -279,11 +280,6 @@ function kapak(v, P) {
       </div>
     </div>
 
-    <div class="kapak__bilgi">
-      <div><span class="mono-etiket">Teklif tarihi</span><strong>${e(v.tarihYazi)}</strong></div>
-      <div><span class="mono-etiket">Son geçerlilik</span><strong>${e(v.sonTarihYazi)}</strong><em>${v.gecerlilikGun} gün geçerli</em></div>
-      <div><span class="mono-etiket">Teklif no</span><strong>${e(v.teklifNo)}</strong></div>
-    </div>
 
     <div class="serit serit--golge">${serit}</div>
     <div class="serit">${serit}</div>
@@ -314,7 +310,7 @@ function hizmetKart(h) {
 }
 
 function hizmetSayfasi(v, P) {
-  const hitap = v.hitap || (v.musteri.yetkili ? `Sayın ${v.musteri.yetkili},` : `Değerli ${v.musteri.firma} ekibi,`);
+  const hitap = v.hitap || (v.musteri.yetkili ? `Sayın ${v.musteri.yetkili},` : "");
   return `
   <section class="sayfa" data-bol>
     ${izgara(false)}
@@ -326,7 +322,7 @@ function hizmetSayfasi(v, P) {
           <h2 class="h2">${vurgula(v.kapsamBaslik || "Size özel [hazırlanan] hizmetler")}</h2>
         </div>
         <div>
-          <p class="hitap">${e(hitap)}</p>
+          ${hitap ? `<p class="hitap">${e(hitap)}</p>` : ""}
           <p class="lede">${e(v.giris || "")}</p>
         </div>
       </div>
@@ -400,11 +396,11 @@ function yatirimSayfasi(v, P) {
       <div class="teslim__ust">
         <div>
           <div class="mono-etiket">Başlangıç</div>
-          <div class="teslim__sure"><strong>${e(v.baslangic || "3 iş günü")}</strong><span>onaydan sonra</span></div>
+          <div class="teslim__sure"><strong>${e(v.baslangic || "3 iş günü")}</strong></div>
         </div>
         <span class="saat-ikon">${IKON.saat}</span>
       </div>
-      <p class="teslim__not">Onayın ardından başlangıç toplantısı yapılır; erişimler ve takvim netleşir, çalışma başlar.</p>
+      <p class="teslim__not">Başlangıç toplantısında erişimler ve takvim netleşir, çalışma başlar.</p>
     </div>`;
   }
 
@@ -433,14 +429,18 @@ function yatirimSayfasi(v, P) {
   return `
   <section class="sayfa">
     ${izgara(false)}
-    ${P.ust(v, "Yatırım")}
+    ${P.ust(v, "Ücretlendirme")}
     <div class="govde">
       <div class="bolum-bas">
         <div>
-          <div class="kicker">02 · Yatırım ve ödeme</div>
+          <div class="kicker">02 · Ücretlendirme</div>
           <h2 class="h2">Net fiyat, <span class="vurgu">net</span> takvim.</h2>
         </div>
-        <p class="lede">Tüm kalemler tek tabloda. Tek seferlik işler ve aylık hizmetler ayrı toplanır; sürpriz maliyet yoktur.</p>
+        <div class="gecerlilik">
+          <span class="gecerlilik__ikon">${IKON.takvim}</span>
+          <div><span class="mono-etiket">Son geçerlilik tarihi</span><strong>${e(v.sonTarihYazi)}</strong></div>
+          <em>${v.gecerlilikGun} gün</em>
+        </div>
       </div>
 
       <div class="tablo">
@@ -467,45 +467,40 @@ function yatirimSayfasi(v, P) {
 function referansSayfasi(v, P) {
   // Logolar optik olarak dengelenir: genişlik/yükseklik oranına göre aynı görsel ağırlığa
   // yakın bir boyut hesaplanır (geniş logolar daha alçak, kare logolar daha yüksek).
+  // 17 logo 6-5-6 dizilir: ilk satır kendiliğinden 6'da kırılır, ikinci satır 5'te elle kırılır.
+  const kir = v.referanslar.length > 12 ? 11 : -1;
   const logolar = v.referanslar
-    .map((r) => {
+    .map((r, i) => {
       const { w, h } = gorselOlcu(V("referanslar", r.dosya));
       const oran = w / h;
-      let yuk = 10.6 * Math.pow(oran, -0.5) * (r.olcek || 1);
+      let yuk = 10.2 * Math.pow(oran, -0.5) * (r.olcek || 1);
       let gen = yuk * oran;
-      if (gen > 33) (gen = 33), (yuk = gen / oran);
-      if (yuk > 12.5) (yuk = 12.5), (gen = yuk * oran);
+      if (gen > 24.5) (gen = 24.5), (yuk = gen / oran);
+      if (yuk > 13) (yuk = 13), (gen = yuk * oran);
       return `
-      <div class="ref">
-        <div class="ref__logo"><img src="${veriUrl(V("referanslar", r.dosya))}" alt="" style="width:${gen.toFixed(2)}mm;height:${yuk.toFixed(2)}mm"></div>
-        <span class="ref__ad">${e(r.ad)}</span>
-      </div>`;
+      <div class="ref" title="${e(r.ad)}">
+        <div class="ref__logo"><img src="${veriUrl(V("referanslar", r.dosya))}" alt="${e(r.ad)}" style="width:${gen.toFixed(2)}mm;height:${yuk.toFixed(2)}mm"></div>
+      </div>${i + 1 === kir ? '<div class="ref--kir"></div>' : ""}`;
     })
     .join("");
-  const kalan = 4 - (v.referanslar.length % 4 || 4);
-  const span = kalan === 0 ? 4 : kalan;
   return `
   <section class="sayfa">
     ${izgara(false)}
     ${P.ust(v, "Referanslar")}
     <div class="govde">
-      <div class="bolum-bas">
+      <div class="bolum-bas bolum-bas--tek">
         <div>
           <div class="kicker">03 · Referanslar</div>
-          <h2 class="h2">Birlikte <span class="vurgu">büyüdüğümüz</span> markalar.</h2>
+          <h2 class="h2">Eğitim ve hizmetlerimizi <span class="vurgu">tercih edenler</span>.</h2>
         </div>
-        <p class="lede">Kamu kurumlarından savunma sanayisine, sağlıktan e-ticarete; farklı sektörlerde aynı kural: önce veri, sonra karar.</p>
       </div>
 
-      <div class="rakamlar">${v.istatistikler
+      <div class="rakamlar" style="grid-template-columns:repeat(${v.istatistikler.length},1fr)">${v.istatistikler
         .map((s) => `<div><strong>${e(s.deger)}</strong><b>${e(s.etiket)}</b><span>${e(s.alt)}</span></div>`)
         .join("")}</div>
 
       <div class="logolar">
         ${logolar}
-        <div class="ref siradaki" style="grid-column:span ${span}">
-          <span>Sıradaki marka</span><b>${e(v.musteri.firma)}</b>${IKON.sag}
-        </div>
       </div>
 
       <div class="adimlar">${v.calismaModeli
@@ -553,17 +548,6 @@ function iletisimSayfasi(v, P) {
         </div>
       </div>
 
-      <div class="sonraki">${v.sonrakiAdimlar
-        .map((s, i) => `<div><i>${iki(i + 1)} · Adım</i><b>${e(s.baslik)}</b><p>${e(s.metin)}</p></div>`)
-        .join("")}</div>
-
-      <a class="cta" href="https://wa.me/90${rakam(c.whatsapp)}">
-        <div>
-          <span class="mono-etiket">Teklif ${e(v.teklifNo)} · ${e(v.sonTarihYazi)} tarihine kadar geçerli</span>
-          <b>Onay için tek mesaj yeterli.</b>
-        </div>
-        <span class="cta__buton">${IKON.whatsapp}${e(c.whatsapp)}<i>${IKON.sag}</i></span>
-      </a>
     </div>
     ${P.alt(v)}
   </section>`;

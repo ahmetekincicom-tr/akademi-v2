@@ -58,11 +58,6 @@
       "alt": "Marka ve işletme sahibi"
     },
     {
-      "deger": "13",
-      "etiket": "Hizmet kalemi",
-      "alt": "Kurulumdan yönetime"
-    },
-    {
       "deger": "3.",
       "etiket": "TRT ödülü",
       "alt": "Geleceğin İletişimcileri 2021"
@@ -84,20 +79,6 @@
     {
       "baslik": "Optimizasyon",
       "metin": "Haftalık veri takibi, aylık rapor. İşe yarayan büyütülür."
-    }
-  ],
-  "sonrakiAdimlar": [
-    {
-      "baslik": "Teklifi onaylayın",
-      "metin": "Onayınızı e-postayla ya da WhatsApp'tan tek mesajla iletin."
-    },
-    {
-      "baslik": "Başlangıç toplantısı",
-      "metin": "Hedefleri, erişimleri ve takvimi birlikte netleştiririz."
-    },
-    {
-      "baslik": "Çalışma başlar",
-      "metin": "İlk teslimler ve rapor tarihleri takviminize işlenir."
     }
   ],
   "referanslar": [

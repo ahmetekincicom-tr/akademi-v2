@@ -4,11 +4,11 @@ ahmetekinci.com.tr kurumsal tonlarında (mürekkep siyahı, sarı, krem; Plus Ja
 
 ## Sayfalar
 
-1. **Kapak**: logo, teklif sunulan firma (yetkili ya da web adresi), konu, teklif tarihi, son geçerlilik, teklif no
+1. **Kapak**: logo, teklif no (sağ üst), başlık, teklif konusu, teklif sunulan firma (yetkili ya da web adresi)
 2. **Hizmet detayları**: her hizmetin özeti, kapsamı, süresi. Tek sayfaya sığmazsa otomatik olarak ikinci sayfaya bölünür
-3. **Yatırım ve ödeme**: fiyat tablosu (paket satırları, "pakete dahil" kalemler), tek seferlik / aylık toplamlar (indirim + KDV), teslim süresi takvimi, önerilen reklam bütçesi, ödeme seçenekleri
-4. **Referanslar**: rakamlar, tek renk ve optik olarak dengelenmiş logo ızgarası (her logonun altında marka adı, sonda "Sıradaki marka: <müşteri>"), çalışma modeli
-5. **İletişim**: portre, iletişim kanalları, sonraki adımlar, WhatsApp'tan onay çağrısı
+3. **Ücretlendirme**: son geçerlilik tarihi, fiyat tablosu (paket satırları, "pakete dahil" kalemler), tek seferlik / aylık toplamlar (indirim + KDV), teslim süresi takvimi, önerilen reklam bütçesi, ödeme seçenekleri
+4. **Referanslar**: rakamlar, tek renk ve optik olarak dengelenmiş logo ızgarası (6-5-6 dizilim), çalışma modeli
+5. **İletişim**: portre ve iletişim kanalları
 
 Her sayfanın altında Ahmet Ekinci logosu, partner rozetleri (Meta, Shopify, OpenAI, Kommo) ve sayfa numarası var.
 
@@ -53,6 +53,6 @@ Paket fiyat: aynı `paket` adını taşıyan hizmetler ayrı kartlarla anlatıl�
 ```
 
 `"fiyat": 0` olan hizmet "Pakete dahil" olarak gösterilir. Reklam bütçesi bandı için `"reklamButcesi": { "tutar": "₺20.000 – ₺40.000 / ay", "metin": "…" }`.
-Yetkili adı yoksa hitap "Değerli <firma> ekibi," olur; kapakta `musteri.web` gösterilir. Bir referans logosu görsel olarak büyük/küçük kalırsa `ayarlar.json`'da `olcek` ile ayarlanır.
+Hitap ("Sayın …,") yalnız `musteri.yetkili` yazılırsa çıkar; kapakta `musteri.web` gösterilir. Bir referans logosu görsel olarak büyük/küçük kalırsa `ayarlar.json`'da `olcek` ile ayarlanır.
 
 Teslim süresi kartı, `teslimTakvimi` olan ilk hizmetten (web sitesi, e-ticaret) gelir; yoksa "onaydan sonra başlangıç" kartı çıkar.
