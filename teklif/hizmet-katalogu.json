@@ -1,0 +1,260 @@
+{
+  "_aciklama": "Standart hizmet tanımları. Teklif dosyasında yalnızca `kod` ve `fiyat` yazmak yeterli; buradaki her alan teklif dosyasında aynı adla yazılarak o teklif için değiştirilebilir. grup: yonetim | kurulum | uretim | web. periyot: tek | aylik.",
+  "hizmetler": {
+    "web-sitesi": {
+      "ad": "Kurumsal Web Sitesi",
+      "etiket": "TASARIM · YAZILIM · SEO",
+      "grup": "web",
+      "periyot": "tek",
+      "ozet": "Markanızı anlatan, hızlı açılan ve talep toplayan; mobilde kusursuz çalışan, yönetim panelli kurumsal web sitesi.",
+      "kapsam": [
+        "Keşif görüşmesi, site haritası ve içerik planı",
+        "Markaya özel arayüz tasarımı (masaüstü + mobil)",
+        "Yönetim paneli: sayfa, blog ve görselleri kendiniz güncelleyin",
+        "Teklif / iletişim formu, WhatsApp ve arama butonları",
+        "Teknik SEO: hız, meta etiketler, site haritası, Search Console",
+        "Google Analytics 4 ve Meta Pixel kurulumu",
+        "SSL, KVKK ve çerez metinleri; yayın sonrası 30 gün destek"
+      ],
+      "sure": "Ortalama 21 iş günü",
+      "teslimTakvimi": {
+        "baslik": "Web sitesi ortalama teslim süresi",
+        "toplam": "21 iş günü",
+        "altyazi": "≈ 4 hafta",
+        "asamalar": [
+          { "ad": "Keşif & site haritası", "gun": 3 },
+          { "ad": "Arayüz tasarımı", "gun": 6 },
+          { "ad": "Geliştirme & içerik", "gun": 8 },
+          { "ad": "Test, SEO & yayın", "gun": 4 }
+        ],
+        "not": "Süre; metin, görsel ve logo gibi içeriklerin eksiksiz iletilmesiyle başlar. Her aşama sonunda onayınız alınır."
+      }
+    },
+    "e-ticaret": {
+      "ad": "Shopify E-Ticaret Sitesi",
+      "etiket": "SHOPIFY · E-TİCARET",
+      "grup": "web",
+      "periyot": "tek",
+      "ozet": "Shopify Partner güvencesiyle; ürün, ödeme, kargo ve pazarlama altyapısı hazır, satışa açık online mağaza.",
+      "kapsam": [
+        "Mağaza kurulumu, tema uyarlaması ve marka tasarımı",
+        "Ürün, kategori ve koleksiyon yapısının kurulması",
+        "Ödeme (iyzico / sanal POS) ve kargo entegrasyonu",
+        "Meta katalog, Pixel ve Conversions API bağlantısı",
+        "Google Merchant Center ve Analytics 4 kurulumu",
+        "Mağaza yönetimi eğitimi ve 30 gün destek"
+      ],
+      "sure": "Ortalama 30 iş günü",
+      "teslimTakvimi": {
+        "baslik": "E-ticaret sitesi ortalama teslim süresi",
+        "toplam": "30 iş günü",
+        "altyazi": "≈ 6 hafta",
+        "asamalar": [
+          { "ad": "Keşif & kurgu", "gun": 4 },
+          { "ad": "Tasarım & tema", "gun": 8 },
+          { "ad": "Ürün & entegrasyon", "gun": 12 },
+          { "ad": "Test & yayın", "gun": 6 }
+        ],
+        "not": "Süre; ürün bilgileri, görseller ve ödeme hesabı onayının tamamlanmasıyla başlar."
+      }
+    },
+    "sosyal-medya": {
+      "ad": "Sosyal Medya Yönetimi",
+      "etiket": "INSTAGRAM · TIKTOK · LINKEDIN",
+      "grup": "yonetim",
+      "periyot": "aylik",
+      "ozet": "Strateji, içerik takvimi, paylaşım ve aylık raporla hesaplarınız tek elden yönetilir.",
+      "kapsam": [
+        "Hesap analizi, rakip incelemesi ve iletişim dili",
+        "Aylık içerik stratejisi ve paylaşım takvimi",
+        "Aylık 12 gönderi + 12 hikâye (tasarım ve metin dahil)",
+        "Reels / kısa video kurgusu",
+        "Profil, biyografi ve öne çıkanlar optimizasyonu",
+        "Aylık performans raporu ve değerlendirme görüşmesi"
+      ],
+      "sure": "Aylık · en az 3 ay"
+    },
+    "meta-reklam": {
+      "ad": "Meta Reklam Yönetimi",
+      "etiket": "INSTAGRAM · FACEBOOK",
+      "grup": "yonetim",
+      "periyot": "aylik",
+      "ozet": "Kitle seçimi, kreatif testleri ve bütçe optimizasyonuyla Instagram ve Facebook reklamları.",
+      "kapsam": [
+        "Hedefe göre kampanya yapısı ve kitle kurgusu",
+        "Kreatif ve metin A/B testleri",
+        "Haftalık bütçe ve performans optimizasyonu",
+        "Yeniden hedefleme ve benzer kitleler",
+        "Dönüşüm takibi (Pixel / Conversions API kontrolü)",
+        "Aylık rapor: harcama, talep, maliyet, sonraki adım"
+      ],
+      "sure": "Aylık · en az 3 ay",
+      "not": "Reklam bütçesi hizmet bedeline dahil değildir; doğrudan Meta'ya ödenir."
+    },
+    "google-reklam": {
+      "ad": "Google Reklam Yönetimi",
+      "etiket": "GOOGLE ADS",
+      "grup": "yonetim",
+      "periyot": "aylik",
+      "ozet": "Arama, Performance Max ve YouTube kampanyaları; anahtar kelime ve dönüşüm takibiyle.",
+      "kapsam": [
+        "Anahtar kelime ve rakip araştırması",
+        "Arama, Performance Max ve YouTube kampanyaları",
+        "Reklam metinleri, uzantılar ve açılış sayfası önerileri",
+        "Dönüşüm takibi (GA4 / Google Ads etiketi)",
+        "Negatif kelime ve teklif optimizasyonu",
+        "Aylık performans raporu"
+      ],
+      "sure": "Aylık · en az 3 ay",
+      "not": "Reklam bütçesi hizmet bedeline dahil değildir; doğrudan Google'a ödenir."
+    },
+    "tiktok-reklam": {
+      "ad": "TikTok Reklam Yönetimi",
+      "etiket": "TIKTOK ADS",
+      "grup": "yonetim",
+      "periyot": "aylik",
+      "ozet": "Dikey video kreatifleri ve test yapısıyla TikTok'ta ölçülebilir kampanyalar.",
+      "kapsam": [
+        "Kampanya ve kitle yapısının kurulması",
+        "Dikey video kreatif fikirleri ve senaryolar",
+        "Spark Ads ve kreatif testleri",
+        "Pixel ve olay takibi kontrolü",
+        "Haftalık optimizasyon, aylık rapor"
+      ],
+      "sure": "Aylık · en az 3 ay",
+      "not": "Reklam bütçesi hizmet bedeline dahil değildir."
+    },
+    "meta-hesap-kurulumu": {
+      "ad": "Meta Reklam Hesabı Kurulumu",
+      "etiket": "META · KURULUM",
+      "grup": "kurulum",
+      "periyot": "tek",
+      "ozet": "İşletme portföyü, reklam hesabı, sayfa ve yetkiler doğru yapıyla kurulur.",
+      "kapsam": [
+        "Meta İşletme Portföyü kurulumu ve doğrulama",
+        "Reklam hesabı, ödeme yöntemi ve yetkiler",
+        "Facebook sayfası ve Instagram hesabı bağlantısı",
+        "Pixel kurulumu ve alan adı doğrulaması",
+        "Ekibiniz için kullanıcı ve rol düzeni"
+      ],
+      "sure": "3–5 iş günü"
+    },
+    "meta-capi": {
+      "ad": "Meta Conversions API Kurulumu",
+      "etiket": "META · CAPI",
+      "grup": "kurulum",
+      "periyot": "tek",
+      "ozet": "Pixel'e ek olarak sunucu taraflı ölçüm; talep ve satışlar reklam hesabına daha doğru aktarılır.",
+      "kapsam": [
+        "Mevcut Pixel ve olayların denetimi",
+        "Sunucu taraflı Conversions API kurulumu",
+        "Olay eşleştirme (dedup) ve kalite puanı iyileştirme",
+        "Form, satın alma ve WhatsApp olaylarının tanımlanması",
+        "Test ve doğrulama raporu"
+      ],
+      "sure": "5–7 iş günü"
+    },
+    "tiktok-hesap-kurulumu": {
+      "ad": "TikTok Reklam Hesabı Kurulumu",
+      "etiket": "TIKTOK · KURULUM",
+      "grup": "kurulum",
+      "periyot": "tek",
+      "ozet": "TikTok Ads Manager hesabı, Pixel ve olay takibi kampanyaya hazır hâle getirilir.",
+      "kapsam": [
+        "TikTok Business Center ve reklam hesabı",
+        "Pixel ve olay takibi kurulumu",
+        "Ödeme ve yetki düzeni",
+        "İlk kampanya için hazır yapı"
+      ],
+      "sure": "3–5 iş günü"
+    },
+    "waba": {
+      "ad": "WABA Kurulumu",
+      "etiket": "WHATSAPP BUSINESS API",
+      "grup": "kurulum",
+      "periyot": "tek",
+      "ozet": "WhatsApp Business API hesabı, doğrulama ve mesaj şablonlarıyla kurulur.",
+      "kapsam": [
+        "WhatsApp Business API hesabı ve numara kaydı",
+        "İşletme doğrulaması ve görünen ad onayı",
+        "Mesaj şablonlarının hazırlanması ve onaya gönderilmesi",
+        "Reklamlardan WhatsApp'a yönlendirme kurgusu",
+        "Ekip için kullanım eğitimi"
+      ],
+      "sure": "5–10 iş günü"
+    },
+    "crm": {
+      "ad": "CRM Sistem Entegrasyonu",
+      "etiket": "CRM · OTOMASYON",
+      "grup": "kurulum",
+      "periyot": "tek",
+      "ozet": "Form, DM ve reklamlardan gelen talepler CRM'de toplanır; takip otomatik ilerler.",
+      "kapsam": [
+        "Kommo CRM kurulumu ve satış hunisi tasarımı",
+        "Instagram, WhatsApp, form ve reklam bağlantıları",
+        "Otomatik karşılama ve hatırlatma senaryoları",
+        "Ekip yetkileri ve görev akışı",
+        "Kullanım eğitimi ve 30 gün destek"
+      ],
+      "sure": "10–15 iş günü"
+    },
+    "icerik-uretimi": {
+      "ad": "İçerik Üretimi ve Pazarlaması",
+      "etiket": "VİDEO · GÖRSEL",
+      "grup": "uretim",
+      "periyot": "aylik",
+      "ozet": "Strateji, çekim, kurgu ve tasarımla video, görsel ve karusel içerikler.",
+      "kapsam": [
+        "İçerik fikirleri ve çekim senaryoları",
+        "Aylık çekim günü (video + fotoğraf)",
+        "Reels kurgusu, altyazı ve müzik",
+        "Karusel ve gönderi tasarımları",
+        "Reklamlarda kullanılacak kreatif setleri"
+      ],
+      "sure": "Aylık"
+    },
+    "geo": {
+      "ad": "GEO Hizmeti",
+      "etiket": "YAPAY ZEKÂ GÖRÜNÜRLÜĞÜ",
+      "grup": "uretim",
+      "periyot": "aylik",
+      "ozet": "ChatGPT, Gemini gibi yapay zekâ yanıtlarında markanızın görünmesi için içerik ve kaynak çalışması.",
+      "kapsam": [
+        "Yapay zekâ yanıtlarında mevcut görünürlük analizi",
+        "Soru odaklı içerik planı ve sayfa yapısı",
+        "Yapılandırılmış veri (schema) ve teknik düzenlemeler",
+        "Güvenilir kaynaklarda marka bahsi çalışması",
+        "Aylık görünürlük raporu"
+      ],
+      "sure": "Aylık · en az 3 ay"
+    },
+    "danismanlik": {
+      "ad": "Birebir Danışmanlık",
+      "etiket": "ONLINE · YÜZ YÜZE",
+      "grup": "uretim",
+      "periyot": "tek",
+      "ozet": "Hesaplarınıza birlikte bakar, ekibinizle uygulanabilir bir yol haritası çıkarırız.",
+      "kapsam": [
+        "Ön analiz: hesaplar, reklamlar ve rakipler",
+        "Birebir görüşme (online veya yüz yüze)",
+        "Önceliklendirilmiş yol haritası",
+        "Görüşme sonrası yazılı özet ve kaynaklar"
+      ],
+      "sure": "Görüşme başına"
+    },
+    "kurumsal-egitim": {
+      "ad": "Kurumsal Eğitim",
+      "etiket": "EKİBİNİZE ÖZEL",
+      "grup": "uretim",
+      "periyot": "tek",
+      "ozet": "Şirketler, ajanslar ve üniversiteler için uygulamalı dijital pazarlama eğitimleri.",
+      "kapsam": [
+        "İhtiyaç analizi ve ekibe özel müfredat",
+        "Uygulamalı oturumlar ve vaka çalışmaları",
+        "Eğitim materyalleri ve kayıtlar",
+        "Katılım sertifikası"
+      ],
+      "sure": "Program süresine göre"
+    }
+  }
+}

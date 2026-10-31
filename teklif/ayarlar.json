@@ -1,0 +1,80 @@
+{
+  "_aciklama": "Her teklifte aynı kalan bilgiler. Teklif dosyasında aynı adla yazılan alan bu değerlerin yerine geçer.",
+  "hazirlayan": {
+    "ad": "Ahmet Ekinci",
+    "unvan": "Sosyal Medya ve Meta Reklam Uzmanı"
+  },
+  "iletisim": {
+    "telefon": "0545 276 68 66",
+    "whatsapp": "0850 307 12 59",
+    "eposta": "iletisim@ahmetekinci.com.tr",
+    "web": "ahmetekinci.com.tr",
+    "adres": ["Kızılırmak Mah. Dumlupınar Bulvarı", "No: 3C1-160 Çankaya/Ankara"]
+  },
+  "gecerlilikGun": 15,
+  "kdvOrani": 20,
+  "teklifNoOnEki": "AE",
+  "odemeSecenekleri": [
+    {
+      "ikon": "banka",
+      "baslik": "Havale / EFT",
+      "metin": "Fatura sonrası banka hesabına peşin ödeme. Hesap bilgileri fatura ile iletilir."
+    },
+    {
+      "ikon": "kart",
+      "baslik": "Kredi kartı",
+      "metin": "iyzico güvencesiyle online ödeme; kartınıza göre taksit seçenekleri."
+    },
+    {
+      "ikon": "bolum",
+      "baslik": "Proje ödemesi",
+      "metin": "Tek seferlik işlerde %50 başlangıçta, %50 teslimde."
+    },
+    {
+      "ikon": "dongu",
+      "baslik": "Aylık hizmetler",
+      "metin": "Her ayın ilk haftasında, o ayın hizmet bedeli olarak faturalanır."
+    }
+  ],
+  "sartlar": [
+    "Fiyatlara KDV dahil değildir; KDV ayrıca gösterilmiştir.",
+    "Reklam bütçeleri hizmet bedeline dahil değildir; doğrudan reklam platformuna ödenir.",
+    "Bu teklif, son geçerlilik tarihine kadar geçerlidir."
+  ],
+  "istatistikler": [
+    { "deger": "8+", "etiket": "Yıl deneyim", "alt": "2018'den bu yana" },
+    { "deger": "400+", "etiket": "Birebir eğitim", "alt": "Marka ve işletme sahibi" },
+    { "deger": "13", "etiket": "Hizmet kalemi", "alt": "Kurulumdan yönetime" },
+    { "deger": "3.", "etiket": "TRT ödülü", "alt": "Geleceğin İletişimcileri 2021" }
+  ],
+  "calismaModeli": [
+    { "baslik": "Analiz", "metin": "Hesaplar, rakipler ve kitle incelenir; ölçüm altyapısı kontrol edilir." },
+    { "baslik": "Strateji", "metin": "Hedef, kitle, mesaj ve kanal belirlenir; yol haritası çıkarılır." },
+    { "baslik": "Yayın", "metin": "İçerik takvimi, kreatifler, reklamlar ve otomasyonlar yayına alınır." },
+    { "baslik": "Optimizasyon", "metin": "Haftalık veri takibi, aylık rapor. İşe yarayan büyütülür." }
+  ],
+  "sonrakiAdimlar": [
+    { "baslik": "Teklifi onaylayın", "metin": "İmzalı sayfayı e-postayla ya da WhatsApp'tan iletin." },
+    { "baslik": "Başlangıç toplantısı", "metin": "Hedefleri, erişimleri ve takvimi birlikte netleştiririz." },
+    { "baslik": "Çalışma başlar", "metin": "İlk teslimler ve rapor tarihleri takviminize işlenir." }
+  ],
+  "referanslar": [
+    { "ad": "T3 · Türkiye Teknoloji Takımı", "dosya": "t3-vakfi.webp" },
+    { "ad": "TRT", "dosya": "trt.webp" },
+    { "ad": "TEDSAN Savunma", "dosya": "tedsan-savunma.webp" },
+    { "ad": "Ankara ESOB", "dosya": "ankara-esob.webp" },
+    { "ad": "Uşak TSO", "dosya": "usak-tso.webp" },
+    { "ad": "Yatırım 101", "dosya": "yatirim-101.webp" },
+    { "ad": "Op. Dr. İsmail Bozkurt", "dosya": "op-dr-ismail-bozkurt.webp" },
+    { "ad": "Havva Aydın Disleksi", "dosya": "havva-aydin-disleksi.webp" },
+    { "ad": "Hayata Dokunuş Derneği", "dosya": "hayata-dokunus-dernegi.webp" },
+    { "ad": "Hanibana", "dosya": "hanibana.webp" },
+    { "ad": "House of Nomadé", "dosya": "house-of-nomade.webp" },
+    { "ad": "TVENTO", "dosya": "tvento.webp" },
+    { "ad": "battaniye.com.tr", "dosya": "battaniye.webp" },
+    { "ad": "Su Psikoterapi", "dosya": "su-psikoterapi.webp" },
+    { "ad": "Tevhid Et Lokantası", "dosya": "tevhid-et-lokantasi.webp" },
+    { "ad": "Gülveren Anaokulu", "dosya": "gulveren-anaokulu.webp" },
+    { "ad": "Filenin Yıldızları Voleybol Okulları", "dosya": "filenin-yildizlari.webp" }
+  ]
+}

@@ -57,3 +57,6 @@ ios/DerivedData/
 # Yerel doğrulama sunucusunun günlüğü.
 server.log
 .sablon-derleme/
+
+# teklif üretici çıktıları (müşteriye özel PDF'ler depoya girmez)
+/teklif/cikti/
