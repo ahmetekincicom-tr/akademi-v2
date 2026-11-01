@@ -13,7 +13,7 @@
     {
       "kod": "google-reklam",
       "paket": "reklam",
-      "sure": "Aylık",
+      "sure": "Önerilen: en az 3 ay",
       "not": "",
       "kapsam": [
         "Doğalgaz, klima, yerden ısıtma gibi hizmet bazlı anahtar kelime ve rakip araştırması",
@@ -28,7 +28,7 @@
     {
       "kod": "meta-reklam",
       "paket": "reklam",
-      "sure": "Aylık",
+      "sure": "Önerilen: en az 3 ay",
       "not": "",
       "kapsam": [
         "Hizmet bölgenize göre kitle ve konum kurgusu",
@@ -47,7 +47,7 @@
   "paketler": {
     "reklam": {
       "ad": "Google + Meta Reklam Yönetimi",
-      "etiket": "Paket · Google Ads + Meta Ads",
+      "etiket": "Paket · Google + Meta · Önerilen süre: en az 3 ay",
       "fiyat": 16000,
       "periyot": "aylik"
     }
