@@ -3,6 +3,7 @@ import "server-only";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { getOlcumleme } from "@/lib/olcumleme";
 import { mpGovdesi } from "@/lib/google/mp";
+import { googleKullaniciVerisi } from "@/lib/google/kimlik";
 
 /**
  * Eğitim kaydını Google'a bildirir (GA4 Measurement Protocol → GA4 anahtar olay
@@ -47,7 +48,7 @@ export async function kayitDonusumuGonder(paymentId: string): Promise<DonusumSon
 
     const { data: profil } = await servis
       .from("profiles")
-      .select("ga_client_id, gclid, kaynak, reklam_izni")
+      .select("ga_client_id, gclid, kaynak, reklam_izni, email, telefon")
       .eq("id", odeme.user_id)
       .maybeSingle();
 
@@ -99,6 +100,10 @@ export async function kayitDonusumuGonder(paymentId: string): Promise<DonusumSon
       kursAdi,
       gclid: profil?.gclid ?? null,
       izin: Boolean(profil?.reklam_izni),
+      // Hash'li e-posta/telefon: GA4 "kullanıcı tarafından sağlanan veri".
+      // mpGovdesi yalnız izin varsa ekliyor; ham değer tabloya yazılmıyor.
+      userId: odeme.user_id,
+      kullaniciVerisi: googleKullaniciVerisi({ eposta: profil?.email, telefon: profil?.telefon }),
     });
 
     try {
