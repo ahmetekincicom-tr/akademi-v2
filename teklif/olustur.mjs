@@ -138,6 +138,10 @@ function veriHazirla(teklifYolu) {
         periyot: h.periyot,
         tutar,
         dahil: tutar === 0,
+        // Satır indirimi: liste fiyatı tabloda üstü çizili görünür, indirim toplamlarda ayrı satırdır.
+        indirim: Number(h.indirim || 0),
+        indirimNotu: h.indirimNotu || "Paket indirimi",
+        kisaAd: h.kisaAd || h.ad,
       });
     }
   }
@@ -160,7 +164,12 @@ function veriHazirla(teklifYolu) {
       if (!kalemler.length) return null;
       const ara = kalemler.reduce((t, s) => t + s.tutar, 0);
       const indirimVar = ind && (ind.kapsam === "tum" || ind.kapsam === p || (!ind.kapsam && p === "tek"));
-      const indirim = indirimVar ? (ind.tutar != null ? Number(ind.tutar) : (ara * Number(ind.oran)) / 100) : 0;
+      const genel = indirimVar ? (ind.tutar != null ? Number(ind.tutar) : (ara * Number(ind.oran)) / 100) : 0;
+      const indirimler = kalemler
+        .filter((s) => s.indirim)
+        .map((s) => ({ etiket: `${s.indirimNotu} · ${s.kisaAd}`, tutar: s.indirim }));
+      if (genel) indirimler.push({ etiket: `${ind.aciklama || "İndirim"}${ind.oran ? ` (%${ind.oran})` : ""}`, tutar: genel });
+      const indirim = indirimler.reduce((t, x) => t + x.tutar, 0);
       const matrah = ara - indirim;
       const kdv = (matrah * v.kdvOrani) / 100;
       return {
@@ -168,7 +177,7 @@ function veriHazirla(teklifYolu) {
         baslik: p === "tek" ? "Tek seferlik" : "Aylık hizmet",
         ara,
         indirim,
-        indirimEtiket: indirimVar ? `${ind.aciklama || "İndirim"}${ind.oran ? ` (%${ind.oran})` : ""}` : "",
+        indirimler,
         kdv,
         toplam: matrah + kdv,
       };
@@ -341,12 +350,16 @@ function yatirimSayfasi(v, P) {
       return `
       <div class="tablo__satir" style="--grup:${g.renk};--grup-yazi:${g.yazi}">
         <span class="no-cip${s.no.includes("+") ? " no-cip--genis" : ""}">${s.no}</span>
-        <div class="tablo__ad"><b>${e(s.ad)}</b><span>${e(s.etiket)}</span></div>
+        <div class="tablo__ad"><b>${e(s.ad)}</b><span>${e(s.etiket)}</span>${
+          s.indirim ? `<em class="indirim-cip">${e(s.indirimNotu)} −${para(s.indirim)}</em>` : ""
+        }</div>
         <div>${periyotCip(s.periyot)}</div>
         <div class="sag">${
           s.dahil
             ? `<span class="cip cip--koyu">${IKON.hediye}Pakete dahil</span>`
-            : `<span class="tutar">${para(s.tutar)}${s.periyot === "aylik" ? " <small>/ ay</small>" : ""}</span>`
+            : s.indirim
+              ? `<span class="tutar-eski">${para(s.tutar)}</span><span class="tutar">${para(s.tutar - s.indirim)}${s.periyot === "aylik" ? " <small>/ ay</small>" : ""}</span>`
+              : `<span class="tutar">${para(s.tutar)}${s.periyot === "aylik" ? " <small>/ ay</small>" : ""}</span>`
         }</div>
       </div>`;
     })
@@ -365,7 +378,7 @@ function yatirimSayfasi(v, P) {
     <div class="toplam__blok">
       <div class="mono-etiket">${g.baslik}</div>
       <div class="toplam__satir"><span>Ara toplam</span><span class="tutar">${para(g.ara)}</span></div>
-      ${g.indirim ? `<div class="toplam__satir toplam__satir--indirim"><span>${e(g.indirimEtiket)}</span><span class="tutar">−${para(g.indirim)}</span></div>` : ""}
+      ${g.indirimler.map((x) => `<div class="toplam__satir toplam__satir--indirim"><span>${e(x.etiket)}</span><span class="tutar">−${para(x.tutar)}</span></div>`).join("")}
       <div class="toplam__satir"><span>KDV (%${v.kdvOrani})</span><span class="tutar">${para(g.kdv)}</span></div>
       <div class="toplam__genel"><span>Toplam</span><strong>${para(g.toplam)}${g.p === "aylik" ? " <small>/ ay</small>" : ""}</strong></div>
     </div>`

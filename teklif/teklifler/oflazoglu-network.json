@@ -45,7 +45,7 @@
     },
     {
       "kod": "geo",
-      "fiyat": 10000,
+      "fiyat": 15000,
       "etiket": "YAPAY ZEKÂ GÖRÜNÜRLÜĞÜ · TR – KKTC",
       "ozet": "ChatGPT, Gemini ve Google'ın yapay zekâ yanıtlarında, Kıbrıs'ta yatırım sorularında adınızın kaynak olarak geçmesi için içerik ve kaynak çalışması.",
       "sure": "Önerilen: en az 6 ay",
@@ -58,7 +58,10 @@
       ],
       "ad": "Yapay Zekâ Görünürlüğü (GEO)",
       "not": "Yapay zekâ yanıtlarındaki görünürlük zamanla birikerek oluşur; bu nedenle en az 6 aylık çalışma öneriyoruz.",
-      "fiyatNotu": "TR – KKTC · Önerilen süre: en az 6 ay"
+      "fiyatNotu": "TR – KKTC · Önerilen süre: en az 6 ay",
+      "indirim": 5000,
+      "indirimNotu": "Paket indirimi",
+      "kisaAd": "GEO"
     },
     {
       "kod": "donusum-kurulumu",

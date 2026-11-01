@@ -43,7 +43,7 @@ Teklif dosyasındaki bir hizmet, katalogdaki her alanı ezebilir:
 ```
 
 Katalogda olmayan bir hizmet için `kod` yazmadan `ad`, `etiket`, `grup` (yonetim | kurulum | uretim | web), `periyot` (tek | aylik), `ozet`, `kapsam`, `fiyat` verin.
-Adet için `"adet": 2`. İndirim: `{ "oran": 10, "kapsam": "tek" | "aylik" | "tum", "aciklama": "Paket indirimi" }` ya da `oran` yerine sabit `tutar`.
+Adet için `"adet": 2`. Satır indirimi: `"fiyat": 15000, "indirim": 5000, "indirimNotu": "Paket indirimi", "kisaAd": "GEO"` → tabloda liste fiyatı üstü çizili, indirimli fiyat ve indirim etiketi; toplamda ayrı indirim satırı. İndirim: `{ "oran": 10, "kapsam": "tek" | "aylik" | "tum", "aciklama": "Paket indirimi" }` ya da `oran` yerine sabit `tutar`.
 
 Paket fiyat: aynı `paket` adını taşıyan hizmetler ayrı kartlarla anlatılır, fiyat tablosunda tek satırda paket fiyatıyla görünür:
 
