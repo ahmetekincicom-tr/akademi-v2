@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { IZIN_ANAHTARI } from "@/components/site/Olcumleme";
+import { useNativeUygulama } from "@/lib/native";
 import { IZIN_CEREZI, IZIN_DEGISTI, cerezdenOku, izniCoz, izniYaz, type Izin } from "@/lib/izin";
 
 /** Footer'daki "Çerez tercihleri" bağlantısı bandı yeniden açmak için kullanır. */
@@ -112,6 +113,10 @@ export function CerezBandi() {
   // Henüz seçim yapılmadıysa kendiliğinden çıkar; footer bağlantısı ise
   // seçim yapılmış olsa da yeniden açar.
   const gorunur = zorlaAcik || kayitli === "";
+  // iOS uygulamasında sorulacak bir şey yok: orada hiçbir takip başlamıyor
+  // (lib/izin → uygulamaIcinde). Bant çıksaydı verilen onay ATT'nin yerine de
+  // geçmezdi.
+  const native = useNativeUygulama();
 
   useEffect(() => {
     const ac = () => {
@@ -128,7 +133,7 @@ export function CerezBandi() {
     setDetay(false);
   }, []);
 
-  if (!gorunur) return null;
+  if (!gorunur || native) return null;
 
   return (
     <div

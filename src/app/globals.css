@@ -542,6 +542,12 @@ body:has(.acik-kabuk) {
 body:has(.auth-koyu) .whatsapp-yuzen {
   display: none;
 }
+
+/* iOS uygulamasında WhatsApp düğmesi yok: öğrenci eğitmene uygulama içinden
+   (soru-cevap, destek) ulaşıyor; düğme uygulamadan dışarı çıkarıyordu. */
+[data-native="1"] .whatsapp-yuzen {
+  display: none;
+}
 /* Telefon: halka ülke kodu + numarayı saran kapta (TelefonAlani). */
 .auth-koyu .auth-telefon input:focus-visible {
   box-shadow: none;

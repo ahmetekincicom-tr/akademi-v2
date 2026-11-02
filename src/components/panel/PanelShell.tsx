@@ -124,9 +124,12 @@ export function PanelShell({
   // Native uygulamada ödeme ve satış yüzeyleri menüde yok. Apple'ın 3.1.3
   // maddesi uygulama içinden dışarıdaki ödemeye yönlendirmeyi yasaklıyor;
   // "Ödemelerim" IBAN'a, "Yeni eğitimler" satış sayfasına çıkıyor.
+  // "Çok yakında" bölümler de uygulamada hiç görünmüyor: App Store incelemesi
+  // tıklanamayan yer tutucu menüleri eksik uygulama sayıyor (2.1). Web'de
+  // etiketiyle duruyor; bölüm açılınca (lib/bolumler) uygulamada da beliriyor.
   const gorunenGruplar = native
     ? groups
-        .map((g) => ({ ...g, items: g.items.filter((m) => !webeAit.has(m.href)) }))
+        .map((g) => ({ ...g, items: g.items.filter((m) => !webeAit.has(m.href) && !m.yakinda) }))
         .filter((g) => g.items.length > 0)
     : groups;
 

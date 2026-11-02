@@ -143,6 +143,32 @@ export function izniYaz(izin: Izin): void {
 }
 
 /**
+ * iOS uygulamasının tarayıcı kimliğine eklenen işaret (capacitor.config.ts →
+ * appendUserAgent; src/proxy.ts ve lib/native-sunucu de bunu okuyor).
+ */
+export const UYGULAMA_ISARETI = "AEAkademiApp";
+
+/**
+ * <head>'de senkron çalışan tek satır: uygulamadaysa <html data-native="1">
+ * ilk boyamadan ÖNCE konuyor. NativeIsaretci aynı işareti hidrasyondan sonra
+ * koyuyor; yalnız ona bırakılsaydı uygulamaya özel CSS (ör. gizlenen WhatsApp
+ * düğmesi) ilk anda web hâliyle görünüp sonra kaybolurdu.
+ */
+export const UYGULAMA_ONYUKLEME = `if(navigator.userAgent.indexOf(${JSON.stringify(UYGULAMA_ISARETI)})!==-1)document.documentElement.dataset.native="1";`;
+
+/**
+ * Sayfa iOS uygulamasının içinde mi? Senkron (tarayıcı kimliği), hook değil.
+ *
+ * Uygulamada reklam ve analitik takibi HİÇ başlamıyor: App Store 5.1.2,
+ * uygulama içi takibi Apple'ın kendi izin penceresi (ATT) olmadan yasaklıyor;
+ * çerez bandındaki onay bunun yerine geçmiyor. Ödeme zaten web'de olduğu için
+ * uygulamadaki takibin ölçüme bir katkısı da yoktu.
+ */
+export function uygulamaIcinde(): boolean {
+  return typeof navigator !== "undefined" && navigator.userAgent.includes(UYGULAMA_ISARETI);
+}
+
+/**
  * Meta'ya olay gönderilebilir mi?
  *
  * Tek karar noktası burası. "İzin yoksa gönderme" kuralı her çağrı yerine
