@@ -1,6 +1,6 @@
 "use client";
 
-import { IZIN_CEREZI, cerezdenOku, izniCoz, reklamIzniVar } from "@/lib/izin";
+import { IZIN_CEREZI, cerezdenOku, izniCoz, reklamIzniVar, uygulamaIcinde } from "@/lib/izin";
 
 /**
  * Tarayıcı tarafındaki pixel çağrıları.
@@ -48,6 +48,8 @@ const bekleyen: { olay: string; ozel?: Record<string, unknown> }[] = [];
 
 export function izinVarMi(): boolean {
   if (typeof document === "undefined") return false;
+  // iOS uygulamasında piksel yok (ATT; bkz. lib/izin → uygulamaIcinde).
+  if (uygulamaIcinde()) return false;
   if (window.navigator?.globalPrivacyControl === true) return false;
   return reklamIzniVar(izniCoz(cerezdenOku(document.cookie, IZIN_CEREZI)));
 }
