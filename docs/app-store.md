@@ -144,4 +144,4 @@ The demo account above is a student account with an active program, a scheduled 
 - [ ] Hesabım altında hesap silme akışı görünüyor
 - [ ] Uygulamada ödeme, IBAN ya da "satın al" bağlantısı görünmüyor
 - [ ] Test hesabının şifresi App Review Information'a yazıldı
-- [ ] Sürüm sayfasında **Derleme** bölümünden 1.0 (3) seçildi — doğru simgeli derleme bu; 1.0 (2) yanlış simgeyle yüklendi
+- [ ] Sürüm sayfasında **Derleme** bölümünden 1.0 (4) seçildi — doğru simge ve açılış ekranı bu derlemede; (2)'de simge, (3)'te açılış ekranı yanlıştı
