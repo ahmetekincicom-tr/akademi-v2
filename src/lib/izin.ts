@@ -149,6 +149,14 @@ export function izniYaz(izin: Izin): void {
 export const UYGULAMA_ISARETI = "AEAkademiApp";
 
 /**
+ * <head>'de senkron çalışan tek satır: uygulamadaysa <html data-native="1">
+ * ilk boyamadan ÖNCE konuyor. NativeIsaretci aynı işareti hidrasyondan sonra
+ * koyuyor; yalnız ona bırakılsaydı uygulamaya özel CSS (ör. gizlenen WhatsApp
+ * düğmesi) ilk anda web hâliyle görünüp sonra kaybolurdu.
+ */
+export const UYGULAMA_ONYUKLEME = `if(navigator.userAgent.indexOf(${JSON.stringify(UYGULAMA_ISARETI)})!==-1)document.documentElement.dataset.native="1";`;
+
+/**
  * Sayfa iOS uygulamasının içinde mi? Senkron (tarayıcı kimliği), hook değil.
  *
  * Uygulamada reklam ve analitik takibi HİÇ başlamıyor: App Store 5.1.2,
