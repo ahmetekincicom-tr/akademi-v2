@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPanelCourses, getPanelProfile } from "@/lib/panel";
 import { PushKayit } from "@/components/panel/PushKayit";
+import { nativeIstekMi } from "@/lib/native-sunucu";
 import {
   AktifProgram,
   Bildirimler,
@@ -26,12 +27,13 @@ import { tarihSatiri } from "@/lib/tarih-satiri";
   ÜSTÜNDE: telefonda panele girmenin en sık sebebi derse katılmak.
 */
 export default async function PanelOverviewPage() {
-  const [profil, courses, baslangic, bildirim, oturumlar] = await Promise.all([
+  const [profil, courses, baslangic, bildirim, oturumlar, native] = await Promise.all([
     getPanelProfile(),
     getPanelCourses(),
     getBaslangic(),
     getBildirimler(),
     getEgitimOturumlarim(),
+    nativeIstekMi(),
   ]);
 
   const simdi = new Date();
@@ -53,7 +55,7 @@ export default async function PanelOverviewPage() {
       <Karsilama tarih={tarihSatiri(simdi)} kisaTarih={tarihSatiri(simdi, { yil: false })} baslik={baslik} />
 
       {/* Kurulum bitince (ya da eğitim ilişkisi yoksa) bant çekiliyor. */}
-      {!baslangic.tamamlandi && <KurulumBandi adimlar={baslangic.adimlar} />}
+      {!baslangic.tamamlandi && <KurulumBandi adimlar={baslangic.adimlar} native={native} />}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] xl:gap-[18px]">
         <div className="order-2 xl:order-1">
@@ -62,6 +64,7 @@ export default async function PanelOverviewPage() {
               kurs={aktifKurs}
               digerleri={courses.filter((c) => c.id !== aktifKurs.id)}
               odemeBekliyor={bildirim.odemeBekliyor}
+              native={native}
             />
           ) : (
             <ProgramYok />

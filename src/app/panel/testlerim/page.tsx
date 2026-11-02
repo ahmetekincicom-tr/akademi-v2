@@ -4,6 +4,7 @@ import { getOnDegerlendirmeFormu } from "@/lib/form-ayarlari";
 import { getErisim } from "@/lib/erisim";
 import { Icon } from "@/components/Icon";
 import { TR_ZAMAN } from "@/lib/zaman";
+import { nativeIstekMi } from "@/lib/native-sunucu";
 
 const tarihBicimi = new Intl.DateTimeFormat("tr-TR", {
   timeZone: TR_ZAMAN,
@@ -22,7 +23,8 @@ export default async function TestlerimPage() {
     },
     formUrl,
     erisim,
-  ] = await Promise.all([supabase.auth.getUser(), getOnDegerlendirmeFormu(), getErisim()]);
+    native,
+  ] = await Promise.all([supabase.auth.getUser(), getOnDegerlendirmeFormu(), getErisim(), nativeIstekMi()]);
 
   const { data: profil } = await supabase
     .from("profiles")
@@ -71,7 +73,10 @@ export default async function TestlerimPage() {
                   ? "Eğitimi sana göre kurabilmemiz için kısa bir soru seti."
                   : odendi
                     ? "Form henüz tanımlanmadı. Eğitmen eklediğinde burada açılacak."
-                    : "Ödemen onaylandıktan sonra açılır."}
+                    : native
+                      ? // Uygulamada ödemeden söz edilmiyor (App Store 3.1.3).
+                        "Eğitim kaydın tamamlandığında açılır."
+                      : "Ödemen onaylandıktan sonra açılır."}
             </div>
           </div>
 
