@@ -63,6 +63,15 @@ export function epostaHash(deger: string | null | undefined): string | null {
  * kaybedilen eşleşmenin en yaygın sebebi.
  */
 export function telefonHash(deger: string | null | undefined): string | null {
+  const rakam = telefonRakam(deger);
+  return rakam ? hash(rakam) : null;
+}
+
+/**
+ * Telefonun ülke kodlu rakam hâli ("905321234567"); okunamıyorsa null.
+ * Meta bunu olduğu gibi, Google başına "+" koyarak hash'liyor (lib/google/kimlik).
+ */
+export function telefonRakam(deger: string | null | undefined): string | null {
   if (!doluMu(deger)) return null;
 
   let rakam = deger.replace(/\D/g, "");
@@ -77,7 +86,7 @@ export function telefonHash(deger: string | null | undefined): string | null {
 
   // Ülke kodu dahil en az 8, en fazla 15 hane (E.164 üst sınırı).
   if (rakam.length < 8 || rakam.length > 15) return null;
-  return hash(rakam);
+  return rakam;
 }
 
 /** Ad ve soyad: küçük harf, noktalama yok. Meta böyle normalleştiriyor. */

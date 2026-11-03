@@ -149,7 +149,7 @@ export async function panelOlcumlemeTazele(userId: string): Promise<void> {
     */
     const [baglam, { data: profil }] = await Promise.all([
       istekBaglami(),
-      servis.from("profiles").select("reklam_izni, fbp, fbc").eq("id", userId).maybeSingle(),
+      servis.from("profiles").select("reklam_izni, fbp, fbc, telefon, temas_kodu").eq("id", userId).maybeSingle(),
     ]);
 
     if (!profil) return;
@@ -166,9 +166,18 @@ export async function panelOlcumlemeTazele(userId: string): Promise<void> {
     if (!profil.fbp && baglam.ip) yama.ilk_ip = baglam.ip;
     if (!profil.fbp && baglam.ua) yama.ilk_ua = baglam.ua;
 
-    if (Object.keys(yama).length === 0) return;
+    if (Object.keys(yama).length > 0) await servis.from("profiles").update(yama).eq("id", userId);
 
-    await servis.from("profiles").update(yama).eq("id", userId);
+    /*
+      WhatsApp'tan takip kodlu mesaj atmış bir numara bu hesabın telefonuysa
+      tıklama kimliğini bağla (mesaj önce, hesap sonra açıldığında). Kural ve
+      gerekçe lib/whatsapp/kaydet içinde; hesapta zaten bir kod varsa hiçbir
+      sorgu atmadan çıkıyor.
+    */
+    if (!profil.temas_kodu && profil.telefon) {
+      const { hesabaWhatsappTemasiBagla } = await import("@/lib/whatsapp/kaydet");
+      await hesabaWhatsappTemasiBagla(servis, { id: userId, telefon: profil.telefon, temas_kodu: profil.temas_kodu });
+    }
   } catch {
     // Yan iş.
   }

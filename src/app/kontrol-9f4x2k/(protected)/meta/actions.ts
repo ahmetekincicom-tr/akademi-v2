@@ -7,6 +7,7 @@ import { veriHatasi } from "@/lib/auth-hatalari";
 import { yoneticiMi } from "@/lib/panel-kapsam";
 import { OLAYLAR } from "@/lib/meta/olaylar";
 import { basarisizlariSiraya } from "@/lib/meta/gonderim";
+import { temasiProfileBagla } from "@/lib/temas-bagla";
 
 /*
   Kapatılabilir olayların listesi burada da kuruluyor.
@@ -56,70 +57,18 @@ export async function metaKuyrugunuTazele() {
 }
 
 /**
- * Bir temas kodunu kişiye bağlar.
- *
- * WhatsApp'tan gelen kişinin hesabı elle açılıyor ve tıklama kimliği ancak
- * bu adımla profile geçiyor. Bu yapılmazsa günler sonra gelen ödeme reklama
- * hiçbir zaman bağlanamaz — WhatsApp yolunun tamamı buna dayanıyor.
+ * Bir temas kodunu kişiye bağlar (öğrenci kartındaki "Geliş kaynağı" alanı).
+ * Kural ve gerekçesi lib/temas-bagla içinde; otomatik eşleşme de aynı yolu
+ * kullanıyor.
  */
 export async function temasiKisiyeBagla(kod: string, userId: string) {
   if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
 
-  const temiz = kod.trim().toUpperCase();
-  if (!/^[A-Z0-9]{4,8}$/.test(temiz)) return { error: "Referans kodu okunamadı." };
-
-  /*
-    Yazımlar service anahtarıyla yapılıyor, cookie istemcisiyle DEĞİL.
-
-    profiles'ta authenticated rolüne yalnızca birkaç kolonda UPDATE yetkisi var
-    (ad, soyad, telefon, sirket, on_degerlendirme_tarihi …). Burada yazdığımız
-    reklam atıfı kolonları — fbp, fbc, ilk_ip, ilk_ua, temas_kodu, kaynak,
-    reklam_izni — o listede değil ve yalnızca service_role'a açık; bilerek
-    öyle, çünkü bunları normal kullanıcı kendi satırına yazabilseydi atıfı
-    elle uydurabilirdi. Yönetici cookie istemcisiyle yazmaya çalışınca UPDATE
-    RLS'e ulaşmadan kolon yetkisi katmanında 42501 ile düşüyordu ("yetkin yok").
-    Eylem zaten yukarıda yoneticiMi() ile korunuyor; ayrıcalıklı yazım için
-    service istemcisi doğru araç.
-  */
   const servis = gorevIstemcisi();
   if (!servis) return { error: "Sunucu yapılandırması eksik." };
 
-  const { data: temas } = await servis
-    .from("temaslar")
-    .select("id, fbp, fbc, gclid, ga_client_id, ip, ua, izin, user_id")
-    .eq("kod", temiz)
-    .maybeSingle();
-
-  if (!temas) return { error: "Bu koda ait bir tıklama kaydı yok." };
-  if (temas.user_id && temas.user_id !== userId) {
-    // Aynı kodun iki kişiye bağlanması, ikinci kişinin satışını birincinin
-    // reklamına yazmak demek. Sessizce üzerine yazmak yerine söylüyoruz.
-    return { error: "Bu kod başka bir kişiye bağlanmış." };
-  }
-
-  const { error } = await servis
-    .from("profiles")
-    .update({
-      fbp: temas.fbp,
-      fbc: temas.fbc,
-      // Google Ads atıf kimlikleri de fbp/fbc ile aynı anda taşınıyor.
-      gclid: temas.gclid,
-      ga_client_id: temas.ga_client_id,
-      ilk_ip: temas.ip,
-      ilk_ua: temas.ua,
-      temas_kodu: temiz,
-      kaynak: "whatsapp",
-      reklam_izni: temas.izin,
-      reklam_izni_tarihi: new Date().toISOString(),
-    })
-    .eq("id", userId);
-
-  if (error) return { error: veriHatasi(error) };
-
-  await servis
-    .from("temaslar")
-    .update({ user_id: userId, eslesme_zamani: new Date().toISOString() })
-    .eq("id", temas.id);
+  const sonuc = await temasiProfileBagla(servis, kod, userId);
+  if (sonuc.error) return sonuc;
 
   revalidatePath("/kontrol-9f4x2k/ogrenciler");
   revalidatePath("/kontrol-9f4x2k/meta");
