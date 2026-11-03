@@ -201,8 +201,10 @@ async function baglantiyiTamamla(
  * tarayıcıya hiç gitmiyor. Hangi hesaba erişebildiği debug_token'dan okunuyor;
  * sistem kullanıcısına yalnızca bu işletmenin WhatsApp hesabı atanmalı.
  */
-export async function whatsappSistemAnahtariylaBagla(): Promise<BaglantiSonucu> {
+export async function whatsappSistemAnahtariylaBagla(girdi: { wabaId?: string } = {}): Promise<BaglantiSonucu> {
   if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
+  const elleWaba = girdi.wabaId?.replace(/\s/g, "") ?? "";
+  if (elleWaba && !kimlikGecerliMi(elleWaba)) return { error: "WhatsApp hesap kimliği yalnızca rakamlardan oluşmalı." };
 
   const servis = gorevIstemcisi();
   const sir = process.env.WHATSAPP_APP_SECRET?.trim();
@@ -223,8 +225,27 @@ export async function whatsappSistemAnahtariylaBagla(): Promise<BaglantiSonucu> 
     if (!izinler.includes(gerekli)) return { error: `Sistem anahtarında ${gerekli} izni yok. Anahtarı bu izinle yeniden üret.` };
   }
 
-  const hesaplar = anahtarHesaplari(d.granular_scopes);
-  if (!hesaplar.length) return { error: "Sistem kullanıcısına atanmış WhatsApp hesabı yok. İşletme Ayarları'ndan hesabı ata." };
+  /*
+    Hesap kimliği önce anahtarın kapsamından (target_ids). Meta, izin anahtarın
+    erişebildiği her şeyi kapsıyorsa target_ids'i hiç göndermiyor; o durumda
+    panelde elle girilen kimlik kullanılıyor (İşletme ayarları → Mesajlaşma
+    hesapları → hesabın "Kod"u; gizli değil). Elle girilen kimliğe erişim
+    aşağıdaki numara sorgusunda zaten sınanıyor.
+  */
+  const kapsamdan = anahtarHesaplari(d.granular_scopes);
+  const hesaplar = elleWaba ? [elleWaba] : kapsamdan;
+  if (!hesaplar.length) {
+    const kapsamlar = Array.isArray(d.granular_scopes)
+      ? (d.granular_scopes as { scope?: unknown; target_ids?: unknown }[])
+          .map((k) => `${String(k?.scope)}${Array.isArray(k?.target_ids) ? `(${k.target_ids.length})` : "(tümü)"}`)
+          .join(", ")
+      : "yok";
+    console.warn("[whatsapp] anahtar kapsamında hesap kimliği yok:", kapsamlar);
+    return {
+      error:
+        "Meta, anahtarın hangi WhatsApp hesabına eriştiğini bildirmedi. İşletme ayarları → Mesajlaşma hesapları → ahmetekincicomtr'deki \"Kod\" numarasını aşağıdaki kutuya yazıp tekrar dene.",
+    };
+  }
 
   const liste: HesapNumarasi[] = [];
   for (const wabaId of hesaplar) {

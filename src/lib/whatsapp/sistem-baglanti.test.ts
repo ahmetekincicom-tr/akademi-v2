@@ -18,7 +18,7 @@ vi.mock("@/lib/supabase/gorev", () => ({
 }));
 
 const cagrilar: string[] = [];
-let senaryo: { biz: unknown; gecmisHata?: boolean; scopes?: string[] } = { biz: true };
+let senaryo: { biz: unknown; gecmisHata?: boolean; scopes?: string[]; hedefsiz?: boolean } = { biz: true };
 beforeEach(() => {
   cagrilar.length = 0;
   yazilan.length = 0;
@@ -29,7 +29,7 @@ beforeEach(() => {
     cagrilar.push(yol + (o?.headers?.Authorization ? " [auth]" : ""));
     const j = (d: unknown, s = 200) => new Response(JSON.stringify(d), { status: s });
     if (u.pathname.endsWith("/debug_token"))
-      return j({ data: { app_id: "2642842662842425", is_valid: true, scopes: senaryo.scopes ?? ["whatsapp_business_management", "whatsapp_business_messaging"], granular_scopes: [{ scope: "whatsapp_business_management", target_ids: ["555000111"] }] } });
+      return j({ data: { app_id: "2642842662842425", is_valid: true, scopes: senaryo.scopes ?? ["whatsapp_business_management", "whatsapp_business_messaging"], granular_scopes: senaryo.hedefsiz ? [{ scope: "whatsapp_business_management" }] : [{ scope: "whatsapp_business_management", target_ids: ["555000111"] }] } });
     if (u.pathname.endsWith("/555000111/phone_numbers")) {
       if (senaryo.biz === "yok" && u.searchParams.get("fields")!.includes("is_on_biz_app")) return j({ error: { message: "unknown field" } }, 400);
       return j({ data: [{ id: "777000222", display_phone_number: "+90 850 000 00 00", verified_name: "Ahmet Ekinci Akademi", ...(senaryo.biz === "yok" ? {} : { is_on_biz_app: senaryo.biz }) }] });
@@ -77,5 +77,19 @@ describe("whatsappSistemAnahtariylaBagla", () => {
     const r = await whatsappSistemAnahtariylaBagla();
     expect(r.error).toContain("whatsapp_business_messaging");
     expect(cagrilar.some((c) => c.includes("subscribed_apps"))).toBe(false);
+  });
+
+  it("kapsamda hesap yoksa elle girilen kimlikle bağlar; o da yoksa ne yapılacağını söyler", async () => {
+    senaryo = { biz: true, hedefsiz: true };
+    const { whatsappSistemAnahtariylaBagla } = await import("@/app/kontrol-9f4x2k/(protected)/whatsapp/actions");
+    const yok = await whatsappSistemAnahtariylaBagla();
+    expect(yok.error).toContain("Kod");
+    expect(cagrilar.some((c) => c.includes("subscribed_apps"))).toBe(false);
+
+    const r = await whatsappSistemAnahtariylaBagla({ wabaId: " 555 000 111 " });
+    expect(r).toMatchObject({ numara: "+90 850 000 00 00", uygulamaylaBirlikte: true });
+    expect(yazilan.at(-1)).toMatchObject({ waba_id: "555000111" });
+
+    expect((await whatsappSistemAnahtariylaBagla({ wabaId: "abc" })).error).toContain("rakam");
   });
 });

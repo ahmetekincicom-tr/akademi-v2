@@ -84,6 +84,7 @@ export function WhatsappYonetimi({
   const [appId, setAppId] = useState(ayar.appId);
   const [configId, setConfigId] = useState(ayar.configId);
   const [baglaniyor, setBaglaniyor] = useState(false);
+  const [hesapKodu, setHesapKodu] = useState("");
   // Embedded Signup'ın "message" olayıyla gelen hesap bilgisi; login yanıtından önce ya da sonra gelebiliyor.
   const oturum = useRef<{ olay: string; wabaId: string; telefonNumaraId: string | null } | null>(null);
 
@@ -177,7 +178,7 @@ export function WhatsappYonetimi({
   const anahtarlaBagla = () => {
     setBaglaniyor(true);
     basla(async () => {
-      const r = await whatsappSistemAnahtariylaBagla();
+      const r = await whatsappSistemAnahtariylaBagla({ wabaId: hesapKodu });
       setBaglaniyor(false);
       if (r.error) bildir.hata(r.error);
       else {
@@ -312,6 +313,16 @@ export function WhatsappYonetimi({
               WhatsApp hesabı uygulamanın sahibi olan işletmeye ait olduğu için bağlantı sistem kullanıcısı anahtarıyla
               tamamlanabilir.
             </p>
+            <label className="mt-3 flex max-w-sm flex-col gap-1 text-[12.5px] font-medium text-ink">
+              WhatsApp hesap kimliği (isteğe bağlı)
+              <input
+                className={ALAN}
+                inputMode="numeric"
+                placeholder="Mesajlaşma hesabının Kod numarası"
+                value={hesapKodu}
+                onChange={(e) => setHesapKodu(e.target.value)}
+              />
+            </label>
             <button
               type="button"
               onClick={anahtarlaBagla}
