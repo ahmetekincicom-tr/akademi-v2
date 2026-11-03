@@ -4,8 +4,23 @@ import { revalidatePath } from "next/cache";
 import { yoneticiMi } from "@/lib/panel-kapsam";
 import { gorevIstemcisi } from "@/lib/supabase/gorev";
 import { veriHatasi } from "@/lib/auth-hatalari";
-import { BITIS_OLAYLARI, UYGULAMAYLA_BIRLIKTE_OLAYI, kimlikGecerliMi } from "@/lib/whatsapp/ortak";
-import { koduAnahtaraCevir, numaraBilgisi, numaralar, uygulamaVerisiniSenkronla, uygulamayiAboneEt } from "@/lib/whatsapp/graph";
+import {
+  BITIS_OLAYLARI,
+  UYGULAMAYLA_BIRLIKTE_OLAYI,
+  anahtarHesaplari,
+  baglanacakNumara,
+  kimlikGecerliMi,
+  type HesapNumarasi,
+} from "@/lib/whatsapp/ortak";
+import {
+  anahtarBilgisi,
+  hesapNumaralari,
+  koduAnahtaraCevir,
+  numaraBilgisi,
+  numaralar,
+  uygulamaVerisiniSenkronla,
+  uygulamayiAboneEt,
+} from "@/lib/whatsapp/graph";
 
 const YOL = "/kontrol-9f4x2k/whatsapp";
 
@@ -79,9 +94,6 @@ export async function whatsappBagla(girdi: {
   if (!anahtar.ok) return { error: `Meta kodu kabul etmedi: ${anahtar.hata}` };
   const token = anahtar.veri.access_token;
 
-  const abone = await uygulamayiAboneEt(girdi.wabaId, token);
-  if (!abone.ok) return { error: `Bildirim aboneliği kurulamadı: ${abone.hata}` };
-
   // Numara kimliği bazı olaylarda gelmiyor; hesaptaki numaradan bul.
   let telefonNumaraId = girdi.telefonNumaraId;
   let gorunen: string | null = null;
@@ -102,34 +114,68 @@ export async function whatsappBagla(girdi: {
     }
   }
 
-  const uygulamaylaBirlikte = girdi.olay === UYGULAMAYLA_BIRLIKTE_OLAYI;
-  const uyarilar: string[] = [];
-  const onceki = (ayar.senkron && typeof ayar.senkron === "object" ? ayar.senkron : {}) as Record<string, unknown>;
-  const senkron: Record<string, unknown> = { ...onceki };
+  return baglantiyiTamamla(servis, ayar.senkron, token, {
+    wabaId: girdi.wabaId,
+    telefonNumaraId,
+    gorunen,
+    ad,
+    uygulamaylaBirlikte: girdi.olay === UYGULAMAYLA_BIRLIKTE_OLAYI,
+  });
+}
 
-  if (uygulamaylaBirlikte && telefonNumaraId) {
+type Servis = NonNullable<ReturnType<typeof gorevIstemcisi>>;
+
+/**
+ * Bağlantının iki yolda da ortak kısmı: bildirim aboneliği, telefondaki
+ * uygulamadan kişi/geçmiş aktarımı ve kayıt.
+ *
+ * uygulamaylaBirlikte "bilinmiyor" (null) ise aktarım yine isteniyor: numara
+ * uygulamada değilse Meta isteği reddeder, zarar yok; uygulamadaysa 24 saatlik
+ * aktarım süresi kaçmamış olur.
+ */
+async function baglantiyiTamamla(
+  servis: Servis,
+  eskiSenkron: unknown,
+  token: string,
+  h: { wabaId: string; telefonNumaraId: string | null; gorunen: string | null; ad: string | null; uygulamaylaBirlikte: boolean | null },
+): Promise<BaglantiSonucu> {
+  const abone = await uygulamayiAboneEt(h.wabaId, token);
+  if (!abone.ok) return { error: `Bildirim aboneliği kurulamadı: ${abone.hata}` };
+
+  const uyarilar: string[] = [];
+  const onceki = (eskiSenkron && typeof eskiSenkron === "object" ? eskiSenkron : {}) as Record<string, unknown>;
+  const senkron: Record<string, unknown> = { ...onceki };
+  let aktarimKabul = false;
+
+  if (h.uygulamaylaBirlikte !== false && h.telefonNumaraId) {
     for (const [tur, etiket] of [
       ["smb_app_state_sync", "kisiler"],
       ["history", "gecmis"],
     ] as const) {
       // Her biri yalnız bir kez: daha önce başarıyla istendiyse tekrar etme.
       const eski = onceki[etiket] as { request_id?: string } | undefined;
-      if (eski?.request_id) continue;
-      const r = await uygulamaVerisiniSenkronla(telefonNumaraId, token, tur);
-      if (r.ok) senkron[etiket] = { request_id: r.veri.request_id ?? "istendi", zaman: new Date().toISOString() };
-      else {
+      if (eski?.request_id) {
+        aktarimKabul = true;
+        continue;
+      }
+      const r = await uygulamaVerisiniSenkronla(h.telefonNumaraId, token, tur);
+      if (r.ok) {
+        aktarimKabul = true;
+        senkron[etiket] = { request_id: r.veri.request_id ?? "istendi", zaman: new Date().toISOString() };
+      } else {
         senkron[etiket] = { hata: r.hata, zaman: new Date().toISOString() };
         uyarilar.push(`${etiket === "kisiler" ? "Kişi listesi" : "Sohbet geçmişi"} aktarımı: ${r.hata}`);
       }
     }
   }
 
+  const uygulamaylaBirlikte = h.uygulamaylaBirlikte ?? aktarimKabul;
   const { error } = await servis.from("whatsapp_baglanti").upsert({
     id: true,
-    waba_id: girdi.wabaId,
-    telefon_numara_id: telefonNumaraId,
-    gorunen_numara: gorunen,
-    dogrulanmis_ad: ad,
+    waba_id: h.wabaId,
+    telefon_numara_id: h.telefonNumaraId,
+    gorunen_numara: h.gorunen,
+    dogrulanmis_ad: h.ad,
     uygulamayla_birlikte: uygulamaylaBirlikte,
     baglanma_zamani: new Date().toISOString(),
     senkron: senkron as never,
@@ -138,5 +184,68 @@ export async function whatsappBagla(girdi: {
   if (error) return { error: veriHatasi(error) };
 
   revalidatePath(YOL);
-  return { numara: gorunen, uygulamaylaBirlikte, uyarilar };
+  return { numara: h.gorunen, uygulamaylaBirlikte, uyarilar };
+}
+
+/**
+ * Sistem kullanıcısı anahtarıyla bağlantı (Embedded Signup penceresi olmadan).
+ *
+ * Neden var: WhatsApp hesabı, Meta uygulamasının sahibi olan işletmenin
+ * kendisine ait. Embedded Signup'ın son adımı hesabı "ortağa" paylaşmak; işletme
+ * kendisiyle paylaşamadığı için pencere orada hata veriyor (#1690130), oysa
+ * QR adımıyla telefon platforma bağlanmış oluyor. Hesap zaten bizim
+ * olduğundan, işletmenin sistem kullanıcısı anahtarıyla kalan adımlar
+ * (abonelik, aktarım) doğrudan yapılıyor.
+ *
+ * Anahtar yalnızca Vercel'de (WHATSAPP_SISTEM_TOKENI); veritabanına ya da
+ * tarayıcıya hiç gitmiyor. Hangi hesaba erişebildiği debug_token'dan okunuyor;
+ * sistem kullanıcısına yalnızca bu işletmenin WhatsApp hesabı atanmalı.
+ */
+export async function whatsappSistemAnahtariylaBagla(): Promise<BaglantiSonucu> {
+  if (!(await yoneticiMi())) return { error: "Bu işlem için yetkin yok." };
+
+  const servis = gorevIstemcisi();
+  const sir = process.env.WHATSAPP_APP_SECRET?.trim();
+  const token = process.env.WHATSAPP_SISTEM_TOKENI?.trim();
+  if (!servis || !sir) return { error: "Sunucuda WHATSAPP_APP_SECRET tanımlı değil." };
+  if (!token) return { error: "Sunucuda WHATSAPP_SISTEM_TOKENI tanımlı değil." };
+
+  const { data: ayar } = await servis.from("whatsapp_baglanti").select("app_id, senkron").eq("id", true).maybeSingle();
+  if (!ayar?.app_id) return { error: "Önce uygulama kimliğini kaydet." };
+
+  const bilgi = await anahtarBilgisi(ayar.app_id, sir, token);
+  if (!bilgi.ok) return { error: `Anahtar doğrulanamadı: ${bilgi.hata}` };
+  const d = bilgi.veri.data;
+  if (!d?.is_valid) return { error: "Sistem anahtarı geçersiz ya da süresi dolmuş. Yeni anahtar üretip Vercel'de güncelle." };
+  if (d.app_id !== ayar.app_id) return { error: "Sistem anahtarı başka bir Meta uygulaması için üretilmiş." };
+  const izinler = d.scopes ?? [];
+  for (const gerekli of ["whatsapp_business_management", "whatsapp_business_messaging"]) {
+    if (!izinler.includes(gerekli)) return { error: `Sistem anahtarında ${gerekli} izni yok. Anahtarı bu izinle yeniden üret.` };
+  }
+
+  const hesaplar = anahtarHesaplari(d.granular_scopes);
+  if (!hesaplar.length) return { error: "Sistem kullanıcısına atanmış WhatsApp hesabı yok. İşletme Ayarları'ndan hesabı ata." };
+
+  const liste: HesapNumarasi[] = [];
+  for (const wabaId of hesaplar) {
+    const r = await hesapNumaralari(wabaId, token);
+    if (!r.ok) return { error: `Numaralar okunamadı: ${r.hata}` };
+    for (const n of r.veri.data ?? []) if (kimlikGecerliMi(n.id)) liste.push({ ...n, wabaId });
+  }
+  if (!liste.length) return { error: "Atanmış WhatsApp hesabında numara bulunamadı." };
+  const secilen = baglanacakNumara(liste);
+  if (!secilen) {
+    const numaralar = liste.map((n) => n.display_phone_number ?? n.id).join(", ");
+    return { error: `Birden fazla numara var (${numaralar}). Sistem kullanıcısına yalnızca akademinin WhatsApp hesabını ata.` };
+  }
+
+  return baglantiyiTamamla(servis, ayar.senkron, token, {
+    wabaId: secilen.wabaId,
+    telefonNumaraId: secilen.id,
+    gorunen: secilen.display_phone_number ?? null,
+    ad: secilen.verified_name ?? null,
+    // false gelse bile aktarım deneniyor: yarım kalmış bir bağlantıda alan
+    // henüz güncellenmemiş olabilir; geçmiş aktarımının 24 saati kaçmasın.
+    uygulamaylaBirlikte: secilen.is_on_biz_app === true ? true : null,
+  });
 }

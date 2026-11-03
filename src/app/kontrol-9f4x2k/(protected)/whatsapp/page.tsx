@@ -61,6 +61,7 @@ export default async function AdminWhatsappPage() {
         senkronGecmis: senkron.gecmis?.request_id ? "istendi" : senkron.gecmis?.hata ? "hata" : null,
       }}
       sirVar={Boolean(sir)}
+      sistemAnahtariVar={Boolean(process.env.WHATSAPP_SISTEM_TOKENI?.trim())}
       // Trailing slash şart: çizgisiz adrese gelen POST yönlendiriliyor (route.ts).
       webhookAdresi={`${SITE_URL}/api/whatsapp/webhook/`}
       dogrulama={sir ? dogrulamaIfadesi(sir) : null}
