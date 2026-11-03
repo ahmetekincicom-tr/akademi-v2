@@ -131,6 +131,22 @@ Kod, konuşmada geri geliyor. Yönetici hesabı açarken **öğrenci kartındaki
 kaynağı" alanına** yapıştırıyor ve tıklama kimliği kişiye yapışıyor. Eşleşmemiş
 kodlar Meta ölçümleme ekranında listeleniyor.
 
+### Otomatik eşleşme (WhatsApp Cloud API)
+
+Numara Meta'nın API'sine bağlandığında (yönetim → WhatsApp) elle yapıştırma yedeğe
+düşüyor:
+
+1. Gelen mesaj webhook'a düşüyor (`/api/whatsapp/webhook/`, imza doğrulamalı) ve
+   `whatsapp_mesajlar`'a yazılıyor.
+2. Mesajdaki `(Ref: XXXXXX)` okunup temas kaydına numara yazılıyor (`temaslar.wa_id`).
+3. Aynı telefonla açılmış hesap varsa tıklama kimliği hemen ona bağlanıyor; hesap
+   sonra açılırsa ilk panel girişinde (`panelOlcumlemeTazele`). Kural tek yerde:
+   `lib/temas-bagla.ts`.
+
+Telefon yazımları farklı olabiliyor (+90 5xx, 05xx); karşılaştırma ülke kodlu rakam
+biçiminde (`telefonRakam`). Aynı numarayı taşıyan birden fazla hesap varsa hiçbiri
+seçilmiyor — yanlış kişiye atıf, hiç atıf olmamasından kötü.
+
 **Bu adım atlanırsa WhatsApp'tan gelen hiçbir satış reklama bağlanamaz.** Zincirin
 en zayıf halkası burası ve insana bağlı.
 

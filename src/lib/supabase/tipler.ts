@@ -1096,6 +1096,8 @@ export type Database = {
           referrer: string | null;
           ua: string | null;
           user_id: string | null;
+          wa_eslesme_zamani: string | null;
+          wa_id: string | null;
           yer: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["temaslar"]["Row"]> & { kod: string };
@@ -1109,6 +1111,67 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      whatsapp_baglanti: {
+        Row: {
+          app_id: string | null;
+          baglanma_zamani: string | null;
+          dogrulanmis_ad: string | null;
+          es_config_id: string | null;
+          gorunen_numara: string | null;
+          id: boolean;
+          senkron: Json;
+          telefon_numara_id: string | null;
+          updated_at: string;
+          uygulamayla_birlikte: boolean;
+          waba_id: string | null;
+        };
+        Insert: Partial<Database["public"]["Tables"]["whatsapp_baglanti"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["whatsapp_baglanti"]["Row"]>;
+        Relationships: [];
+      };
+      whatsapp_kisiler: {
+        Row: {
+          ad: string | null;
+          created_at: string;
+          ctwa_clid: string | null;
+          ilk_mesaj: string | null;
+          son_mesaj: string | null;
+          temas_kodu: string | null;
+          updated_at: string;
+          user_id: string | null;
+          wa_id: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["whatsapp_kisiler"]["Row"]> & { wa_id: string };
+        Update: Partial<Database["public"]["Tables"]["whatsapp_kisiler"]["Row"]>;
+        Relationships: [];
+      };
+      whatsapp_mesajlar: {
+        Row: {
+          created_at: string;
+          ctwa_clid: string | null;
+          ham: Json;
+          id: string;
+          metin: string | null;
+          referral: Json | null;
+          telefon_numara_id: string | null;
+          temas_kodu: string | null;
+          tur: string;
+          wa_id: string;
+          wa_mesaj_id: string;
+          yon: string;
+          zaman: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["whatsapp_mesajlar"]["Row"]> & {
+          ham: Json;
+          tur: string;
+          wa_id: string;
+          wa_mesaj_id: string;
+          yon: string;
+          zaman: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["whatsapp_mesajlar"]["Row"]>;
+        Relationships: [];
       };
       yasal_sayfalar: {
         Row: {
