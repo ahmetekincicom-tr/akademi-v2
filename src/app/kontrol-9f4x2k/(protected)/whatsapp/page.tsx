@@ -1,77 +1,156 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SITE_URL } from "@/lib/seo";
-import { dogrulamaIfadesi } from "@/lib/whatsapp/webhook";
-import { WhatsappYonetimi, type MesajSatiri } from "@/components/admin/WhatsappYonetimi";
+import { kimlikGecerliMi } from "@/lib/whatsapp/ortak";
+import { kaynakBul, mesajOnizleme, numaraBicimle } from "@/lib/whatsapp/gorunum";
+import {
+  WhatsappGelenKutusu,
+  type Konusma,
+  type KonusmaMesaji,
+  type KisiDetayi,
+} from "@/components/admin/WhatsappGelenKutusu";
 
 export const dynamic = "force-dynamic";
 
-const SON_MESAJ = 30;
+/** Listede gösterilen en çok sohbet ve önizleme için okunan son mesaj sayısı. */
+const SOHBET_SINIRI = 300;
+const ONIZLEME_MESAJI = 1500;
+const KONUSMA_SINIRI = 400;
 
-export default async function AdminWhatsappPage() {
+/**
+ * WhatsApp gelen kutusu: solda sohbetler, ortada seçili konuşma, sağda kişinin
+ * kaynağı (takip kodu, reklam) ve bağlı hesabı. Kurulum ayrı sayfada
+ * (whatsapp/ayarlar); bağlantı yoksa oraya yönlendiriliyor.
+ *
+ * Yanıtlar telefondaki WhatsApp Business uygulamasından veriliyor; gönderilen
+ * yanıt webhook'la (smb_message_echoes) buraya kendiliğinden düşüyor.
+ */
+export default async function AdminWhatsappPage({ searchParams }: { searchParams: Promise<{ k?: string }> }) {
+  const { k } = await searchParams;
   const supabase = await createClient();
-  const sir = process.env.WHATSAPP_APP_SECRET?.trim() ?? "";
 
-  const [{ data: ayar }, kisiler, mesajlar, eslesen, baglanan, { data: son }] = await Promise.all([
-    supabase.from("whatsapp_baglanti").select("*").eq("id", true).maybeSingle(),
-    supabase.from("whatsapp_kisiler").select("wa_id", { count: "exact", head: true }),
+  const { data: ayar } = await supabase
+    .from("whatsapp_baglanti")
+    .select("waba_id, baglanma_zamani, gorunen_numara, dogrulanmis_ad")
+    .eq("id", true)
+    .maybeSingle();
+  if (!ayar?.waba_id || !ayar.baglanma_zamani) redirect("/kontrol-9f4x2k/whatsapp/ayarlar/");
+
+  const [{ data: kisiler }, { data: sonMesajlar }, mesajSayisi, eslesen, baglanan] = await Promise.all([
+    supabase
+      .from("whatsapp_kisiler")
+      .select("wa_id, ad, ilk_mesaj, son_mesaj, temas_kodu, ctwa_clid, user_id")
+      .not("son_mesaj", "is", null)
+      .order("son_mesaj", { ascending: false })
+      .limit(SOHBET_SINIRI),
+    supabase
+      .from("whatsapp_mesajlar")
+      .select("wa_id, yon, metin, tur, zaman")
+      .order("zaman", { ascending: false })
+      .limit(ONIZLEME_MESAJI),
     supabase.from("whatsapp_mesajlar").select("id", { count: "exact", head: true }),
     supabase.from("temaslar").select("id", { count: "exact", head: true }).not("wa_id", "is", null),
     supabase.from("temaslar").select("id", { count: "exact", head: true }).not("wa_id", "is", null).not("user_id", "is", null),
-    supabase
-      .from("whatsapp_mesajlar")
-      .select("id, yon, wa_id, metin, tur, zaman, temas_kodu, ctwa_clid")
-      .order("zaman", { ascending: false })
-      .limit(SON_MESAJ),
   ]);
 
-  // Son mesajlardaki kişilerin adları.
-  const idler = [...new Set((son ?? []).map((m) => m.wa_id))];
-  const { data: adlar } = idler.length
-    ? await supabase.from("whatsapp_kisiler").select("wa_id, ad").in("wa_id", idler)
-    : { data: [] as { wa_id: string; ad: string | null }[] };
-  const ad = new Map((adlar ?? []).map((k) => [k.wa_id, k.ad]));
+  // Her kişinin en son mesajı (liste önizlemesi ve "yanıt bekliyor").
+  const son = new Map<string, { yon: string; metin: string | null; tur: string }>();
+  for (const m of sonMesajlar ?? []) if (!son.has(m.wa_id)) son.set(m.wa_id, m);
 
-  const satirlar: MesajSatiri[] = (son ?? []).map((m) => ({
-    id: m.id,
-    yon: m.yon === "giden" ? "giden" : "gelen",
-    kisi: ad.get(m.wa_id) ?? null,
-    numara: m.wa_id,
-    metin: m.metin ?? `[${m.tur}]`,
-    zaman: m.zaman,
-    kod: m.temas_kodu,
-    reklam: Boolean(m.ctwa_clid),
-  }));
+  const konusmalar: Konusma[] = (kisiler ?? []).map((kisi) => {
+    const s = son.get(kisi.wa_id);
+    return {
+      waId: kisi.wa_id,
+      ad: kisi.ad,
+      numara: numaraBicimle(kisi.wa_id),
+      sonZaman: kisi.son_mesaj!,
+      onizleme: s ? mesajOnizleme(s) : "",
+      sonGiden: s?.yon === "giden",
+      yanitBekliyor: s?.yon === "gelen",
+      kod: kisi.temas_kodu,
+      reklam: Boolean(kisi.ctwa_clid),
+      hesap: Boolean(kisi.user_id),
+    };
+  });
 
-  const senkron = (ayar?.senkron && typeof ayar.senkron === "object" ? ayar.senkron : {}) as Record<
-    string,
-    { request_id?: string; hata?: string } | undefined
-  >;
+  const seciliId = k && kimlikGecerliMi(k) ? k : (konusmalar[0]?.waId ?? null);
+  const seciliKisi = (kisiler ?? []).find((x) => x.wa_id === seciliId) ?? null;
+
+  let mesajlar: KonusmaMesaji[] = [];
+  let detay: KisiDetayi | null = null;
+  if (seciliKisi) {
+    const [{ data: satirlar }, { data: temas }, { data: profil }] = await Promise.all([
+      supabase
+        .from("whatsapp_mesajlar")
+        .select("id, yon, metin, tur, zaman, temas_kodu, ctwa_clid, referral")
+        .eq("wa_id", seciliKisi.wa_id)
+        .order("zaman", { ascending: false })
+        .limit(KONUSMA_SINIRI),
+      seciliKisi.temas_kodu
+        ? supabase
+            .from("temaslar")
+            .select("kod, created_at, yer, referrer, fbc, gclid")
+            .eq("kod", seciliKisi.temas_kodu)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      seciliKisi.user_id
+        ? supabase.from("profiles").select("ad, soyad, email, created_at").eq("id", seciliKisi.user_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    mesajlar = (satirlar ?? []).reverse().map((m) => ({
+      id: m.id,
+      yon: m.yon === "giden" ? "giden" : "gelen",
+      metin: m.metin,
+      tur: m.tur,
+      zaman: m.zaman,
+      kod: m.temas_kodu,
+      reklam: Boolean(m.ctwa_clid),
+    }));
+
+    // Reklam başlığı: WhatsApp'a tıklama reklamının ilk mesajındaki referral.
+    const reklamli = (satirlar ?? []).find((m) => m.ctwa_clid && m.referral && typeof m.referral === "object");
+    const referral = (reklamli?.referral ?? null) as { headline?: unknown; source_url?: unknown } | null;
+
+    detay = {
+      waId: seciliKisi.wa_id,
+      ad: seciliKisi.ad,
+      numara: numaraBicimle(seciliKisi.wa_id),
+      ilkMesaj: seciliKisi.ilk_mesaj,
+      kaynak: kaynakBul({
+        ctwa: Boolean(seciliKisi.ctwa_clid),
+        kod: Boolean(seciliKisi.temas_kodu),
+        fbc: temas?.fbc,
+        gclid: temas?.gclid,
+      }),
+      kod: seciliKisi.temas_kodu,
+      tiklamaZamani: temas?.created_at ?? null,
+      tiklananSayfa: temas?.yer ?? null,
+      reklamBasligi: typeof referral?.headline === "string" ? referral.headline : null,
+      reklamAdresi: typeof referral?.source_url === "string" ? referral.source_url : null,
+      hesap: profil
+        ? {
+            ad: [profil.ad, profil.soyad].filter(Boolean).join(" ") || "Adsız hesap",
+            eposta: profil.email,
+            kayit: profil.created_at,
+          }
+        : null,
+    };
+  }
 
   return (
-    <WhatsappYonetimi
-      ayar={{
-        appId: ayar?.app_id ?? "",
-        configId: ayar?.es_config_id ?? "",
-        bagli: Boolean(ayar?.waba_id && ayar?.baglanma_zamani),
-        numara: ayar?.gorunen_numara ?? null,
-        ad: ayar?.dogrulanmis_ad ?? null,
-        uygulamaylaBirlikte: ayar?.uygulamayla_birlikte ?? false,
-        baglanmaZamani: ayar?.baglanma_zamani ?? null,
-        senkronKisiler: senkron.kisiler?.request_id ? "istendi" : senkron.kisiler?.hata ? "hata" : null,
-        senkronGecmis: senkron.gecmis?.request_id ? "istendi" : senkron.gecmis?.hata ? "hata" : null,
-      }}
-      sirVar={Boolean(sir)}
-      sistemAnahtariVar={Boolean(process.env.WHATSAPP_SISTEM_TOKENI?.trim())}
-      // Trailing slash şart: çizgisiz adrese gelen POST yönlendiriliyor (route.ts).
-      webhookAdresi={`${SITE_URL}/api/whatsapp/webhook/`}
-      dogrulama={sir ? dogrulamaIfadesi(sir) : null}
+    <WhatsappGelenKutusu
+      numara={ayar.gorunen_numara}
+      konusmalar={konusmalar}
+      seciliId={seciliKisi?.wa_id ?? null}
+      secimVar={Boolean(k)}
+      mesajlar={mesajlar}
+      detay={detay}
       sayilar={{
-        kisi: kisiler.count ?? 0,
-        mesaj: mesajlar.count ?? 0,
+        sohbet: konusmalar.length,
+        mesaj: mesajSayisi.count ?? 0,
         eslesen: eslesen.count ?? 0,
         baglanan: baglanan.count ?? 0,
       }}
-      mesajlar={satirlar}
     />
   );
 }

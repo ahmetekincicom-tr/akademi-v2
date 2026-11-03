@@ -45,7 +45,7 @@ export async function whatsappAyarKaydet(girdi: { appId: string; configId: strin
     updated_at: new Date().toISOString(),
   });
   if (error) return { error: veriHatasi(error) };
-  revalidatePath(YOL);
+  revalidatePath(YOL, "layout");
   return {};
 }
 
@@ -183,7 +183,7 @@ async function baglantiyiTamamla(
   });
   if (error) return { error: veriHatasi(error) };
 
-  revalidatePath(YOL);
+  revalidatePath(YOL, "layout");
   return { numara: h.gorunen, uygulamaylaBirlikte, uyarilar };
 }
 

@@ -1,20 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useBildirim } from "@/components/Bildirim";
 import { whatsappAyarKaydet, whatsappBagla, whatsappSistemAnahtariylaBagla } from "@/app/kontrol-9f4x2k/(protected)/whatsapp/actions";
 import { BITIS_OLAYLARI, GRAPH_SURUM } from "@/lib/whatsapp/ortak";
 
-export type MesajSatiri = {
-  id: string;
-  yon: "gelen" | "giden";
-  kisi: string | null;
-  numara: string;
-  metin: string;
-  zaman: string;
-  kod: string | null;
-  reklam: boolean;
-};
 
 type Ayar = {
   appId: string;
@@ -68,16 +59,12 @@ export function WhatsappYonetimi({
   sistemAnahtariVar,
   webhookAdresi,
   dogrulama,
-  sayilar,
-  mesajlar,
 }: {
   ayar: Ayar;
   sirVar: boolean;
   sistemAnahtariVar: boolean;
   webhookAdresi: string;
   dogrulama: string | null;
-  sayilar: { kisi: number; mesaj: number; eslesen: number; baglanan: number };
-  mesajlar: MesajSatiri[];
 }) {
   const bildir = useBildirim();
   const [islemde, basla] = useTransition();
@@ -191,15 +178,20 @@ export function WhatsappYonetimi({
   const hazir = Boolean(ayar.appId && ayar.configId && sirVar);
 
   return (
-    <div className="flex flex-col gap-5">
-      <div>
-        <h1 className="font-heading text-[22px] font-semibold tracking-[-0.02em]">WhatsApp</h1>
-        <p className="mt-1 max-w-[72ch] text-[13.5px] leading-[1.6] text-[#5C6273]">
-          0850 numarası telefondaki WhatsApp Business uygulamasından çıkmadan Meta&apos;nın API&apos;sine bağlanıyor.
-          Gelen mesajlar buraya düşüyor; sitedeki düğmenin mesaja eklediği takip kodu (Ref: …) okunup tıklama kaydıyla
-          eşleşiyor ve aynı telefonla açılan hesaba kendiliğinden bağlanıyor. Böylece WhatsApp&apos;tan gelen satışlar
-          reklama elle kod yapıştırmadan bağlanıyor.
-        </p>
+    <main className="flex flex-col gap-5 p-4 pb-14 sm:p-7">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-[26px] leading-[1.1] font-semibold tracking-[-0.03em] sm:text-[29px]">WhatsApp ayarları</h1>
+          <p className="mt-1 max-w-[72ch] text-[13.5px] leading-[1.6] text-[#5C6273]">
+            0850 numarası telefondaki WhatsApp Business uygulamasından çıkmadan Meta&apos;nın API&apos;sine bağlı. Bu
+            sayfa yalnızca kurulum içindir; mesajlar gelen kutusunda.
+          </p>
+        </div>
+        {ayar.bagli && (
+          <Link href="/kontrol-9f4x2k/whatsapp/" className={`${DUGME} border border-ink/14 bg-white text-ink hover:border-brand hover:text-brand`}>
+            ← Gelen kutusu
+          </Link>
+        )}
       </div>
 
       {/* Durum */}
@@ -224,21 +216,6 @@ export function WhatsappYonetimi({
         >
           WHATSAPP_APP_SECRET: {sirVar ? "tanımlı" : "eksik"}
         </span>
-      </div>
-
-      {/* Sayılar */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          { e: "Kişi", v: sayilar.kisi },
-          { e: "Mesaj", v: sayilar.mesaj },
-          { e: "Kodu okunan tıklama", v: sayilar.eslesen },
-          { e: "Hesaba bağlanan", v: sayilar.baglanan },
-        ].map((k) => (
-          <div key={k.e} className="rounded-[12px] border border-ink/11 bg-white p-4">
-            <div className="text-[24px] font-semibold text-ink">{k.v}</div>
-            <div className="text-[12.5px] text-[#5C6273]">{k.e}</div>
-          </div>
-        ))}
       </div>
 
       {/* Kurulum */}
@@ -339,38 +316,6 @@ export function WhatsappYonetimi({
           </p>
         )}
       </section>
-
-      {/* Son mesajlar */}
-      <section className="rounded-[12px] border border-ink/11 bg-white">
-        <h2 className="border-b border-ink/10 px-4 py-3 text-[15px] font-semibold text-ink">Son mesajlar</h2>
-        {mesajlar.length === 0 ? (
-          <p className="px-4 py-6 text-[13px] text-[#5C6273]">Henüz mesaj yok.</p>
-        ) : (
-          <ul className="divide-y divide-ink/8">
-            {mesajlar.map((m) => (
-              <li key={m.id} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-start sm:gap-4">
-                <div className="flex min-w-0 flex-none flex-col sm:w-[190px]">
-                  <span className="truncate text-[13px] font-semibold text-ink">{m.kisi ?? `+${m.numara}`}</span>
-                  <span className="text-[11.5px] text-[#8A90A0]">
-                    {m.yon === "gelen" ? "Gelen" : "Giden"} · {tarih(m.zaman)}
-                  </span>
-                </div>
-                <p className="min-w-0 flex-1 text-[13px] leading-[1.5] break-words text-[#3A3F4F]">{m.metin}</p>
-                <div className="flex flex-none flex-wrap gap-1.5">
-                  {m.kod && (
-                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-[11px] text-emerald-700">
-                      {m.kod}
-                    </span>
-                  )}
-                  {m.reklam && (
-                    <span className="rounded-full border border-brand/25 bg-brand/[0.06] px-2 py-0.5 text-[11px] text-brand">reklam</span>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </div>
+    </main>
   );
 }

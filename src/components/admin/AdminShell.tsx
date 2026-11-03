@@ -151,6 +151,10 @@ function breadcrumbAdimlari(pathname: string): BreadcrumbAdim[] {
     return [kok, { label: "Blog", href: "/kontrol-9f4x2k/blog" }, { label: alt }];
   }
 
+  if (pathname === "/kontrol-9f4x2k/whatsapp/ayarlar") {
+    return [kok, { label: "WhatsApp", href: "/kontrol-9f4x2k/whatsapp" }, { label: "Ayarlar" }];
+  }
+
   return [kok, { label: pageTitles[pathname] ?? "Sayfa" }];
 }
 
