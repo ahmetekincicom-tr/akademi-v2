@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useBildirim } from "@/components/Bildirim";
-import { whatsappAyarKaydet, whatsappBagla } from "@/app/kontrol-9f4x2k/(protected)/whatsapp/actions";
+import { whatsappAyarKaydet, whatsappBagla, whatsappSistemAnahtariylaBagla } from "@/app/kontrol-9f4x2k/(protected)/whatsapp/actions";
 import { BITIS_OLAYLARI, GRAPH_SURUM } from "@/lib/whatsapp/ortak";
 
 export type MesajSatiri = {
@@ -65,6 +65,7 @@ function sdkYukle(appId: string): Promise<Fb> {
 export function WhatsappYonetimi({
   ayar,
   sirVar,
+  sistemAnahtariVar,
   webhookAdresi,
   dogrulama,
   sayilar,
@@ -72,6 +73,7 @@ export function WhatsappYonetimi({
 }: {
   ayar: Ayar;
   sirVar: boolean;
+  sistemAnahtariVar: boolean;
   webhookAdresi: string;
   dogrulama: string | null;
   sayilar: { kisi: number; mesaj: number; eslesen: number; baglanan: number };
@@ -170,6 +172,19 @@ export function WhatsappYonetimi({
       setBaglaniyor(false);
       bildir.hata(e instanceof Error ? e.message : "Bağlantı başlatılamadı.");
     }
+  };
+
+  const anahtarlaBagla = () => {
+    setBaglaniyor(true);
+    basla(async () => {
+      const r = await whatsappSistemAnahtariylaBagla();
+      setBaglaniyor(false);
+      if (r.error) bildir.hata(r.error);
+      else {
+        bildir.basarili(`WhatsApp bağlandı${r.numara ? `: ${r.numara}` : ""}.`);
+        for (const u of r.uyarilar ?? []) bildir.hata(u);
+      }
+    });
   };
 
   const hazir = Boolean(ayar.appId && ayar.configId && sirVar);
@@ -290,6 +305,23 @@ export function WhatsappYonetimi({
         >
           {baglaniyor ? "Bağlanıyor…" : ayar.bagli ? "Yeniden bağla" : "WhatsApp'ı bağla"}
         </button>
+        {sistemAnahtariVar && (
+          <div className="mt-4 border-t border-ink/10 pt-4">
+            <p className="text-[13px] text-[#5C6273]">
+              Meta penceresi son adımda &quot;geçerli bir İşletme Kodu değil&quot; hatası verdiyse ama QR kodu okuttuysan:
+              WhatsApp hesabı uygulamanın sahibi olan işletmeye ait olduğu için bağlantı sistem kullanıcısı anahtarıyla
+              tamamlanabilir.
+            </p>
+            <button
+              type="button"
+              onClick={anahtarlaBagla}
+              disabled={!ayar.appId || !sirVar || baglaniyor}
+              className={`${DUGME} mt-3 border border-ink/14 bg-white text-ink hover:border-brand hover:text-brand`}
+            >
+              {baglaniyor ? "Bağlanıyor…" : "Sistem anahtarıyla bağlantıyı tamamla"}
+            </button>
+          </div>
+        )}
         {!hazir && (
           <p className="mt-2 text-[12.5px] text-[#A5711A]">
             Önce App ID ve Configuration ID kaydedilmeli; WHATSAPP_APP_SECRET de tanımlı olmalı.

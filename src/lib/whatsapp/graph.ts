@@ -56,6 +56,35 @@ export function numaralar(wabaId: string, anahtar: string) {
   );
 }
 
+/**
+ * Erişim anahtarının sahibi uygulama ve erişebildiği varlıklar.
+ * Uygulama anahtarıyla (app_id|app_secret) soruluyor; yanıtta anahtarın
+ * kendisi yok.
+ */
+export function anahtarBilgisi(appId: string, appSecret: string, anahtar: string) {
+  return istek<{
+    data?: { app_id?: string; is_valid?: boolean; scopes?: string[]; granular_scopes?: unknown };
+  }>("debug_token", { sorgu: { input_token: anahtar, access_token: `${appId}|${appSecret}` } });
+}
+
+/**
+ * Hesaptaki numaralar, telefondaki uygulamayla birlikte kullanılıp
+ * kullanılmadığıyla (is_on_biz_app). Bu alanı tanımayan bir yanıtta alan
+ * olmadan tekrar soruluyor.
+ */
+export async function hesapNumaralari(wabaId: string, anahtar: string) {
+  type Numara = { id: string; display_phone_number?: string; verified_name?: string; is_on_biz_app?: boolean };
+  const ilk = await istek<{ data: Numara[] }>(`${wabaId}/phone_numbers`, {
+    anahtar,
+    sorgu: { fields: "id,display_phone_number,verified_name,is_on_biz_app" },
+  });
+  if (ilk.ok) return ilk;
+  return istek<{ data: Numara[] }>(`${wabaId}/phone_numbers`, {
+    anahtar,
+    sorgu: { fields: "id,display_phone_number,verified_name" },
+  });
+}
+
 export function numaraBilgisi(telefonNumaraId: string, anahtar: string) {
   return istek<{ id: string; display_phone_number?: string; verified_name?: string }>(telefonNumaraId, {
     anahtar,
