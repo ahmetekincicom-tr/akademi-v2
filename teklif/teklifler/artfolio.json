@@ -16,7 +16,7 @@
       "ad": "Bilinirlik ve Erişim Kampanyaları",
       "etiket": "META · ANKARA · İNCEK",
       "ozet": "Galerinizi Ankara'daki sanatseverlere düzenli olarak gösteren, sergi ve etkinlikleri duyuran erişim kampanyaları.",
-      "sure": "Önerilen: en az 3 ay",
+      "sure": "Aylık",
       "not": "",
       "kapsam": [
         "Ankara ve İncek çevresine konum hedefli erişim kampanyaları",
@@ -32,7 +32,7 @@
       "ad": "Etkileşim ve Takipçi Kampanyaları",
       "etiket": "INSTAGRAM · FACEBOOK",
       "ozet": "Gören kişiyi profilinize taşıyan, takipçi ve etkileşimi artıran kampanyalar.",
-      "sure": "Önerilen: en az 3 ay",
+      "sure": "Aylık",
       "not": "",
       "kapsam": [
         "Instagram profil ziyareti ve takipçi kampanyaları",
@@ -61,18 +61,18 @@
   "paketler": {
     "meta": {
       "ad": "Meta Reklam Yönetimi (Instagram + Facebook)",
-      "etiket": "Paket · 3 kalem · Önerilen süre: en az 3 ay",
+      "etiket": "Paket · Bilinirlik + Etkileşim + Raporlama",
       "fiyat": 15000,
       "periyot": "aylik"
     }
   },
   "butceSenaryolari": {
-    "baslik": "Tahmini reklam bütçesi",
-    "metin": "Bütçe hizmet bedeline dahil değildir; doğrudan Meta'ya ödenir. İlk ayın sonuçlarına göre senaryo birlikte güncellenir.",
+    "baslik": "Tavsiye edilen reklam bütçesi",
+    "metin": "Reklam bütçesi doğrudan Meta'ya, kendi kartınızla ödenir. İlk ayın sonuçlarına göre senaryo birlikte güncellenir.",
     "senaryolar": [
       {
         "ad": "Başlangıç",
-        "tutar": 7500,
+        "tutar": 30000,
         "aciklama": "Ankara'da düzenli görünürlük ve sergi duyuruları.",
         "dagilim": [
           {
@@ -91,7 +91,7 @@
       },
       {
         "ad": "Dengeli",
-        "tutar": 15000,
+        "tutar": 45000,
         "vurgu": true,
         "aciklama": "Bilinirlik ve takipçi artışı birlikte büyür.",
         "dagilim": [
@@ -111,7 +111,7 @@
       },
       {
         "ad": "Büyüme",
-        "tutar": 25000,
+        "tutar": 60000,
         "aciklama": "Hızlı takipçi artışı; sergi dönemlerinde yoğun erişim.",
         "dagilim": [
           {

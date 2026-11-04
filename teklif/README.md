@@ -59,7 +59,7 @@ Reklam bütçesi belli değilse tek bant yerine 3 senaryo gösterilebilir (`rekl
 
 ```json
 "butceSenaryolari": {
-  "baslik": "Tahmini reklam bütçesi",
+  "baslik": "Tavsiye edilen reklam bütçesi",
   "metin": "Bütçe hizmet bedeline dahil değildir…",
   "senaryolar": [
     { "ad": "Başlangıç", "tutar": 7500, "aciklama": "…", "dagilim": [{ "ad": "Bilinirlik", "oran": 50 }, { "ad": "Etkileşim", "oran": 30 }, { "ad": "Takipçi", "oran": 20 }] },

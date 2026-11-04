@@ -174,7 +174,7 @@ function veriHazirla(teklifYolu) {
       const kdv = (matrah * v.kdvOrani) / 100;
       return {
         p,
-        baslik: p === "tek" ? "Tek seferlik" : "Aylık hizmet",
+        baslik: p === "tek" ? "Tek seferlik hizmet bedeli" : "Aylık hizmet bedeli",
         ara,
         indirim,
         indirimler,
@@ -437,14 +437,17 @@ function yatirimSayfasi(v, P) {
     senaryo = `
     <div class="senaryo">
       <div class="senaryo__ust">
-        <div class="kicker">${e(b.baslik || "Tahmini reklam bütçesi")}</div>
-        ${b.metin ? `<p>${e(b.metin)}</p>` : ""}
+        <div>
+          <div class="kicker">${e(b.baslik || "Tavsiye edilen reklam bütçesi")}</div>
+          ${b.metin ? `<p>${e(b.metin)}</p>` : ""}
+        </div>
+        <span class="senaryo__ayri">${IKON.bilgi}Hizmet bedeline dahil değildir</span>
       </div>
       <div class="senaryo__izgara">${b.senaryolar
         .map(
           (x) => `
         <div class="senaryo__kart${x.vurgu ? " senaryo__kart--vurgu" : ""}">
-          <div class="senaryo__bas"><span class="mono-etiket">${e(x.ad)}</span>${x.vurgu ? `<em>Önerilen</em>` : ""}</div>
+          <div class="senaryo__bas"><span class="mono-etiket">${e(x.ad)}</span>${x.vurgu ? `<em>${e(b.vurguEtiket || "Tavsiyemiz")}</em>` : ""}</div>
           <strong>${para(x.tutar)}<small> / ay</small></strong>
           <span class="senaryo__gun">≈ ${para(Math.round(x.tutar / 30 / 10) * 10)} / gün</span>
           ${x.aciklama ? `<p>${e(x.aciklama)}</p>` : ""}
@@ -497,12 +500,13 @@ function yatirimSayfasi(v, P) {
       </div>
 
       ${butce}
-      ${senaryo}
 
       <div>
         <div class="odeme-bas"><div class="kicker">Ödeme seçenekleri</div></div>
         <div class="odeme" style="grid-template-columns:repeat(${v.odemeSecenekleri.length},1fr)">${odeme}</div>
       </div>
+
+      ${senaryo}
 
       <div class="sartlar">${v.sartlar.map((s) => `<p>${e(s)}</p>`).join("")}</div>
     </div>
