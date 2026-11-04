@@ -72,7 +72,7 @@
     "senaryolar": [
       {
         "ad": "Başlangıç",
-        "tutar": 30000,
+        "tutar": 20000,
         "aciklama": "Ankara'da düzenli görünürlük ve sergi duyuruları.",
         "dagilim": [
           {
@@ -91,8 +91,7 @@
       },
       {
         "ad": "Dengeli",
-        "tutar": 45000,
-        "vurgu": true,
+        "tutar": 35000,
         "aciklama": "Bilinirlik ve takipçi artışı birlikte büyür.",
         "dagilim": [
           {
@@ -111,7 +110,7 @@
       },
       {
         "ad": "Büyüme",
-        "tutar": 60000,
+        "tutar": 50000,
         "aciklama": "Hızlı takipçi artışı; sergi dönemlerinde yoğun erişim.",
         "dagilim": [
           {
