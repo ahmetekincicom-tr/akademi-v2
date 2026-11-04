@@ -138,6 +138,7 @@ function veriHazirla(teklifYolu) {
         periyot: h.periyot,
         tutar,
         dahil: tutar === 0,
+        dahilYazi: h.dahilYazi,
         // Satır indirimi: liste fiyatı tabloda üstü çizili görünür, indirim toplamlarda ayrı satırdır.
         indirim: Number(h.indirim || 0),
         indirimNotu: h.indirimNotu || "Paket indirimi",
@@ -174,7 +175,7 @@ function veriHazirla(teklifYolu) {
       const kdv = (matrah * v.kdvOrani) / 100;
       return {
         p,
-        baslik: p === "tek" ? "Tek seferlik" : "Aylık hizmet",
+        baslik: p === "tek" ? v.tekBaslik || "Tek seferlik" : v.aylikBaslik || "Aylık hizmet",
         ara,
         indirim,
         indirimler,
@@ -307,7 +308,7 @@ function hizmetKart(h) {
       <p class="hizmet__ozet">${e(h.ozet || "")}</p>
       <div class="hizmet__cipler">
         ${h.sure && !(h.periyot === "aylik" && h.sure.trim() === "Aylık") ? `<span class="cip cip--sari">${IKON.saat}${e(h.sure)}</span>` : ""}
-        ${h.fiyat === 0 ? `<span class="cip cip--koyu">${IKON.hediye}Pakete dahil</span>` : periyotCip(h.periyot)}
+        ${h.fiyat === 0 ? `<span class="cip cip--koyu">${IKON.hediye}${e(h.dahilYazi || "Pakete dahil")}</span>` : periyotCip(h.periyot)}
       </div>
     </div>
     <div class="hizmet__sag">
@@ -356,7 +357,7 @@ function yatirimSayfasi(v, P) {
         <div>${periyotCip(s.periyot)}</div>
         <div class="sag">${
           s.dahil
-            ? `<span class="cip cip--koyu">${IKON.hediye}Pakete dahil</span>`
+            ? `<span class="cip cip--koyu">${IKON.hediye}${e(s.dahilYazi || "Pakete dahil")}</span>`
             : s.indirim
               ? `<span class="tutar-eski">${para(s.tutar)}</span><span class="tutar">${para(s.tutar - s.indirim)}${s.periyot === "aylik" ? " <small>/ ay</small>" : ""}</span>`
               : `<span class="tutar">${para(s.tutar)}${s.periyot === "aylik" ? " <small>/ ay</small>" : ""}</span>`
@@ -368,7 +369,7 @@ function yatirimSayfasi(v, P) {
   const dahilBlok = v.dahiller.length
     ? `<div class="toplam__blok">
         <div class="mono-etiket">Ücretsiz eklenen</div>
-        ${v.dahiller.map((d) => `<div class="toplam__satir toplam__satir--indirim"><span>${e(d.ad)}</span><span class="tutar">Dahil</span></div>`).join("")}
+        ${v.dahiller.map((d) => `<div class="toplam__satir toplam__satir--indirim"><span>${e(d.ad)}</span><span class="tutar">${e(d.dahilYazi || "Dahil")}</span></div>`).join("")}
       </div>`
     : "";
   const toplam =
@@ -429,6 +430,35 @@ function yatirimSayfasi(v, P) {
       </div>`
     : "";
 
+  // Bütçe baremi: aylık reklam bütçesine göre değişen hizmet bedeli tablosu.
+  const B = v.reklamBaremleri;
+  const oranYaz = (n) => "%" + new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 1 }).format(n);
+  const barem = B
+    ? `<div class="barem">
+        <div class="barem__bas">
+          <span class="butce__ikon">${IKON.butce}</span>
+          <div>
+            <div class="mono-etiket">${e(B.ust || "Bütçe baremi")}</div>
+            <strong>${e(B.baslik || "Aylık reklam bütçesine göre hizmet bedeli")}</strong>
+          </div>
+        </div>
+        <div class="barem__tablo">
+          <div class="barem__satir barem__satir--bas"><div>Aylık reklam bütçesi (Google + Meta)</div><div class="sag">Hizmet bedeli</div><div class="sag">KDV dahil</div><div class="sag">Bütçeye oranı</div></div>
+          ${B.satirlar
+            .map(
+              (r, i) => `<div class="barem__satir${i === (B.secili ?? 0) ? " barem__satir--secili" : ""}">
+            <div><b>${e(r.etiket)}</b>${i === (B.secili ?? 0) && B.seciliYazi ? `<em class="indirim-cip">${e(B.seciliYazi)}</em>` : ""}</div>
+            <div class="sag"><span class="tutar">${para(r.ucret)} <small>/ ay</small></span></div>
+            <div class="sag"><span class="tutar tutar--soluk">${para(r.ucret * (1 + v.kdvOrani / 100))}</span></div>
+            <div class="sag"><span class="tutar tutar--soluk">${r.oranYazi ? e(r.oranYazi) : oranYaz((r.ucret / r.ust) * 100)}</span></div>
+          </div>`
+            )
+            .join("")}
+        </div>
+        ${B.not ? `<p class="barem__not">${e(B.not)}</p>` : ""}
+      </div>`
+    : "";
+
   const odeme = v.odemeSecenekleri
     .map(
       (o) => `
@@ -444,7 +474,7 @@ function yatirimSayfasi(v, P) {
   <section class="sayfa">
     ${izgara(false)}
     ${P.ust(v, "Ücretlendirme")}
-    <div class="govde govde--yay">
+    <div class="govde govde--yay${B ? " govde--barem" : ""}">
       <div class="bolum-bas">
         <div>
           <div class="kicker">02 · Ücretlendirme</div>
@@ -468,6 +498,7 @@ function yatirimSayfasi(v, P) {
       </div>
 
       ${butce}
+      ${barem}
 
       <div>
         <div class="odeme-bas"><div class="kicker">Ödeme seçenekleri</div></div>

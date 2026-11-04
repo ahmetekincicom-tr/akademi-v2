@@ -1,0 +1,139 @@
+{
+  "teklifNo": "AE-2026-1104",
+  "tarih": "2026-11-04",
+  "gecerlilikGun": 15,
+  "musteri": {
+    "firma": "Karlık Kuyumculuk",
+    "web": "karlikkuyumculuk.com"
+  },
+  "konu": "Google Ads ve Meta Ads ile online satış odaklı reklam yönetimi",
+  "kapakBaslik": "Vitrindeki takılar [online satışa] dönüşsün.",
+  "kapsamBaslik": "Reklamdan [satışa] tek sistem",
+  "hizmetler": [
+    {
+      "kod": "google-reklam",
+      "paket": "reklam",
+      "etiket": "GOOGLE ADS · ALIŞVERİŞ · PERFORMANCE MAX",
+      "ozet": "Takı arayan kişilere, satın almaya en yakın anda Google aramalarında ve Alışveriş sekmesinde ürün görseli ve fiyatıyla görünün.",
+      "sure": "Önerilen: en az 6 ay",
+      "not": "",
+      "kapsam": [
+        "Yüzük, kolye, küpe, bileklik, tektaş ve alyans aramalarına yönelik anahtar kelime ve rakip araştırması",
+        "Merchant Center ürün feed'i ile Alışveriş ve Performance Max kampanyaları",
+        "Marka aramalarının korunması; Arama ağı reklam metinleri ve uzantılar",
+        "Satış ve ROAS hedefli teklif ve bütçe optimizasyonu",
+        "Reddedilen ürünlerin ve feed hatalarının takibi",
+        "Aylık rapor: harcama, satış, ciro, ROAS"
+      ]
+    },
+    {
+      "kod": "meta-reklam",
+      "paket": "reklam",
+      "etiket": "INSTAGRAM · FACEBOOK · KATALOG",
+      "ozet": "Ürünlerinizi Instagram ve Facebook'ta takı ve hediye arayan kitleye gösterin; siteye gelip satın almayanları geri getirin.",
+      "sure": "Önerilen: en az 6 ay",
+      "not": "",
+      "kapsam": [
+        "Ürün kataloğuyla Advantage+ alışveriş ve dinamik ürün reklamları",
+        "Ürüne bakıp sepete ekleyen ama satın almayanlara yeniden hedefleme",
+        "Sevgililer Günü, Anneler Günü ve yılbaşı gibi özel günlerde hediye kampanyaları",
+        "Reels, hikâye ve carousel kreatiflerinde A/B testleri",
+        "Haftalık bütçe ve ROAS optimizasyonu",
+        "Aylık rapor: harcama, satış, ciro, ROAS"
+      ]
+    },
+    {
+      "ad": "Meta & Google Ads Kurulum Danışmanlığı",
+      "etiket": "BUSINESS PORTFÖY · GOOGLE ADS · MERCHANT CENTER · GA4",
+      "grup": "kurulum",
+      "periyot": "tek",
+      "fiyat": 0,
+      "dahilYazi": "Ücretsiz",
+      "ozet": "Reklam hesapları, ürün kataloğu ve ölçüm altyapısı satışa hazır hâle getirilir.",
+      "sure": "Çalışmanın başında",
+      "kapsam": [
+        "Meta Business Portföyü, reklam hesabı, piksel ve ürün kataloğu yapısı",
+        "Google Ads, GA4 ve Merchant Center kurulumu ve hesap bağlantıları",
+        "Conversions API (CAPI) ve ürün feed'i için altyapı firmasına teknik yönlendirme",
+        "Satın alma, sepete ekleme ve ödeme olaylarının test ve doğrulaması",
+        "Feed'deki fiyat ve stokların siteyle eşleşme kontrolü"
+      ],
+      "not": "CAPI entegrasyonu e-ticaret altyapı firmanız tarafından yapılır ve bu teklife dahil değildir.",
+      "teslimTakvimi": {
+        "baslik": "Kurulum ve yayına hazırlık süresi",
+        "toplam": "10 iş günü",
+        "asamalar": [
+          {
+            "ad": "Erişim denetimi",
+            "gun": 1
+          },
+          {
+            "ad": "Meta piksel & katalog",
+            "gun": 2
+          },
+          {
+            "ad": "Google Ads & Merchant",
+            "gun": 2
+          },
+          {
+            "ad": "CAPI doğrulama",
+            "gun": 3
+          },
+          {
+            "ad": "Test & yayın",
+            "gun": 2
+          }
+        ],
+        "not": "Süre, erişimlerin paylaşılmasıyla başlar. CAPI süresi altyapı firmasının takvimine bağlıdır; kampanyalar ölçüm doğrulandıktan sonra yayına alınır."
+      }
+    }
+  ],
+  "paketler": {
+    "reklam": {
+      "ad": "Google + Meta Reklam Yönetimi",
+      "etiket": "Paket · ₺100.000'e kadar bütçe · Önerilen süre: en az 6 ay",
+      "fiyat": 25000,
+      "periyot": "aylik"
+    }
+  },
+  "aylikBaslik": "Aylık hizmet · ₺100.000'e kadar bütçe",
+  "reklamBaremleri": {
+    "ust": "Bütçe baremi",
+    "baslik": "Aylık reklam bütçesine göre hizmet bedeli",
+    "secili": 0,
+    "seciliYazi": "Başlangıç",
+    "satirlar": [
+      {
+        "etiket": "₺100.000'e kadar",
+        "ust": 100000,
+        "ucret": 25000
+      },
+      {
+        "etiket": "₺100.001 – ₺150.000",
+        "ust": 150000,
+        "ucret": 32500
+      },
+      {
+        "etiket": "₺150.001 – ₺200.000",
+        "ust": 200000,
+        "ucret": 40000
+      },
+      {
+        "etiket": "₺200.001 – ₺300.000",
+        "ust": 300000,
+        "ucret": 52500
+      },
+      {
+        "etiket": "₺300.001 – ₺400.000",
+        "ust": 400000,
+        "ucret": 65000
+      },
+      {
+        "etiket": "₺400.001 – ₺500.000",
+        "ust": 500000,
+        "ucret": 75000
+      }
+    ],
+    "not": "Bütçe Google + Meta toplamıdır ve hizmet bedeline dahil değildir; platformlara doğrudan kendi kartınızla ödenir. Barem, her ayın başında o ayın planlanan bütçesine göre belirlenir. Oran, baremin üst sınırına göre hesaplanmıştır. ₺500.000 üzeri bütçeler ayrıca fiyatlandırılır."
+  }
+}

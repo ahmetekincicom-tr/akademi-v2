@@ -480,3 +480,36 @@ a { color: inherit; text-decoration: none; }
 /* satır indirimi */
 .tutar-eski { display: block; font-family: var(--mono); font-size: 7.4pt; color: var(--stone); text-decoration: line-through; text-decoration-color: var(--coral); text-decoration-thickness: 0.8pt; margin-bottom: 0.6mm; }
 .indirim-cip { display: inline-block; margin-top: 1.2mm; padding: 0.6mm 2mm; border-radius: 5mm; background: var(--yellow-tint); border: 0.6pt solid #f2c23099; color: var(--yellow-text); font-style: normal; font-size: 6.4pt; font-weight: 700; }
+
+/* bütçe baremi: reklam bütçesine göre hizmet bedeli */
+.barem { margin-top: 4.5mm; border-radius: 3.6mm; background: var(--yellow-tint); border: 0.6pt solid #f2c23099; padding: 3.6mm 5mm 3.4mm; }
+.barem__bas { display: flex; align-items: center; gap: 4mm; }
+.barem__bas .mono-etiket { color: var(--yellow-text); }
+.barem__bas strong { display: block; margin-top: 0.4mm; font-size: 11.5pt; font-weight: 800; letter-spacing: -0.03em; }
+.barem__tablo { margin-top: 3mm; background: #fffdf8; border: 0.6pt solid #f2c23066; border-radius: 2.4mm; overflow: hidden; }
+.barem__satir { display: grid; grid-template-columns: 1fr 34mm 28mm 24mm; gap: 3mm; align-items: center; padding: 1.75mm 4mm; border-top: 0.6pt solid var(--line-soft); font-size: 8.4pt; }
+.barem__satir:first-child { border-top: 0; }
+.barem__satir b { font-weight: 700; letter-spacing: -0.01em; }
+.barem__satir .tutar { font-size: 8.6pt; }
+.barem__satir .tutar--soluk { color: var(--body-2); font-weight: 500; }
+.barem__satir--bas { background: var(--cream); padding-top: 1.6mm; padding-bottom: 1.6mm; }
+.barem__satir--bas > div { font-family: var(--mono); font-size: 5.6pt; letter-spacing: 0.14em; color: var(--stone); text-transform: uppercase; font-weight: 500; }
+.barem__satir--secili { background: #f2c2301f; }
+.barem__satir .indirim-cip { margin: 0 0 0 2mm; background: var(--yellow); border-color: var(--yellow); color: var(--ink); }
+.barem__not { margin-top: 2.4mm; font-size: 6.8pt; color: var(--yellow-text); line-height: 1.45; }
+/* Barem tablosu olan ücretlendirme sayfası: bloklar küçülmez, ödeme kartları yatay ve kısa. */
+.govde--yay > * { flex-shrink: 0; }
+.govde--barem .yatirim-alt { margin-top: 0; }
+.govde--barem .teslim { padding: 4mm 5mm; }
+.govde--barem .teslim__sure strong { font-size: 21pt; }
+.govde--barem .barem { margin-top: 0; padding: 3mm 4.5mm 2.8mm; }
+.govde--barem .barem .butce__ikon { width: 7.4mm; height: 7.4mm; }
+.govde--barem .barem__bas strong { font-size: 10.5pt; }
+.govde--barem .barem__tablo { margin-top: 2.4mm; }
+.govde--barem .barem__satir { padding-top: 1.2mm; padding-bottom: 1.2mm; font-size: 8pt; }
+.govde--barem .odeme { margin-top: 2mm; }
+.govde--barem .odeme__kart { display: grid; grid-template-columns: 7mm 1fr; column-gap: 3mm; align-items: start; align-content: start; padding: 3mm 3.4mm; }
+.govde--barem .odeme__ikon { width: 7mm; height: 7mm; grid-row: span 2; }
+.govde--barem .odeme__ikon svg { width: 3.8mm; height: 3.8mm; }
+.govde--barem .odeme__kart b { margin-top: 0; }
+.govde--barem .sartlar { margin-top: 0; }

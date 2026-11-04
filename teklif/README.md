@@ -53,6 +53,7 @@ Paket fiyat: aynı `paket` adını taşıyan hizmetler ayrı kartlarla anlatıl�
 ```
 
 `"fiyat": 0` olan hizmet "Pakete dahil" olarak gösterilir. Reklam bütçesi bandı için `"reklamButcesi": { "tutar": "₺20.000 – ₺40.000 / ay", "metin": "…" }`.
+Bütçeye göre değişen hizmet bedeli (barem) için `"reklamBaremleri"`: `satirlar` (`etiket`, `ust`, `ucret`; oran `ucret / ust` ile hesaplanır, `oranYazi` ile ezilebilir), `secili` (vurgulanan satır, varsayılan 0), `seciliYazi`, `not`. Ücretlendirme sayfasında tablo olarak çıkar, sayfa sığması için sıkışık düzene geçer. Toplam kutusunun başlığı `"aylikBaslik"` / `"tekBaslik"` ile, 0 TL'lik kalemin "Pakete dahil" yazısı `"dahilYazi"` ile değiştirilebilir (örnek: `teklifler/karlik-kuyumculuk.json`).
 Hitap ("Sayın …,") yalnız `musteri.yetkili` yazılırsa, giriş paragrafı yalnız `giris` yazılırsa çıkar; kapakta `musteri.web` gösterilir. Bir referans logosu görsel olarak büyük/küçük kalırsa `ayarlar.json`'da `olcek` ile ayarlanır.
 
 Teslim süresi kartı, `teslimTakvimi` olan ilk hizmetten (web sitesi, e-ticaret) gelir; yoksa "onaydan sonra başlangıç" kartı çıkar.
