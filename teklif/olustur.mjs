@@ -235,7 +235,7 @@ function parcalar() {
     </footer>`;
   const ust = (v, sag) => `
     <header class="ust">
-      <div class="ust__sol"><span class="ust__nokta"></span><b>${e(v.musteri.firma)}</b> · Hizmet teklifi</div>
+      <div class="ust__sol"><span class="ust__nokta"></span><b lang="${e(v.musteri.dil || "tr")}">${e(v.musteri.firma)}</b> · Hizmet teklifi</div>
       <div>${e(v.teklifNo)} · ${sag}</div>
     </header>`;
   return { logo, alt, ust, isaretVB, isaretIc };

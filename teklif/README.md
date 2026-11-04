@@ -53,6 +53,7 @@ Paket fiyat: aynı `paket` adını taşıyan hizmetler ayrı kartlarla anlatıl�
 ```
 
 `"fiyat": 0` olan hizmet "Pakete dahil" olarak gösterilir. Reklam bütçesi bandı için `"reklamButcesi": { "tutar": "₺20.000 – ₺40.000 / ay", "metin": "…" }`.
+Yabancı dilde marka adlarında `musteri.dil` yazın (ör. `"dil": "en"`): büyük harfe çevrilen yerlerde "i" harfi "İ" yerine "I" olur.
 Hitap ("Sayın …,") yalnız `musteri.yetkili` yazılırsa, giriş paragrafı yalnız `giris` yazılırsa çıkar; kapakta `musteri.web` gösterilir. Bir referans logosu görsel olarak büyük/küçük kalırsa `ayarlar.json`'da `olcek` ile ayarlanır.
 
 Reklam bütçesi belli değilse tek bant yerine 3 senaryo gösterilebilir (`reklamButcesi` yerine `butceSenaryolari`):
