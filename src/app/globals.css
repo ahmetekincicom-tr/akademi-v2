@@ -543,6 +543,12 @@ body:has(.auth-koyu) .whatsapp-yuzen {
   display: none;
 }
 
+/* Paneldeki WhatsApp gelen kutusu: düğme konuşmanın üstüne biniyordu; oradan
+   tıklamak ayrıca sahte bir "temas" kaydı (takip kodu) üretirdi. */
+body:has(.wa-gelen-kutusu) .whatsapp-yuzen {
+  display: none;
+}
+
 /* iOS uygulamasında WhatsApp düğmesi yok: öğrenci eğitmene uygulama içinden
    (soru-cevap, destek) ulaşıyor; düğme uygulamadan dışarı çıkarıyordu. */
 [data-native="1"] .whatsapp-yuzen {
