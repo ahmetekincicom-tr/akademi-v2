@@ -55,4 +55,20 @@ Paket fiyat: aynı `paket` adını taşıyan hizmetler ayrı kartlarla anlatıl�
 `"fiyat": 0` olan hizmet "Pakete dahil" olarak gösterilir. Reklam bütçesi bandı için `"reklamButcesi": { "tutar": "₺20.000 – ₺40.000 / ay", "metin": "…" }`.
 Hitap ("Sayın …,") yalnız `musteri.yetkili` yazılırsa, giriş paragrafı yalnız `giris` yazılırsa çıkar; kapakta `musteri.web` gösterilir. Bir referans logosu görsel olarak büyük/küçük kalırsa `ayarlar.json`'da `olcek` ile ayarlanır.
 
+Reklam bütçesi belli değilse tek bant yerine 3 senaryo gösterilebilir (`reklamButcesi` yerine `butceSenaryolari`):
+
+```json
+"butceSenaryolari": {
+  "baslik": "Tahmini reklam bütçesi",
+  "metin": "Bütçe hizmet bedeline dahil değildir…",
+  "senaryolar": [
+    { "ad": "Başlangıç", "tutar": 7500, "aciklama": "…", "dagilim": [{ "ad": "Bilinirlik", "oran": 50 }, { "ad": "Etkileşim", "oran": 30 }, { "ad": "Takipçi", "oran": 20 }] },
+    { "ad": "Dengeli", "tutar": 15000, "vurgu": true, "dagilim": [ … ] },
+    { "ad": "Büyüme", "tutar": 25000, "dagilim": [ … ] }
+  ]
+}
+```
+
+Günlük karşılık (tutar / 30) otomatik hesaplanır; `vurgu: true` olan kart koyu ve "Önerilen" etiketli çıkar.
+
 Teslim süresi kartı, `teslimTakvimi` olan ilk hizmetten (web sitesi, e-ticaret) gelir; yoksa "onaydan sonra başlangıç" kartı çıkar.

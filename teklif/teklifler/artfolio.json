@@ -1,0 +1,133 @@
+{
+  "teklifNo": "AE-2026-1104",
+  "tarih": "2026-11-04",
+  "gecerlilikGun": 15,
+  "musteri": {
+    "firma": "Artfolio Art Gallery",
+    "tamUnvan": "Sanat galerisi · İncek, Ankara"
+  },
+  "konu": "Meta (Instagram & Facebook) reklam yönetimi ve tahmini bütçe planı",
+  "kapakBaslik": "Sanatınız [Ankara'da] görünsün.",
+  "kapsamBaslik": "Görünürlükten [takipçiye] tek plan",
+  "hizmetler": [
+    {
+      "kod": "meta-reklam",
+      "paket": "meta",
+      "ad": "Bilinirlik ve Erişim Kampanyaları",
+      "etiket": "META · ANKARA · İNCEK",
+      "ozet": "Galerinizi Ankara'daki sanatseverlere düzenli olarak gösteren, sergi ve etkinlikleri duyuran erişim kampanyaları.",
+      "sure": "Önerilen: en az 3 ay",
+      "not": "",
+      "kapsam": [
+        "Ankara ve İncek çevresine konum hedefli erişim kampanyaları",
+        "Sanat, galeri, müze ve tasarım ilgisine göre kitle kurgusu",
+        "Sergi, açılış ve etkinlik duyuru reklamları",
+        "Reels ve hikâye formatında video reklamlar",
+        "Sıklık kontrolüyle doğru tekrar dengesi"
+      ]
+    },
+    {
+      "kod": "meta-reklam",
+      "paket": "meta",
+      "ad": "Etkileşim ve Takipçi Kampanyaları",
+      "etiket": "INSTAGRAM · FACEBOOK",
+      "ozet": "Gören kişiyi profilinize taşıyan, takipçi ve etkileşimi artıran kampanyalar.",
+      "sure": "Önerilen: en az 3 ay",
+      "not": "",
+      "kapsam": [
+        "Instagram profil ziyareti ve takipçi kampanyaları",
+        "Beğeni, kaydetme ve paylaşım odaklı etkileşim kampanyaları",
+        "Profil ve gönderilerle etkileşenlere yeniden hedefleme",
+        "Takipçilerinize benzer yeni kitleler",
+        "Kreatif ve metin A/B testleri"
+      ]
+    },
+    {
+      "kod": "meta-reklam",
+      "paket": "meta",
+      "ad": "Raporlama ve Optimizasyon",
+      "etiket": "HAFTALIK TAKİP · AYLIK RAPOR",
+      "ozet": "Bütçenin hangi kampanyada en iyi sonucu verdiğini görüp, işe yarayanı büyüten düzenli takip.",
+      "sure": "Aylık",
+      "not": "",
+      "kapsam": [
+        "Haftalık bütçe ve performans kontrolü",
+        "Erişim, sıklık, takipçi artışı ve etkileşim oranı takibi",
+        "Senaryoya göre bütçe dağılımının güncellenmesi",
+        "Aylık rapor ve değerlendirme görüşmesi"
+      ]
+    }
+  ],
+  "paketler": {
+    "meta": {
+      "ad": "Meta Reklam Yönetimi (Instagram + Facebook)",
+      "etiket": "Paket · 3 kalem · Önerilen süre: en az 3 ay",
+      "fiyat": 15000,
+      "periyot": "aylik"
+    }
+  },
+  "butceSenaryolari": {
+    "baslik": "Tahmini reklam bütçesi",
+    "metin": "Bütçe hizmet bedeline dahil değildir; doğrudan Meta'ya ödenir. İlk ayın sonuçlarına göre senaryo birlikte güncellenir.",
+    "senaryolar": [
+      {
+        "ad": "Başlangıç",
+        "tutar": 7500,
+        "aciklama": "Ankara'da düzenli görünürlük ve sergi duyuruları.",
+        "dagilim": [
+          {
+            "ad": "Bilinirlik",
+            "oran": 50
+          },
+          {
+            "ad": "Etkileşim",
+            "oran": 30
+          },
+          {
+            "ad": "Takipçi",
+            "oran": 20
+          }
+        ]
+      },
+      {
+        "ad": "Dengeli",
+        "tutar": 15000,
+        "vurgu": true,
+        "aciklama": "Bilinirlik ve takipçi artışı birlikte büyür.",
+        "dagilim": [
+          {
+            "ad": "Bilinirlik",
+            "oran": 40
+          },
+          {
+            "ad": "Etkileşim",
+            "oran": 30
+          },
+          {
+            "ad": "Takipçi",
+            "oran": 30
+          }
+        ]
+      },
+      {
+        "ad": "Büyüme",
+        "tutar": 25000,
+        "aciklama": "Hızlı takipçi artışı; sergi dönemlerinde yoğun erişim.",
+        "dagilim": [
+          {
+            "ad": "Bilinirlik",
+            "oran": 35
+          },
+          {
+            "ad": "Etkileşim",
+            "oran": 30
+          },
+          {
+            "ad": "Takipçi",
+            "oran": 35
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -120,7 +120,7 @@ function veriHazirla(teklifYolu) {
       const p = paketler[h.paket];
       const uyeler = v.hizmetler.filter((x) => x.paket === h.paket);
       v.satirlar.push({
-        no: uyeler.map((x) => x.no).join("+"),
+        no: uyeler.length > 2 ? `${uyeler[0].no}–${uyeler.at(-1).no}` : uyeler.map((x) => x.no).join("+"),
         ad: p.ad || uyeler.map((x) => x.ad).join(" + "),
         etiket: p.etiket || "Paket fiyatı",
         grup: p.grup || h.grup,
@@ -349,7 +349,7 @@ function yatirimSayfasi(v, P) {
       const g = GRUP[s.grup] || GRUP.yonetim;
       return `
       <div class="tablo__satir" style="--grup:${g.renk};--grup-yazi:${g.yazi}">
-        <span class="no-cip${s.no.includes("+") ? " no-cip--genis" : ""}">${s.no}</span>
+        <span class="no-cip${/[+–]/.test(s.no) ? " no-cip--genis" : ""}">${s.no}</span>
         <div class="tablo__ad"><b>${e(s.ad)}</b><span>${e(s.etiket)}</span>${
           s.indirim ? `<em class="indirim-cip">${e(s.indirimNotu)} −${para(s.indirim)}</em>` : ""
         }</div>
@@ -429,6 +429,35 @@ function yatirimSayfasi(v, P) {
       </div>`
     : "";
 
+  // Bütçe belli değilse: 3 senaryo, günlük karşılık ve hedeflere dağılım.
+  let senaryo = "";
+  if (v.butceSenaryolari) {
+    const b = v.butceSenaryolari;
+    const renk = ["#f2c230", "#4c7bea", "#e2685a", "#6b6355"];
+    senaryo = `
+    <div class="senaryo">
+      <div class="senaryo__ust">
+        <div class="kicker">${e(b.baslik || "Tahmini reklam bütçesi")}</div>
+        ${b.metin ? `<p>${e(b.metin)}</p>` : ""}
+      </div>
+      <div class="senaryo__izgara">${b.senaryolar
+        .map(
+          (x) => `
+        <div class="senaryo__kart${x.vurgu ? " senaryo__kart--vurgu" : ""}">
+          <div class="senaryo__bas"><span class="mono-etiket">${e(x.ad)}</span>${x.vurgu ? `<em>Önerilen</em>` : ""}</div>
+          <strong>${para(x.tutar)}<small> / ay</small></strong>
+          <span class="senaryo__gun">≈ ${para(Math.round(x.tutar / 30 / 10) * 10)} / gün</span>
+          ${x.aciklama ? `<p>${e(x.aciklama)}</p>` : ""}
+          <div class="senaryo__cubuk">${x.dagilim.map((d, i) => `<i style="flex:${d.oran};background:${renk[i % renk.length]}"></i>`).join("")}</div>
+          <ul>${x.dagilim
+            .map((d, i) => `<li><i style="background:${renk[i % renk.length]}"></i>${e(d.ad)}<b>%${d.oran}</b></li>`)
+            .join("")}</ul>
+        </div>`
+        )
+        .join("")}</div>
+    </div>`;
+  }
+
   const odeme = v.odemeSecenekleri
     .map(
       (o) => `
@@ -468,6 +497,7 @@ function yatirimSayfasi(v, P) {
       </div>
 
       ${butce}
+      ${senaryo}
 
       <div>
         <div class="odeme-bas"><div class="kicker">Ödeme seçenekleri</div></div>

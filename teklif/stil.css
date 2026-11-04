@@ -403,7 +403,7 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
-.no-cip--genis { width: auto !important; padding: 0 1.4mm; font-size: 6pt !important; }
+.no-cip--genis { width: auto !important; padding: 0 1.4mm; font-size: 6pt !important; white-space: nowrap; }
 
 /* reklam bütçesi bandı */
 .butce {
@@ -480,3 +480,28 @@ a { color: inherit; text-decoration: none; }
 /* satır indirimi */
 .tutar-eski { display: block; font-family: var(--mono); font-size: 7.4pt; color: var(--stone); text-decoration: line-through; text-decoration-color: var(--coral); text-decoration-thickness: 0.8pt; margin-bottom: 0.6mm; }
 .indirim-cip { display: inline-block; margin-top: 1.2mm; padding: 0.6mm 2mm; border-radius: 5mm; background: var(--yellow-tint); border: 0.6pt solid #f2c23099; color: var(--yellow-text); font-style: normal; font-size: 6.4pt; font-weight: 700; }
+
+/* ───────── tahmini bütçe senaryoları ───────── */
+.senaryo__ust { display: flex; align-items: baseline; justify-content: space-between; gap: 6mm; }
+.senaryo__ust p { font-size: 7pt; color: var(--stone); max-width: 100mm; text-align: right; line-height: 1.4; }
+.senaryo__izgara { margin-top: 2.6mm; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+.senaryo__kart { background: #fffdf8; border: 0.6pt solid var(--line); border-radius: 3.2mm; padding: 4mm 4.4mm; }
+.senaryo__kart--vurgu { background: var(--ink); border-color: var(--ink); color: var(--on-dark); }
+.senaryo__bas { display: flex; align-items: center; justify-content: space-between; }
+.senaryo__bas em { font-style: normal; padding: 0.5mm 1.8mm; border-radius: 5mm; background: var(--yellow); color: var(--ink); font-family: var(--mono); font-size: 5.6pt; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.senaryo__kart--vurgu .mono-etiket { color: var(--on-dark-faint); }
+.senaryo__kart strong { display: block; margin-top: 1.6mm; font-size: 16pt; font-weight: 800; letter-spacing: -0.045em; line-height: 1; }
+.senaryo__kart strong small { font-size: 7.4pt; font-weight: 600; color: var(--stone); letter-spacing: 0; }
+.senaryo__kart--vurgu strong { color: var(--yellow); }
+.senaryo__kart--vurgu strong small { color: var(--on-dark-muted); }
+.senaryo__gun { display: block; margin-top: 0.8mm; font-family: var(--mono); font-size: 6.4pt; color: var(--stone); }
+.senaryo__kart--vurgu .senaryo__gun { color: var(--on-dark-muted); }
+.senaryo__kart p { margin-top: 1.6mm; font-size: 7pt; line-height: 1.38; color: var(--body-2); min-height: 6.6mm; }
+.senaryo__kart--vurgu p { color: var(--on-dark-muted); }
+.senaryo__cubuk { margin-top: 2.4mm; display: flex; gap: 0.6mm; height: 2mm; }
+.senaryo__cubuk i { display: block; border-radius: 1mm; }
+.senaryo__kart ul { list-style: none; margin-top: 1.8mm; display: grid; gap: 0.7mm; }
+.senaryo__kart li { display: flex; align-items: center; gap: 1.4mm; font-size: 6.8pt; color: var(--body); }
+.senaryo__kart--vurgu li { color: var(--on-dark); }
+.senaryo__kart li i { width: 1.8mm; height: 1.8mm; border-radius: 0.5mm; flex: none; }
+.senaryo__kart li b { margin-left: auto; font-family: var(--mono); font-weight: 600; }
