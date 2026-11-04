@@ -3,7 +3,8 @@ import { SITE_URL } from "@/lib/seo";
 import { getCourses } from "@/lib/courses";
 import { getYayindakiYazilar, getKategoriler } from "@/lib/yazilar";
 import { getYasalSayfalar } from "@/lib/yasal";
-import { ETIKET_ESIGI, etiketleriTopla } from "@/lib/blog-etiket";
+import { ETIKET_ESIGI, etiketleriTopla, etiketliMi } from "@/lib/blog-etiket";
+import { enGec, sayfaTarihleri, yaziTarihi } from "@/lib/site-haritasi";
 import { ON_YUZ_ACIK } from "@/proxy";
 
 // İçerik yönetim panelinden değişiyor; build anında dondurulmamalı.
@@ -20,6 +21,11 @@ export const dynamic = "force-dynamic";
  *
  * Panel ve yönetim sayfaları hiçbir durumda listede değil: ikisi de oturum
  * istiyor, tarayıcı botu yalnızca giriş yönlendirmesi görür.
+ *
+ * lastmod: her adreste o sayfanın gösterdiği içeriğin gerçek son değişikliği
+ * (lib/site-haritasi). İçeriği koddan gelen ve tarihi bilinmeyen sayfalarda
+ * (giriş, iletişim) hiç yazılmıyor — "şu an" yazmak bütün siteyi her istekte
+ * değişmiş gösterir, Google da lastmod'u yok saymaya başlar.
  */
 /*
   Adresler sondaki eğik çizgiyle yazılıyor: next.config.ts'te trailingSlash
@@ -33,18 +39,18 @@ function adres(yol: string): string {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const simdi = new Date();
   const yasal = await getYasalSayfalar();
 
   // Ön yüz kapalıyken arama motoruna açık tek yüz: giriş ekranı ve yasal
   // metinler.
   const giris: MetadataRoute.Sitemap = [
-    { url: adres("/giris"), lastModified: simdi, changeFrequency: "monthly", priority: 1 },
+    { url: adres("/giris"), changeFrequency: "monthly", priority: 1 },
   ];
 
   const yasalGirdileri: MetadataRoute.Sitemap = yasal.map((y) => ({
     url: adres(y.slug),
-    lastModified: simdi,
+    // Metnin üstünde yazan "son güncelleme" tarihi (panelden giriliyor).
+    lastModified: enGec(y.guncelleme),
     changeFrequency: "yearly" as const,
     priority: 0.3,
   }));
@@ -64,7 +70,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     program açıldığında sayfa dolduğunda haritaya kendiliğinden giriyor.
   */
   const egitimler = (await getCourses()).filter((e) => !e.cokYakinda);
-  const [yazilar, kategoriler] = await Promise.all([getYayindakiYazilar(), getKategoriler()]);
+  const [yazilar, kategoriler, t] = await Promise.all([getYayindakiYazilar(), getKategoriler(), sayfaTarihleri()]);
+  const yazilarinEnGeci = (liste: typeof yazilar) => enGec(...liste.map(yaziTarihi));
+  const egitimlerinEnGeci = enGec(...egitimler.map((e) => e.guncelleme));
 
   /*
     Yazılar ve kategoriler KÖKTE (/{slug}/) — WordPress yapısı birebir korundu.
@@ -80,12 +88,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const blogGirdileri: MetadataRoute.Sitemap =
     yazilar.length > 0
       ? [
-          { url: adres("/blog"), lastModified: simdi, changeFrequency: "weekly", priority: 0.7 },
+          { url: adres("/blog"), lastModified: yazilarinEnGeci(yazilar), changeFrequency: "weekly", priority: 0.7 },
           ...yazilar.map((y) => ({
             url: adres(`/${y.slug}`),
             // Gerçek içerik güncellemesi (yazıdaki dateModified ile aynı kaynak);
             // yoksa yayın tarihi.
-            lastModified: new Date(y.icerikGuncelleme ?? y.yayinTarihi ?? y.guncelleme),
+            lastModified: enGec(yaziTarihi(y)),
             changeFrequency: "monthly" as const,
             priority: 0.6,
           })),
@@ -93,7 +101,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             .filter((k) => dolukategoriSlug.has(k.slug))
             .map((k) => ({
               url: adres(`/${k.slug}`),
-              lastModified: simdi,
+              lastModified: yazilarinEnGeci(yazilar.filter((y) => y.kategori?.slug === k.slug)),
               changeFrequency: "weekly" as const,
               priority: 0.5,
             })),
@@ -103,7 +111,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             .filter((e) => e.adet >= ETIKET_ESIGI)
             .map((e) => ({
               url: adres(`/blog/etiket/${e.slug}`),
-              lastModified: simdi,
+              lastModified: yazilarinEnGeci(yazilar.filter((y) => etiketliMi(y, e.slug))),
               changeFrequency: "weekly" as const,
               priority: 0.4,
             })),
@@ -111,20 +119,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       : [];
 
   return [
-    { url: adres("/"), lastModified: simdi, changeFrequency: "weekly", priority: 1 },
-    { url: adres("/egitimler"), lastModified: simdi, changeFrequency: "weekly", priority: 0.9 },
+    // Ana sayfa: eğitim kartları, referans şeridi ve yorumlar.
+    { url: adres("/"), lastModified: enGec(egitimlerinEnGeci, t.referans, t.yorum), changeFrequency: "weekly", priority: 1 },
+    { url: adres("/egitimler"), lastModified: egitimlerinEnGeci, changeFrequency: "weekly", priority: 0.9 },
     ...egitimler.map((e) => ({
       url: adres(`/egitimler/${e.slug}`),
-      lastModified: simdi,
+      // Eğitim kaydı + sayfadaki referans şeridi.
+      lastModified: enGec(e.guncelleme, t.referans),
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),
     ...blogGirdileri,
-    { url: adres("/hakkimizda"), lastModified: simdi, changeFrequency: "monthly", priority: 0.7 },
-    { url: adres("/kurumsal"), lastModified: simdi, changeFrequency: "monthly", priority: 0.7 },
-    { url: adres("/referanslar"), lastModified: simdi, changeFrequency: "monthly", priority: 0.6 },
-    { url: adres("/yorumlar"), lastModified: simdi, changeFrequency: "monthly", priority: 0.6 },
-    { url: adres("/iletisim"), lastModified: simdi, changeFrequency: "yearly", priority: 0.5 },
+    { url: adres("/hakkimizda"), lastModified: enGec(t.hakkimizda, t.referans), changeFrequency: "monthly", priority: 0.7 },
+    { url: adres("/kurumsal"), lastModified: enGec(t.kurumsal, t.referans), changeFrequency: "monthly", priority: 0.7 },
+    { url: adres("/referanslar"), lastModified: t.referans, changeFrequency: "monthly", priority: 0.6 },
+    { url: adres("/yorumlar"), lastModified: t.yorum, changeFrequency: "monthly", priority: 0.6 },
+    // İletişim içeriği kodda; güvenilir bir değişiklik tarihi yok.
+    { url: adres("/iletisim"), changeFrequency: "yearly", priority: 0.5 },
     // Giriş ekranı ön yüz açıkken haritada yok (noindex; bkz. giris/page.tsx).
     ...yasalGirdileri,
   ];
