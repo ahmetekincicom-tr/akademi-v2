@@ -1,0 +1,200 @@
+{
+  "_aciklama": "Yeni başlayan müşterilerden istenen standart talepler. Talep dosyasında yalnız `kod` yazmak yeterli; buradaki her alan aynı adla yazılarak o müşteri için değiştirilebilir. {eposta} yazan yerlere ayarlar.json'daki e-posta adresi gelir. **kalın** ve `kod` biçimleri desteklenir. tur: kilavuz | liste | sorular | form | secim.",
+  "talepler": {
+    "meta-yetki": {
+      "tur": "kilavuz",
+      "baslik": "Meta İşletme Portföyü'nde tam yetki",
+      "etiket": "META · İŞLETME AYARLARI",
+      "neden": "Reklam hesabı, Pixel, Instagram ve Facebook sayfası ayarlarını sizin adınıza yönetebilmemiz için gerekir. Şifre paylaşmanız gerekmez; erişimi istediğiniz an kaldırabilirsiniz.",
+      "nereye": {
+        "etiket": "Davet edilecek e-posta",
+        "deger": "{eposta}"
+      },
+      "ozet": {
+        "nasil": "Meta işletme ayarlarından davet",
+        "nereye": "{eposta}"
+      },
+      "adimlar": [
+        "İşletme portföyünüzün yöneticisi olan Facebook hesabıyla **business.facebook.com/settings** adresine girin.",
+        "Sol menüden **Kullanıcılar → Kişiler** bölümünü açın ve **Kişi ekle** butonuna tıklayın.",
+        "E-posta alanına **{eposta}** adresini yazın.",
+        "İşletme erişimi olarak **Tam kontrol** seçeneğini işaretleyin (eski arayüzde: **Yönetici erişimi**).",
+        "Varlık adımında aşağıdaki varlıkların her birini seçip **Tam kontrol** yetkisini açın.",
+        "**Davet gönder**'e tıklayın. Davet bize e-postayla ulaşır; onayladığımızda size haber veririz."
+      ],
+      "yanKutu": {
+        "baslik": "Yetki verilecek varlıklar",
+        "maddeler": [
+          "Facebook sayfası",
+          "Instagram hesabı",
+          "Reklam hesabı",
+          "Pixel / veri kümesi",
+          "Katalog (varsa)"
+        ]
+      },
+      "notlar": [
+        "Menü adları Meta'nın güncellemelerine göre küçük farklılıklar gösterebilir. İşletme portföyünüz yoksa ya da bir adımda takılırsanız haber verin; ekran paylaşımıyla birlikte birkaç dakikada tamamlayalım."
+      ]
+    },
+    "medya": {
+      "tur": "liste",
+      "baslik": "Reklamlarda kullanılacak görsel ve videolar",
+      "etiket": "WETRANSFER · GOOGLE DRIVE",
+      "neden": "Reklam kreatiflerini sizin gerçek görsellerinizle hazırlamak için orijinal kalitede dosyalara ihtiyacımız var.",
+      "nereye": {
+        "etiket": "Gönderim adresi",
+        "deger": "{eposta}"
+      },
+      "ozet": {
+        "nasil": "WeTransfer ya da Google Drive",
+        "nereye": "{eposta}"
+      },
+      "yontemler": [
+        {
+          "ad": "WeTransfer",
+          "metin": "**wetransfer.com**'da dosyaları yükleyin, alıcı olarak **{eposta}** adresini yazıp gönderin."
+        },
+        {
+          "ad": "Google Drive",
+          "metin": "Dosyaları bir klasörde toplayın ve klasörü **{eposta}** adresiyle paylaşın; görüntüleyici yetkisi yeterli."
+        }
+      ],
+      "maddelerBaslik": "Göndermeniz gerekenler",
+      "maddeler": [
+        "Ürün / hizmet fotoğrafları",
+        "Videolar (tercihen dikey 9:16)",
+        "Logo (vektör ya da şeffaf PNG)",
+        "Broşür, katalog ya da fiyat listesi",
+        "Ekip ve mekân görselleri",
+        "Varsa müşteri yorumları"
+      ],
+      "notlar": [
+        "Dosyaları WhatsApp üzerinden göndermeyin; görüntü kalitesi düşer. Orijinal çözünürlükte, klasörlere ayırarak gönderin."
+      ]
+    },
+    "geo-sorular": {
+      "tur": "sorular",
+      "baslik": "GEO: hangi sorularda görünmek istiyorsunuz?",
+      "etiket": "YAPAY ZEKÂ GÖRÜNÜRLÜĞÜ · SORU LİSTESİ",
+      "neden": "ChatGPT, Gemini ve Google'ın yapay zekâ yanıtlarında hangi sorularda adınızın geçmesini istediğinizi bilmemiz, içerik planının temelidir.",
+      "nereye": {
+        "etiket": "Cevaplar",
+        "deger": "E-posta ya da WhatsApp"
+      },
+      "ozet": {
+        "nasil": "Soru listesini yanıtlayın",
+        "nereye": "{eposta}"
+      },
+      "aciklama": "Kısa cevaplar yeterli. Cevapları e-postayla iletebilir ya da bu sayfayı doldurup fotoğrafını gönderebilirsiniz.",
+      "sorular": [
+        {
+          "soru": "Yapay zekâya sorulduğunda adınızın geçmesini istediğiniz 5–10 soru nedir?",
+          "ipucu": "Müşterinizin kendi cümlesiyle yazın."
+        },
+        {
+          "soru": "Öncelikli hizmet / ürünleriniz hangileri?",
+          "ipucu": "En çok satmak istediğiniz ilk üç kalem."
+        },
+        {
+          "soru": "Hedef müşteriniz kim ve nerede?",
+          "ipucu": "Şehir / ülke, yaş, bütçe aralığı."
+        },
+        {
+          "soru": "Rakip olarak gördüğünüz firmalar hangileri?",
+          "ipucu": "Yapay zekâda adı geçenler varsa onlar da."
+        },
+        {
+          "soru": "Sizi rakiplerinizden ayıran üç özellik nedir?",
+          "ipucu": "Rakam ve belgeyle desteklenebilenler."
+        },
+        {
+          "soru": "Müşterilerinizin en sık sorduğu 5 soru ve kısa cevapları?",
+          "ipucu": "Satış görüşmelerinde tekrar eden sorular."
+        },
+        {
+          "soru": "Hangi dillerde görünmek istiyorsunuz?",
+          "ipucu": "Türkçe, İngilizce, diğer."
+        },
+        {
+          "soru": "Sizden bahseden kaynaklar neler?",
+          "ipucu": "Basın, Google İşletme Profili, portallar, YouTube."
+        },
+        {
+          "soru": "Resmî bilgileriniz: unvan, kuruluş yılı, adresler, belgeler?",
+          "ipucu": "Yapay zekânın doğru bilgi vermesi için."
+        },
+        {
+          "soru": "Kullanılmaması gereken ifadeler ya da hassas konular var mı?",
+          "ipucu": "Yasal sınırlar, vaat edilmemesi gerekenler."
+        }
+      ]
+    },
+    "web-admin": {
+      "tur": "form",
+      "baslik": "Web sitesi yönetim paneli erişimi",
+      "etiket": "WEB SİTESİ · ADMİN",
+      "neden": "Pixel ve dönüşüm takibinin kurulumu, form ve WhatsApp butonlarının ölçümü ve GEO için sayfa düzenlemeleri bu erişimle yapılır.",
+      "nereye": {
+        "etiket": "Şifre için",
+        "deger": "Ayrı mesajla, WhatsApp"
+      },
+      "ozet": {
+        "nasil": "Ayrı yönetici kullanıcısı",
+        "nereye": "Bilgiler e-posta, şifre WhatsApp"
+      },
+      "alanlar": [
+        "Web sitesi adresi",
+        "Yönetim paneli adresi (ör. /wp-admin)",
+        "Kullanıcı adı",
+        "Altyapı (WordPress, Shopify, diğer)"
+      ],
+      "notlar": [
+        "Tercihen bizim için **{eposta}** adresiyle ayrı bir yönetici kullanıcısı oluşturun; çalışma bittiğinde silebilirsiniz.",
+        "Şifreyi bu dokümana yazmayın; e-postayla değil, WhatsApp'tan ayrı bir mesajla iletin."
+      ]
+    },
+    "whatsapp": {
+      "tur": "secim",
+      "baslik": "Reklamlar için WhatsApp Business numarası",
+      "etiket": "WHATSAPP BUSINESS",
+      "neden": "Reklamlardan gelen mesajlar bu numaraya düşer. Numaranın işletmeye ait olması ve Meta hesabına bağlanması gerekir.",
+      "nereye": {
+        "etiket": "Bilgi",
+        "deger": "E-posta ya da WhatsApp"
+      },
+      "ozet": {
+        "nasil": "Numarayı ve türünü bildirin",
+        "nereye": "{eposta}"
+      },
+      "secenekler": [
+        {
+          "baslik": "Numaramız var",
+          "alanlar": [
+            "WhatsApp Business numarası"
+          ],
+          "isaretler": [
+            {
+              "soru": "Kullanılan uygulama",
+              "secimler": [
+                "WhatsApp Business uygulaması",
+                "WhatsApp Business API"
+              ]
+            },
+            {
+              "soru": "Meta işletme hesabına bağlı mı?",
+              "secimler": [
+                "Evet",
+                "Hayır",
+                "Bilmiyorum"
+              ]
+            }
+          ]
+        },
+        {
+          "baslik": "Numaramız yok",
+          "metin": "Reklamlar için kişisel numara yerine işletmeye ait ayrı bir numara öneririz. Numarayı belirlediğinizde kurulumu ve Meta bağlantısını birlikte yaparız."
+        }
+      ]
+    }
+  }
+}

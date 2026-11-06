@@ -1,0 +1,139 @@
+/* Başlangıç talep listesi: stil.css üzerine eklenir. */
+
+/* kapak */
+.tk-kapak__icerik { top: 70mm; }
+.tk-kapak__liste {
+  position: absolute; left: var(--pad-x); right: var(--pad-x); top: 150mm;
+  border-radius: 4mm; background: #f5f0e60a; border: 0.6pt solid var(--line-dark); padding: 1mm 5mm;
+}
+.tk-kapak__liste > div { display: grid; grid-template-columns: 9mm 1fr 52mm 12mm; gap: 3mm; align-items: center; padding: 3mm 0; border-top: 0.6pt solid var(--line-dark); }
+.tk-kapak__liste > div:first-child { border-top: 0; }
+.tk-kapak__liste span { font-family: var(--mono); font-size: 7.4pt; font-weight: 600; color: var(--yellow); }
+.tk-kapak__liste b { font-size: 9.4pt; font-weight: 700; color: #fffaf0; letter-spacing: -0.015em; line-height: 1.25; }
+.tk-kapak__liste em { font-style: normal; font-size: 7.2pt; color: var(--on-dark-muted); line-height: 1.3; }
+.tk-kapak__liste .tk-kutu { justify-self: center; background: transparent; border-color: #f5f0e680; width: 3.8mm; height: 3.8mm; }
+.tk-kapak__liste .tk-kapak__bas { padding: 2.4mm 0 1.6mm; }
+.tk-kapak__bas span { font-size: 5.6pt; letter-spacing: 0.16em; text-transform: uppercase; color: var(--on-dark-faint); font-weight: 500; }
+.tk-kapak__bas span:last-child { text-align: center; }
+.tk-kapak__musteri { position: absolute; left: var(--pad-x); right: var(--pad-x); top: 230mm; }
+
+/* liste düzeni: kartlar yukarıdan dizilir, büyümez */
+.tk-liste { justify-content: flex-start; gap: 4mm; }
+
+.tk {
+  position: relative; overflow: hidden; break-inside: avoid;
+  padding: 4.6mm 6mm 4.8mm 7mm; border-radius: 3.6mm;
+  background: #fffdf8; border: 0.6pt solid var(--line);
+}
+.tk::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 1.3mm; background: var(--yellow); }
+.tk--ozet::before { background: var(--ink); }
+
+.tk__bas { display: grid; grid-template-columns: 9mm 1fr auto; gap: 4mm; align-items: start; }
+.tk__bas--ozet { grid-template-columns: 1fr; }
+.tk__no {
+  width: 9mm; height: 9mm; border-radius: 2.4mm; display: grid; place-items: center;
+  background: var(--yellow); color: var(--ink); font-family: var(--mono); font-weight: 600; font-size: 8.4pt;
+}
+.tk__no--kucuk { width: 6.4mm; height: 6.4mm; font-size: 6.6pt; border-radius: 1.6mm; }
+.tk__metin h3 { margin-top: 1mm; font-size: 13pt; font-weight: 800; letter-spacing: -0.035em; line-height: 1.15; }
+.tk__metin p { margin-top: 1.2mm; font-size: 7.8pt; color: var(--body-2); line-height: 1.45; max-width: 112mm; }
+.tk__nereye {
+  display: flex; align-items: center; gap: 2.4mm; padding: 2.2mm 3.2mm 2.2mm 2.2mm;
+  border-radius: 2.8mm; background: var(--ink); color: #fffaf0; max-width: 62mm;
+}
+.tk__nereye .tk__nereye-ikon { flex: none; width: 7.4mm; height: 7.4mm; border-radius: 2mm; background: var(--yellow); color: var(--ink); display: grid; place-items: center; }
+.tk__nereye-ikon svg { width: 4mm; height: 4mm; }
+.tk__nereye span { display: block; font-family: var(--mono); font-size: 5.4pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--on-dark-faint); }
+.tk .tk__nereye b { display: block; color: #fffaf0; margin-top: 0.5mm; font-size: 8pt; font-weight: 700; line-height: 1.25; }
+
+.tk b { font-weight: 700; color: var(--ink); }
+.tk code { font-family: var(--mono); font-size: 0.92em; padding: 0 1mm; border-radius: 0.8mm; background: var(--cream); }
+.tk-kutu { flex: none; display: inline-block; width: 3.4mm; height: 3.4mm; border-radius: 0.8mm; border: 0.9pt solid #17140f80; background: #fff; }
+
+/* kılavuz */
+.tk-iki { margin-top: 3.6mm; display: grid; grid-template-columns: 1fr 50mm; gap: 6mm; }
+.tk-adimlar { list-style: none; display: grid; gap: 0; position: relative; }
+.tk-adimlar li { display: grid; grid-template-columns: 6.4mm 1fr; gap: 3mm; align-items: start; padding-bottom: 1.7mm; position: relative; }
+.tk-adimlar li:not(:last-child)::after { content: ""; position: absolute; left: 3.1mm; top: 6.6mm; bottom: 0.2mm; width: 0.6pt; background: #17140f33; }
+.tk-adimlar li > span {
+  width: 6.4mm; height: 6.4mm; border-radius: 50%; display: grid; place-items: center;
+  background: var(--ink); color: var(--yellow); font-family: var(--mono); font-size: 6.8pt; font-weight: 600;
+}
+.tk-adimlar p { font-size: 8pt; line-height: 1.4; color: var(--body); padding-top: 0.6mm; }
+.tk-yan { padding: 4mm; border-radius: 3mm; background: var(--cream); border: 0.6pt solid var(--line); align-self: start; }
+
+/* kontrol listesi */
+.tk-kontrol { list-style: none; margin-top: 2.2mm; display: grid; grid-template-columns: 1fr 1fr; gap: 1.8mm 6mm; }
+.tk-kontrol--tek { grid-template-columns: 1fr; }
+.tk-kontrol li { display: flex; align-items: center; gap: 2.2mm; font-size: 8pt; color: var(--body); line-height: 1.3; }
+.tk-ara { margin-top: 3.4mm; }
+
+/* gönderim yöntemleri */
+.tk-yontem { margin-top: 3.4mm; display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.tk-yontem > div { padding: 3.2mm 3.8mm; border-radius: 2.8mm; background: var(--cream); border: 0.6pt solid var(--line); }
+.tk-yontem b { font-size: 9pt; font-weight: 800; letter-spacing: -0.02em; }
+.tk-yontem p { margin-top: 0.8mm; font-size: 7.4pt; color: var(--body-2); line-height: 1.42; }
+
+/* notlar */
+.tk-notlar { margin-top: 3mm; display: grid; gap: 1.6mm; }
+.tk-notlar p {
+  display: flex; gap: 1.8mm; align-items: flex-start; padding: 1.8mm 2.6mm; border-radius: 1.8mm;
+  background: var(--yellow-tint); color: var(--yellow-text); font-size: 7.2pt; line-height: 1.42; font-weight: 500;
+}
+.tk-notlar p b { color: inherit; }
+.tk-notlar svg { width: 3.2mm; height: 3.2mm; flex: none; margin-top: 0.2mm; }
+
+/* GEO soruları */
+.tk-aciklama { margin-top: 3mm; font-size: 7.4pt; color: var(--stone); }
+.tk-sorular { margin-top: 3mm; display: grid; grid-template-columns: 1fr 1fr; gap: 2.6mm 4mm; }
+.tk-soru { padding: 3mm 3.6mm 2.4mm; border-radius: 2.6mm; border: 0.6pt solid var(--line); background: #fff; }
+.tk-soru__bas { display: grid; grid-template-columns: 5.6mm 1fr; gap: 2mm; align-items: start; }
+.tk-soru__bas span { font-family: var(--mono); font-size: 7pt; font-weight: 600; color: var(--yellow-text); padding-top: 0.3mm; }
+.tk-soru__bas b { font-size: 8pt; font-weight: 700; line-height: 1.32; letter-spacing: -0.01em; }
+.tk-soru p { margin: 0.8mm 0 0 7.6mm; font-size: 6.6pt; color: var(--stone); line-height: 1.35; }
+.tk-soru i { display: block; margin: 0 0 0 7.6mm; height: 6.2mm; border-bottom: 0.6pt dotted #17140f59; }
+
+/* form alanları */
+.tk-alanlar { margin-top: 4mm; display: grid; grid-template-columns: 1fr 1fr; gap: 3.4mm 6mm; }
+.tk-alanlar > div i, .tk-alan i { display: block; height: 6.4mm; border-bottom: 0.6pt solid #17140f40; }
+
+/* seçenekler */
+.tk-secenekler { margin-top: 4mm; display: grid; grid-template-columns: 1.25fr 1fr; gap: 3.4mm; }
+.tk-secenek { padding: 3.8mm 4.2mm; border-radius: 2.8mm; border: 0.6pt solid var(--line); background: var(--cream); }
+.tk-secenek__bas { display: flex; align-items: center; gap: 2.2mm; }
+.tk-secenek__bas b { font-size: 9.4pt; font-weight: 800; letter-spacing: -0.02em; }
+.tk-secenek p { margin-top: 2mm; font-size: 7.4pt; color: var(--body-2); line-height: 1.45; }
+.tk-alan { margin-top: 3mm; }
+.tk-isaret { margin-top: 3mm; }
+.tk-isaret > div { margin-top: 1.4mm; display: flex; flex-wrap: wrap; gap: 1.4mm 4mm; }
+.tk-isaret label { display: inline-flex; align-items: center; gap: 1.6mm; font-size: 7.6pt; color: var(--body); }
+
+/* özet tablosu */
+.tk-ozet { margin-top: 3.4mm; border: 0.6pt solid var(--line); border-radius: 2.8mm; overflow: hidden; }
+.tk-ozet__satir {
+  display: grid; grid-template-columns: 9mm 1.3fr 1fr 1fr 11mm; gap: 3mm; align-items: center;
+  padding: 2.4mm 3.6mm; border-top: 0.6pt solid var(--line); font-size: 7.6pt; color: var(--body);
+}
+.tk-ozet__satir:first-child { border-top: 0; }
+.tk-ozet__satir b { font-size: 8pt; }
+.tk-ozet__satir .tk-kutu { justify-self: center; width: 4mm; height: 4mm; }
+.tk-ozet__bas { background: var(--cream); padding-top: 1.8mm; padding-bottom: 1.8mm; }
+.tk-ozet__bas > div { font-family: var(--mono); font-size: 5.6pt; letter-spacing: 0.14em; text-transform: uppercase; color: var(--stone); }
+.tk-ozet__bas > div:last-child { text-align: center; }
+
+/* GEO soruları sayfada kalan alanı cevap boşluğu olarak kullanır */
+.tk--sorular { flex: 1 0 auto; display: flex; flex-direction: column; }
+.tk--sorular .tk-sorular { flex: 1; grid-auto-rows: 1fr; }
+.tk-soru { display: flex; flex-direction: column; }
+.tk-soru i:first-of-type { margin-top: auto; }
+
+/* teslim sonrası adımlar */
+.tk-sonra { padding: 6mm 6.4mm; border-radius: 3.6mm; background: var(--ink); color: var(--on-dark); break-inside: avoid; }
+.tk-sonra__bas { display: flex; align-items: baseline; justify-content: space-between; gap: 6mm; }
+.tk-sonra__bas b { font-size: 13pt; font-weight: 800; letter-spacing: -0.035em; color: #fffaf0; }
+.tk-sonra__bas .mono-etiket { color: var(--on-dark-faint); }
+.tk-sonra__izgara { margin-top: 4.4mm; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; }
+.tk-sonra__izgara > div { padding: 4mm; border-radius: 2.8mm; background: #f5f0e60d; border: 0.6pt solid var(--line-dark); }
+.tk-sonra__izgara i { font-style: normal; font-family: var(--mono); font-size: 6.6pt; font-weight: 600; letter-spacing: 0.14em; color: var(--yellow); text-transform: uppercase; }
+.tk-sonra__izgara strong { display: block; margin-top: 1.4mm; font-size: 9.6pt; font-weight: 800; letter-spacing: -0.02em; color: #fffaf0; }
+.tk-sonra__izgara p { margin-top: 1mm; font-size: 7.2pt; color: var(--on-dark-muted); line-height: 1.42; }

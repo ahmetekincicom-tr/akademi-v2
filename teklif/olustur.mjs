@@ -235,8 +235,8 @@ function parcalar() {
     </footer>`;
   const ust = (v, sag) => `
     <header class="ust">
-      <div class="ust__sol"><span class="ust__nokta"></span><b lang="${e(v.musteri.dil || "tr")}">${e(v.musteri.firma)}</b> · Hizmet teklifi</div>
-      <div>${e(v.teklifNo)} · ${sag}</div>
+      <div class="ust__sol"><span class="ust__nokta"></span><b lang="${e(v.musteri.dil || "tr")}">${e(v.musteri.firma)}</b> · ${e(v.belgeTuru || "Hizmet teklifi")}</div>
+      <div>${e(v.belgeNo || v.teklifNo)} · ${sag}</div>
     </header>`;
   return { logo, alt, ust, isaretVB, isaretIc };
 }
@@ -567,7 +567,7 @@ function referansSayfasi(v, P) {
   </section>`;
 }
 
-function iletisimSayfasi(v, P) {
+function iletisimSayfasi(v, P, no = "04") {
   const c = v.iletisim;
   const rakam = (t) => t.replace(/\D/g, "").replace(/^0/, "");
   return `
@@ -577,10 +577,10 @@ function iletisimSayfasi(v, P) {
     <div class="govde govde--ritim">
       <div class="bolum-bas">
         <div>
-          <div class="kicker">04 · İletişim</div>
+          <div class="kicker">${no} · İletişim</div>
           <h2 class="h2" style="color:#fffaf0">Birlikte <span class="vurgu">başlayalım</span>.</h2>
         </div>
-        <p class="lede">Sorularınız için bana doğrudan ulaşabilirsiniz. Teklifle ilgili her konuşmayı ben yürütürüm; aracı yok.</p>
+        <p class="lede">${e(v.iletisimMetni || "Sorularınız için bana doğrudan ulaşabilirsiniz. Teklifle ilgili her konuşmayı ben yürütürüm; aracı yok.")}</p>
       </div>
 
       <div class="kanal-izgara">
@@ -632,36 +632,42 @@ const SAYFALA = `
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () { requestAnimationFrame(sayfala); });
 })();`;
 
-function html(v) {
-  const P = parcalar();
+function fontCss() {
   const font = (ad, dosya, aralik, agirlik) =>
     `@font-face{font-family:"${ad}";src:url(${veriUrl(V("fontlar", dosya))}) format("woff2");font-weight:${agirlik};font-style:normal;unicode-range:${aralik};}`;
   const LATIN = "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD";
   const LATIN_EXT = "U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF";
-  const fontlar = [
+  return [
     font("Jakarta", "jakarta-latin.woff2", LATIN, "200 800"),
     font("Jakarta", "jakarta-latin-ext.woff2", LATIN_EXT, "200 800"),
     font("JBMono", "mono-latin.woff2", LATIN, "100 800"),
     font("JBMono", "mono-latin-ext.woff2", LATIN_EXT, "100 800"),
   ].join("\n");
+}
 
+/** Ortak belge iskeleti: yazı tipleri, stil, sayfalar ve sayfalama betiği. */
+function belge(baslik, sayfalar, ekCss = "") {
   return `<!doctype html>
 <html lang="tr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Teklif · ${e(v.musteri.firma)} · ${e(v.teklifNo)}</title>
-<style>${fontlar}\n${oku(join(KOK, "stil.css"))}</style>
+<title>${e(baslik)}</title>
+<style>${fontCss()}\n${oku(join(KOK, "stil.css"))}\n${ekCss}</style>
 </head>
 <body>
-${kapak(v, P)}
-${hizmetSayfasi(v, P)}
-${yatirimSayfasi(v, P)}
-${referansSayfasi(v, P)}
-${iletisimSayfasi(v, P)}
+${sayfalar}
 <script>${SAYFALA}</script>
 </body>
 </html>`;
+}
+
+function html(v) {
+  const P = parcalar();
+  return belge(
+    `Teklif · ${v.musteri.firma} · ${v.teklifNo}`,
+    [kapak(v, P), hizmetSayfasi(v, P), yatirimSayfasi(v, P), referansSayfasi(v, P), iletisimSayfasi(v, P)].join("\n")
+  );
 }
 
 // ───────── çalıştır ─────────
@@ -671,6 +677,31 @@ const slug = (s) =>
     .replace(/[çğıöşü]/g, (c) => ({ ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u" })[c])
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+
+/** HTML'i Chromium'da açar, sayfalama bitince PDF (ve istenirse PNG önizleme) basar. */
+async function bas(htmlYol, pdfYol, png) {
+  const require = createRequire(import.meta.url);
+  const { chromium } = require("playwright");
+  const tarayici = await chromium.launch();
+  const sayfa = await tarayici.newPage({ viewport: { width: 900, height: 1200 }, deviceScaleFactor: 2 });
+  await sayfa.goto("file://" + htmlYol);
+  await sayfa.waitForFunction(() => window.__hazir === true, null, { timeout: 15000 });
+  await sayfa.emulateMedia({ media: "print" });
+  await sayfa.pdf({ path: pdfYol, preferCSSPageSize: true, printBackground: true });
+
+  if (png) {
+    await sayfa.emulateMedia({ media: "screen" });
+    const klasor = pdfYol.replace(/\.pdf$/, "-onizleme");
+    rmSync(klasor, { recursive: true, force: true });
+    mkdirSync(klasor, { recursive: true });
+    const sayfalar = await sayfa.$$(".sayfa");
+    for (let i = 0; i < sayfalar.length; i++) await sayfalar[i].screenshot({ path: join(klasor, `sayfa-${iki(i + 1)}.png`) });
+    console.log("Önizleme:", klasor);
+  }
+  const n = await sayfa.$$eval(".sayfa", (s) => s.length);
+  await tarayici.close();
+  console.log(`PDF hazır (${n} sayfa):`, pdfYol);
+}
 
 async function main() {
   const arg = process.argv.slice(2);
@@ -686,31 +717,18 @@ async function main() {
   const htmlYol = join(cikti, ad + ".html");
   writeFileSync(htmlYol, html(v));
 
-  const require = createRequire(import.meta.url);
-  const { chromium } = require("playwright");
-  const tarayici = await chromium.launch();
-  const sayfa = await tarayici.newPage({ viewport: { width: 900, height: 1200 }, deviceScaleFactor: 2 });
-  await sayfa.goto("file://" + htmlYol);
-  await sayfa.waitForFunction(() => window.__hazir === true, null, { timeout: 15000 });
-  await sayfa.emulateMedia({ media: "print" });
-  await sayfa.pdf({ path: join(cikti, ad + ".pdf"), preferCSSPageSize: true, printBackground: true });
-
-  if (arg.includes("--png")) {
-    await sayfa.emulateMedia({ media: "screen" });
-    const klasor = join(cikti, ad + "-onizleme");
-    rmSync(klasor, { recursive: true, force: true });
-    mkdirSync(klasor, { recursive: true });
-    const sayfalar = await sayfa.$$(".sayfa");
-    for (let i = 0; i < sayfalar.length; i++) await sayfalar[i].screenshot({ path: join(klasor, `sayfa-${iki(i + 1)}.png`) });
-    console.log("Önizleme:", klasor);
-  }
-  const n = await sayfa.$$eval(".sayfa", (s) => s.length);
-  await tarayici.close();
-  console.log(`PDF hazır (${n} sayfa):`, join(cikti, ad + ".pdf"));
+  await bas(htmlYol, join(cikti, ad + ".pdf"), arg.includes("--png"));
   console.log("HTML:", htmlYol, `(${basename(girdi)})`);
 }
 
-main().catch((h) => {
-  console.error(h.message || h);
-  process.exit(1);
-});
+export {
+  KOK, V, oku, json, veriUrl, e, vurgula, iki, tarihYaz, slug, IKON, I, izgara, parcalar, iletisimSayfasi, belge, bas,
+};
+
+// Yalnız doğrudan çalıştırılınca üret; başka betik içe aktarınca değil.
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((h) => {
+    console.error(h.message || h);
+    process.exit(1);
+  });
+}

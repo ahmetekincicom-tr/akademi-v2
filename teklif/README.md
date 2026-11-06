@@ -73,3 +73,21 @@ Reklam bütçesi belli değilse tek bant yerine 3 senaryo gösterilebilir (`rekl
 Günlük karşılık (tutar / 30) otomatik hesaplanır; `vurgu: true` olan kart koyu ve "Önerilen" etiketli çıkar.
 
 Teslim süresi kartı, `teslimTakvimi` olan ilk hizmetten (web sitesi, e-ticaret) gelir; yoksa "onaydan sonra başlangıç" kartı çıkar.
+
+## Başlangıç talep listesi
+
+Çalışmaya başlanan müşteriden istenen erişim ve bilgileri (Meta yetkisi, görsel/video, GEO soruları, web sitesi erişimi, WhatsApp numarası) aynı tasarımda bir PDF'e döker.
+
+```bash
+node teklif/talep.mjs teklif/talepler/<musteri>.json
+```
+
+Sayfalar: kapak (taleplerin kontrol listesi), talep kartları (sığmazsa otomatik bölünür), "Teslim ettiğinizde ne olur?" adımları, iletişim.
+
+| Dosya | İçerik |
+| --- | --- |
+| `talep-katalogu.json` | Standart talepler: `meta-yetki` (adım adım kılavuz), `medya`, `geo-sorular`, `web-admin`, `whatsapp`. `{eposta}` yerine `ayarlar.json`'daki adres gelir |
+| `talepler/*.json` | Müşteri, `hitap`, `giris`, `talepler` (`kod` + değiştirilecek alanlar), `sonrakiAdimlar` |
+| `talep.css` | Talep listesine özel stiller |
+
+Katalogdaki her alan müşteri dosyasında aynı adla yazılarak değiştirilebilir (ör. sektöre özel `maddeler` ya da GEO `sorular`). Metinlerde `**kalın**` desteklenir.

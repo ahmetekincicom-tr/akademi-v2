@@ -1,0 +1,97 @@
+{
+  "_aciklama": "Başlangıç talep listesi: Oflazoğlu Network (Metin Bey). Teklif AE-2026-1032.",
+  "teklifNo": "AE-2026-1032",
+  "tarih": "2026-11-06",
+  "musteri": {
+    "firma": "Oflazoğlu Network",
+    "tamUnvan": "Metin Bey · Kıbrıs gayrimenkul yatırımı"
+  },
+  "hitap": "Metin Bey merhaba,",
+  "giris": "Birlikte çalışmaya başladığımız için teşekkür ederim. Kampanyaları yayına alabilmek için aşağıdaki beş başlıkta bilgi ve erişime ihtiyacım var. Hepsi tek seferliktir; her biri tamamlandığında size haber veririm.",
+  "talepler": [
+    {
+      "kod": "meta-yetki"
+    },
+    {
+      "kod": "medya",
+      "maddeler": [
+        "Proje fotoğrafları (dış cephe, iç mekân, manzara)",
+        "Videolar (tercihen dikey 9:16) ve drone çekimleri",
+        "3D render ve kat planları",
+        "Logo (vektör ya da şeffaf PNG)",
+        "Broşür, fiyat listesi ve ödeme planı",
+        "Teslim edilmiş projelerden kareler ve müşteri yorumları"
+      ]
+    },
+    {
+      "kod": "geo-sorular",
+      "baslik": "GEO: Türkiye ve KKTC'de hangi sorularda görünmek istiyorsunuz?",
+      "etiket": "YAPAY ZEKÂ GÖRÜNÜRLÜĞÜ · TR – KKTC",
+      "sorular": [
+        {
+          "soru": "Yapay zekâya sorulduğunda adınızın geçmesini istediğiniz 5–10 soru nedir?",
+          "ipucu": "Ör. \"Kıbrıs'ta yatırım için en iyi bölge hangisi?\", \"Kuzey Kıbrıs'ta ev almak güvenli mi?\""
+        },
+        {
+          "soru": "Öncelikli bölgeler ve projeler hangileri?",
+          "ipucu": "Girne, İskele, Gazimağusa, Lefkoşa; proje adları."
+        },
+        {
+          "soru": "Hedef yatırımcınız kim?",
+          "ipucu": "Şehir / ülke, bütçe aralığı, yatırım mı oturum mu?"
+        },
+        {
+          "soru": "Rakip olarak gördüğünüz firmalar hangileri?",
+          "ipucu": "Yapay zekâ yanıtlarında adı geçenler varsa onlar da."
+        },
+        {
+          "soru": "Sizi rakiplerinizden ayıran üç özellik nedir?",
+          "ipucu": "Deneyim, satılan konut, tapu ve oturum desteği, kira garantisi…"
+        },
+        {
+          "soru": "Yatırımcıların en sık sorduğu 5 soru ve kısa cevapları?",
+          "ipucu": "Tapu, vergi, oturum izni, ödeme planı, kira getirisi…"
+        },
+        {
+          "soru": "Hangi dillerde görünmek istiyorsunuz?",
+          "ipucu": "Türkçe, İngilizce, Rusça, Farsça, diğer."
+        },
+        {
+          "soru": "Sizden bahseden kaynaklar neler?",
+          "ipucu": "Basın haberleri, Google İşletme Profili, emlak portalları, YouTube."
+        },
+        {
+          "soru": "Resmî bilgileriniz: unvan, kuruluş yılı, ofis adresleri, lisanslar?",
+          "ipucu": "Türkiye ve KKTC ofisleri ayrı ayrı."
+        },
+        {
+          "soru": "Kullanılmaması gereken ifadeler ya da hassas konular var mı?",
+          "ipucu": "Getiri garantisi, yasal sınırlar vb."
+        }
+      ]
+    },
+    {
+      "kod": "web-admin"
+    },
+    {
+      "kod": "whatsapp"
+    }
+  ],
+  "sonrakiAdimlar": [
+    {
+      "sure": "1 iş günü",
+      "baslik": "Erişimleri kontrol ederiz",
+      "metin": "Meta daveti, web sitesi ve WhatsApp bilgilerini doğrular, eksik varsa size hemen bildiririz."
+    },
+    {
+      "sure": "7 iş günü",
+      "baslik": "Ölçüm altyapısını kurarız",
+      "metin": "Google ve Meta dönüşüm takibi kurulur; form, arama ve WhatsApp talepleri ölçülür hâle gelir."
+    },
+    {
+      "sure": "Ölçüm doğrulanınca",
+      "baslik": "Kampanyalar yayına girer",
+      "metin": "Görselleriniz ve GEO cevaplarınızla hazırlanan reklamlar ve içerik planı devreye alınır."
+    }
+  ]
+}
