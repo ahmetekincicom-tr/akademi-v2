@@ -22,6 +22,7 @@ export function TelefonAlani({
   hataId,
   gecersiz,
   yardimGizli = false,
+  istegeBagli = false,
 }: {
   ulkeKodu: string;
   numara: string;
@@ -32,6 +33,8 @@ export function TelefonAlani({
   gecersiz?: boolean;
   /** Yardım metni yalnız ekran okuyucuya (dar yerleşimlerde). */
   yardimGizli?: boolean;
+  /** Etikette "(isteğe bağlı)" göster. */
+  istegeBagli?: boolean;
 }) {
   const id = useId();
   const yardimId = `${id}-yardim`;
@@ -39,7 +42,7 @@ export function TelefonAlani({
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className={ETIKET}>
-        Telefon
+        Telefon{istegeBagli && <span className="font-normal text-[#a1a1aa]"> (isteğe bağlı)</span>}
       </label>
 
       {/* Odak halkası birleşik alanın tamamına: iki parça arasında kesilmesin. */}

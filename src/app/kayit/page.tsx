@@ -2,6 +2,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { KayitFormu } from "@/components/auth/KayitFormu";
 import type { Metadata } from "next";
 import { sayfaMeta } from "@/lib/seo";
+import { nativeIstekMi } from "@/lib/native-sunucu";
 
 // AuthShell sunucuda kalmalı: içindeki Logo async bir sunucu bileşeni ve
 // istemci paketine girdiğinde sayfa hidrate olamıyor.
@@ -16,10 +17,16 @@ export function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default function KayitPage() {
+export default async function KayitPage() {
+  /*
+    iOS uygulamasında telefon isteğe bağlı: App Store 5.1.1(v) uygulamanın
+    temel işlevi için gerekmeyen kişisel veriyi zorunlu tutmayı yasaklıyor
+    (inceleme bu gerekçeyle telefonu işaret etti). Sitede zorunlu kalıyor.
+  */
+  const telefonZorunlu = !(await nativeIstekMi());
   return (
     <AuthShell sekme="kayit">
-      <KayitFormu />
+      <KayitFormu telefonZorunlu={telefonZorunlu} />
     </AuthShell>
   );
 }
