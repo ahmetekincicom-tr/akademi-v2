@@ -8,7 +8,7 @@
     "tamUnvan": "Sanat galerisi · İncek, Ankara"
   },
   "konu": "Artfolio Art Gallery kurumsal web sitesi",
-  "kapakBaslik": "Galeriniz [dijitalde] de açık.",
+  "kapakBaslik": "[Web Site] Teklifi",
   "kapsamBaslik": "Eserleriniz için [dijital] bir galeri",
   "hizmetler": [
     {
@@ -148,5 +148,6 @@
         ]
       }
     ]
-  }
+  },
+  "belgeTuru": "Web site teklifi"
 }

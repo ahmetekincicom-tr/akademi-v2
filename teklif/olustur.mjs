@@ -269,7 +269,7 @@ function kapak(v, P) {
 
     <div class="kapak__ust">
       ${P.logo()}
-      <div class="kapak__no">Hizmet teklifi<br><b>No · ${e(v.teklifNo)}</b></div>
+      <div class="kapak__no">${e(v.belgeTuru || "Hizmet teklifi")}<br><b>No · ${e(v.teklifNo)}</b></div>
     </div>
 
     <div class="kapak__icerik">
