@@ -72,6 +72,15 @@ Reklam bütçesi belli değilse tek bant yerine 3 senaryo gösterilebilir (`rekl
 
 Günlük karşılık (tutar / 30) otomatik hesaplanır; `vurgu: true` olan kart koyu ve "Önerilen" etiketli çıkar.
 
+Web projesi tekliflerinde yaptığımız siteleri göstermek için `webReferanslari` eklenir; referanslardan önce "Web projelerimiz" sayfası çıkar ve bölüm numaraları kendiliğinden kayar. Ekran görüntüleri `varliklar/web/` altında (1200×750 webp); `gorsel` yoksa logolu koyu bir önizleme çizilir:
+
+```json
+"webReferanslari": { "projeler": [
+  { "ad": "Davetlim", "adres": "davetlim.com.tr", "gorsel": "davetlim.webp", "durum": "Yayında", "metin": "…", "etiketler": ["LCV", "QR davet"] },
+  { "ad": "TESK Projesi", "durum": "Devam ediyor", "devam": true, "bosMetin": "Geliştirme sürüyor" }
+] }
+```
+
 Teslim süresi kartı, `teslimTakvimi` olan ilk hizmetten (web sitesi, e-ticaret) gelir; yoksa "onaydan sonra başlangıç" kartı çıkar.
 
 ## Başlangıç talep listesi

@@ -514,7 +514,48 @@ function yatirimSayfasi(v, P) {
   </section>`;
 }
 
-function referansSayfasi(v, P) {
+/** İsteğe bağlı: yaptığımız web projeleri (tarayıcı çerçevesinde ekran görüntüsü). */
+function webReferansSayfasi(v, P, no) {
+  const w = v.webReferanslari;
+  const kart = (x) => {
+    const durum = x.durum
+      ? `<span class="wr-durum${x.devam ? " wr-durum--devam" : ""}"><i></i>${e(x.durum)}</span>`
+      : "";
+    const ekran = x.gorsel
+      ? `<img src="${veriUrl(V("web", x.gorsel))}" alt="${e(x.ad)} ana sayfası">`
+      : `<div class="wr-bos"><svg viewBox="${P.isaretVB}" aria-hidden="true">${P.isaretIc}</svg><b>${e(x.ad)}</b><span>${e(x.bosMetin || "Ekran görüntüsü yakında")}</span></div>`;
+    return `
+      <article class="wr">
+        <div class="wr__tarayici">
+          <div class="wr__bar"><i></i><i></i><i></i><span>${e(x.adres || x.ad.toLocaleLowerCase("tr-TR"))}</span></div>
+          <div class="wr__ekran">${ekran}</div>
+        </div>
+        <div class="wr__alt">
+          <div class="wr__bas"><b>${e(x.ad)}</b>${durum}</div>
+          <p>${e(x.metin || "")}</p>
+          ${x.etiketler?.length ? `<div class="wr__etiketler">${x.etiketler.map((t) => `<span class="cip">${e(t)}</span>`).join("")}</div>` : ""}
+        </div>
+      </article>`;
+  };
+  return `
+  <section class="sayfa">
+    ${izgara(false)}
+    ${P.ust(v, "Web projeleri")}
+    <div class="govde govde--ritim">
+      <div class="bolum-bas">
+        <div>
+          <div class="kicker">${no} · Web projelerimiz</div>
+          <h2 class="h2">${vurgula(w.baslik || "Tasarlayıp [geliştirdiğimiz] siteler.")}</h2>
+        </div>
+        ${w.metin ? `<p class="lede">${e(w.metin)}</p>` : "<div></div>"}
+      </div>
+      <div class="wr-izgara esnek">${w.projeler.map(kart).join("")}</div>
+    </div>
+    ${P.alt(v)}
+  </section>`;
+}
+
+function referansSayfasi(v, P, no = "03") {
   // Logolar optik olarak dengelenir: genişlik/yükseklik oranına göre aynı görsel ağırlığa
   // yakın bir boyut hesaplanır (geniş logolar daha alçak, kare logolar daha yüksek).
   // 3 sütun; son satırda 2 logo kalırsa ortalanır.
@@ -546,7 +587,7 @@ function referansSayfasi(v, P) {
     <div class="govde govde--ritim">
       <div class="bolum-bas bolum-bas--tek">
         <div>
-          <div class="kicker">03 · Referanslar</div>
+          <div class="kicker">${no} · Referanslar</div>
           <h2 class="h2">Eğitim ve hizmetlerimizi <span class="vurgu">tercih edenler</span>.</h2>
         </div>
       </div>
@@ -666,7 +707,14 @@ function html(v) {
   const P = parcalar();
   return belge(
     `Teklif · ${v.musteri.firma} · ${v.teklifNo}`,
-    [kapak(v, P), hizmetSayfasi(v, P), yatirimSayfasi(v, P), referansSayfasi(v, P), iletisimSayfasi(v, P)].join("\n")
+    (() => {
+      // 01 hizmet, 02 ücretlendirme; sonrakiler web projeleri varsa birer kayar.
+      let n = 3;
+      const s = [kapak(v, P), hizmetSayfasi(v, P), yatirimSayfasi(v, P)];
+      if (v.webReferanslari?.projeler?.length) s.push(webReferansSayfasi(v, P, iki(n++)));
+      s.push(referansSayfasi(v, P, iki(n++)), iletisimSayfasi(v, P, iki(n++)));
+      return s.join("\n");
+    })()
   );
 }
 

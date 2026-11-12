@@ -1,0 +1,152 @@
+{
+  "teklifNo": "AE-2026-1112",
+  "tarih": "2026-11-12",
+  "gecerlilikGun": 15,
+  "musteri": {
+    "firma": "Artfolio Art Gallery",
+    "dil": "en",
+    "tamUnvan": "Sanat galerisi · İncek, Ankara"
+  },
+  "konu": "Artfolio Art Gallery kurumsal web sitesi",
+  "kapakBaslik": "Galeriniz [dijitalde] de açık.",
+  "kapsamBaslik": "Eserleriniz için [dijital] bir galeri",
+  "hizmetler": [
+    {
+      "kod": "web-sitesi",
+      "paket": "web",
+      "ad": "Galeri Vitrini ve Tasarım",
+      "etiket": "TASARIM · MOBİL · TR / EN",
+      "ozet": "Eserleri ön plana çıkaran, sade ve hızlı; Artfolio'nun kimliğine özel tasarlanan galeri sitesi.",
+      "sure": "Ortalama 21 iş günü",
+      "kapsam": [
+        "Galeriye özel arayüz tasarımı (masaüstü + mobil)",
+        "Ana sayfa, galeri hakkında, ziyaret bilgileri ve iletişim",
+        "Türkçe ve İngilizce dil desteği",
+        "Yüksek çözünürlüklü eser görselleri için hızlı yükleme ve yakınlaştırma",
+        "İncek konumu için harita, yol tarifi ve WhatsApp butonu"
+      ],
+      "teslimTakvimi": {
+        "baslik": "Web sitesi ortalama teslim süresi",
+        "toplam": "21 iş günü",
+        "altyazi": "≈ 4 hafta",
+        "asamalar": [
+          {
+            "ad": "Keşif & içerik planı",
+            "gun": 3
+          },
+          {
+            "ad": "Arayüz tasarımı",
+            "gun": 6
+          },
+          {
+            "ad": "Geliştirme & eser yükleme",
+            "gun": 8
+          },
+          {
+            "ad": "Test, SEO & yayın",
+            "gun": 4
+          }
+        ],
+        "not": "Süre; logo, galeri ve sanatçı metinleri ile eser görsellerinin iletilmesiyle başlar. Her aşama sonunda onayınız alınır."
+      }
+    },
+    {
+      "kod": "web-sitesi",
+      "paket": "web",
+      "ad": "Sergi, Sanatçı ve Eser Yönetimi",
+      "etiket": "SERGİ · SANATÇI · ESER KATALOĞU",
+      "ozet": "Sergileri, sanatçıları ve eserleri yönetim panelinden kendiniz ekleyip güncellediğiniz katalog yapısı.",
+      "sure": "",
+      "teslimTakvimi": null,
+      "kapsam": [
+        "Güncel, yaklaşan ve geçmiş sergiler (sergi arşivi)",
+        "Sanatçı sayfaları: biyografi, eserler ve sergiler",
+        "Eser sayfası: teknik, ölçü, yıl ve durum (satılık / satıldı)",
+        "Eserler için \"Fiyat bilgisi iste\" formu (e-posta / WhatsApp)",
+        "Açılış ve etkinlik duyuruları, katılım formu",
+        "E-bülten kayıt formu"
+      ]
+    },
+    {
+      "kod": "web-sitesi",
+      "paket": "web",
+      "ad": "SEO, Ölçüm ve Yayın",
+      "etiket": "SEO · GA4 · META PIXEL",
+      "ozet": "Google'da ve yapay zekâ yanıtlarında bulunabilen, reklamlarla birlikte ölçülebilen altyapı.",
+      "sure": "",
+      "teslimTakvimi": null,
+      "kapsam": [
+        "Teknik SEO: hız, meta etiketler, site haritası, Search Console",
+        "Sergi ve eser sayfaları için yapılandırılmış veri (schema)",
+        "Google Analytics 4 ve Meta Pixel kurulumu",
+        "SSL, KVKK ve çerez metinleri",
+        "Yönetim paneli eğitimi ve yayın sonrası 30 gün destek"
+      ]
+    }
+  ],
+  "paketler": {
+    "web": {
+      "ad": "Artfolio Art Gallery Web Sitesi",
+      "etiket": "Tasarım + Sergi / sanatçı / eser yönetimi + SEO ve ölçüm",
+      "fiyat": 20000,
+      "periyot": "tek"
+    }
+  },
+  "sartlar": [
+    "Fiyatlara KDV dahil değildir; KDV ayrıca gösterilmiştir.",
+    "Alan adı ve sunucu (hosting) giderleri hizmet bedeline dahil değildir.",
+    "Bu teklif, son geçerlilik tarihine kadar geçerlidir."
+  ],
+  "webReferanslari": {
+    "baslik": "Tasarlayıp [geliştirdiğimiz] siteler.",
+    "metin": "Her proje markaya özel tasarlanır, hızlı açılır ve yönetim paneliyle teslim edilir.",
+    "projeler": [
+      {
+        "ad": "Ahmet Ekinci Akademi",
+        "adres": "ahmetekinciakademi.com",
+        "gorsel": "akademi.webp",
+        "durum": "Yayında",
+        "metin": "Birebir dijital pazarlama eğitimleri için eğitim ve üyelik platformu.",
+        "etiketler": [
+          "Üye girişi",
+          "Online ödeme",
+          "Blog"
+        ]
+      },
+      {
+        "ad": "Davetlim",
+        "adres": "davetlim.com.tr",
+        "gorsel": "davetlim.webp",
+        "durum": "Yayında",
+        "metin": "Yapay zekâ destekli, animasyonlu dijital düğün davetiyesi platformu.",
+        "etiketler": [
+          "Şablonlar",
+          "LCV",
+          "QR davet"
+        ]
+      },
+      {
+        "ad": "Reklyze",
+        "adres": "reklyze.com",
+        "metin": "Reklam performansı analiz platformu.",
+        "etiketler": [
+          "Analiz paneli",
+          "Raporlama"
+        ],
+        "bosMetin": "Reklam analiz platformu"
+      },
+      {
+        "ad": "TESK Projesi",
+        "adres": "Geliştirme aşamasında",
+        "durum": "Devam ediyor",
+        "devam": true,
+        "bosMetin": "Geliştirme sürüyor",
+        "metin": "Kurumsal web projesi; tasarım ve geliştirme çalışmaları sürüyor.",
+        "etiketler": [
+          "Kurumsal site",
+          "Yönetim paneli"
+        ]
+      }
+    ]
+  }
+}
