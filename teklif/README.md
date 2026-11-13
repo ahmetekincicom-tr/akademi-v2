@@ -36,6 +36,8 @@ PDF ve HTML `teklif/cikti/` altına yazılır (depoya girmez). `--png` eklenirse
 
 ### Hizmet alanları
 
+`periyot` değerleri: `tek`, `aylik`, `yillik` (yıllık bedel "/ yıl" olarak ayrı toplanır). Toplam kutusu başlıkları `toplamBasliklari` ile değiştirilebilir (ör. `{ "tek": "Kurulum bedeli" }`). Üst bilgi ve kapaktaki belge türü için `belgeTuru` (ör. "CRM teklifi").
+
 Teklif dosyasındaki bir hizmet, katalogdaki her alanı ezebilir:
 
 ```json
@@ -72,7 +74,7 @@ Reklam bütçesi belli değilse tek bant yerine 3 senaryo gösterilebilir (`rekl
 
 Günlük karşılık (tutar / 30) otomatik hesaplanır; `vurgu: true` olan kart koyu ve "Önerilen" etiketli çıkar.
 
-Web projesi tekliflerinde yaptığımız siteleri göstermek için `webReferanslari` eklenir; referanslardan önce "Web projelerimiz" sayfası çıkar ve bölüm numaraları kendiliğinden kayar. Ekran görüntüleri `varliklar/web/` altında (1200×750 webp); `gorsel` yoksa logolu koyu bir önizleme çizilir:
+Web projesi tekliflerinde yaptığımız siteleri (ya da `kicker` / `ustEtiket` değiştirilerek önerilen sistemin ekranlarını) göstermek için `webReferanslari` eklenir; referanslardan önce "Web projelerimiz" sayfası çıkar ve bölüm numaraları kendiliğinden kayar. Ekran görüntüleri `varliklar/web/` altında (1200×750 webp); `gorsel` yoksa logolu koyu bir önizleme çizilir:
 
 ```json
 "webReferanslari": { "projeler": [

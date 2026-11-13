@@ -39,6 +39,12 @@
       "baslik": "Aylık hizmetler",
       "metin": "Her ayın ilk haftasında, o ayın hizmet bedeli olarak faturalanır.",
       "kosul": "aylik"
+    },
+    {
+      "ikon": "dongu",
+      "baslik": "Yıllık hizmetler",
+      "metin": "Yıllık bedel, her hizmet yılının başında faturalanır.",
+      "kosul": "yillik"
     }
   ],
   "sartlar": [

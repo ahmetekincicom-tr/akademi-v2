@@ -89,7 +89,13 @@ const GRUP = {
   web: { renk: "#17140f", yazi: "#f2c230" },
 };
 const CUBUK_RENK = ["#f2c230", "#4c7bea", "#e2685a", "#17140f", "#6b6355", "#cfa327"];
-const periyotCip = (p) => `<span class="cip">${p === "aylik" ? IKON.dongu + "Aylık" : IKON.tek + "Tek seferlik"}</span>`;
+const PERIYOT = {
+  tek: { cip: "Tek seferlik", ek: "", baslik: "Tek seferlik hizmet bedeli" },
+  aylik: { cip: "Aylık", ek: " <small>/ ay</small>", baslik: "Aylık hizmet bedeli" },
+  yillik: { cip: "Yıllık", ek: " <small>/ yıl</small>", baslik: "Yıllık hizmet bedeli" },
+};
+const periyotCip = (p) => `<span class="cip">${p === "tek" ? IKON.tek : IKON.dongu}${PERIYOT[p]?.cip || p}</span>`;
+const periyotEk = (p) => PERIYOT[p]?.ek || "";
 
 // ───────── veri ─────────
 function veriHazirla(teklifYolu) {
@@ -158,7 +164,7 @@ function veriHazirla(teklifYolu) {
   // Toplamlar: tek seferlik ve aylık ayrı. Bedeli 0 olan (pakete dahil) kalemler ayrıca listelenir.
   const ind = teklif.indirim;
   v.dahiller = v.satirlar.filter((s) => s.dahil);
-  v.gruplar = ["tek", "aylik"]
+  v.gruplar = ["tek", "aylik", "yillik"]
     .map((p) => {
       const kalemler = v.satirlar.filter((s) => s.periyot === p && !s.dahil);
       if (!kalemler.length) return null;
@@ -174,7 +180,7 @@ function veriHazirla(teklifYolu) {
       const kdv = (matrah * v.kdvOrani) / 100;
       return {
         p,
-        baslik: p === "tek" ? "Tek seferlik hizmet bedeli" : "Aylık hizmet bedeli",
+        baslik: (v.toplamBasliklari || {})[p] || PERIYOT[p].baslik,
         ara,
         indirim,
         indirimler,
@@ -358,8 +364,8 @@ function yatirimSayfasi(v, P) {
           s.dahil
             ? `<span class="cip cip--koyu">${IKON.hediye}Pakete dahil</span>`
             : s.indirim
-              ? `<span class="tutar-eski">${para(s.tutar)}</span><span class="tutar">${para(s.tutar - s.indirim)}${s.periyot === "aylik" ? " <small>/ ay</small>" : ""}</span>`
-              : `<span class="tutar">${para(s.tutar)}${s.periyot === "aylik" ? " <small>/ ay</small>" : ""}</span>`
+              ? `<span class="tutar-eski">${para(s.tutar)}</span><span class="tutar">${para(s.tutar - s.indirim)}${periyotEk(s.periyot)}</span>`
+              : `<span class="tutar">${para(s.tutar)}${periyotEk(s.periyot)}</span>`
         }</div>
       </div>`;
     })
@@ -380,7 +386,7 @@ function yatirimSayfasi(v, P) {
       <div class="toplam__satir"><span>Ara toplam</span><span class="tutar">${para(g.ara)}</span></div>
       ${g.indirimler.map((x) => `<div class="toplam__satir toplam__satir--indirim"><span>${e(x.etiket)}</span><span class="tutar">−${para(x.tutar)}</span></div>`).join("")}
       <div class="toplam__satir"><span>KDV (%${v.kdvOrani})</span><span class="tutar">${para(g.kdv)}</span></div>
-      <div class="toplam__genel"><span>Toplam</span><strong>${para(g.toplam)}${g.p === "aylik" ? " <small>/ ay</small>" : ""}</strong></div>
+      <div class="toplam__genel"><span>Toplam</span><strong>${para(g.toplam)}${periyotEk(g.p)}</strong></div>
     </div>`
       )
       .join("") + dahilBlok;
@@ -540,11 +546,11 @@ function webReferansSayfasi(v, P, no) {
   return `
   <section class="sayfa">
     ${izgara(false)}
-    ${P.ust(v, "Web projeleri")}
+    ${P.ust(v, w.ustEtiket || "Web projeleri")}
     <div class="govde govde--ritim">
       <div class="bolum-bas">
         <div>
-          <div class="kicker">${no} · Web projelerimiz</div>
+          <div class="kicker">${no} · ${e(w.kicker || "Web projelerimiz")}</div>
           <h2 class="h2">${vurgula(w.baslik || "Tasarlayıp [geliştirdiğimiz] siteler.")}</h2>
         </div>
         ${w.metin ? `<p class="lede">${e(w.metin)}</p>` : "<div></div>"}

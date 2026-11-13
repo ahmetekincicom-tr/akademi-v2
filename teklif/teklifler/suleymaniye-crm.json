@@ -1,0 +1,148 @@
+{
+  "teklifNo": "AE-2026-1113",
+  "tarih": "2026-11-13",
+  "gecerlilikGun": 15,
+  "belgeTuru": "CRM teklifi",
+  "musteri": {
+    "firma": "Süleymaniye Okulları",
+    "tamUnvan": "9 şube · Ankara"
+  },
+  "konu": "9 şubeli okul kayıt yönetimi CRM'i: WhatsApp gelen kutusu, Meta ve Google entegrasyonu, şube performans takibi",
+  "kapakBaslik": "[Okul CRM] Teklifi",
+  "kapsamBaslik": "Veli mesajından [kesin kayda] tek sistem",
+  "hizmetler": [
+    {
+      "ad": "Okul CRM Platformu ve Yönetim Paneli",
+      "etiket": "9 ŞUBE · TEK YÖNETİM PANELİ",
+      "grup": "web",
+      "paket": "kurulum",
+      "ozet": "Dokuz şubenin kayıt sürecini tek platformda toplayan; genel yönetimin tüm şubeleri, şubelerin yalnız kendi verisini gördüğü yapı.",
+      "sure": "Ortalama 40 iş günü",
+      "kapsam": [
+        "Tüm şubeleri tek ekrandan izleyen genel yönetim paneli",
+        "Her şube için ayrı çalışma alanı, panel ve kullanıcılar",
+        "Rol bazlı yetki: kurum yöneticisi, şube müdürü, danışman, izleyici",
+        "Şube kullanıcıları yalnız kendi şubelerinin verisini görür",
+        "Veli / aday kartı: öğrenci bilgisi, kademe, sınıf, görüşme geçmişi, notlar",
+        "Kayıt hunisi: yeni başvuru → iletişim → nitelikli aday → okula davet → ön kayıt → kesin kayıt"
+      ],
+      "teslimTakvimi": {
+        "baslik": "Kurulum ortalama teslim süresi",
+        "toplam": "40 iş günü",
+        "altyazi": "≈ 8 hafta",
+        "asamalar": [
+          { "ad": "Analiz & WABA hazırlığı", "gun": 5 },
+          { "ad": "Altyapı, yetkiler & veri", "gun": 10 },
+          { "ad": "WhatsApp, Meta & Google", "gun": 12 },
+          { "ad": "Ovacık pilotu", "gun": 5 },
+          { "ad": "8 şube & eğitim", "gun": 8 }
+        ],
+        "not": "Süre; şube WhatsApp numaralarının ve Meta / Google hesap erişimlerinin iletilmesiyle başlar. WhatsApp Business onayları Meta'nın doğrulama sürelerine bağlıdır."
+      }
+    },
+    {
+      "ad": "WhatsApp Gelen Kutusu ve Veli Mesajlaşma",
+      "etiket": "WHATSAPP BUSINESS API · 9 ŞUBE NUMARASI",
+      "grup": "kurulum",
+      "paket": "kurulum",
+      "ozet": "Şubelerin WhatsApp hatları tek gelen kutusunda; veli mesajları kaybolmaz, gerektiğinde velilere sistem üzerinden mesaj gönderilir.",
+      "kapsam": [
+        "9 şube numarasının WhatsApp Business API'ye bağlanması (uygunsa mevcut uygulama korunarak)",
+        "Tüm konuşmalar şube bazında tek gelen kutusunda; danışman ataması",
+        "Onaylı şablonlarla velilere bireysel ve toplu mesaj: duyuru, randevu, kayıt dönemi",
+        "İlk yanıt süresi ve cevapsız görüşme takibi",
+        "Personel ve mevcut veli numaralarını dışarıda tutan hariç numara listesi"
+      ]
+    },
+    {
+      "ad": "Meta ve Google Entegrasyonu",
+      "etiket": "LEAD ADS · CONVERSIONS API · GOOGLE ADS",
+      "grup": "uretim",
+      "paket": "kurulum",
+      "ozet": "Reklamdan gelen her veli kaynağıyla birlikte izlenir; ön kayıt ve kesin kayıtlar Meta ve Google'a geri bildirilir.",
+      "kapsam": [
+        "Meta form (Lead Ads) ve web formu başvurularının otomatik olarak CRM'e düşmesi",
+        "Her başvurunun kaynağı: kampanya, reklam seti, reklam (UTM, fbclid, gclid)",
+        "Ön kayıt ve kesin kayıtların Meta'ya Conversions API ile geri bildirilmesi",
+        "Aynı aşamaların Google Ads'e çevrimdışı dönüşüm olarak aktarılması",
+        "Reklamların, kayıt yaptıran veli profiline göre optimize edilebilmesi"
+      ]
+    },
+    {
+      "ad": "Raporlama ve Şube Performansı",
+      "etiket": "ŞUBE KARŞILAŞTIRMA · KAYIT HUNİSİ",
+      "grup": "web",
+      "paket": "kurulum",
+      "ozet": "Dokuz şubenin performansı ayrı ayrı ve yan yana; hangi kanalın ve reklamın kayıt getirdiği net görünür.",
+      "kapsam": [
+        "9 şubenin başvuru, görüşme, ön kayıt ve kesin kayıt karşılaştırması",
+        "Kanal dağılımı: WhatsApp, Meta form, web formu, telefon",
+        "Reklam bazında başvuru ve kayıt başı maliyet",
+        "Danışman performansı ve yanıt süreleri",
+        "Raporların dışa aktarılması (CSV / Excel)"
+      ]
+    },
+    {
+      "ad": "Kurulum, Eğitim ve Geçiş",
+      "etiket": "PİLOT · 9 ŞUBEYE YAYGINLAŞTIRMA",
+      "grup": "kurulum",
+      "paket": "kurulum",
+      "ozet": "Önce Ovacık şubesiyle pilot, ardından kontrollü olarak sekiz şubeye geçiş.",
+      "kapsam": [
+        "Ovacık şubesiyle pilot kurulum, ardından 8 şubeye yaygınlaştırma",
+        "Kullanıcı hesapları ve yetkilerin oluşturulması",
+        "Kurum yönetimi ve şube ekipleri için uygulamalı eğitim",
+        "KVKK aydınlatma metni ve veri erişim kuralları",
+        "Canlıya geçişten sonra 30 gün yoğun destek"
+      ]
+    },
+    {
+      "ad": "Yıllık Lisans, Barındırma ve Destek",
+      "etiket": "SUNUCU · YEDEKLEME · BAKIM · DESTEK",
+      "grup": "yonetim",
+      "periyot": "yillik",
+      "fiyat": 120000,
+      "fiyatNotu": "Sunucu, yedekleme, bakım ve destek · 9 şube",
+      "ozet": "Sistemin çalışır, güvenli ve güncel kalması için gereken altyapı ve destek; şube başına aylık ≈ ₺1.110.",
+      "kapsam": [
+        "Sunucu ve veritabanı altyapısı (barındırma bedeli dahil)",
+        "Günlük otomatik yedekleme ve güvenlik güncellemeleri",
+        "Meta ve Google API değişikliklerine uyum",
+        "Hata giderme ve teknik destek (iş günleri)",
+        "Yeni kullanıcı ve şube ekleme"
+      ]
+    }
+  ],
+  "paketler": {
+    "kurulum": {
+      "ad": "Okul CRM Kurulumu",
+      "etiket": "Platform + WhatsApp + Meta / Google + raporlama + eğitim",
+      "fiyat": 150000,
+      "periyot": "tek",
+      "grup": "web"
+    }
+  },
+  "toplamBasliklari": { "tek": "Kurulum bedeli", "yillik": "Yıllık lisans ve destek bedeli" },
+  "reklamButcesi": {
+    "baslik": "Tahmini WhatsApp mesaj ücretleri",
+    "tutar": "≈ ₺1.000 – ₺5.500 / ay",
+    "metin": "Velilerin başlattığı konuşmalara verilen yanıtlar her numara için aylık 1.000 mesaja kadar ücretsizdir. Toplu duyuru (pazarlama) mesajları Meta'ya doğrudan ödenir: ≈ $0,011 / mesaj; aylık 2.000–10.000 mesaj için tahmini tutardır."
+  },
+  "sartlar": [
+    "Fiyatlara KDV dahil değildir; KDV ayrıca gösterilmiştir.",
+    "WhatsApp mesaj ücretleri ve reklam bütçeleri hizmet bedeline dahil değildir; doğrudan Meta ve Google'a ödenir.",
+    "Bu teklif, son geçerlilik tarihine kadar geçerlidir."
+  ],
+  "webReferanslari": {
+    "kicker": "Sistemden ekranlar",
+    "ustEtiket": "Ekranlar",
+    "baslik": "Sistem [hazır]; şubelerinize uyarlanır.",
+    "metin": "Görüntüler örnek verilerle hazırlanmış prototipten alınmıştır. Kurulumda Süleymaniye Okulları'nın gerçek şube, kullanıcı ve verileriyle çalışır.",
+    "projeler": [
+      { "ad": "Genel bakış", "adres": "Yönetim paneli · tüm şubeler", "gorsel": "crm-dashboard.webp", "metin": "Tüm şubelerin başvuru, görüşme ve kayıt performansı; şube karşılaştırma tablosu.", "etiketler": ["9 şube", "Kayıt hunisi", "Kanal dağılımı"] },
+      { "ad": "Mesajlar", "adres": "WhatsApp gelen kutusu", "gorsel": "crm-mesajlar.webp", "metin": "Şube hatlarına gelen veli mesajları tek gelen kutusunda; danışman ataması ve veli kartı.", "etiketler": ["WhatsApp API", "Danışman ataması"] },
+      { "ad": "Kayıt hunisi", "adres": "Aday takibi", "gorsel": "crm-huni.webp", "metin": "Her aday, ilk mesajdan kesin kayda kadar aşama aşama izlenir.", "etiketler": ["Ön kayıt", "Kesin kayıt"] },
+      { "ad": "Reklam performansı", "adres": "Meta & Google", "gorsel": "crm-reklamlar.webp", "metin": "Kampanya ve reklam bazında başvuru, ön kayıt, kesin kayıt ve kayıt başı maliyet.", "etiketler": ["Conversions API", "Google Ads"] }
+    ]
+  }
+}
