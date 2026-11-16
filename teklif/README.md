@@ -83,6 +83,10 @@ Web projesi tekliflerinde yaptığımız siteleri (ya da `kicker` / `ustEtiket` 
 ] }
 ```
 
+Müşteri kazanım stratejisi sayfası (hizmet detaylarından sonra) için `strateji`: `baslik`, `metin`, `yolHaritasi` (3 dönem: `zaman`, `baslik`, `maddeler`), `taktikler` (6 kart: `baslik`, `metin`), `olcumler` (takip edilen rakamlar). Bölüm numaraları kendiliğinden kayar.
+
+Toplama girmeyen isteğe bağlı kalem (ör. ek çekim günü): `{ "ad": "Ek çekim günü", "kart": false, "opsiyon": true, "birim": "gün", "fiyat": 7500 }`. `kart: false` hizmet kartını gizler; satır fiyat tablosunda "İsteğe bağlı" olarak, toplam kutusunda ayrı görünür.
+
 Teslim süresi kartı, `teslimTakvimi` olan ilk hizmetten (web sitesi, e-ticaret) gelir; yoksa "onaydan sonra başlangıç" kartı çıkar.
 
 ## Başlangıç talep listesi

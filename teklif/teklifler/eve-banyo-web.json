@@ -1,0 +1,151 @@
+{
+  "teklifNo": "AE-2026-1117",
+  "tarih": "2026-11-16",
+  "gecerlilikGun": 15,
+  "belgeTuru": "Web site teklifi",
+  "musteri": {
+    "firma": "Eve Banyo",
+    "tamUnvan": "Banyo, duş ve kabin sistemleri · Ankara"
+  },
+  "konu": "Eve Banyo kurumsal web sitesi: ürünler, referans projeler ve kurumsal tanıtım",
+  "kapakBaslik": "[Web Site] Teklifi",
+  "kapsamBaslik": "Ürünlerinizi ve işinizi [anlatan] site",
+  "hizmetler": [
+    {
+      "kod": "web-sitesi",
+      "paket": "web",
+      "ad": "Kurumsal Vitrin ve Tasarım",
+      "etiket": "TASARIM · MOBİL · HIZ",
+      "ozet": "Eve Banyo'yu, ürünlerini ve mağazasını anlatan; mobilde kusursuz çalışan, sade ve hızlı kurumsal site.",
+      "sure": "Ortalama 21 iş günü",
+      "kapsam": [
+        "Markaya özel arayüz tasarımı (masaüstü + mobil)",
+        "Ana sayfa, hakkımızda, hizmetler ve iletişim sayfaları",
+        "Mağaza / showroom bilgileri, harita ve yol tarifi",
+        "WhatsApp ve arama butonları; her sayfada görünür",
+        "Yüksek çözünürlüklü ürün görselleri için hızlı yükleme"
+      ],
+      "teslimTakvimi": {
+        "baslik": "Web sitesi ortalama teslim süresi",
+        "toplam": "21 iş günü",
+        "altyazi": "≈ 4 hafta",
+        "asamalar": [
+          {
+            "ad": "Keşif & içerik planı",
+            "gun": 3
+          },
+          {
+            "ad": "Arayüz tasarımı",
+            "gun": 6
+          },
+          {
+            "ad": "Geliştirme & ürün girişi",
+            "gun": 8
+          },
+          {
+            "ad": "Test, SEO & yayın",
+            "gun": 4
+          }
+        ],
+        "not": "Süre; logo, ürün bilgileri ve görsellerinin iletilmesiyle başlar. Her aşama sonunda onayınız alınır."
+      }
+    },
+    {
+      "kod": "web-sitesi",
+      "paket": "web",
+      "ad": "Ürün Kataloğu ve Referans Projeler",
+      "etiket": "ÜRÜN GRUPLARI · REFERANS GALERİSİ",
+      "sure": "",
+      "teslimTakvimi": null,
+      "ozet": "Ürünlerinizi ve uyguladığınız banyoları, yönetim panelinden kendiniz güncelleyebileceğiniz bir katalogda sunar.",
+      "kapsam": [
+        "Ürün grupları ve ürün sayfaları: görseller, ölçü, malzeme ve renk seçenekleri",
+        "Ürünler için \"Fiyat / keşif talebi\" formu (e-posta ve WhatsApp)",
+        "Referans projeler galerisi: uygulama fotoğrafları, önce / sonra",
+        "Katalog ve broşürlerin PDF olarak indirilebilmesi",
+        "Yönetim paneli: ürün, proje ve görselleri kendiniz ekleyin"
+      ]
+    },
+    {
+      "kod": "web-sitesi",
+      "paket": "web",
+      "ad": "SEO, Ölçüm ve Yayın",
+      "etiket": "YEREL SEO · GA4 · META PIXEL",
+      "sure": "",
+      "teslimTakvimi": null,
+      "ozet": "Ankara'da banyo ve duş kabini arayanların Google'da sizi bulmasını sağlayan; reklamlarla birlikte ölçülen altyapı.",
+      "kapsam": [
+        "Teknik SEO: hız, meta etiketler, site haritası, Search Console",
+        "Ankara odaklı yerel SEO ve Google İşletme Profili bağlantısı",
+        "Ürün ve proje sayfaları için yapılandırılmış veri (schema)",
+        "Google Analytics 4 ve Meta Pixel kurulumu",
+        "SSL, KVKK ve çerez metinleri; panel eğitimi ve 30 gün destek"
+      ]
+    }
+  ],
+  "paketler": {
+    "web": {
+      "ad": "Eve Banyo Kurumsal Web Sitesi",
+      "etiket": "Tasarım + ürün kataloğu / referanslar + SEO ve ölçüm",
+      "fiyat": 30000,
+      "periyot": "tek"
+    }
+  },
+  "sartlar": [
+    "Fiyatlara KDV dahil değildir; KDV ayrıca gösterilmiştir.",
+    "Alan adı ve sunucu (hosting) giderleri hizmet bedeline dahil değildir.",
+    "Bu teklif, son geçerlilik tarihine kadar geçerlidir."
+  ],
+  "webReferanslari": {
+    "baslik": "Tasarlayıp [geliştirdiğimiz] siteler.",
+    "metin": "Her proje markaya özel tasarlanır, hızlı açılır ve yönetim paneliyle teslim edilir.",
+    "projeler": [
+      {
+        "ad": "Ahmet Ekinci Akademi",
+        "adres": "ahmetekinciakademi.com",
+        "gorsel": "akademi.webp",
+        "durum": "Yayında",
+        "metin": "Birebir dijital pazarlama eğitimleri için eğitim ve üyelik platformu.",
+        "etiketler": [
+          "Üye girişi",
+          "Online ödeme",
+          "Blog"
+        ]
+      },
+      {
+        "ad": "Davetlim",
+        "adres": "davetlim.com.tr",
+        "gorsel": "davetlim.webp",
+        "durum": "Yayında",
+        "metin": "Yapay zekâ destekli, animasyonlu dijital düğün davetiyesi platformu.",
+        "etiketler": [
+          "Şablonlar",
+          "LCV",
+          "QR davet"
+        ]
+      },
+      {
+        "ad": "Reklyze",
+        "adres": "reklyze.com",
+        "metin": "Reklam performansı analiz platformu.",
+        "etiketler": [
+          "Analiz paneli",
+          "Raporlama"
+        ],
+        "bosMetin": "Reklam analiz platformu"
+      },
+      {
+        "ad": "TESK Projesi",
+        "adres": "Geliştirme aşamasında",
+        "durum": "Devam ediyor",
+        "devam": true,
+        "bosMetin": "Geliştirme sürüyor",
+        "metin": "Kurumsal web projesi; tasarım ve geliştirme çalışmaları sürüyor.",
+        "etiketler": [
+          "Kurumsal site",
+          "Yönetim paneli"
+        ]
+      }
+    ]
+  }
+}

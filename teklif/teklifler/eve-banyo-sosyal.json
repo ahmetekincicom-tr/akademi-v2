@@ -1,0 +1,110 @@
+{
+  "teklifNo": "AE-2026-1116",
+  "tarih": "2026-11-16",
+  "gecerlilikGun": 15,
+  "belgeTuru": "Sosyal medya ve reklam teklifi",
+  "musteri": {
+    "firma": "Eve Banyo",
+    "tamUnvan": "Banyo, duş ve kabin sistemleri · Ankara"
+  },
+  "konu": "Sosyal medya yönetimi, Meta reklam yönetimi ve aylık video / fotoğraf çekimi",
+  "kapakBaslik": "Mağazanıza [müşteri] getiren sosyal medya.",
+  "kapsamBaslik": "İçerikten [mağaza satışına] tek ekip",
+  "hizmetler": [
+    {
+      "kod": "sosyal-medya",
+      "paket": "sosyal",
+      "etiket": "INSTAGRAM · FACEBOOK",
+      "ozet": "Hesaplarınızın stratejisi, içerik takvimi, tasarımı ve paylaşımı baştan sona bizde; siz yalnız onay verirsiniz.",
+      "sure": "Aylık",
+      "kapsam": [
+        "Hesap analizi, rakip incelemesi ve marka iletişim dili",
+        "Aylık içerik planı ve paylaşım takvimi; stoklu, en az 2 hafta önden hazır",
+        "Aylık 12 gönderi + 12 hikâye; Reels, karusel ve ürün tanıtımları",
+        "Ürün, uygulama (montaj öncesi / sonrası) ve mağaza içerikleri",
+        "Profil, biyografi, öne çıkanlar ve WhatsApp bağlantısı düzenlemesi",
+        "Yorum ve mesajların takibi; satış sorularının ekibinize yönlendirilmesi"
+      ]
+    },
+    {
+      "kod": "meta-reklam",
+      "paket": "sosyal",
+      "etiket": "META · ANKARA · MAĞAZA TRAFİĞİ",
+      "ozet": "Ankara'da banyo yenilemeyi düşünen kişilere ulaşıp onları WhatsApp'a, telefona ve mağazanıza taşıyan reklamlar.",
+      "sure": "Aylık",
+      "not": "",
+      "kapsam": [
+        "Meta işletme hesabı, reklam hesabı, Pixel ve Conversions API kurulumu",
+        "Mağaza çevresine konum hedefli WhatsApp mesaj ve arama kampanyaları",
+        "Tadilat, ev dekorasyonu ve yeni konut ilgisine göre kitle kurgusu",
+        "Video ve görsel kreatif A/B testleri; işe yarayana bütçe aktarımı",
+        "Videoyu izleyen, profili ziyaret eden ve mesaj atana yeniden hedefleme",
+        "Haftalık optimizasyon, aylık rapor ve değerlendirme görüşmesi"
+      ]
+    },
+    {
+      "kod": "icerik-uretimi",
+      "ad": "Video ve Fotoğraf Çekimi",
+      "paket": "sosyal",
+      "etiket": "AYDA 2 ÇEKİM GÜNÜ · KURGU DAHİL",
+      "ozet": "Mağazada ve uygulama yapılan banyolarda çekim; her çekim günü haftalarca kullanılacak içerik ve reklam kreatifi üretir.",
+      "sure": "Ayda 2 çekim günü",
+      "kapsam": [
+        "Ayda 2 gün mağaza, showroom ve uygulama projelerinde çekim",
+        "Çekim öncesi senaryo ve çekim listesi",
+        "Reels ve reklam videolarının kurgusu, altyazı ve müzik",
+        "Ürün ve uygulama fotoğrafları (önce / sonra)",
+        "Stoklu çalışma: içerik arşivi ve reklam kreatif seti"
+      ],
+      "not": "Paket dışı her ek çekim günü ₺7.500 + KDV olarak ayrıca faturalanır."
+    },
+    {
+      "ad": "Ek çekim günü",
+      "kart": false,
+      "opsiyon": true,
+      "birim": "gün",
+      "grup": "uretim",
+      "periyot": "tek",
+      "fiyat": 7500,
+      "kisaAd": "Ek çekim günü",
+      "fiyatNotu": "Paketteki 2 gün dışında, ihtiyaç olduğunda"
+    }
+  ],
+  "paketler": {
+    "sosyal": {
+      "ad": "Sosyal Medya + Meta Reklam + Çekim Paketi",
+      "etiket": "Paket · Yönetim + reklam + ayda 2 çekim günü",
+      "fiyat": 30000,
+      "periyot": "aylik"
+    }
+  },
+  "reklamButcesi": {
+    "tutar": "₺20.000 – ₺30.000 / ay",
+    "metin": "Bütçe hizmet bedeline dahil değildir; Meta'ya doğrudan kendi kartınızla ödenir. Kampanyalar arası dağılım, mesaj ve mağaza ziyareti maliyetine göre haftalık güncellenir."
+  },
+  "strateji": {
+    "kicker": "Müşteri kazanım planı",
+    "baslik": "Takipçiden [mağaza müşterisine].",
+    "metin": "İlk kez profesyonel destek alacağınız için önce temeli kuruyor, sonra işe yarayanı büyütüyoruz. Hedef beğeni değil; mesaj, mağaza ziyareti ve satış.",
+    "yolHaritasi": [
+      { "zaman": "1. ay · Kuruluş", "baslik": "Temel ve ilk testler", "maddeler": ["Hesap, Pixel ve WhatsApp düzeni", "İlk 2 çekim günüyle içerik stoğu", "Kitle ve kreatif testleri"] },
+      { "zaman": "2. ay · Ölçek", "baslik": "İşe yarayanı büyütme", "maddeler": ["Kazanan reklamlara bütçe aktarımı", "Yeniden hedefleme kampanyaları", "Satış ekibiyle haftalık geri bildirim"] },
+      { "zaman": "3. ay · Büyüme", "baslik": "Sürekli müşteri akışı", "maddeler": ["Benzer kitlelerle yeni müşteri", "Dönemsel kampanyalar", "Mesajdan satışa dönüşüm takibi"] }
+    ],
+    "taktikler": [
+      { "baslik": "Ankara'da doğru kişiye", "metin": "Mağaza çevresinde banyo yenileme, tadilat ve yeni konut ilgisi olan ev sahiplerine; ayrıca iç mimar ve müteahhit kitlesine ulaşırız." },
+      { "baslik": "WhatsApp'tan fiyat ve keşif talebi", "metin": "Reklamlar doğrudan WhatsApp'a ve aramaya yönlenir; talep anında satış ekibinize düşer, kaybolmaz." },
+      { "baslik": "Önce / sonra videoları", "metin": "Uygulama yapılan banyoların dönüşümü ve montaj süreci, ilk kez sizi gören kişide en hızlı güveni oluşturan içeriktir." },
+      { "baslik": "Mağazaya davet", "metin": "Showroom ve ürün dokusunu gösteren videolar, yol tarifi ve konum reklamlarıyla mağaza ziyaretini artırırız." },
+      { "baslik": "Kararsızı geri kazanma", "metin": "Videoyu izleyen, mesaj atıp dönmeyen kişilere ürün detayı ve kampanya içerikleriyle yeniden ulaşırız." },
+      { "baslik": "Dönemsel kampanyalar", "metin": "Tadilat sezonu, yeni ürünler ve özel günlerde kampanya kurgusuyla satışın en yoğun olduğu dönemleri öne çekeriz." }
+    ],
+    "olcumBaslik": "Her hafta takip ettiğimiz rakamlar",
+    "olcumler": ["Mesaj başı maliyet", "Arama ve WhatsApp talebi", "Mağaza ziyareti", "Keşif / ölçü randevusu", "Satışa dönüşüm"]
+  },
+  "sartlar": [
+    "Fiyatlara KDV dahil değildir; KDV ayrıca gösterilmiştir.",
+    "Reklam bütçesi hizmet bedeline dahil değildir; doğrudan Meta'ya ödenir.",
+    "Bu teklif, son geçerlilik tarihine kadar geçerlidir."
+  ]
+}

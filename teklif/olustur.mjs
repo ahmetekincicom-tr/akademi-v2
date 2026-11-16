@@ -148,6 +148,8 @@ function veriHazirla(teklifYolu) {
         indirim: Number(h.indirim || 0),
         indirimNotu: h.indirimNotu || "Paket indirimi",
         kisaAd: h.kisaAd || h.ad,
+        opsiyon: !!h.opsiyon,
+        birim: h.birim || "",
       });
     }
   }
@@ -164,9 +166,11 @@ function veriHazirla(teklifYolu) {
   // Toplamlar: tek seferlik ve aylık ayrı. Bedeli 0 olan (pakete dahil) kalemler ayrıca listelenir.
   const ind = teklif.indirim;
   v.dahiller = v.satirlar.filter((s) => s.dahil);
+  v.opsiyonlar = v.satirlar.filter((s) => s.opsiyon);
+  v.kartlar = v.hizmetler.filter((h) => h.kart !== false);
   v.gruplar = ["tek", "aylik", "yillik"]
     .map((p) => {
-      const kalemler = v.satirlar.filter((s) => s.periyot === p && !s.dahil);
+      const kalemler = v.satirlar.filter((s) => s.periyot === p && !s.dahil && !s.opsiyon);
       if (!kalemler.length) return null;
       const ara = kalemler.reduce((t, s) => t + s.tutar, 0);
       const indirimVar = ind && (ind.kapsam === "tum" || ind.kapsam === p || (!ind.kapsam && p === "tek"));
@@ -250,7 +254,7 @@ function parcalar() {
 function kapak(v, P) {
   const ad = v.kapakBaslik || v.konu;
   const harf = (v.musteri.firma || "?").trim().charAt(0).toLocaleUpperCase("tr-TR");
-  const seritOgeleri = [...v.hizmetler.map((h) => h.ad), "Önce veri, sonra karar"];
+  const seritOgeleri = [...v.kartlar.map((h) => h.ad), "Önce veri, sonra karar"];
   const serit = Array(3).fill(seritOgeleri).flat().map((s) => `<span>${e(s)} ${IKON.ok}</span>`).join("");
   // Logo çizimi aşağı doğru solar (maske yerine degrade çizgi: PDF'te vektör kalır).
   const [, vy, , vh] = P.isaretVB.split(" ").map(Number);
@@ -343,13 +347,13 @@ function hizmetSayfasi(v, P) {
         }
       </div>
       <div class="devam-bas kicker">01 · Hizmet detayları (devam)</div>
-      <div class="bol-liste${v.hizmetler.length <= 3 ? " bol-liste--ferah" : ""}">${v.hizmetler.map(hizmetKart).join("")}</div>
+      <div class="bol-liste${v.kartlar.length <= 3 ? " bol-liste--ferah" : ""}">${v.kartlar.map(hizmetKart).join("")}</div>
     </div>
     ${P.alt(v)}
   </section>`;
 }
 
-function yatirimSayfasi(v, P) {
+function yatirimSayfasi(v, P, no = "02") {
   const satirlar = v.satirlar
     .map((s) => {
       const g = GRUP[s.grup] || GRUP.yonetim;
@@ -359,9 +363,11 @@ function yatirimSayfasi(v, P) {
         <div class="tablo__ad"><b>${e(s.ad)}</b><span>${e(s.etiket)}</span>${
           s.indirim ? `<em class="indirim-cip">${e(s.indirimNotu)} −${para(s.indirim)}</em>` : ""
         }</div>
-        <div>${periyotCip(s.periyot)}</div>
+        <div>${s.opsiyon ? `<span class="cip cip--sari">${IKON.bilgi}İsteğe bağlı</span>` : periyotCip(s.periyot)}</div>
         <div class="sag">${
-          s.dahil
+          s.opsiyon
+            ? `<span class="tutar">+${para(s.tutar)}${s.birim ? ` <small>/ ${e(s.birim)}</small>` : ""}</span>`
+            : s.dahil
             ? `<span class="cip cip--koyu">${IKON.hediye}Pakete dahil</span>`
             : s.indirim
               ? `<span class="tutar-eski">${para(s.tutar)}</span><span class="tutar">${para(s.tutar - s.indirim)}${periyotEk(s.periyot)}</span>`
@@ -377,6 +383,12 @@ function yatirimSayfasi(v, P) {
         ${v.dahiller.map((d) => `<div class="toplam__satir toplam__satir--indirim"><span>${e(d.ad)}</span><span class="tutar">Dahil</span></div>`).join("")}
       </div>`
     : "";
+  const opsiyonBlok = v.opsiyonlar.length
+    ? `<div class="toplam__blok">
+        <div class="mono-etiket">İsteğe bağlı · toplama dahil değil</div>
+        ${v.opsiyonlar.map((d) => `<div class="toplam__satir"><span>${e(d.kisaAd)}</span><span class="tutar">+${para(d.tutar)}${d.birim ? ` / ${e(d.birim)}` : ""}</span></div>`).join("")}
+      </div>`
+    : "";
   const toplam =
     v.gruplar
       .map(
@@ -389,7 +401,7 @@ function yatirimSayfasi(v, P) {
       <div class="toplam__genel"><span>Toplam</span><strong>${para(g.toplam)}${periyotEk(g.p)}</strong></div>
     </div>`
       )
-      .join("") + dahilBlok;
+      .join("") + dahilBlok + opsiyonBlok;
 
   let teslim;
   if (v.teslim) {
@@ -485,7 +497,7 @@ function yatirimSayfasi(v, P) {
     <div class="govde govde--yay">
       <div class="bolum-bas">
         <div>
-          <div class="kicker">02 · Ücretlendirme</div>
+          <div class="kicker">${no} · Ücretlendirme</div>
           <h2 class="h2">Net fiyat, <span class="vurgu">net</span> takvim.</h2>
         </div>
         <div class="gecerlilik">
@@ -556,6 +568,53 @@ function webReferansSayfasi(v, P, no) {
         ${w.metin ? `<p class="lede">${e(w.metin)}</p>` : "<div></div>"}
       </div>
       <div class="wr-izgara esnek">${w.projeler.map(kart).join("")}</div>
+    </div>
+    ${P.alt(v)}
+  </section>`;
+}
+
+/** İsteğe bağlı: müşteri kazanım stratejisi — yol haritası, taktikler, takip edilen rakamlar. */
+function stratejiSayfasi(v, P, no) {
+  const st = v.strateji;
+  const RENK = ["#f2c230", "#4c7bea", "#e2685a", "#17140f", "#6b6355", "#cfa327"];
+  return `
+  <section class="sayfa">
+    ${izgara(false)}
+    ${P.ust(v, "Strateji")}
+    <div class="govde govde--ritim">
+      <div class="bolum-bas">
+        <div>
+          <div class="kicker">${no} · ${e(st.kicker || "Müşteri kazanım planı")}</div>
+          <h2 class="h2">${vurgula(st.baslik || "Nasıl [ilerleyeceğiz]?")}</h2>
+        </div>
+        ${st.metin ? `<p class="lede">${e(st.metin)}</p>` : "<div></div>"}
+      </div>
+
+      ${
+        st.yolHaritasi?.length
+          ? `<div class="sy-yol">${st.yolHaritasi
+              .map(
+                (a, i) => `<div class="sy-yol__adim"><i>${e(a.zaman)}</i><b>${e(a.baslik)}</b><ul>${a.maddeler
+                  .map((m) => `<li>${e(m)}</li>`)
+                  .join("")}</ul></div>`
+              )
+              .join("")}</div>`
+          : ""
+      }
+
+      <div class="sy-taktik esnek">${st.taktikler
+        .map(
+          (t, i) => `<div class="sy-kart" style="--renk:${RENK[i % RENK.length]}"><span>${iki(i + 1)}</span><b>${e(t.baslik)}</b><p>${e(t.metin)}</p></div>`
+        )
+        .join("")}</div>
+
+      ${
+        st.olcumler?.length
+          ? `<div class="sy-olcum"><div class="mono-etiket">${e(st.olcumBaslik || "Her hafta takip ettiğimiz rakamlar")}</div><div>${st.olcumler
+              .map((o) => `<span>${e(o)}</span>`)
+              .join("")}</div></div>`
+          : ""
+      }
     </div>
     ${P.alt(v)}
   </section>`;
@@ -657,6 +716,9 @@ const SAYFALA = `
   function sayfala() {
     document.querySelectorAll('.sayfa[data-bol]').forEach(function (s) {
       var guvenlik = 0;
+      // Ferah düzen sığmıyorsa önce sıkı düzene geç; bölmeyi ancak o da sığmazsa yap.
+      var ilkGovde = s.querySelector('.govde'), ilkListe = s.querySelector('.bol-liste');
+      if (ilkListe.classList.contains('bol-liste--ferah') && ilkGovde.scrollHeight > ilkGovde.clientHeight + 1) ilkListe.classList.remove('bol-liste--ferah');
       while (guvenlik++ < 10) {
         var govde = s.querySelector('.govde'), liste = s.querySelector('.bol-liste');
         if (govde.scrollHeight <= govde.clientHeight + 1 || liste.children.length < 2) break;
@@ -715,8 +777,10 @@ function html(v) {
     `Teklif · ${v.musteri.firma} · ${v.teklifNo}`,
     (() => {
       // 01 hizmet, 02 ücretlendirme; sonrakiler web projeleri varsa birer kayar.
-      let n = 3;
-      const s = [kapak(v, P), hizmetSayfasi(v, P), yatirimSayfasi(v, P)];
+      let n = 2;
+      const s = [kapak(v, P), hizmetSayfasi(v, P)];
+      if (v.strateji) s.push(stratejiSayfasi(v, P, iki(n++)));
+      s.push(yatirimSayfasi(v, P, iki(n++)));
       if (v.webReferanslari?.projeler?.length) s.push(webReferansSayfasi(v, P, iki(n++)));
       s.push(referansSayfasi(v, P, iki(n++)), iletisimSayfasi(v, P, iki(n++)));
       return s.join("\n");

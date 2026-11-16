@@ -527,3 +527,23 @@ a { color: inherit; text-decoration: none; }
 .wr__alt p { margin-top: 1.2mm; font-size: 7.8pt; color: var(--body-2); line-height: 1.45; }
 .wr__etiketler { margin-top: 2.2mm; display: flex; flex-wrap: wrap; gap: 1.2mm; }
 .wr__etiketler .cip { font-size: 6.2pt; }
+
+/* ───────── MÜŞTERİ KAZANIM STRATEJİSİ ───────── */
+.sy-yol { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--ink); color: var(--on-dark); border-radius: 3.6mm; overflow: hidden; }
+.sy-yol__adim { padding: 6mm 5.6mm 6.4mm; position: relative; }
+.sy-yol__adim + .sy-yol__adim { border-left: 0.6pt solid var(--line-dark); }
+.sy-yol__adim i { font-style: normal; font-family: var(--mono); font-size: 6.4pt; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--yellow); }
+.sy-yol__adim b { display: block; margin-top: 1.6mm; font-size: 12.5pt; font-weight: 800; letter-spacing: -0.03em; color: #fffaf0; }
+.sy-yol__adim ul { list-style: none; margin-top: 2.2mm; display: grid; gap: 1.2mm; }
+.sy-yol__adim li { position: relative; padding-left: 3.2mm; font-size: 8.2pt; line-height: 1.4; color: var(--on-dark-muted); }
+.sy-yol__adim li::before { content: ""; position: absolute; left: 0; top: 1.6mm; width: 1.4mm; height: 1.4mm; border-radius: 0.4mm; background: var(--yellow); }
+.sy-taktik { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 1fr; gap: 3.4mm; }
+.sy-kart { position: relative; overflow: hidden; padding: 6mm 5.4mm; justify-content: center; border-radius: 3.2mm; background: #fffdf8; border: 0.6pt solid var(--line); display: flex; flex-direction: column; }
+.sy-kart::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1.1mm; background: var(--renk); }
+.sy-kart span { font-family: var(--mono); font-size: 8pt; font-weight: 600; color: var(--stone); }
+.sy-kart b { margin-top: 2.2mm; font-size: 12.4pt; font-weight: 800; letter-spacing: -0.025em; line-height: 1.18; }
+.sy-kart p { margin-top: 2.2mm; font-size: 8.6pt; color: var(--body-2); line-height: 1.5; }
+.sy-olcum { display: flex; align-items: center; gap: 4mm; padding: 4.6mm 5mm; border-radius: 3.2mm; background: var(--yellow-tint); border: 0.6pt solid #f2c23099; }
+.sy-olcum .mono-etiket { color: var(--yellow-text); flex: none; max-width: 34mm; line-height: 1.4; }
+.sy-olcum > div { display: flex; flex-wrap: wrap; gap: 1.4mm; }
+.sy-olcum span { padding: 1.2mm 3mm; border-radius: 5mm; background: #fff; border: 0.6pt solid #f2c23080; font-size: 8pt; font-weight: 600; color: var(--ink); }
