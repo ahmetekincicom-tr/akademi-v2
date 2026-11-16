@@ -19,8 +19,8 @@
       "sure": "Aylık",
       "kapsam": [
         "Hesap analizi, rakip incelemesi ve marka iletişim dili",
-        "Aylık içerik planı ve paylaşım takvimi; stoklu, en az 2 hafta önden hazır",
-        "Aylık 12 gönderi + 12 hikâye; Reels, karusel ve ürün tanıtımları",
+        "Aylık içerik planı ve paylaşım takvimi",
+        "Aylık 12 gönderi; Reels, karusel ve ürün tanıtımları",
         "Ürün, uygulama (montaj öncesi / sonrası) ve mağaza içerikleri",
         "Profil, biyografi, öne çıkanlar ve WhatsApp bağlantısı düzenlemesi",
         "Yorum ve mesajların takibi; satış sorularının ekibinize yönlendirilmesi"
@@ -87,20 +87,60 @@
     "baslik": "Takipçiden [mağaza müşterisine].",
     "metin": "İlk kez profesyonel destek alacağınız için önce temeli kuruyor, sonra işe yarayanı büyütüyoruz. Hedef beğeni değil; mesaj, mağaza ziyareti ve satış.",
     "yolHaritasi": [
-      { "zaman": "1. ay · Kuruluş", "baslik": "Temel ve ilk testler", "maddeler": ["Hesap, Pixel ve WhatsApp düzeni", "İlk 2 çekim günüyle içerik stoğu", "Kitle ve kreatif testleri"] },
-      { "zaman": "2. ay · Ölçek", "baslik": "İşe yarayanı büyütme", "maddeler": ["Kazanan reklamlara bütçe aktarımı", "Yeniden hedefleme kampanyaları", "Satış ekibiyle haftalık geri bildirim"] },
-      { "zaman": "3. ay · Büyüme", "baslik": "Sürekli müşteri akışı", "maddeler": ["Benzer kitlelerle yeni müşteri", "Dönemsel kampanyalar", "Mesajdan satışa dönüşüm takibi"] }
+      {
+        "zaman": "1. ay · Kuruluş",
+        "baslik": "Temel ve ilk testler",
+        "maddeler": [
+          "Hesap, Pixel ve WhatsApp düzeni",
+          "İlk 2 çekim günüyle içerik stoğu",
+          "Kitle ve kreatif testleri"
+        ]
+      },
+      {
+        "zaman": "2. ay · Ölçek",
+        "baslik": "İşe yarayanı büyütme",
+        "maddeler": [
+          "Kazanan reklamlara bütçe aktarımı",
+          "Yeniden hedefleme kampanyaları",
+          "Satış ekibiyle haftalık geri bildirim"
+        ]
+      },
+      {
+        "zaman": "3. ay · Büyüme",
+        "baslik": "Sürekli müşteri akışı",
+        "maddeler": [
+          "Benzer kitlelerle yeni müşteri",
+          "Dönemsel kampanyalar",
+          "Mesajdan satışa dönüşüm takibi"
+        ]
+      }
     ],
     "taktikler": [
-      { "baslik": "Ankara'da doğru kişiye", "metin": "Mağaza çevresinde banyo yenileme, tadilat ve yeni konut ilgisi olan ev sahiplerine; ayrıca iç mimar ve müteahhit kitlesine ulaşırız." },
-      { "baslik": "WhatsApp'tan fiyat ve keşif talebi", "metin": "Reklamlar doğrudan WhatsApp'a ve aramaya yönlenir; talep anında satış ekibinize düşer, kaybolmaz." },
-      { "baslik": "Önce / sonra videoları", "metin": "Uygulama yapılan banyoların dönüşümü ve montaj süreci, ilk kez sizi gören kişide en hızlı güveni oluşturan içeriktir." },
-      { "baslik": "Mağazaya davet", "metin": "Showroom ve ürün dokusunu gösteren videolar, yol tarifi ve konum reklamlarıyla mağaza ziyaretini artırırız." },
-      { "baslik": "Kararsızı geri kazanma", "metin": "Videoyu izleyen, mesaj atıp dönmeyen kişilere ürün detayı ve kampanya içerikleriyle yeniden ulaşırız." },
-      { "baslik": "Dönemsel kampanyalar", "metin": "Tadilat sezonu, yeni ürünler ve özel günlerde kampanya kurgusuyla satışın en yoğun olduğu dönemleri öne çekeriz." }
-    ],
-    "olcumBaslik": "Her hafta takip ettiğimiz rakamlar",
-    "olcumler": ["Mesaj başı maliyet", "Arama ve WhatsApp talebi", "Mağaza ziyareti", "Keşif / ölçü randevusu", "Satışa dönüşüm"]
+      {
+        "baslik": "Ankara'da doğru kişiye",
+        "metin": "Mağaza çevresinde banyo yenileme, tadilat ve yeni konut ilgisi olan ev sahiplerine; ayrıca iç mimar ve müteahhit kitlesine ulaşırız."
+      },
+      {
+        "baslik": "WhatsApp'tan fiyat ve keşif talebi",
+        "metin": "Reklamlar doğrudan WhatsApp'a ve aramaya yönlenir; talep anında satış ekibinize düşer, kaybolmaz."
+      },
+      {
+        "baslik": "Önce / sonra videoları",
+        "metin": "Uygulama yapılan banyoların dönüşümü ve montaj süreci, ilk kez sizi gören kişide en hızlı güveni oluşturan içeriktir."
+      },
+      {
+        "baslik": "Mağazaya davet",
+        "metin": "Showroom ve ürün dokusunu gösteren videolar, yol tarifi ve konum reklamlarıyla mağaza ziyaretini artırırız."
+      },
+      {
+        "baslik": "Kararsızı geri kazanma",
+        "metin": "Videoyu izleyen, mesaj atıp dönmeyen kişilere ürün detayı ve kampanya içerikleriyle yeniden ulaşırız."
+      },
+      {
+        "baslik": "Dönemsel kampanyalar",
+        "metin": "Tadilat sezonu, yeni ürünler ve özel günlerde kampanya kurgusuyla satışın en yoğun olduğu dönemleri öne çekeriz."
+      }
+    ]
   },
   "sartlar": [
     "Fiyatlara KDV dahil değildir; KDV ayrıca gösterilmiştir.",
