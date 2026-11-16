@@ -95,57 +95,5 @@
     "Fiyatlara KDV dahil değildir; KDV ayrıca gösterilmiştir.",
     "Alan adı ve sunucu (hosting) giderleri hizmet bedeline dahil değildir.",
     "Bu teklif, son geçerlilik tarihine kadar geçerlidir."
-  ],
-  "webReferanslari": {
-    "baslik": "Tasarlayıp [geliştirdiğimiz] siteler.",
-    "metin": "Her proje markaya özel tasarlanır, hızlı açılır ve yönetim paneliyle teslim edilir.",
-    "projeler": [
-      {
-        "ad": "Ahmet Ekinci Akademi",
-        "adres": "ahmetekinciakademi.com",
-        "gorsel": "akademi.webp",
-        "durum": "Yayında",
-        "metin": "Birebir dijital pazarlama eğitimleri için eğitim ve üyelik platformu.",
-        "etiketler": [
-          "Üye girişi",
-          "Online ödeme",
-          "Blog"
-        ]
-      },
-      {
-        "ad": "Davetlim",
-        "adres": "davetlim.com.tr",
-        "gorsel": "davetlim.webp",
-        "durum": "Yayında",
-        "metin": "Yapay zekâ destekli, animasyonlu dijital düğün davetiyesi platformu.",
-        "etiketler": [
-          "Şablonlar",
-          "LCV",
-          "QR davet"
-        ]
-      },
-      {
-        "ad": "Reklyze",
-        "adres": "reklyze.com",
-        "metin": "Reklam performansı analiz platformu.",
-        "etiketler": [
-          "Analiz paneli",
-          "Raporlama"
-        ],
-        "bosMetin": "Reklam analiz platformu"
-      },
-      {
-        "ad": "TESK Projesi",
-        "adres": "Geliştirme aşamasında",
-        "durum": "Devam ediyor",
-        "devam": true,
-        "bosMetin": "Geliştirme sürüyor",
-        "metin": "Kurumsal web projesi; tasarım ve geliştirme çalışmaları sürüyor.",
-        "etiketler": [
-          "Kurumsal site",
-          "Yönetim paneli"
-        ]
-      }
-    ]
-  }
+  ]
 }
