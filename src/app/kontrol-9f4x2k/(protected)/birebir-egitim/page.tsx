@@ -46,7 +46,10 @@ export default async function AdminBirebirEgitimPage() {
   */
   const gruplar: Record<string, { id: string; ad: string }[]> = {};
   for (const odeme of koltuklar ?? []) {
-    const uyeler = [odeme.user_id, ...(odeme.odeme_katilimcilari ?? []).map((k) => k.user_id)];
+    // Ödeyenin hesabı silindiyse (user_id boş) yalnızca katılımcılar kalıyor.
+    const uyeler = [odeme.user_id, ...(odeme.odeme_katilimcilari ?? []).map((k) => k.user_id)].filter(
+      (u): u is string => Boolean(u),
+    );
     for (const kisi of uyeler) {
       const digerleri = uyeler
         .filter((u) => u !== kisi)
