@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { gaClientId, gclidCoz } from "@/lib/google/gcl";
+import { createHash } from "node:crypto";
 import { mpGovdesi } from "@/lib/google/mp";
+import { googleEposta, googleKullaniciVerisi, googleTelefon } from "@/lib/google/kimlik";
 
 describe("gaClientId (_ga çerezi)", () => {
   it("client_id'yi çıkarır", () => {
@@ -64,5 +66,51 @@ describe("mpGovdesi (GA4 Measurement Protocol)", () => {
     expect(redli.consent.ad_user_data).toBe("DENIED");
     // gclid yoksa parametreye eklenmiyor
     expect("gclid" in redli.events[0].params).toBe(false);
+  });
+});
+
+describe("GA4 kullanıcı verisi (lib/google/kimlik)", () => {
+  const sha = (d: string) => createHash("sha256").update(d, "utf8").digest("hex");
+
+  it("e-posta: boşluk atılır, küçük harf; gmail'de @'ten önceki noktalar atılır", () => {
+    expect(googleEposta("  Ahmet.Ekinci@Gmail.com ")).toBe("ahmetekinci@gmail.com");
+    expect(googleEposta("a.b.c@googlemail.com")).toBe("abc@googlemail.com");
+    // Başka alan adlarında nokta anlamlı: dokunulmaz.
+    expect(googleEposta("Ad.Soyad@Firma.com.tr")).toBe("ad.soyad@firma.com.tr");
+    expect(googleEposta("gecersiz")).toBeNull();
+    expect(googleEposta("@gmail.com")).toBeNull();
+    expect(googleEposta(null)).toBeNull();
+  });
+
+  it("telefon: E.164, başında + (Türkiye biçimleri)", () => {
+    expect(googleTelefon("0532 123 45 67")).toBe("+905321234567");
+    expect(googleTelefon("+90 (532) 123-45-67")).toBe("+905321234567");
+    expect(googleTelefon("5321234567")).toBe("+905321234567");
+    expect(googleTelefon("0090 532 123 45 67")).toBe("+905321234567");
+    expect(googleTelefon("12")).toBeNull();
+    expect(googleTelefon("")).toBeNull();
+  });
+
+  it("hash'ler normalleştirilmiş değerin SHA-256 hex'i; boşsa null", () => {
+    expect(googleKullaniciVerisi({ eposta: "A.B@gmail.com", telefon: "05321234567" })).toEqual({
+      sha256_email_address: [sha("ab@gmail.com")],
+      sha256_phone_number: [sha("+905321234567")],
+    });
+    expect(googleKullaniciVerisi({ eposta: "ab@x.com" })).toEqual({ sha256_email_address: [sha("ab@x.com")] });
+    expect(googleKullaniciVerisi({ eposta: "", telefon: null })).toBeNull();
+  });
+
+  it("user_id + user_data yalnız reklam izni varsa gövdeye girer", () => {
+    const veri = googleKullaniciVerisi({ eposta: "ab@x.com" });
+    const ortak = { clientId: "1.2", tutar: 1, paymentId: "p", kursAdi: "x", gclid: null, userId: "uuid-1", kullaniciVerisi: veri };
+    const izinli = mpGovdesi({ ...ortak, izin: true }) as Record<string, unknown>;
+    expect(izinli.user_id).toBe("uuid-1");
+    expect(izinli.user_data).toEqual(veri);
+    const izinsiz = mpGovdesi({ ...ortak, izin: false }) as Record<string, unknown>;
+    expect("user_id" in izinsiz).toBe(false);
+    expect("user_data" in izinsiz).toBe(false);
+    // Eşleştirilecek veri yoksa user_id de gönderilmez.
+    const bos = mpGovdesi({ ...ortak, izin: true, kullaniciVerisi: null }) as Record<string, unknown>;
+    expect("user_id" in bos).toBe(false);
   });
 });
