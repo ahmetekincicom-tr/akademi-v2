@@ -772,7 +772,7 @@ export type Database = {
           odeme_tarihi: string;
           online_odeme: boolean;
           tutar: number;
-          user_id: string;
+          user_id: string | null;
           yontem: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["payments"]["Row"]> & {
