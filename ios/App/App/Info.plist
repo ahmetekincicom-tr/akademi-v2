@@ -25,6 +25,13 @@
 	     her yüklemede aynı soruyu soruyor ve cevaplanmadan gönderilemiyor. -->
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<!-- Destek talebine görsel eklerken iOS dosya seçicisi "Fotoğraf çek" ve
+	     "Fotoğraf arşivi" seçeneklerini de sunuyor. Açıklama metni yoksa kamera
+	     seçildiği anda uygulama kapanıyor — incelemede doğrudan ret sebebi. -->
+	<key>NSCameraUsageDescription</key>
+	<string>Destek talebine ya da soruna ekran görüntüsü veya fotoğraf ekleyebilmen için kamera kullanılır.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Destek talebine ya da soruna fotoğraf arşivinden görsel ekleyebilmen için kullanılır.</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>

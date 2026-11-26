@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { kayitEkle, kayitKaldir } from "@/app/kontrol-9f4x2k/(protected)/ogrenciler/actions";
+import { kayitEkle, kayitKaldir, ogrenciHesabiniSil } from "@/app/kontrol-9f4x2k/(protected)/ogrenciler/actions";
 import {
   oturumEkle,
   oturumSil,
@@ -799,6 +799,93 @@ export function OgrenciDetay({
           </>
         )}
       </div>
+
+      {!ogrenci.admin && <HesapSilmeAlani ogrenci={ogrenci} />}
+    </div>
+  );
+}
+
+/**
+ * Hesabı kalıcı olarak silme. Yanlış kişiyi silmemek için e-posta aynen
+ * yazılmadan düğme açılmıyor (sunucu da aynı kontrolü yapıyor).
+ */
+function HesapSilmeAlani({ ogrenci }: { ogrenci: AdminOgrenci }) {
+  const router = useRouter();
+  const bildir = useBildirim();
+  const [islemde, baslat] = useTransition();
+  const [acik, setAcik] = useState(false);
+  const [onay, setOnay] = useState("");
+  const beklenen = ogrenci.eposta || "SİL";
+  const eslesti = ogrenci.eposta
+    ? onay.trim().toLocaleLowerCase("tr") === ogrenci.eposta.trim().toLocaleLowerCase("tr")
+    : onay.trim().toLocaleUpperCase("tr") === "SİL";
+
+  const sil = () =>
+    baslat(async () => {
+      const r = await ogrenciHesabiniSil(ogrenci.id, onay);
+      if (r.error) return bildir.hata(r.error);
+      bildir.basarili(`${ogrenci.isim || "Hesap"} silindi.`);
+      router.refresh();
+    });
+
+  return (
+    <div className="mt-6 rounded-[12px] border border-danger/30 bg-[#FDF6F6] p-4">
+      <div className={BASLIK}>Hesabı sil</div>
+      {ogrenci.silmeTalebi && (
+        <p className="mt-2 text-[13px] font-semibold text-danger-ink">
+          Öğrenci {tarihBicimi.format(new Date(ogrenci.silmeTalebi))} tarihinde hesabının silinmesini istedi.
+        </p>
+      )}
+      <p className="mt-2 text-[13px] leading-[1.6] text-[#5C6273]">
+        Hesap ve kişisel veriler kalıcı olarak silinir: profil, eğitim kayıtları, birebir oturumlar, destek talepleri
+        ve ekleri, giriş hareketleri, bildirim cihazları, tıklama ve dönüşüm kayıtları. Ödeme kayıtları yasal saklama
+        süresi için kalır, kişiden ayrılır (ödemelerde &quot;Silinmiş hesap&quot; görünür). Bu işlem geri alınamaz.
+      </p>
+
+      {acik ? (
+        <div className="mt-3 flex flex-col gap-2">
+          <label className="flex flex-col gap-1 text-[12.5px] font-medium text-ink">
+            Onaylamak için {ogrenci.eposta ? "hesabın e-postasını" : "SİL"} yaz:
+            <span className="font-mono text-[12px] break-all text-[#5C6273]">{beklenen}</span>
+            <input
+              value={onay}
+              onChange={(e) => setOnay(e.target.value)}
+              autoComplete="off"
+              autoCapitalize="none"
+              spellCheck={false}
+              className="h-11 rounded-[9px] border border-ink/14 bg-white px-3 text-[13.5px] outline-none focus:border-danger"
+            />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={sil}
+              disabled={!eslesti || islemde}
+              className="inline-flex min-h-11 items-center rounded-[9px] bg-danger px-4 text-[13.5px] font-semibold text-white transition hover:bg-danger-ink disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {islemde ? "Siliniyor…" : "Hesabı kalıcı olarak sil"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAcik(false);
+                setOnay("");
+              }}
+              className="inline-flex min-h-11 items-center rounded-[9px] border border-ink/14 bg-white px-4 text-[13.5px] font-semibold text-ink transition hover:border-ink"
+            >
+              Vazgeç
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setAcik(true)}
+          className="mt-3 inline-flex min-h-11 items-center rounded-[9px] border border-danger/40 bg-white px-4 text-[13.5px] font-semibold text-danger-ink transition hover:border-danger"
+        >
+          Hesabı sil…
+        </button>
+      )}
     </div>
   );
 }

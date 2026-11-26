@@ -16,6 +16,7 @@ import { getMarka } from "@/lib/marka";
 import { mutlakDepoUrl } from "@/lib/depo";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
 import { getPixelId } from "@/lib/meta/pixel";
+import { UYGULAMA_ONYUKLEME } from "@/lib/izin";
 import "./globals.css";
 import { SITE_URL, SITE_ADI, VARSAYILAN_ACIKLAMA, kurumSemasi, siteSemasi } from "@/lib/seo";
 
@@ -149,8 +150,11 @@ export default async function RootLayout({
   const bantVar = googleVar || Boolean(pixelId);
 
   return (
-    <html lang="tr" className={`${heading.variable} ${body.variable} ${mono.variable}`}>
+    // suppressHydrationWarning: data-native, UYGULAMA_ONYUKLEME tarafından
+    // hidrasyondan önce eklenebiliyor; sunucu çiziminde yok.
+    <html lang="tr" className={`${heading.variable} ${body.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: UYGULAMA_ONYUKLEME }} />
         {/*
           İzin varsayılanı Google etiketlerinden önce senkron çalışmak zorunda,
           o yüzden next/script değil düz inline script — gerekçesi Olcumleme.tsx'te.

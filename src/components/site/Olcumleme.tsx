@@ -1,6 +1,6 @@
 import Script from "next/script";
 import { getOlcumleme, olcumlemeAcik } from "@/lib/olcumleme";
-import { IZIN_CEREZI } from "@/lib/izin";
+import { IZIN_CEREZI, UYGULAMA_ISARETI } from "@/lib/izin";
 
 /**
  * Eski localStorage anahtarı.
@@ -31,6 +31,12 @@ export const ONYUKLEME = `
   function gtag() { dataLayer.push(arguments); }
   window.gtag = gtag;
 
+  // iOS uygulaması: Google etiketi hiç yüklenmiyor (aşağıdaki yükleyiciler bu
+  // bayrağa bakıyor) ve izinler her durumda reddedilmiş. Gerekçe lib/izin →
+  // uygulamaIcinde.
+  var uygulama = navigator.userAgent.indexOf(${JSON.stringify(UYGULAMA_ISARETI)}) !== -1;
+  window.__aeaUygulama = uygulama;
+
   /*
     İzin ÖNCE çerezden okunuyor.
 
@@ -59,8 +65,8 @@ export const ONYUKLEME = `
   // kullanıcı ne seçmiş olursa olsun reklam izni verilmez.
   var gpc = window.navigator && window.navigator.globalPrivacyControl === true;
 
-  var analitik = kayit && kayit.analitik ? 'granted' : 'denied';
-  var reklam = (kayit && kayit.reklam && !gpc) ? 'granted' : 'denied';
+  var analitik = (kayit && kayit.analitik && !uygulama) ? 'granted' : 'denied';
+  var reklam = (kayit && kayit.reklam && !gpc && !uygulama) ? 'granted' : 'denied';
 
   gtag('consent', 'default', {
     ad_storage: reklam,
@@ -90,20 +96,19 @@ export async function Olcumleme() {
         // GTM varsa GA4'ü de o yönetir. İkisini birden yüklemek olayları
         // çift saydırır, bu yüzden GTM tek başına kazanır.
         <Script id="gtm-yukleyici" strategy="afterInteractive">
-          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+          {`if(!window.__aeaUygulama){(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
 var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';
 j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${o.gtm}');`}
+})(window,document,'script','dataLayer','${o.gtm}');}`}
         </Script>
       ) : (
         <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${o.ga4}`}
-            strategy="afterInteractive"
-          />
+          {/* gtag.js elle ekleniyor (Script src değil): uygulamada hiç
+              indirilmesin diye yükleme bayrağa bağlı (bkz. ONYUKLEME). */}
           <Script id="gtag-yapilandirma" strategy="afterInteractive">
-            {`gtag('js', new Date());
-gtag('config', '${o.ga4}');${o.adsId ? `\ngtag('config', '${o.adsId}');` : ""}`}
+            {`if(!window.__aeaUygulama){var g=document.createElement('script');g.async=true;g.src='https://www.googletagmanager.com/gtag/js?id=${o.ga4}';document.head.appendChild(g);
+gtag('js', new Date());
+gtag('config', '${o.ga4}');${o.adsId ? `\ngtag('config', '${o.adsId}');` : ""}}`}
           </Script>
           {/*
             GA4 kimliği ve (varsa) AW dönüşüm etiketi tarayıcıya yayınlanıyor.
@@ -123,11 +128,11 @@ gtag('config', '${o.ga4}');${o.adsId ? `\ngtag('config', '${o.adsId}');` : ""}`}
             güvenle gömülüyor (G-/AW- ve [\\w-]).
           */}
           <Script id="aea-yayin" strategy="afterInteractive">
-            {`window.__aeaGa4='${o.ga4}';${
+            {`if(!window.__aeaUygulama){window.__aeaGa4='${o.ga4}';${
               o.adsId && o.adsEtiket
                 ? `window.__aeaAds={id:'${o.adsId}',etiket:'${o.adsEtiket}'};`
                 : ""
-            }`}
+            }}`}
           </Script>
         </>
       )}

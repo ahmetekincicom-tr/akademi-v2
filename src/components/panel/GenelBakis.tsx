@@ -127,8 +127,13 @@ function Izgara({ boyut, maske }: { boyut: number; maske: string }) {
   );
 }
 
-export function KurulumBandi({ adimlar }: { adimlar: Adim[] }) {
-  const liste = bantAdimlari(adimlar);
+export function KurulumBandi({ adimlar, native = false }: { adimlar: Adim[]; native?: boolean }) {
+  // Uygulamada ödeme adımı yok (BaslangicAdimlari ile aynı kural): "Ödemelerime
+  // git" IBAN'a çıkıyor, App Store 3.1.3 bunu dışarıya yönlendirme sayıyor.
+  // Geriye yalnız tamamlanmış adımlar kalırsa bant hiç çizilmiyor.
+  const gorunen = native ? adimlar.filter((a) => a.anahtar !== "odeme") : adimlar;
+  if (gorunen.every((a) => a.tamam)) return null;
+  const liste = bantAdimlari(gorunen);
   const tamam = liste.filter((a) => a.durum === "tamam").length;
   const yuzde = liste.length ? Math.round((tamam / liste.length) * 100) : 0;
 
@@ -254,16 +259,25 @@ export function AktifProgram({
   kurs,
   digerleri,
   odemeBekliyor,
+  native = false,
 }: {
   kurs: PanelCourse;
   digerleri: PanelCourse[];
   odemeBekliyor: PanelBildirimleri["odemeBekliyor"];
+  /**
+   * iOS uygulaması: henüz açılmamış ders videolarından ("hazırlanıyor",
+   * "çok yakında") ve ödemeden hiç söz edilmiyor. App Store incelemesi yer
+   * tutucu bölümleri eksik uygulama (2.1), ödeme tutarını ve ödeme sayfası
+   * bağlantısını dışarıya yönlendirme (3.1.3) sayıyor.
+   */
+  native?: boolean;
 }) {
+  const yakinda = !DERSLER_ACIK && !native;
   return (
     <div className={`${KART} flex h-full flex-col overflow-hidden sm:flex-row sm:gap-5 sm:p-[18px]`}>
       <div className="relative h-[130px] flex-none overflow-hidden bg-[repeating-linear-gradient(135deg,#EEF1F7_0_8px,#E6EAF2_8px_16px)] sm:h-auto sm:min-h-[170px] sm:w-[230px] sm:rounded-[12px]">
         {kurs.kapak && <Image src={kurs.kapak} alt="" fill sizes="(min-width: 640px) 230px, 100vw" className="object-cover" />}
-        {!DERSLER_ACIK && (
+        {yakinda && (
           <span className={`${MONO} absolute right-3 bottom-3 rounded-full bg-[#FFF4D6] px-2 py-1 tracking-[0.08em] text-[#9A6A00] sm:hidden`}>
             Videolar hazırlanıyor
           </span>
@@ -273,7 +287,7 @@ export function AktifProgram({
       <div className="flex flex-1 flex-col gap-2.5 p-4 sm:gap-3 sm:px-1 sm:py-1.5">
         <div className="flex items-center gap-2">
           <div className={`${MONO} text-[#8A92A6]`}>Aktif program</div>
-          {!DERSLER_ACIK && (
+          {yakinda && (
             <span className={`${MONO} ml-auto hidden rounded-full bg-[#FFF4D6] px-2 py-1 tracking-[0.08em] text-[#9A6A00] sm:inline`}>
               Videolar hazırlanıyor
             </span>
@@ -285,7 +299,9 @@ export function AktifProgram({
             ? kurs.sonrakiDers
               ? `Sıradaki ders: ${kurs.sonrakiDers.ad}`
               : "Bütün dersleri tamamladın; istediğin zaman tekrar izleyebilirsin."
-            : "Ders videoları hazırlanıyor; birebir eğitim takvimin bundan etkilenmiyor."}
+            : native
+              ? "Birebir eğitim oturumlarını, materyallerini ve eğitmenin paylaşımlarını buradan takip edebilirsin."
+              : "Ders videoları hazırlanıyor; birebir eğitim takvimin bundan etkilenmiyor."}
         </p>
 
         {DERSLER_ACIK && (
@@ -297,19 +313,30 @@ export function AktifProgram({
           </Link>
         )}
 
-        <dl className="mt-auto grid grid-cols-3 border-t border-[#EEF0F5] pt-3.5">
-          <Bilgi etiket="Format" deger="Birebir" />
-          <Bilgi
-            etiket="Dersler"
-            deger={DERSLER_ACIK ? `${kurs.tamamlanan}/${kurs.dersSayisi}` : "Çok yakında"}
-          />
-          <Bilgi
-            etiket="Ödeme"
-            deger={odemeBekliyor ? paraBicimi.format(odemeBekliyor.tutar) : "Bekleyen yok"}
-            renk={odemeBekliyor ? "#B4232A" : "#12825A"}
-            yol={odemeBekliyor ? "/panel/odemelerim" : undefined}
-          />
-        </dl>
+        {native ? (
+          <dl className="mt-auto grid grid-cols-2 border-t border-[#EEF0F5] pt-3.5">
+            <Bilgi etiket="Format" deger="Birebir" />
+            {DERSLER_ACIK ? (
+              <Bilgi etiket="Dersler" deger={`${kurs.tamamlanan}/${kurs.dersSayisi}`} />
+            ) : (
+              <Bilgi etiket="Takvim" deger="Oturumları gör" yol="/panel/birebir-egitim" />
+            )}
+          </dl>
+        ) : (
+          <dl className="mt-auto grid grid-cols-3 border-t border-[#EEF0F5] pt-3.5">
+            <Bilgi etiket="Format" deger="Birebir" />
+            <Bilgi
+              etiket="Dersler"
+              deger={DERSLER_ACIK ? `${kurs.tamamlanan}/${kurs.dersSayisi}` : "Çok yakında"}
+            />
+            <Bilgi
+              etiket="Ödeme"
+              deger={odemeBekliyor ? paraBicimi.format(odemeBekliyor.tutar) : "Bekleyen yok"}
+              renk={odemeBekliyor ? "#B4232A" : "#12825A"}
+              yol={odemeBekliyor ? "/panel/odemelerim" : undefined}
+            />
+          </dl>
+        )}
 
         {digerleri.length > 0 && (
           <p className="text-[12.5px] text-[#5B6478]">

@@ -6,6 +6,7 @@ import { getBaslangic } from "@/lib/baslangic";
 import { DERSLER_ACIK } from "@/lib/bolumler";
 import { getBildirimler } from "@/lib/bildirimler";
 import { panelOlcumlemeTazele } from "@/lib/meta/toplama";
+import { nativeIstekMi } from "@/lib/native-sunucu";
 
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const [profil, bildirim, courses, baslangic] = await Promise.all([
@@ -37,15 +38,17 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     yalnız programın adı. Veriler genel bakışla aynı (istek başına önbellekli).
   */
   const aktifKurs = courses.find((c) => c.yuzde < 100) ?? courses[0];
-  const adimTamam = baslangic.adimlar.filter((a) => a.tamam).length;
+  // Uygulamada ödeme adımı yok (genel bakıştaki kurulum bandıyla aynı kural).
+  const adimlar = (await nativeIstekMi()) ? baslangic.adimlar.filter((a) => a.anahtar !== "odeme") : baslangic.adimlar;
+  const adimTamam = adimlar.filter((a) => a.tamam).length;
   const program = aktifKurs
     ? {
         baslik: aktifKurs.baslik,
         ilerleme:
-          baslangic.adimlar.length > 0 && !baslangic.tamamlandi
+          adimlar.length > 0 && !baslangic.tamamlandi && adimTamam < adimlar.length
             ? {
-                etiket: `${adimTamam}/${baslangic.adimlar.length}`,
-                yuzde: Math.round((adimTamam / baslangic.adimlar.length) * 100),
+                etiket: `${adimTamam}/${adimlar.length}`,
+                yuzde: Math.round((adimTamam / adimlar.length) * 100),
               }
             : DERSLER_ACIK && aktifKurs.dersSayisi > 0
               ? { etiket: `%${aktifKurs.yuzde}`, yuzde: aktifKurs.yuzde }

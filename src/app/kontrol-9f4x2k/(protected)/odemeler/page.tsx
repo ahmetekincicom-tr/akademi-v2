@@ -84,7 +84,10 @@ export default async function OdemelerPage({ searchParams }: { searchParams: Pro
     const kurs = p.courses;
     return {
       id: p.id,
-      isim: [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—",
+      // Hesabı silinmiş kişinin ödemesi yasal saklama için duruyor, kişiden ayrılmış.
+      isim: p.user_id
+        ? [kisi?.ad, kisi?.soyad].filter(Boolean).join(" ") || kisi?.email || "—"
+        : "Silinmiş hesap",
       program: kurs?.baslik ?? "Belirtilmedi",
       tutar: Number(p.tutar),
       yontem: p.yontem ?? "",
