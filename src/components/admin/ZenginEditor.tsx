@@ -1,12 +1,14 @@
 "use client";
 
-import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import { BubbleMenu } from "@tiptap/react/menus";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
-import { TextSelection } from "@tiptap/pm/state";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { TextSelection, type EditorState } from "@tiptap/pm/state";
+import type { Editor } from "@tiptap/core";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { depoUrl } from "@/lib/depo";
 import { LinkSecici, type LinkSecim } from "@/components/admin/LinkSecici";
@@ -43,6 +45,29 @@ import { seoTabanAd, storageYolu } from "@/lib/gorsel-ad";
  */
 
 type Deger = { html: string; json: unknown };
+
+/** Editör alanının sınıfı; sabit referans (bkz. useEditor ayarları). */
+const EDITOR_OZELLIKLERI = {
+  attributes: { class: "blog-icerik min-h-[360px] px-4 py-4 outline-none" },
+};
+
+const BALON_STILI = { zIndex: 45 };
+
+/**
+ * Kalın/italik/bağlantı balonu ne zaman çıksın.
+ *
+ * Bileşen dışında tanımlı, çünkü Tiptap 3'ün BubbleMenu'sü bu fonksiyonun
+ * referansı değişince editöre bir işlem (transaction) gönderiyor. Her
+ * çizimde yeni fonksiyon verilince "işlem → yeniden çiz → yeni fonksiyon →
+ * işlem" döngüsü oluşup sayfa çöküyordu.
+ */
+function balonGosterilsinMi({ editor, state }: { editor: Editor; state: EditorState }): boolean {
+  const { selection } = state;
+  if (selection.empty) return false;
+  if (!(selection instanceof TextSelection)) return false;
+  if (editor.isActive("promptBlock") || editor.isActive("codeBlock")) return false;
+  return true;
+}
 
 function AracDugmesi({
   aktif,
@@ -158,10 +183,26 @@ export function ZenginEditor({
       ? (baslangicJson as object)
       : baslangicHtml || "";
 
-  const editor = useEditor({
-    immediatelyRender: false,
-    extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3, 4] } }),
+  /*
+    Uzantılar ve editör ayarları SABİT referans. Tiptap 3 her çizimde
+    ayarları karşılaştırıp farklıysa editöre yeniden uyguluyor; her çizimde
+    yeni nesne üretmek gereksiz yeniden yapılandırma demek.
+  */
+  const extensions = useMemo(
+    () => [
+      /*
+        Tiptap 3'ün StarterKit'i Link, Underline ve TrailingNode'u da
+        içeriyor. Link aşağıda kendi ayarlarıyla ayrıca ekleniyor (ikisi
+        birden "aynı ad" uyarısı verir); Underline ve TrailingNode sürüm 2'de
+        yoktu: biri yazıya yayın tarafında desteklenmeyen <u> ekler, öteki
+        belgenin sonuna boş paragraf koyup kaydedilen HTML'i değiştirirdi.
+      */
+      StarterKit.configure({
+        heading: { levels: [2, 3, 4] },
+        link: false,
+        underline: false,
+        trailingNode: false,
+      }),
       Link.configure({
         openOnClick: false,
         autolink: true,
@@ -180,10 +221,22 @@ export function ZenginEditor({
       // mevcut dosya seçiciyi tetikliyor (aynı yükleme akışı).
       SlashKomut.configure({ onGorsel: gorselAc, onButon: () => setButonLinkAcik(true) }),
     ],
+    [gorselAc],
+  );
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    /*
+      Tiptap 3'te varsayılan false: editör her tuş vuruşunda React'i yeniden
+      çizmiyor. Araç çubuğundaki "aktif" durumlar (Kalın, Başlık, bağlam
+      düğmeleri) editor.isActive() ile render sırasında okunuyor; kapalı
+      kalırsa imleç taşındığında düğmeler güncellenmezdi. Sürüm 2'deki
+      davranış korunuyor.
+    */
+    shouldRerenderOnTransaction: true,
+    extensions,
     content: gecerliDoc,
-    editorProps: {
-      attributes: { class: "blog-icerik min-h-[360px] px-4 py-4 outline-none" },
-    },
+    editorProps: EDITOR_OZELLIKLERI,
     onCreate: ({ editor }) => onHazir?.(editor.getHTML()),
     onUpdate: ({ editor }) => onDegisim({ html: editor.getHTML(), json: editor.getJSON() }),
   });
@@ -315,7 +368,7 @@ export function ZenginEditor({
       geriYukle.json && typeof geriYukle.json === "object" && (geriYukle.json as { type?: string }).type
         ? (geriYukle.json as object)
         : geriYukle.html || "";
-    editor.commands.setContent(ic, true);
+    editor.commands.setContent(ic, { emitUpdate: true });
   }, [editor, geriYukle]);
 
   if (!editor) {
@@ -521,21 +574,15 @@ export function ZenginEditor({
         açıyor. Görsel/blok node seçimlerinde ve prompt/kod bloğunda gizli.
 
         Sarmalayıcı div şart: tiptap menünün kendi div'ini buradan söküp
-        tippy'ye taşıyor. Doğrudan kardeş olsaydı, üstte koşullu açılan bir
+        başka bir yere taşıyor. Doğrudan kardeş olsaydı, üstte koşullu açılan bir
         kutu (görsel paneli, yükleme durumu) React'te o sökülmüş div'in önüne
         eklenmeye çalışıp "insertBefore" hatasıyla editörü kilitliyordu.
       */}
       <div>
       <BubbleMenu
         editor={editor}
-        tippyOptions={{ duration: 120, zIndex: 45 }}
-        shouldShow={({ editor, state }) => {
-          const { selection } = state;
-          if (selection.empty) return false;
-          if (!(selection instanceof TextSelection)) return false;
-          if (editor.isActive("promptBlock") || editor.isActive("codeBlock")) return false;
-          return true;
-        }}
+        style={BALON_STILI}
+        shouldShow={balonGosterilsinMi}
       >
         <div className="flex items-center gap-1 rounded-[10px] border border-ink/12 bg-white p-1 shadow-[0_10px_28px_rgba(10,13,24,0.16)]">
           <button
