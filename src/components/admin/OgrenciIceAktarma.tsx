@@ -181,8 +181,11 @@ export function OgrenciIceAktarma() {
         </h1>
         <p className="mt-2 max-w-[660px] text-[15px] leading-[1.6] text-[#5C6273]">
           Excel (.xlsx) veya CSV dosyasından toplu öğrenci kaydı oluşturur. Hesaplar şifresiz açılır ve
-          kimseye e-posta gitmez; öğrenci hazır olduğunda &quot;şifremi unuttum&quot; ile kendi şifresini
-          belirler.
+          kimseye e-posta gitmez. Hazır olduğunda{" "}
+          <Link href="/kontrol-9f4x2k/ogrenciler/davet" className="font-semibold text-brand underline-offset-2 hover:underline">
+            Hesap daveti
+          </Link>{" "}
+          ekranından seçtiğin kişilere davet gönderirsin; kişi şifresini belirleyip giriş yapar.
         </p>
       </div>
 

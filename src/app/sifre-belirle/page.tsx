@@ -14,7 +14,8 @@ export const dynamic = "force-dynamic";
  * Nedenini de anlamıyor — bağlantının süresi dolmuş olabilir, hiç tıklamamış
  * olabilir. Onun yerine baştan başlatıyoruz.
  */
-export default async function SifreBelirlePage() {
+export default async function SifreBelirlePage({ searchParams }: { searchParams: Promise<{ davet?: string }> }) {
+  const { davet } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -24,7 +25,7 @@ export default async function SifreBelirlePage() {
 
   return (
     <AuthShell>
-      <SifreBelirleFormu />
+      <SifreBelirleFormu davet={davet === "1"} />
     </AuthShell>
   );
 }
