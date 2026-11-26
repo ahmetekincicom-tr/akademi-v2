@@ -34,7 +34,8 @@ export type OdemeSatir = {
   /** Ödeyen dışındaki katılımcılar. */
   katilimcilar: { id: string; ad: string }[];
   /** Ödemeyi yapanın kullanıcı kimliği; katılımcı listesinden elenmesi için. */
-  odeyenId: string;
+  /** Ödeyenin hesabı silindiyse boş. */
+  odeyenId: string | null;
 };
 
 export type SecimOgesi = { id: string; ad: string };
