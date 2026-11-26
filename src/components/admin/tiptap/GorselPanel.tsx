@@ -1,6 +1,7 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
+import { NodeSelection } from "@tiptap/pm/state";
 import { boyutMetni } from "@/lib/gorsel-optimize";
 
 /**
@@ -11,8 +12,30 @@ import { boyutMetni } from "@/lib/gorsel-optimize";
  * bilinçli olarak AYRI: alt `<img alt>`'a (erişilebilirlik/görsel arama),
  * caption `<figcaption>`'a (okuyucuya görünür açıklama) gidiyor; biri
  * diğerinden otomatik üretilmiyor.
+ *
+ * Yer değiştirme düğmeleri sürükle-bırakın yedeği: görseli bir üst/alt bloğun
+ * öbür yanına taşıyor (dokunmatikte ve uzun yazıda sürüklemek zor).
  */
-export function GorselPanel({ editor }: { editor: Editor }) {
+
+/** Seçili görseli komşu bloğun öbür yanına taşır; taşındıysa true. */
+export function gorselTasi(editor: Editor, yon: -1 | 1): boolean {
+  const { state, view } = editor;
+  const sec = state.selection;
+  if (!(sec instanceof NodeSelection) || sec.node.type.name !== "blogGorsel") return false;
+  const ust = sec.$from.parent;
+  const hedef = sec.$from.index() + yon;
+  if (hedef < 0 || hedef >= ust.childCount) return false;
+  const komsu = ust.child(hedef);
+  // Silince komşu (aşağı taşımada) görselin eski yerine kayıyor.
+  const yeniYer = yon === -1 ? sec.from - komsu.nodeSize : sec.from + komsu.nodeSize;
+  const tr = state.tr.delete(sec.from, sec.to).insert(yeniYer, sec.node);
+  tr.setSelection(NodeSelection.create(tr.doc, yeniYer));
+  view.dispatch(tr.scrollIntoView());
+  view.focus();
+  return true;
+}
+
+export function GorselPanel({ editor, onDegistir }: { editor: Editor; onDegistir?: () => void }) {
   if (!editor.isActive("blogGorsel")) return null;
 
   const a = editor.getAttributes("blogGorsel") as {
@@ -31,6 +54,12 @@ export function GorselPanel({ editor }: { editor: Editor }) {
   const guncelle = (yama: Record<string, unknown>) =>
     editor.chain().focus(undefined, { scrollIntoView: false }).updateAttributes("blogGorsel", yama).run();
 
+  const sec = editor.state.selection;
+  const sira = sec instanceof NodeSelection ? sec.$from.index() : -1;
+  const ustSayi = sec instanceof NodeSelection ? sec.$from.parent.childCount : 0;
+  const dugme =
+    "inline-flex min-h-11 items-center justify-center rounded-[8px] border border-ink/14 bg-white px-3 text-[13px] font-medium text-ink transition hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-40";
+
   const altBos = !a.decorative && !(a.alt ?? "").trim();
   const format = a.mimeType?.split("/")[1]?.toUpperCase() ?? (a.src?.split(".").pop()?.toUpperCase() || "—");
   const dosyaAdi = a.src ? a.src.split("/").pop() ?? "" : "";
@@ -45,7 +74,28 @@ export function GorselPanel({ editor }: { editor: Editor }) {
         </span>
       </div>
 
-      <div className="mt-2 grid gap-3 sm:grid-cols-2">
+      <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Görseli düzenle">
+        <button type="button" className={dugme} disabled={sira <= 0} onClick={() => gorselTasi(editor, -1)}>
+          ↑ Yukarı taşı
+        </button>
+        <button type="button" className={dugme} disabled={sira < 0 || sira >= ustSayi - 1} onClick={() => gorselTasi(editor, 1)}>
+          ↓ Aşağı taşı
+        </button>
+        {onDegistir && (
+          <button type="button" className={dugme} onClick={onDegistir}>
+            Görseli değiştir
+          </button>
+        )}
+        <button
+          type="button"
+          className={`${dugme} hover:!border-[#c0392b] hover:!text-[#c0392b]`}
+          onClick={() => editor.chain().focus().deleteSelection().run()}
+        >
+          Görseli kaldır
+        </button>
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {/* Alt metin */}
         <label className="flex flex-col gap-1">
           <span className="text-[12.5px] font-medium text-ink">Alt metin</span>

@@ -13,6 +13,7 @@ import { GoogleIleDevam } from "@/components/auth/GoogleIleDevam";
 import { SadeceWeb } from "@/components/panel/SadeceWeb";
 import { GOOGLE_GIRIS_ACIK } from "@/lib/bolumler";
 import { createClient } from "@/lib/supabase/client";
+import { useNativeUygulama } from "@/lib/native";
 import { Icon } from "@/components/Icon";
 import { VARSAYILAN_ULKE, e164, telefonGecerliMi } from "@/lib/telefon";
 import { ALAN, ALAN_HATASI, ALT_BASLIK, BAGLANTI, BASLIK, BIRINCIL, ETIKET, IKINCIL, YARDIM } from "@/components/auth/stil";
@@ -20,8 +21,15 @@ import { ALAN, ALAN_HATASI, ALT_BASLIK, BAGLANTI, BASLIK, BIRINCIL, ETIKET, IKIN
 /** handleSubmit'in telefon mesajı; alanın yanında gösterilsin diye adlı. */
 const TELEFON_HATASI = "Telefon numaranı kontrol eder misin?";
 
-export function KayitFormu() {
+export function KayitFormu({ telefonZorunlu = true }: { telefonZorunlu?: boolean }) {
   const router = useRouter();
+  /*
+    Uygulama içinde telefon isteğe bağlı (App Store 5.1.1(v)). Sunucu tarayıcı
+    kimliğinden söylüyor; istemcideki Capacitor işareti de yedek: ikisinden
+    biri uygulama diyorsa zorunlu değil.
+  */
+  const native = useNativeUygulama();
+  const zorunlu = telefonZorunlu && !native;
   const [ad, setAd] = useState("");
   const [soyad, setSoyad] = useState("");
   const [email, setEmail] = useState("");
@@ -34,7 +42,9 @@ export function KayitFormu() {
   const [hata, setHata] = useState<string | null>(null);
   const [gonderildi, setGonderildi] = useState(false);
 
-  const telefonTamam = telefonGecerliMi(ulkeKodu, telefon);
+  const telefonBos = telefon.trim() === "";
+  // Boş bırakılabiliyorsa yalnızca yazılan numara denetleniyor.
+  const telefonTamam = telefonGecerliMi(ulkeKodu, telefon) || (!zorunlu && telefonBos);
 
   // Sunum: kimlikler (label/aria-describedby) ve telefon hatasının genel
   // kutu yerine alanın yanında gösterilmesi.
@@ -67,7 +77,8 @@ export function KayitFormu() {
         data: {
           ad,
           soyad,
-          telefon: e164(ulkeKodu, telefon),
+          // Boşsa hiç gönderilmiyor; tetikleyici boş değeri zaten null yazıyor.
+          ...(telefonBos ? {} : { telefon: e164(ulkeKodu, telefon) }),
           sozlesme_onayi: true,
           ileti_izni: iletiIzni,
         },
@@ -205,6 +216,7 @@ export function KayitFormu() {
               hataId={telefonHatasi ? telefonHataId : undefined}
               gecersiz={telefonHatasi}
               yardimGizli
+              istegeBagli={!zorunlu}
             />
             {telefonHatasi && (
               <p id={telefonHataId} role="alert" className={ALAN_HATASI}>
