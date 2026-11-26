@@ -131,6 +131,11 @@ export function egitimTanitimCumlesi(kurs: { heroAciklama: string; aciklama: str
 export type Course = {
   id: string;
   slug: string;
+  /**
+   * Panelden son kaydedilme zamanı (courses.updated_at). Site haritasındaki
+   * lastmod bundan geliyor; okunmadığı yerde (testler, sabit veri) yok.
+   */
+  guncelleme?: string | null;
   /** Kapak görselinin tam adresi; yüklenmemişse null. */
   kapak: string | null;
   etiket: string;
@@ -323,11 +328,12 @@ export function basligiIkiSatir(baslik: string): { ilk: string; kalan: string } 
 }
 
 const COURSE_SELECT =
-  "id, slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, kapak_gorsel, content, modules(sira, baslik, meta, lessons(sira, baslik, sure))";
+  "id, slug, baslik, baslik_vurgu, aciklama, hero_aciklama, sure, kapak_gorsel, updated_at, content, modules(sira, baslik, meta, lessons(sira, baslik, sure))";
 
 type CourseRow = {
   id: string;
   slug: string;
+  updated_at?: string | null;
   kapak_gorsel: string | null;
   baslik: string;
   baslik_vurgu: string;
@@ -381,6 +387,7 @@ function mapCourse(row: CourseRow): Course {
 
   return {
     id: row.id,
+    guncelleme: row.updated_at ?? null,
     slug: row.slug,
     kapak: kapakUrl(row.kapak_gorsel),
     etiket: row.content.etiket,
