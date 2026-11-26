@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { YONLENDIRMELER } from "./src/lib/tasima";
+import { ACIK_KOVALAR } from "./src/lib/depo";
 
 /**
  * Güvenlik başlıkları.
@@ -49,6 +50,42 @@ const GUVENLIK_BASLIKLARI = [
  * Örnek: https://wp.ahmetekinciakademi.com
  */
 const WORDPRESS_KAYNAK = process.env.WORDPRESS_KAYNAK?.replace(/\/$/, "");
+
+/**
+ * Supabase'in herkese açık nesne kökü; /dosya rewrite'ı buraya gidiyor.
+ * Tanımlı değilse rewrite kurulmuyor ve istek route handler'a düşüyor.
+ */
+const DEPO_KOKU = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, "")}/storage/v1/object/public`
+  : null;
+
+/*
+  /dosya → Supabase, FONKSİYON ÇALIŞTIRMADAN.
+
+  Önceden her görsel isteği bir sunucu fonksiyonu açıp dosyayı Supabase'ten
+  çekiyor ve akıtıyordu. Ölçüldü: sitenin en çok işlemci harcayan ucu buydu
+  (bir haftada ~4.100 çağrı, fonksiyon işlemci süresinin ~%17'si). Dosyanın
+  kendisine dokunan hiçbir iş yok; iş yalnızca adresi gizlemek.
+
+  Dış rewrite aynı işi Vercel'in kenar sunucusunda yapıyor: tarayıcı yine
+  bizim adresimizi görüyor, Supabase adresi yine istemciye ulaşmıyor, ama
+  arada fonksiyon yok. Yanıt da CDN'de önbelleğe alınıyor (headers() içindeki
+  x-vercel-enable-rewrite-caching ve CDN-Cache-Control).
+
+  Kova başına ayrı kural: beyaz liste burada da geçerli. "/dosya/:kova/..."
+  diye tek kural yazılsaydı adrese özel bir kovanın adını yazan, onu bu
+  uçtan okumaya çalışabilirdi (Supabase özel kovayı public uçtan zaten
+  vermiyor, ama ikinci bir kilit bedava).
+
+  Listede olmayan kova route handler'a düşüyor ve orada 404 alıyor.
+*/
+const DOSYA_KURALLARI = DEPO_KOKU
+  ? ACIK_KOVALAR.map((kova) => ({
+      source: `/dosya/${kova}/:yol+`,
+      destination: `${DEPO_KOKU}/${kova}/:yol+`,
+    }))
+  : [];
+
 
 const nextConfig: NextConfig = {
   /*
@@ -148,7 +185,7 @@ const nextConfig: NextConfig = {
     korunacak); o güne kadar bu fallback geçici köprü.
   */
   async rewrites() {
-    if (!WORDPRESS_KAYNAK) return { beforeFiles: [], afterFiles: [], fallback: [] };
+    if (!WORDPRESS_KAYNAK) return { beforeFiles: DOSYA_KURALLARI, afterFiles: [], fallback: [] };
     return {
       /*
         Elementor / UiCore tema düzenleyicisinin ÖNİZLEMESİ.
@@ -172,7 +209,8 @@ const nextConfig: NextConfig = {
         adreslerinde böyle bir parametre bulunmuyor, arama motorları da
         eklemiyor.
       */
-      beforeFiles: WORDPRESS_KAYNAK
+      // /dosya kuralları WordPress tanımlı olsun olmasın kuruluyor.
+      beforeFiles: [...DOSYA_KURALLARI, ...(WORDPRESS_KAYNAK
         ? [
             /*
               Kök ve alt sayfalar ayrı: tek kuralla yazınca kökte "//" ya da
@@ -190,7 +228,7 @@ const nextConfig: NextConfig = {
               destination: `${WORDPRESS_KAYNAK}/:yol+/`,
             },
           ]
-        : [],
+        : [])],
       afterFiles: [],
       fallback: [
         /*
@@ -240,6 +278,18 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'",
           },
+          /*
+            Dış rewrite yanıtı CDN'de tutulsun. Proje Nisan 2026'dan önce
+            açıldığı için Vercel dış rewrite'ları varsayılan olarak
+            önbelleğe almıyor; bu başlık o davranışı açıyor.
+
+            Bir yıl güvenli: yüklemede dosya adının başına zaman damgası
+            konuyor, aynı adres başka bir içerikle bir daha kullanılmıyor.
+            Tarayıcı tarafı (Cache-Control) Supabase'in kendi başlığıyla
+            kalıyor.
+          */
+          { key: "x-vercel-enable-rewrite-caching", value: "1" },
+          { key: "CDN-Cache-Control", value: "max-age=31536000" },
         ],
       },
     ];

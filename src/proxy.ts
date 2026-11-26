@@ -314,7 +314,22 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
 
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
+  /*
+    Oturum çerezi yoksa Supabase istemcisi hiç kurulmuyor.
+
+    Ziyaretçilerin çoğu (ve bütün botlar) giriş yapmamış; onlar için
+    getUser() zaten "oturum yok" dönüyordu, ama istemciyi kurmanın ve
+    çözümlemenin bedeli her sayfa isteğinde ödeniyordu. Ölçüldü: ara katman
+    işlemci süresinin en büyük kalemi ana sayfaya gelen oturumsuz istekler.
+
+    Çerez varsa (giriş yapmış ya da giriş akışının ortasında: PKCE çerezi de
+    "sb-" ile başlıyor) eskisi gibi tazeleniyor.
+  */
+  const oturumCerezi = request.cookies.getAll().some((c) => c.name.startsWith("sb-"));
+
+  const supabase = !oturumCerezi
+    ? null
+    : createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -335,9 +350,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
 
   // Refreshes the session cookie on every request so server components
   // always see a valid (non-expired) session.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
 
   const { pathname } = request.nextUrl;
 
@@ -453,5 +466,20 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  /*
+    Ara katmanın hiç çalışmadığı yollar.
+
+    Görseller ve Next'in kendi dosyaları baştan beri dışarıdaydı. Sonradan
+    eklenenler ölçümle seçildi (ara katman işlemci süresinde ilk sıralarda):
+
+      api/gorevler  — pg_cron'un 5 dakikada bir çağırdığı görevler. Gizli
+                      anahtarla doğrulanıyor; oturum, yönlendirme ya da
+                      noindex işi yok.
+      robots.txt, sitemap.xml, llms*.txt, manifest, sw.js — makine okuyan
+                      dosyalar; ara katmanda bunlar için yapılan tek şey
+                      onları "açık" listesinde bulup geçirmekti.
+  */
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|api/gorevler/|robots\\.txt|sitemap\\.xml|llms\\.txt|llms-full\\.txt|manifest\\.webmanifest|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };
