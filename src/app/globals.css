@@ -549,6 +549,11 @@ body:has(.wa-gelen-kutusu) .whatsapp-yuzen {
   display: none;
 }
 
+/* Hesap daveti ekranı: alttaki sabit "davet gönder" çubuğunun üstüne biniyordu. */
+body:has(.davet-ekrani) .whatsapp-yuzen {
+  display: none;
+}
+
 /* iOS uygulamasında WhatsApp düğmesi yok: öğrenci eğitmene uygulama içinden
    (soru-cevap, destek) ulaşıyor; düğme uygulamadan dışarı çıkarıyordu. */
 [data-native="1"] .whatsapp-yuzen {

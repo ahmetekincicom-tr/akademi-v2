@@ -8,7 +8,12 @@ import { UyariKutusu } from "@/components/auth/UyariKutusu";
 import { createClient } from "@/lib/supabase/client";
 import { ALAN_HATASI, ALT_BASLIK, BASLIK, BIRINCIL, YARDIM } from "@/components/auth/stil";
 
-export function SifreBelirleFormu() {
+/**
+ * davet: hesap davetiyle gelen kişi (içe aktarılmış, ilk kez şifre
+ * belirliyor). Başlık ve bitiş ekranı ona göre: "yeni şifre" değil "şifreni
+ * belirle", bitişte de uygulamayı indirme bağlantısı.
+ */
+export function SifreBelirleFormu({ davet = false }: { davet?: boolean }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -36,12 +41,12 @@ export function SifreBelirleFormu() {
       setHata(authHatasi(error, "sifre-degistir"));
       return;
     }
-    router.push("/sifre-belirle/tamam");
+    router.push(davet ? "/sifre-belirle/tamam/?davet=1" : "/sifre-belirle/tamam");
   };
 
   return (
     <div>
-      <h1 className={BASLIK}>Yeni şifre belirle</h1>
+      <h1 className={BASLIK}>{davet ? "Şifreni belirle" : "Yeni şifre belirle"}</h1>
       <p className={ALT_BASLIK}>Şifren en az 8 karakter olmalı; bir büyük harf ve bir rakam içermesi önerilir.</p>
 
       <form

@@ -267,13 +267,22 @@ export function OgrenciYonetimi({
             <span className="font-mono text-[12px] text-[#8B97AA]">{ogrenciler.length} kayıt</span>
           </div>
         </div>
-        <Link
-          href="/kontrol-9f4x2k/ogrenciler/ice-aktar"
-          className="inline-flex h-[38px] flex-none items-center gap-2 rounded-[9px] border border-ink/13 bg-white px-4 text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand"
-        >
-          <Icon name="upload" size={15} />
-          Excel/CSV içe aktar
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/kontrol-9f4x2k/ogrenciler/ice-aktar"
+            className="inline-flex h-11 flex-none items-center gap-2 rounded-[9px] border border-ink/13 bg-white px-4 text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand"
+          >
+            <Icon name="upload" size={15} />
+            Excel/CSV içe aktar
+          </Link>
+          <Link
+            href="/kontrol-9f4x2k/ogrenciler/davet"
+            className="inline-flex h-11 flex-none items-center gap-2 rounded-[9px] border border-ink/13 bg-white px-4 text-[13px] font-semibold text-ink transition hover:border-brand hover:text-brand"
+          >
+            <Icon name="mail" size={15} />
+            Hesap daveti gönder
+          </Link>
+        </div>
       </div>
 
       {/*

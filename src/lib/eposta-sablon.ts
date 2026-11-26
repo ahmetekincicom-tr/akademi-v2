@@ -87,7 +87,7 @@ function satirlarHtml(satirlar: BildirimSatiri[]): string {
       (s, i) => `
       <tr>
         <td style="padding:${i === 0 ? "0" : "9px"} 14px 0 0;font:500 13px/1.5 ${YAZI};color:${GRI};white-space:nowrap;vertical-align:top">${kacir(s.etiket)}</td>
-        <td style="padding:${i === 0 ? "0" : "9px"} 0 0 0;font:600 14px/1.5 ${YAZI};color:${INK};vertical-align:top">${kacir(s.deger)}</td>
+        <td style="padding:${i === 0 ? "0" : "9px"} 0 0 0;font:600 14px/1.5 ${YAZI};color:${INK};vertical-align:top;overflow-wrap:anywhere;word-break:break-word">${kacir(s.deger)}</td>
       </tr>`,
     )
     .join("");
@@ -173,8 +173,10 @@ function html(i: BildirimIcerigi): string {
   return `<!doctype html>
 <html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${kacir(i.baslik)}</title></head>
 <body style="margin:0;padding:0;background:${PAPER};-webkit-font-smoothing:antialiased">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${PAPER};padding:28px 14px">
-    <tr><td align="center">
+  <!-- Kenar boşluğu tabloda değil hücrede: tablodaki dolgu %100 genişliğe
+       eklenip dar ekranda maili yana kaydırıyordu. -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${PAPER}">
+    <tr><td align="center" style="padding:28px 14px">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background:#FFFFFF;border:1px solid ${KENAR};border-radius:16px;overflow:hidden">
 
         <tr><td style="background:${INK};padding:18px 26px">${baslikSeridi(i)}</td></tr>

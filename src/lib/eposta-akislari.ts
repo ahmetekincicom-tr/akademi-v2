@@ -37,6 +37,13 @@ export const AKISLAR = [
     kime: "katilimci",
   },
   {
+    anahtar: "hesap-daveti",
+    baslik: "Hesap daveti",
+    aciklama:
+      "İçe aktarılan ve hiç giriş yapmamış kişiye, yönetim panelinden davet gönderildiğinde gider; şifresini belirleyip hesabını etkinleştirir.",
+    kime: "katilimci",
+  },
+  {
     anahtar: "odeme-acildi",
     baslik: "Ödeme tanımlandı",
     aciklama: "Panelden bir ödeme kaydı açıldığında katılımcıya haber verir.",

@@ -74,6 +74,7 @@ const pageTitles: Record<string, string> = {
   "/kontrol-9f4x2k": "Genel bakış",
   "/kontrol-9f4x2k/ogrenciler": "Öğrenciler",
   "/kontrol-9f4x2k/ogrenciler/ice-aktar": "Öğrenci içe aktarma",
+  "/kontrol-9f4x2k/ogrenciler/davet": "Hesap daveti",
   "/kontrol-9f4x2k/egitimler": "Eğitimler",
   "/kontrol-9f4x2k/blog": "Blog",
   "/kontrol-9f4x2k/odemeler": "Ödemeler",

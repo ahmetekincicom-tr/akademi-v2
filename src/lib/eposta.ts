@@ -333,6 +333,12 @@ export async function ogrenciBildirimi(girdi: {
    * kuruyor; bu yalnızca özelleştirilmiş metinler için.
    */
   degiskenler?: Record<string, string | null | undefined>;
+  /**
+   * Düğmenin altına kopyalanabilir düz bağlantı. Düğmeye tıklamanın tek yol
+   * olduğu mailler (hesap daveti) için: bazı kurumsal filtreler düğmeyi
+   * sıyırıyor.
+   */
+  yedekBaglanti?: boolean;
 }): Promise<{ gonderildi: boolean; hata?: string }> {
   if (!girdi.alici) return { gonderildi: false, hata: "Alıcı adresi yok." };
 
@@ -365,6 +371,7 @@ export async function ogrenciBildirimi(girdi: {
       kok && girdi.yol
         ? { etiket: metinler.eylemEtiketi ?? "Panele git", adres: `${kok}${girdi.yol}` }
         : undefined,
+    yedekBaglanti: girdi.yedekBaglanti,
   });
 
   return epostaGonder({ akis: girdi.akis, konu: metinler.konu, metin, html, alici: girdi.alici });
