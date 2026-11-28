@@ -29,9 +29,13 @@ const SOLMA_SURESI = 260;
  *
  * Ölçüler vh cinsinden, tesadüfen değil: iOS kare açılış görselini ekranı
  * kaplayacak şekilde ölçeklerken dikey kenarı taban alıyor. Kare yüksekliğinin
- * %25,6'sı olan logo, ekran yüksekliğinin de %25,6'sına denk geliyor. Aynı
- * oranı burada kullanınca logo her telefonda aynı yerde ve aynı boyutta
+ * %12,5'i olan simge, ekran yüksekliğinin de %12,5'ine denk geliyor. Aynı
+ * oranı burada kullanınca simge her telefonda aynı yerde ve aynı boyutta
  * kalıyor.
+ *
+ * Görsel, uygulama simgesinin yuvarlak köşeli hâli; native açılış görseli
+ * (ios/App/App/Assets.xcassets/Splash.imageset) aynı kaynaktan aynı oranla
+ * üretiliyor. Biri değişirse öteki de değişmeli, yoksa devirde simge zıplar.
  */
 export function AcilisEkrani() {
   const native = useNativeUygulama();
@@ -89,12 +93,12 @@ export function AcilisEkrani() {
       {/* eslint-disable-next-line @next/next/no-img-element -- Açılışta ek bir
           işlem katmanı istemiyoruz: görsel olduğu gibi, anında boyanmalı. */}
       <img
-        src="/acilis-logo.svg"
+        src="/acilis-logo.webp"
         alt=""
         onLoad={hazir}
         onError={hazir}
         className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ top: "50%", height: "25.6vh", width: "25.6vh" }}
+        style={{ top: "50%", height: "12.5vh", width: "12.5vh" }}
       />
     </div>
   );
